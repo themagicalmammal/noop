@@ -3171,57 +3171,6 @@ fun SettingsScreen(
                     color = Palette.textTertiary,
                 )
 
-                // --- #103/queue-11a: Blood Oxygen strap estimate — OFF by default. ---
-                // Device-conditional (see IntelligenceEngine.nightlySpo2CeilingMean / .nightlySpo2CandidateMean):
-                // a WHOOP 5/MG strap computes a nightly SpO₂ candidate at byte @82 of the V18Aux stream
-                // (cross-device evidence split, corr +0.99 on 8 nights but 2 nights moved opposite); an
-                // Oura ring's own decoded 0x6F SpO2 runs high on the wire, so this instead surfaces the
-                // ceiling@100 mean (each sample capped at 100% before averaging), which has matched the
-                // Oura app's own displayed value on every full night checked so far (n=3, 2026-08-22).
-                // Neither is a validated calibration; both ship behind this one default-off toggle,
-                // labelled "estimate" in the UI, never fed into a downstream gate (recovery, illness).
-                // Mirrors the iOS toggle.
-                SettingsRowDivider()
-                var spo2CandidateDisplay by remember { mutableStateOf(NoopPrefs.spo2CandidateDisplay(context)) }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Text(
-                        "Blood Oxygen: strap estimate",
-                        style = NoopType.subhead,
-                        color = Palette.textPrimary,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Switch(
-                        checked = spo2CandidateDisplay,
-                        onCheckedChange = {
-                            spo2CandidateDisplay = it
-                            vm.setSpo2CandidateDisplay(it)
-                        },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
-                    )
-                }
-                Text(
-                    "Surfaces your strap's nightly SpO₂ estimate in the Blood Oxygen tile when no " +
-                        "calibrated percentage is available: a WHOOP 5.0/MG's @82 candidate byte, or an " +
-                        "Oura ring's own reading with each sample capped at 100% first (the ring's raw " +
-                        "reading runs high otherwise). This is an UNVERIFIED strap-computed value — the " +
-                        "WHOOP candidate matched a reference device closely on most nights but moved " +
-                        "opposite on some; the Oura one has only been checked against a few nights so " +
-                        "far. Shown as an 'estimate' and never fed into recovery or illness scoring. Off " +
-                        "by default.",
-                    style = NoopType.caption,
-                    color = Palette.textTertiary,
-                )
-
                 // --- #463: Personal daytime-stress baseline — OFF by default. ---
                 // Scores today's intraday stress timeline against a PERSONAL cross-day rolling baseline
                 // (Oura-style) instead of the day's own calm hours. The validated r≈0.6 HR-only margin is
@@ -3317,6 +3266,19 @@ fun SettingsScreen(
             blurb = "Optional, on-device wellness signals. Each is off by default, computed only on this phone from data you already have, and never a medical diagnosis.",
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                // Keep the unverified strap estimate opt-in, but place its control with the other
+                // on-device wellness signals so it is reachable without opening Advanced.
+                var spo2CandidateDisplay by remember { mutableStateOf(NoopPrefs.spo2CandidateDisplay(context)) }
+                SettingsToggleRow(
+                    title = "Blood Oxygen: strap estimate",
+                    detail = "Shows an unverified WHOOP 5.0/MG or Oura SpO₂ estimate in the Blood Oxygen tile when no calibrated reading is available. Off by default; never used for recovery or illness scoring.",
+                    checked = spo2CandidateDisplay,
+                    onCheckedChange = {
+                        spo2CandidateDisplay = it
+                        vm.setSpo2CandidateDisplay(it)
+                    },
+                )
+                SettingsRowDivider()
                 SettingsToggleRow(
                     title = uiString(R.string.l10n_settings_screen_illness_heads_up_97e10035),
                     detail = "Watches your resting heart rate, HRV and skin temperature for the pattern that often shows up before you feel unwell, and surfaces a gentle heads-up. An observation about your own numbers, not a diagnosis.",
