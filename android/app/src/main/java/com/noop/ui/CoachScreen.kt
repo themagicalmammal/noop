@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -99,6 +101,10 @@ fun CoachScreen(vm: CoachViewModel = viewModel(), onOpenSettings: () -> Unit = {
     ScreenScaffold(
         title = uiString(R.string.l10n_coach_screen_coach_b32c9ad3),
         subtitle = "Ask about your recovery, strain, sleep and HRV, grounded in your own numbers.",
+        // The conversation owns its own scroll region: the header, provider strip and composer
+        // stay pinned while only the transcript scrolls (iOS parity — the transcript is the
+        // screen's sole scroll region there too).
+        scrollable = false,
         // LIQUID SKY BACKDROP (the pilot pattern — LiquidScreenSky.kt): the liquid sky sits behind the
         // header and the cards float over the flat canvas below. Reuses the shared LiquidScreenSky() slot
         // verbatim; when the day-cycle background is off, the scaffold paints the plain surface instead.
@@ -134,7 +140,14 @@ private fun CoachSetup(vm: CoachViewModel) {
     var keyInput by remember { mutableStateOf("") }
     val isCustom = provider == AiProvider.CUSTOM
 
-    NoopCard(padding = 20.dp) {
+    // The setup card is the screen's sole scroll region now that the scaffold itself is fixed:
+    // it wraps its content and only scrolls when it outgrows the viewport.
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
+    ) {
+        NoopCard(padding = 20.dp) {
         Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(Icons.Filled.Lock, contentDescription = null, tint = Palette.accent, modifier = Modifier.size(18.dp))
@@ -260,6 +273,7 @@ private fun CoachSetup(vm: CoachViewModel) {
 
             // Privacy note, one line, always visible.
             PrivacyNote(local = isCustom)
+        }
         }
     }
 }
@@ -412,38 +426,49 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
             )
         }
 
-        // Transcript or empty-state with suggested prompts.
-        if (messages.isEmpty()) {
-            // ChatGPT-style empty state: a centred greeting on the plain canvas, with the
-            // suggested prompts below it — no card chrome.
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(top = 72.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Text(
-                    uiString(R.string.l10n_coach_screen_coach_b32c9ad3),
-                    style = NoopType.title1,
-                    color = Palette.textPrimary,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    uiString(R.string.l10n_coach_screen_ask_anything_about_your_recent_recovery_e6c287ca),
-                    style = NoopType.subhead, color = Palette.textSecondary,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(Modifier.height(8.dp))
-                SuggestedPrompts(prompts = suggestions, onPick = { input = it })
-            }
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                messages.forEach { msg -> ChatBubble(msg, vm) }
-                if (sending) ThinkingBubble()
-                // K7: follow-up suggestion chips after each assistant reply (when not mid-send).
-                if (!sending && messages.isNotEmpty() && messages.last().role == "assistant") {
-                    SuggestedPrompts(prompts = vm.followUpSuggestions, onPick = { input = it })
+        // Transcript or empty-state with suggested prompts. The Box claims every remaining
+        // point between the pinned provider strip above and the fixed composer below, so the
+        // header, strip and composer stay put and only this region scrolls when it overflows.
+        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            if (messages.isEmpty()) {
+                // ChatGPT-style empty state: a centred greeting on the plain canvas, with the
+                // suggested prompts below it — no card chrome.
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(top = 72.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Text(
+                        uiString(R.string.l10n_coach_screen_coach_b32c9ad3),
+                        style = NoopType.title1,
+                        color = Palette.textPrimary,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                    )
+                    Text(
+                        uiString(R.string.l10n_coach_screen_ask_anything_about_your_recent_recovery_e6c287ca),
+                        style = NoopType.subhead, color = Palette.textSecondary,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    SuggestedPrompts(prompts = suggestions, onPick = { input = it })
+                }
+            } else {
+                // The message list is the sole scroll region of the chat screen: it wraps its
+                // content and scrolls only past the Box's height cap.
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                ) {
+                    messages.forEach { msg -> ChatBubble(msg, vm) }
+                    if (sending) ThinkingBubble()
+                    // K7: follow-up suggestion chips after each assistant reply (when not mid-send).
+                    if (!sending && messages.isNotEmpty() && messages.last().role == "assistant") {
+                        SuggestedPrompts(prompts = vm.followUpSuggestions, onPick = { input = it })
+                    }
                 }
             }
         }

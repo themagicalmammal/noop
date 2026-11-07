@@ -1302,6 +1302,11 @@ fun ScreenScaffold(
     // the screen on plain canvas (the "sky doesn't reach the lower cards" report on the vital
     // details). Defaulted, so every existing caller is byte-for-byte untouched.
     fullBleedBackground: Boolean = false,
+    // When false the scaffold does NOT provide the scroll root: the header stays pinned and the
+    // content fills the rest of the screen, so a screen can own its own scroll region (the Coach
+    // transcript) with a fixed header and footer around it. Mirrors the iOS ScreenScaffold
+    // `scrollable` slot. Defaulted, so every existing caller keeps the scrolling layout.
+    scrollable: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     // The scrolling content column. Its OUTER modifier differs by path: with no topBackground it is the
@@ -1315,10 +1320,15 @@ fun ScreenScaffold(
         } else {
             Modifier.fillMaxWidth()
         }
+    // Non-scrolling mode (Coach) swaps the scroll for a full-height column: the screen then
+    // owns the scroll regions inside it — header pinned, transcript scrolling, composer docked.
+    val scrollState = rememberScrollState()
+    val scrollModifier: Modifier =
+        if (scrollable) Modifier.verticalScroll(scrollState) else Modifier.fillMaxHeight()
     val column: @Composable () -> Unit = {
         Column(
             modifier = columnModifier
-                .verticalScroll(rememberScrollState())
+                .then(scrollModifier)
                 // #1836: the bar's height is added to the CONTENT's bottom padding, not to the screen's
                 // layout. That distinction is the whole overlay: the screen reaches the bottom edge so its
                 // backdrop paints behind and around the glass, while the scrolling content still stops

@@ -60,6 +60,9 @@ struct CoachView: View {
     var body: some View {
         ScreenScaffold(title: "Coach",
                        subtitle: "Ask about your charge, effort, rest and workouts, grounded in your own numbers.",
+                       // The conversation owns its own scroll region: the header, provider strip and
+                       // composer stay fixed while only the transcript scrolls.
+                       scrollable: false,
                        // Liquid finish: the same full-bleed day-of-sky backdrop Today + the other liquid
                        // tabs carry, so Coach sits in one atmosphere. Static + non-interactive; the frosted
                        // message/setup cards below sit on the opaque canvas and stay legible.
@@ -197,6 +200,9 @@ struct CoachView: View {
     // MARK: - Setup (no key yet)
 
     private var setupCard: some View {
+        // The setup form is the screen's sole scroll region in the fixed scaffold: it fills the
+        // area under the header and only scrolls when it outgrows the viewport.
+        ScrollView {
         StrandCard(padding: 20) {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 10) {
@@ -309,6 +315,10 @@ struct CoachView: View {
                 privacyFootnote
             }
         }
+        }
+        #if os(iOS)
+        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        #endif
     }
 
     /// Model selector: a Picker over `coach.availableModels` with a free-text "Custom…" path and a
@@ -476,7 +486,8 @@ struct CoachView: View {
     #endif
 
     /// The transcript scroller, flat on the canvas so the conversation reads as a page rather
-    /// than a card; bounded so long chats scroll inside the screen instead of pushing the composer off.
+    /// than a card. The screen's sole scroll region: it fills whatever height sits between the
+    /// pinned header and the pinned composer, so a long chat scrolls inside the screen.
     private var transcriptScroller: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -501,7 +512,7 @@ struct CoachView: View {
             #if os(iOS)
             .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
             #endif
-            .frame(minHeight: 220, maxHeight: 460)
+            .frame(maxHeight: .infinity)
             .onChangeCompat(of: coach.messages.count) { _ in
                 scrollToEnd(proxy)
             }
@@ -534,7 +545,7 @@ struct CoachView: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, minHeight: 180, alignment: .center)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 
     @ViewBuilder

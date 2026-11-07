@@ -17,6 +17,12 @@ struct ScreenScaffold<Content: View, Trailing: View>: View {
     /// 800+ day imported history (#345). Defaults to `false` so every existing caller keeps
     /// the eager `VStack` and its identical layout/scroll behaviour.
     var lazy: Bool = false
+    /// When `false` the scaffold does not provide a scroll root: the header stays pinned at the top
+    /// and `content` fills the rest of the screen, so a screen can own its own scroll region (the
+    /// Coach transcript) with a fixed header and composer around it. The padding, width cap,
+    /// backdrop and floating-bar clearance match the scrolling path; only the scroll view is
+    /// absent. Defaults to `true` so every existing caller keeps the scrolling layout.
+    var scrollable: Bool = true
     /// Optional full-bleed view drawn behind the scroll content at the TOP of the screen (e.g. Today's
     /// day-cycle scene). Defaults to nil so other screens stay on the flat canvas; nil renders nothing.
     var topBackground: AnyView? = nil
@@ -39,6 +45,16 @@ struct ScreenScaffold<Content: View, Trailing: View>: View {
     @Environment(\.scrollToTopSignal) private var scrollToTopSignal
 
     var body: some View {
+        if scrollable {
+            scrollableScreen
+        } else {
+            fixedScreen
+        }
+    }
+
+    /// The default path: header + content in one `ScrollView`, extracted unchanged so the
+    /// fixed-layout mode below cannot alter a single point of the previous layout.
+    private var scrollableScreen: some View {
         ScrollViewReader { proxy in
         ScrollView {
             // Scroll-to-top anchor (#198 follow-up): a zero-height marker pinned above the content so an
@@ -96,6 +112,41 @@ struct ScreenScaffold<Content: View, Trailing: View>: View {
         }
     }
 
+    /// The non-scrolling twin of `scrollableScreen` for screens that own their own scroll region
+    /// (the Coach transcript): the header is pinned at the top and `content` fills the rest of the
+    /// screen, so a flexible middle can scroll while the header and footer stay put. The padding,
+    /// width cap, backdrop and floating-bar clearance match the scrolling path exactly; what is
+    /// deliberately absent is the scroll anchor, `.refreshable` and the tab re-tap hook, which all
+    /// need a scroll view to act on.
+    private var fixedScreen: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            if title != nil || subtitle != nil { header }
+            content()
+        }
+        #if os(iOS)
+        .padding(.horizontal, NoopMetrics.screenHPadding)
+        .padding(.top, 24)
+        // The tab bar floats over the content, so the last row must clear it exactly as the
+        // scrolling path reserves `tabBarClearance`.
+        .padding(.bottom, NoopMetrics.tabBarClearance)
+        .frame(maxWidth: hSizeClass == .regular ? 700 : .infinity,
+               alignment: hSizeClass == .regular ? .center : .leading)
+        #else
+        .padding(16)
+        #endif
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(alignment: .top) {
+            ZStack(alignment: .top) {
+                StrandPalette.surfaceBase
+                topBackground
+            }
+            .ignoresSafeArea()
+        }
+        #if os(macOS)
+        .toolbarBackground(.hidden, for: .windowToolbar)
+        #endif
+    }
+
     /// The header + content column. `lazy` swaps the eager `VStack` for a `LazyVStack` so a long
     /// trailing `ForEach` (Intelligence "ALL") builds cards on demand instead of all at once. The
     /// alignment/spacing/header are identical in both branches, so the non-lazy path is byte-for-byte
@@ -136,10 +187,11 @@ extension ScreenScaffold where Trailing == EmptyView {
     /// Convenience init for the common case with no header trailing element — keeps every existing
     /// call site (which never passed `trailing`) source-compatible.
     init(title: LocalizedStringKey?, subtitle: LocalizedStringKey? = nil,
-         onRefresh: (() async -> Void)? = nil, lazy: Bool = false, topBackground: AnyView? = nil,
-         @ViewBuilder content: @escaping () -> Content) {
+         onRefresh: (() async -> Void)? = nil, lazy: Bool = false, scrollable: Bool = true,
+         topBackground: AnyView? = nil, @ViewBuilder content: @escaping () -> Content) {
         self.init(title: title, subtitle: subtitle, onRefresh: onRefresh, lazy: lazy,
-                  topBackground: topBackground, trailing: { EmptyView() }, content: content)
+                  scrollable: scrollable, topBackground: topBackground,
+                  trailing: { EmptyView() }, content: content)
     }
 }
 
