@@ -295,16 +295,8 @@ fun SectionHeader(
     Column(
         modifier = modifier.fillMaxWidth(),
     ) {
-        if (overline != null || trailing != null) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top,
-            ) {
-                if (overline != null) Overline(overline, modifier = Modifier.weight(1f))
-                if (trailing != null) {
-                    Text(trailing, style = NoopType.footnote, color = Palette.textSecondary)
-                }
-            }
+        if (trailing != null) {
+            Text(trailing, style = NoopType.footnote, color = Palette.textSecondary)
         }
         Text(title, style = NoopType.title2, color = Palette.textPrimary)
     }
