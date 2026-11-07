@@ -143,12 +143,10 @@ fun UpdatesInboxScreen(
                 ) {
                     Icon(
                         Icons.Outlined.DeleteSweep,
-                        contentDescription = null,
+                        contentDescription = uiString(R.string.l10n_updates_inbox_screen_clear_all_c043160a),
                         tint = Palette.textSecondary,
                         modifier = Modifier.size(Metrics.iconSmall),
                     )
-                    Spacer(Modifier.width(6.dp))
-                    Text(uiString(R.string.l10n_updates_inbox_screen_clear_all_c043160a), style = NoopType.subhead, color = Palette.textSecondary)
                 }
                 Spacer(Modifier.weight(1f))
                 Button(
@@ -363,12 +361,10 @@ private fun UpdateRow(
                     TextButton(onClick = onRestore) {
                         Icon(
                             Icons.AutoMirrored.Outlined.Undo,
-                            contentDescription = null,
+                            contentDescription = uiString(R.string.l10n_updates_inbox_screen_restore_to_today_77c7c8e5),
                             tint = Palette.accent,
                             modifier = Modifier.size(Metrics.iconSmall),
                         )
-                        Spacer(Modifier.width(6.dp))
-                        Text(uiString(R.string.l10n_updates_inbox_screen_restore_to_today_77c7c8e5), style = NoopType.subhead, color = Palette.accent)
                     }
                 }
             }

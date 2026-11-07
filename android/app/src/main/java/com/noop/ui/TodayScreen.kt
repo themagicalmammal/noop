@@ -5464,9 +5464,11 @@ private fun TodayLayoutEditorDialog(
                     onClick = onEditAdded,
                     colors = ButtonDefaults.textButtonColors(contentColor = Palette.accent),
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(Metrics.iconSmall))
-                    Spacer(Modifier.width(Metrics.space6))
-                    Text(stringResource(R.string.today_customize_edit_added_cards), style = NoopType.body)
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = stringResource(R.string.today_customize_edit_added_cards),
+                        modifier = Modifier.size(Metrics.iconSmall),
+                    )
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {

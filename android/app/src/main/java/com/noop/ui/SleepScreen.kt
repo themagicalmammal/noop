@@ -609,15 +609,13 @@ fun SleepScreen(
         // #sleep-layout: the "Arrange" affordance (the same Tune entry Today uses) opens the
         // reorder / show-hide sheet, pinned top-right in the heading.
         trailing = {
-            TextButton(
-                onClick = { showSleepArrange = true },
-                colors = ButtonDefaults.textButtonColors(contentColor = Palette.textTertiary),
-            ) {
-                Icon(Icons.Filled.Tune, contentDescription = stringResource(R.string.sleep_customize_title), modifier = Modifier.size(Metrics.iconSmall))
-                Spacer(Modifier.width(Metrics.space4))
-                // Concise verb on the affordance (the full "Customize Sleep" title is the icon's
-                // a11y label + the sheet header); reuses Today's generic "Customize" action string.
-                Text(stringResource(R.string.today_customize_action), style = NoopType.footnote)
+            IconButton(onClick = { showSleepArrange = true }) {
+                Icon(
+                    Icons.Filled.Tune,
+                    contentDescription = stringResource(R.string.sleep_customize_title),
+                    modifier = Modifier.size(Metrics.iconSmall),
+                    tint = Palette.textTertiary,
+                )
             }
         },
         // LIQUID SKY BACKDROP (the pilot pattern — LiquidScreenSky.kt): the static time-of-day liquid sky
