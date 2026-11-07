@@ -475,73 +475,85 @@ struct CoachView: View {
     }
     #endif
 
-    private var transcript: some View {
-        StrandCard(padding: 16) {
-            if coach.messages.isEmpty {
-                emptyTranscript
-            } else {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        // Lazy so off-screen bubbles aren't all resident/laid-out at once; with the
-                        // `maxStoredMessages` cap the transcript is already bounded, this keeps render cost flat.
-                        LazyVStack(alignment: .leading, spacing: 12) {
-                            ForEach(coach.messages) { message in
-                                bubble(message).id(message.id)
-                            }
-                            if coach.sending {
-                                typingIndicator.id("typing")
-                            }
-                        }
-                        .padding(.vertical, 2)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+    /// The transcript scroller, flat on the canvas so the conversation reads as a page rather
+    /// than a card; bounded so long chats scroll inside the screen instead of pushing the composer off.
+    private var transcriptScroller: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                // Lazy so off-screen bubbles aren't all resident/laid-out at once; with the
+                // `maxStoredMessages` cap the transcript is already bounded, this keeps render cost flat.
+                LazyVStack(alignment: .leading, spacing: 12) {
+                    ForEach(coach.messages) { message in
+                        bubble(message).id(message.id)
                     }
-                    // #697 parity: this screen builds its OWN ScrollView rather than going through
-                    // ScreenScaffold, so it never inherited the scaffold's horizontal-bounce suppression and
-                    // could still rubber-band left-right on a purely vertical scroll. Same modifier, same
-                    // guard. `.basedOnSize` permits horizontal bounce only when content genuinely overflows
-                    // the width, so nothing that is meant to scroll sideways is affected. (#1532 follow-up)
-                    #if os(iOS)
-                    .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
-                    #endif
-                    .frame(minHeight: 220, maxHeight: 460)
-                    .onChangeCompat(of: coach.messages.count) { _ in
-                        scrollToEnd(proxy)
-                    }
-                    .onChangeCompat(of: coach.sending) { _ in
-                        scrollToEnd(proxy)
+                    if coach.sending {
+                        typingIndicator.id("typing")
                     }
                 }
+                .padding(.vertical, 2)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            // #697 parity: this screen builds its OWN ScrollView rather than going through
+            // ScreenScaffold, so it never inherited the scaffold's horizontal-bounce suppression and
+            // could still rubber-band left-right on a purely vertical scroll. Same modifier, same
+            // guard. `.basedOnSize` permits horizontal bounce only when content genuinely overflows
+            // the width, so nothing that is meant to scroll sideways is affected. (#1532 follow-up)
+            #if os(iOS)
+            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+            #endif
+            .frame(minHeight: 220, maxHeight: 460)
+            .onChangeCompat(of: coach.messages.count) { _ in
+                scrollToEnd(proxy)
+            }
+            .onChangeCompat(of: coach.sending) { _ in
+                scrollToEnd(proxy)
             }
         }
     }
 
+    /// The transcript column: the centred greeting while the conversation is empty, otherwise the scroller.
+    @ViewBuilder
+    private var transcript: some View {
+        if coach.messages.isEmpty {
+            emptyTranscript
+        } else {
+            transcriptScroller
+        }
+    }
+
+    /// ChatGPT-style empty state: a centred greeting on the plain canvas; the suggestion chips
+    /// below it (in the shared layout) are the entry point.
     private var emptyTranscript: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Ask your first question")
-                .font(StrandFont.headline)
+        VStack(spacing: 8) {
+            Text("Coach")
+                .font(StrandFont.title1)
                 .foregroundStyle(StrandPalette.textPrimary)
             Text("Coach reads a summary of your last two weeks plus 30-day averages and recent workouts, then answers in plain language. Try a suggestion below.")
                 .font(StrandFont.subhead)
                 .foregroundStyle(StrandPalette.textSecondary)
+                .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 180, alignment: .center)
     }
 
     @ViewBuilder
     private func bubble(_ message: ChatMessage) -> some View {
         switch message.role {
         case .user:
+            // ChatGPT-style user turn: a right-aligned grey pill on the plain canvas.
             HStack {
                 Spacer(minLength: 48)
                 Text(message.text)
                     .font(StrandFont.body)
-                    .foregroundStyle(StrandPalette.surfaceBase)
+                    .foregroundStyle(StrandPalette.textPrimary)
                     .textSelection(.enabled)
                     .multilineTextAlignment(.leading)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 10)
-                    .background(StrandPalette.accent, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .background(StrandPalette.surfaceOverlay, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .strokeBorder(StrandPalette.hairline, lineWidth: 1))
                     .frame(maxWidth: 520, alignment: .trailing)
             }
             .accessibilityElement(children: .combine)
@@ -549,17 +561,18 @@ struct CoachView: View {
         case .assistant:
             // LLM replies arrive as Markdown (bold, lists, headings, tables),             // rendered with the chat-bubble-sized Strand theme. User bubbles stay
             // verbatim `Text` so typed `*`/`#` never turn into surprise formatting.
-            // The reply sits on a frosted Charge-tinted surface, a card, not a flat box.
+            // ChatGPT-style: plain markdown on the canvas beside a small sparkle — no card chrome.
             // K8: context menu (long-press / right-click) with Copy, Share, and Save actions.
-            HStack {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(StrandPalette.accent)
+                    .padding(.top, 3)
+                    .accessibilityHidden(true)
                 Markdown(message.text)
                     .markdownTheme(.strand)
                     .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 11)
-                    .frostedCardSurface(tint: StrandPalette.chargeColor, cornerRadius: 16)
-                    .frame(maxWidth: 560, alignment: .leading)
                     // K8: Copy / Share / Save context menu on assistant replies.
                     .contextMenu {
                         Button {
@@ -581,25 +594,26 @@ struct CoachView: View {
                             Label("Save to Journal", systemImage: "square.and.pencil")
                         }
                     }
-                Spacer(minLength: 48)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Coach said: \(message.text)")
         }
     }
 
+    /// The thinking row: a sparkle beside the spinner, flat on the canvas like the assistant turns.
     private var typingIndicator: some View {
         HStack(spacing: 8) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(StrandPalette.accent)
+                .accessibilityHidden(true)
             ProgressView().controlSize(.small).tint(StrandPalette.accent)
             Text("Coach is thinking…")
                 .font(StrandFont.subhead)
                 .foregroundStyle(StrandPalette.textSecondary)
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 11)
-        .frostedCardSurface(tint: StrandPalette.chargeColor, cornerRadius: 16)
-        .frame(maxWidth: 320, alignment: .leading)
         .accessibilityLabel("Coach is thinking")
     }
 
@@ -765,9 +779,6 @@ struct CoachView: View {
                 .focused($composerFocused)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 9)
-                .background(StrandPalette.surfaceInset, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(composerFocused ? StrandPalette.focusRing : StrandPalette.hairline, lineWidth: 1))
                 .onSubmit { send(draft) }
                 .accessibilityLabel("Question")
 
@@ -776,33 +787,36 @@ struct CoachView: View {
             micButton
             #endif
 
-            // Docked icon-only send affordance: a crisp accent-filled square sized to the
-            // composer row (not the full 48pt control height), so it routes through the same
-            // token fill/label colours as the button system without overpowering the field.
+            // Docked icon-only send affordance: a filled circle in the ChatGPT composer idiom.
             Button {
                 send(draft)
             } label: {
                 Group {
                     if coach.sending {
-                        ProgressView().controlSize(.small).tint(StrandPalette.goldDeepText)
+                        ProgressView().controlSize(.small).tint(StrandPalette.accent)
                     } else {
                         Image(systemName: "arrow.up")
                             .font(.system(size: 15, weight: .semibold))
                     }
                 }
-                .frame(width: 44, height: 38)
-                .foregroundStyle(StrandPalette.goldDeepText)
-                .background(StrandPalette.accent,
-                            in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .frame(width: 44, height: 44)
+                .foregroundStyle(sendButtonEnabled ? StrandPalette.surfaceBase : StrandPalette.textTertiary)
+                .background(sendButtonEnabled ? StrandPalette.accent : StrandPalette.surfaceInset, in: Circle())
+                .overlay(Circle().strokeBorder(sendButtonEnabled ? .clear : StrandPalette.hairline, lineWidth: 1))
             }
             .buttonStyle(.plain)
-            .disabled(coach.sending || draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .disabled(!sendButtonEnabled)
             .accessibilityLabel("Send")
         }
         .padding(8)
-        .background(NoopPanelSurface(cornerRadius: 16))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous)
+        .background(NoopPanelSurface(cornerRadius: 24))
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous)
             .strokeBorder(StrandPalette.hairline, lineWidth: 1))
+    }
+
+    /// Whether the send button is actionable: a non-blank draft and no in-flight reply.
+    private var sendButtonEnabled: Bool {
+        !coach.sending && !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     // MARK: - K4: Voice input (iOS only)
@@ -826,11 +840,9 @@ struct CoachView: View {
                         .foregroundStyle(canUseVoice ? StrandPalette.textSecondary : StrandPalette.textTertiary)
                 }
             }
-            .frame(width: 36, height: 38)
-            .background(StrandPalette.surfaceInset,
-                        in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .strokeBorder(StrandPalette.hairline, lineWidth: 1))
+            .frame(width: 44, height: 44)
+            .background(micButtonBackground, in: Circle())
+            .overlay(Circle().strokeBorder(micButtonBorder, lineWidth: 1))
         }
         .buttonStyle(.plain)
         .disabled(!micButtonEnabled)
@@ -850,6 +862,14 @@ struct CoachView: View {
     private var canUseVoice: Bool { voiceInput.canUseVoice }
     private var micButtonEnabled: Bool {
         !coach.sending && (canUseVoice || voiceInput.authorization == .notDetermined)
+    }
+
+    /// The mic circle stays quiet until it is recording, when it glows critical.
+    private var micButtonBackground: Color {
+        voiceInput.isRecording ? StrandPalette.statusCritical.opacity(0.15) : .clear
+    }
+    private var micButtonBorder: Color {
+        voiceInput.isRecording ? StrandPalette.statusCritical : .clear
     }
 
     private func toggleVoice() {

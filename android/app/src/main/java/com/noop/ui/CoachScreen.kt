@@ -18,12 +18,12 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mic
@@ -56,6 +56,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -413,14 +414,28 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
 
         // Transcript or empty-state with suggested prompts.
         if (messages.isEmpty()) {
-            NoopCard(padding = 18.dp) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        uiString(R.string.l10n_coach_screen_ask_anything_about_your_recent_recovery_e6c287ca),
-                        style = NoopType.subhead, color = Palette.textSecondary,
-                    )
-                    SuggestedPrompts(prompts = suggestions, onPick = { input = it })
-                }
+            // ChatGPT-style empty state: a centred greeting on the plain canvas, with the
+            // suggested prompts below it — no card chrome.
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(top = 72.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    uiString(R.string.l10n_coach_screen_coach_b32c9ad3),
+                    style = NoopType.title1,
+                    color = Palette.textPrimary,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    uiString(R.string.l10n_coach_screen_ask_anything_about_your_recent_recovery_e6c287ca),
+                    style = NoopType.subhead, color = Palette.textSecondary,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(8.dp))
+                SuggestedPrompts(prompts = suggestions, onPick = { input = it })
             }
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -539,7 +554,7 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 private fun ChatBubble(msg: ChatMsg, vm: CoachViewModel) {
     val isUser = msg.role == "user"
-    val bubbleShape = RoundedCornerShape(16.dp)
+    val bubbleShape = RoundedCornerShape(20.dp)
     val context = LocalContext.current
     val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
     // K8: long-press popup menu for Copy / Share / Save on assistant replies.
@@ -547,24 +562,26 @@ private fun ChatBubble(msg: ChatMsg, vm: CoachViewModel) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
+        verticalAlignment = Alignment.Top,
     ) {
-        // User bubbles = a brand-green tinted bubble; Coach replies = a frosted Charge-tinted surface
-        // so the reply reads as a card in the green Coach world rather than a flat grey box.
+        // ChatGPT-style transcript: a user turn is a right-aligned grey pill; a Coach turn is
+        // plain markdown on the canvas beside a small sparkle — no card chrome.
         val bubbleModifier = if (isUser) {
             Modifier
                 .clip(bubbleShape)
-                .background(Palette.accentMuted)
-                .border(1.dp, Palette.accent.copy(alpha = 0.35f), bubbleShape)
+                .background(Palette.surfaceOverlay)
+                .border(1.dp, Palette.hairline, bubbleShape)
         } else {
             Modifier
-                .clip(bubbleShape)
-                .frostedCardSurface(tint = Palette.chargeColor, cornerRadius = 16.dp)
         }
         Box(
             modifier = Modifier
-                .widthIn(max = 320.dp)
+                .then(if (isUser) Modifier.fillMaxWidth(0.75f) else Modifier.fillMaxWidth())
                 .then(bubbleModifier)
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .padding(
+                    horizontal = if (isUser) 14.dp else 0.dp,
+                    vertical = if (isUser) 10.dp else 0.dp,
+                )
                 // K8: long-press assistant bubbles to show Copy / Share / Save. User bubbles
                 // are not actionable (the text is the user's own input).
                 .then(
@@ -577,16 +594,23 @@ private fun ChatBubble(msg: ChatMsg, vm: CoachViewModel) {
                     )
                 ),
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Overline(
-                    if (isUser) "You" else "Coach",
-                    color = if (isUser) Palette.accentHover else Palette.textTertiary,
-                )
-                if (isUser) {
-                    Text(msg.text, style = NoopType.body, color = Palette.textPrimary)
-                } else {
+            if (isUser) {
+                Text(msg.text, style = NoopType.body, color = Palette.textPrimary)
+            } else {
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Icon(
+                        Icons.Filled.AutoAwesome,
+                        contentDescription = null,
+                        tint = Palette.accent,
+                        modifier = Modifier.size(18.dp).padding(top = 2.dp),
+                    )
                     // Render the Coach's Markdown (bold/lists/headings) instead of raw symbols (#149).
-                    CoachMarkdown(msg.text, color = Palette.textPrimary)
+                    Column(modifier = Modifier.weight(1f)) {
+                        CoachMarkdown(msg.text, color = Palette.textPrimary)
+                    }
                 }
             }
             // K8: dropdown popup anchored to the bubble.
@@ -628,23 +652,25 @@ private fun ChatBubble(msg: ChatMsg, vm: CoachViewModel) {
 
 @Composable
 private fun ThinkingBubble() {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .frostedCardSurface(tint = Palette.chargeColor, cornerRadius = 16.dp)
-                .padding(horizontal = 14.dp, vertical = 12.dp)
-                .semantics { contentDescription = uiString(R.string.l10n_coach_screen_coach_is_thinking_aaf91547) },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(16.dp),
-                strokeWidth = 2.dp,
-                color = Palette.accent,
-            )
-            Text(uiString(R.string.l10n_coach_screen_thinking_a60d9c9c), style = NoopType.subhead, color = Palette.textSecondary)
-        }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { contentDescription = uiString(R.string.l10n_coach_screen_coach_is_thinking_aaf91547) },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Icon(
+            Icons.Filled.AutoAwesome,
+            contentDescription = null,
+            tint = Palette.accent,
+            modifier = Modifier.size(18.dp),
+        )
+        CircularProgressIndicator(
+            modifier = Modifier.size(16.dp),
+            strokeWidth = 2.dp,
+            color = Palette.accent,
+        )
+        Text(uiString(R.string.l10n_coach_screen_thinking_a60d9c9c), style = NoopType.subhead, color = Palette.textSecondary)
     }
 }
 
@@ -964,9 +990,9 @@ private fun MicComposerRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RoundedCornerShape(24.dp))
             .background(Palette.surfaceOverlay)
-            .border(1.dp, Palette.hairline, RoundedCornerShape(18.dp))
+            .border(1.dp, Palette.hairline, RoundedCornerShape(24.dp))
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -986,7 +1012,7 @@ private fun MicComposerRow(
             singleLine = false,
             maxLines = 4,
             enabled = !sending,
-            colors = coachFieldColors(),
+            colors = composerFieldColors(),
             shape = RoundedCornerShape(14.dp),
         )
 
@@ -1039,17 +1065,19 @@ private fun MicButton(
     statusMessage: String?,
     onClick: () -> Unit,
 ) {
-    val bg = if (isRecording) Palette.statusCritical.copy(alpha = 0.15f) else Palette.surfaceInset
+    val shape = RoundedCornerShape(50)
+    val bg = if (isRecording) Palette.statusCritical.copy(alpha = 0.15f) else Color.Transparent
+    val border = if (isRecording) Palette.statusCritical else Color.Transparent
     val tint = if (isRecording) Palette.statusCritical else Palette.textSecondary
     val interaction = remember { MutableInteractionSource() }
     val desc = if (isRecording) "Stop voice input" else "Voice input"
     val statusSuffix = statusMessage?.let { stringResource(R.string.coach_status_suffix, it) } ?: ""
     Box(
         modifier = Modifier
-            .size(48.dp)
-            .clip(RoundedCornerShape(14.dp))
+            .size(44.dp)
+            .clip(shape)
             .background(bg)
-            .border(1.dp, Palette.hairline, RoundedCornerShape(14.dp))
+            .border(1.dp, border, shape)
             .let {
                 if (enabled)
                     it
@@ -1073,14 +1101,15 @@ private fun MicButton(
 
 @Composable
 private fun SendButton(enabled: Boolean, sending: Boolean, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(50)
     val bg = if (enabled) Palette.accent else Palette.surfaceInset
     val interaction = remember { MutableInteractionSource() }
     Box(
         modifier = Modifier
-            .size(52.dp)
-            .clip(RoundedCornerShape(14.dp))
+            .size(44.dp)
+            .clip(shape)
             .background(bg)
-            .border(1.dp, if (enabled) Color.Transparent else Palette.hairline, RoundedCornerShape(14.dp))
+            .border(1.dp, if (enabled) Color.Transparent else Palette.hairline, shape)
             .let {
                 if (enabled)
                     it
@@ -1141,4 +1170,19 @@ internal fun coachFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedContainerColor = Palette.surfaceInset,
     unfocusedContainerColor = Palette.surfaceInset,
     disabledContainerColor = Palette.surfaceInset,
+)
+
+/** Borderless twin of [coachFieldColors] for the docked composer, whose pill supplies the chrome. */
+@Composable
+internal fun composerFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = Palette.textPrimary,
+    unfocusedTextColor = Palette.textPrimary,
+    disabledTextColor = Palette.textTertiary,
+    cursorColor = Palette.accent,
+    focusedBorderColor = Color.Transparent,
+    unfocusedBorderColor = Color.Transparent,
+    disabledBorderColor = Color.Transparent,
+    focusedContainerColor = Color.Transparent,
+    unfocusedContainerColor = Color.Transparent,
+    disabledContainerColor = Color.Transparent,
 )
