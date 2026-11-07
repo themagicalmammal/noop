@@ -703,7 +703,10 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
                     // entry was destroyed. Coach is always below this on the back stack: this
                     // destination is reachable only from the strip on that screen.
                     val coachEntry = remember(it) { nav.getBackStackEntry(Destination.Coach.route) }
-                    CoachSettingsScreen(vm = viewModel(coachEntry))
+                    CoachSettingsScreen(
+                        vm = viewModel(coachEntry),
+                        onDisconnected = { nav.popBackStack() },
+                    )
                 }
                 composable(Destination.Explore.route) { TrendsExploreScreen(viewModel) }
                 composable(Destination.Automations.route) { AutomationsScreen(viewModel) }

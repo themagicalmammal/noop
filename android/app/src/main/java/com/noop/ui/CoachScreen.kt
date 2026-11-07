@@ -26,9 +26,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
@@ -274,7 +271,7 @@ private fun CoachSetup(vm: CoachViewModel) {
             }
 
             // Privacy note, one line, always visible.
-            PrivacyNote(local = isCustom)
+            CoachPrivacyNote(local = isCustom)
         }
         }
     }
@@ -288,7 +285,7 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
     val messages by vm.messages.collectAsStateWithLifecycle()
     val sending by vm.sending.collectAsStateWithLifecycle()
     val error by vm.error.collectAsStateWithLifecycle()
-    // Also controls the editor's rejection hint when the wearer opens Update key manually.
+    // Also controls the inline editor's rejection hint, which is the only way that editor opens.
     val keyRejected by vm.keyRejected.collectAsStateWithLifecycle()
     val provider by vm.provider.collectAsStateWithLifecycle()
     val model by vm.model.collectAsStateWithLifecycle()
@@ -299,14 +296,10 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
     var input by remember { mutableStateOf(draftPrefs.getString("draft", "") ?: "") }
     // K2: confirmation gate for the destructive "Clear conversation" action.
     var showClearConfirm by remember { mutableStateOf(false) }
-    // The privacy note, which used to sit pinned under the composer, now lives behind the
-    // info button on the provider strip; this dialog shows the same one-liner.
-    var showPrivacyInfo by remember { mutableStateOf(false) }
     // The corrected key, typed into the editor the rejection message opens. Separate from `input` so a
     // half-typed question is not lost while fixing the key, and cleared on save so a secret does not
     // sit in composition state after it has been stored.
     var keyFix by remember { mutableStateOf("") }
-    var showKeyEditor by remember { mutableStateOf(false) }
 
     // Refresh the contextual chips whenever the chat empties (so a fresh sync updates them) and
     // once on first show. Best-effort; the VM falls back to the generic set on any failure.
@@ -351,13 +344,12 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 
         // Active-provider strip. The consent toggle, the coach instructions and the morning brief
-        // moved to CoachSettingsScreen (#2243) so this tab is the conversation; what stays is the one
-        // line saying which model is answering, and the way through to the rest.
+        // moved to CoachSettingsScreen (#2243) so this tab is the conversation; the key editor,
+        // the privacy note and Disconnect moved there in the same breath, so what stays is the
+        // one line saying which model is answering, and the way through to the rest.
         //
-        // Connection management stays HERE rather than moving with settings. Keeping it on the
-        // conversation screen on both platforms also keeps that one split identical,
-        // which is the part worth keeping identical. The two settings screens do NOT hold the same
-        // cards: see CoachSettingsScreen's own note on the two Gemini/signals opt-ins.
+        // The two settings screens do NOT hold the same cards: see CoachSettingsScreen's own
+        // note on the two Gemini/signals opt-ins.
         NoopCard(padding = 14.dp, tint = Palette.chargeColor) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // The pill takes the flexible space (ellipsizing a long model id); the actions
@@ -381,48 +373,6 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
                         .padding(6.dp)
                         .size(20.dp),
                 )
-                Spacer(Modifier.width(4.dp))
-                val keyInteraction = remember { MutableInteractionSource() }
-                Icon(
-                    Icons.Filled.Edit,
-                    contentDescription = uiString(R.string.coach_key_rejected_action),
-                    tint = Palette.textSecondary,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .liquidPress(keyInteraction)
-                        .clickable(interactionSource = keyInteraction, indication = null) {
-                            showKeyEditor = !showKeyEditor
-                            if (!showKeyEditor) keyFix = ""
-                        }
-                        .padding(6.dp)
-                        .size(20.dp),
-                )
-                Spacer(Modifier.width(4.dp))
-                val privacyInteraction = remember { MutableInteractionSource() }
-                Icon(
-                    Icons.Filled.Info,
-                    contentDescription = uiString(R.string.l10n_coach_screen_privacy_cf01481f),
-                    tint = Palette.textSecondary,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .liquidPress(privacyInteraction)
-                        .clickable(interactionSource = privacyInteraction, indication = null) { showPrivacyInfo = true }
-                        .padding(6.dp)
-                        .size(20.dp),
-                )
-                Spacer(Modifier.width(4.dp))
-                val disconnectInteraction = remember { MutableInteractionSource() }
-                Icon(
-                    Icons.Filled.LinkOff,
-                    contentDescription = uiString(R.string.l10n_coach_screen_disconnect_provider_fa13625c),
-                    tint = Palette.textSecondary,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .liquidPress(disconnectInteraction)
-                        .clickable(interactionSource = disconnectInteraction, indication = null) { vm.disconnect(context) }
-                        .padding(6.dp)
-                        .size(20.dp),
-                )
             }
         }
 
@@ -438,17 +388,6 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
                 },
                 dismissButton = {
                     TextButton(onClick = { showClearConfirm = false }) { Text(stringResource(R.string.l10n_coach_screen_cancel_77dfd213)) }
-                },
-            )
-        }
-
-        if (showPrivacyInfo) {
-            AlertDialog(
-                onDismissRequest = { showPrivacyInfo = false },
-                title = { Text(uiString(R.string.l10n_coach_screen_privacy_cf01481f)) },
-                text = { PrivacyNote(local = provider == AiProvider.CUSTOM) },
-                confirmButton = {
-                    TextButton(onClick = { showPrivacyInfo = false }) { Text("OK") }
                 },
             )
         }
@@ -514,7 +453,7 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
                 modifier = Modifier.semantics { contentDescription = uiString(R.string.l10n_coach_screen_coach_error_error_ad9c8c46, errorMsg) },
             )
         }
-        if (keyRejected || showKeyEditor) {
+        if (keyRejected) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (keyRejected) {
                     Text(
@@ -534,14 +473,8 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
                     onClick = {
                         vm.saveKey(context, keyFix)
                         keyFix = ""
-                        showKeyEditor = false
                     },
                 )
-                if (showKeyEditor && !keyRejected) {
-                    TextButton(onClick = { showKeyEditor = false; keyFix = "" }) {
-                        Text(stringResource(R.string.l10n_coach_screen_cancel_77dfd213))
-                    }
-                }
             }
         }
 
@@ -930,7 +863,7 @@ internal fun RefreshModelsButton(
 // MARK: - Key field
 
 @Composable
-private fun CoachKeyField(
+internal fun CoachKeyField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
@@ -1186,7 +1119,7 @@ private fun SendButton(enabled: Boolean, sending: Boolean, onClick: () -> Unit) 
 // MARK: - Privacy note (one line)
 
 @Composable
-private fun PrivacyNote(local: Boolean = false) {
+internal fun CoachPrivacyNote(local: Boolean = false) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,

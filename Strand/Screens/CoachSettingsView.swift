@@ -5,9 +5,10 @@ import StrandDesign
 /// (#2243). Holds the surfaces that used to stack above the transcript: the data-sharing consent, the
 /// two further opt-ins that depend on it, the editable coach instructions, and the morning brief.
 ///
-/// Connection management (the provider pill, Update key, Clear conversation, Disconnect) stays on
-/// `CoachView`, where both the conversation and the key editor are visible. The Kotlin twin
-/// `CoachSettingsScreen` splits on the same line.
+/// The connection itself (key update, the privacy note, Disconnect) moved HERE with the rest of the
+/// settings: a key exists by definition on this screen, which is what all three need. The provider
+/// pill stays on `CoachView` with the conversation, and the Kotlin twin `CoachSettingsScreen`
+/// splits on the same line.
 ///
 /// Presented as a sheet rather than pushed. CoachView appears in three places between the two
 /// platforms (a macOS route, an iPhone tab root whose navigation bar is hidden, and an iPhone pillar
@@ -17,6 +18,10 @@ struct CoachSettingsView: View {
     @EnvironmentObject var coach: AICoachEngine
     @Environment(\.dismiss) private var dismiss
 
+    /// The key being corrected in the connection card, kept out of the chat's `keyFix` so a
+    /// half-typed key does not sit in the conversation's view state, and cleared on save so a
+    /// secret does not outlive the card.
+    @State private var keyDraft: String = ""
     /// Morning-brief settings, read from `CoachBriefScheduler` on init exactly as `CoachView` did
     /// before the split. This screen can now be the first to render them.
     @State private var briefEnabled: Bool = CoachBriefScheduler.isEnabled
@@ -48,6 +53,7 @@ struct CoachSettingsView: View {
                                .accessibilityLabel("Close coach settings")
                        }) {
             modelBar
+            connectionBar
             consentBar
             // v5: a SECOND opt-in, only meaningful once data access is on, folds a summary of the
             // new on-device signals (your strongest patterns + Lab Book) into the coach context.
@@ -100,6 +106,52 @@ struct CoachSettingsView: View {
                 .labelsHidden()
                 .pickerStyle(.menu)
                 .accessibilityLabel("Model")
+            }
+        }
+    }
+
+    /// The connection itself: where a key is corrected, the one-line privacy note (previously a
+    /// popup on the coach header) and the route back to the setup card. A key exists by definition
+    /// on this screen, which is what all three need — the save, the local/cloud split of the note,
+    /// and the disconnect. Kotlin twin: `CoachConnectionCard`. Disconnect dismisses the sheet so
+    /// the setup card, which `isConfigured` gates on the coach screen, is what reappears.
+    private var connectionBar: some View {
+        NoopCard(padding: 14, tint: StrandPalette.chargeColor) {
+            VStack(alignment: .leading, spacing: 8) {
+                SecureField("Paste your \(coach.provider.displayName) API key", text: $keyDraft)
+                    .textFieldStyle(.plain)
+                    .font(StrandFont.body)
+                    .foregroundStyle(StrandPalette.textPrimary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 9)
+                    .background(StrandPalette.surfaceInset, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(StrandPalette.hairline, lineWidth: 1))
+                    .accessibilityLabel("API key")
+                NoopButton("Update key", systemImage: "key.fill", kind: .primary) {
+                    let trimmed = keyDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !trimmed.isEmpty else { return }
+                    coach.setKey(trimmed)
+                    keyDraft = ""
+                }
+                .disabled(keyDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                Label {
+                    Text(coach.privacyFootnoteText)
+                        .font(StrandFont.footnote)
+                        .foregroundStyle(StrandPalette.textTertiary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } icon: {
+                    Image(systemName: "lock.shield")
+                        .foregroundStyle(StrandPalette.textTertiary)
+                }
+                .accessibilityElement(children: .combine)
+                Button(role: .destructive) {
+                    coach.disconnect()
+                    keyDraft = ""
+                    dismiss()
+                } label: {
+                    Text("Disconnect")
+                }
             }
         }
     }

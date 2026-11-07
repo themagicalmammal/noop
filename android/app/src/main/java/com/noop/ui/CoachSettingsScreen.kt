@@ -1,5 +1,6 @@
 package com.noop.ui
 
+import com.noop.ai.AiProvider
 import com.noop.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,13 +35,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * Coach settings, split out of [CoachScreen] so the coach tab is the conversation and nothing else
- * (#2243). Holds the three surfaces that used to sit above the transcript: the data-sharing consent,
+ * (#2243). Holds the surfaces that used to sit above the transcript: the data-sharing consent,
  * the editable coach instructions, and the morning brief.
  *
- * Connection management (the provider pill and Disconnect) deliberately stays on [CoachScreen].
- * Disconnect is the only route back to the setup card, which is the only place a key can be typed,
- * and #2206 is the iOS version of what happens when that control is put somewhere the screen does
- * not render.
+ * Connection management (the key editor, the privacy note and Disconnect) moved HERE with the rest
+ * of the settings: a key exists by definition on this screen, which is what all three need. The
+ * provider pill stays on [CoachScreen] with the conversation, and #2206 is the iOS version of what
+ * happens when a connection control is put somewhere the screen does not render.
  *
  * The first-run setup card deliberately stays on [CoachScreen]. It is the only route to a working
  * coach, and someone who has not connected a provider arrives on the Coach tab, not here, so moving
@@ -61,8 +62,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 // it would hand this destination its own CoachViewModel rather than the conversation's, which is the
 // defect this screen shipped with: consent is held in memory and read by `send`, so a revoke made
 // against a second instance persisted to storage and still left the conversation sending on the old
-// one. AppRoot passes the Coach entry's view model.
-fun CoachSettingsScreen(vm: CoachViewModel) {
+// one. AppRoot passes the Coach entry's view model. `onDisconnected` is the same AppRoot-owned hop
+// every other screen takes (a lambda around `nav.popBackStack()`): this destination is a plain
+// composable on the stack, and reaching back for the controller from inside it is what the
+// `NavHostFragment` world does, not this codebase.
+fun CoachSettingsScreen(
+    vm: CoachViewModel,
+    onDisconnected: () -> Unit,
+) {
     val context = LocalContext.current
 
     // The brief settings are read from prefs on show, the same as the coach page did before the
@@ -78,12 +85,14 @@ fun CoachSettingsScreen(vm: CoachViewModel) {
         topBackground = screenBackdropSlot(showDayCycleBackground, skyBehindCards),
         fullBleedBackground = screenBackdropFullBleed(showDayCycleBackground, skyBehindCards),
     ) {
-        // No unconfigured branch: the strip that reaches this screen is drawn inside CoachChat, which
-        // only renders once a provider is connected, and nothing here can disconnect one (Disconnect
-        // stays on the coach page). A "not connected yet" card would be unreachable, and the Swift twin
-        // has no equivalent.
+        // No unconfigured branch: the strip that reaches this screen is drawn inside CoachChat,
+        // which only renders once a provider is connected, and disconnecting here pops back to
+        // the conversation, where the setup card reappears — the same one-screen hop the Swift
+        // sheet's dismiss takes. A "not connected yet" card would be unreachable, and the Swift
+        // twin has no equivalent.
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             CoachModelCard(vm = vm)
+            CoachConnectionCard(vm = vm, onDisconnected = onDisconnected)
             CoachConsentCard(vm = vm)
             CoachInstructions(vm = vm)
             MorningBriefCard(vm = vm)
@@ -132,6 +141,53 @@ private fun CoachModelCard(vm: CoachViewModel) {
                 selected = model,
                 onSelect = { vm.selectModel(context, it) },
             )
+        }
+    }
+}
+
+/**
+ * The connection itself: where a key is corrected, the one-line privacy note (previously a popup
+ * on the strip) and the route back to the setup card. A key exists by definition on this screen,
+ * which is what all three need — the save, the local/cloud split of the note, and the disconnect.
+ * Kotlin twin of `CoachSettingsView.connectionBar`; that sheet dismisses on disconnect, and this
+ * screen pops to the same place.
+ */
+@Composable
+private fun CoachConnectionCard(
+    vm: CoachViewModel,
+    onDisconnected: () -> Unit,
+) {
+    val context = LocalContext.current
+    val provider by vm.provider.collectAsStateWithLifecycle()
+    var keyDraft by remember { mutableStateOf("") }
+
+    NoopCard(padding = 14.dp, tint = Palette.chargeColor) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            CoachKeyField(
+                value = keyDraft,
+                onValueChange = { keyDraft = it },
+                placeholder = uiString(R.string.coach_key_rejected_placeholder, provider.displayName),
+            )
+            CoachPrimaryButton(
+                label = uiString(R.string.coach_key_rejected_action),
+                enabled = keyDraft.isNotBlank(),
+                onClick = {
+                    vm.saveKey(context, keyDraft)
+                    keyDraft = ""
+                },
+            )
+            CoachPrivacyNote(local = provider == AiProvider.CUSTOM)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                TextButton(onClick = {
+                    vm.disconnect(context)
+                    onDisconnected()
+                }) {
+                    Text(uiString(R.string.l10n_coach_screen_disconnect_ed28e068), color = Palette.statusCritical)
+                }
+            }
         }
     }
 }

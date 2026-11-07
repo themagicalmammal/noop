@@ -408,6 +408,14 @@ final class AICoachEngine: ObservableObject {
     /// usually need none). Gates the setup card vs. the live chat.
     var isConfigured: Bool { provider == .custom ? customConnected : hasKey }
 
+    /// The one-line privacy note, worded for the active provider. Shared by the setup card, the
+    /// coach header and the settings screen so the same sentence appears everywhere it is shown.
+    var privacyFootnoteText: String {
+        provider == .custom
+            ? "Coach talks only to the server URL you set. Point it at a local model (Ollama, LM Studio, llama.cpp) to keep everything on your own machine. Nothing is sent until you ask."
+            : "This is the only feature that leaves \(Platform.deviceNounPhrase). It sends a summary of your metrics to \(provider.displayName) using your own key. Nothing is sent until you ask."
+    }
+
     /// The key to send with a request: the stored key, or an empty string for the keyless Custom
     /// provider. `nil` means "not configured", the caller surfaces `.noKey`.
     private var resolvedKey: String? {
