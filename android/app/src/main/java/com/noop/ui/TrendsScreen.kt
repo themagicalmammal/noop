@@ -84,10 +84,10 @@ import kotlin.math.roundToInt
 // give it the frosted-glass edge. Mirrors the liquid Today heroCard (LiquidTodayView / TodayScreen).
 private val LIQUID_HERO_RADIUS: Dp = 26.dp
 
-// The Trends charts sit 100dp shorter than the shared chart token: the tab stacks hero + HRV +
+// The Trends charts sit 130dp shorter than the shared chart token: the tab stacks hero + HRV +
 // Resting HR + Effort + history, so the reduced height keeps the tab compact without touching
 // the token the Health / Apple Health / Stress / Rhythm screens still share.
-private val TRENDS_CHART_HEIGHT: Dp = Metrics.chartHeight - 100.dp
+private val TRENDS_CHART_HEIGHT: Dp = Metrics.chartHeight - 130.dp
 
 @Composable
 fun TrendsScreen(vm: AppViewModel) {
