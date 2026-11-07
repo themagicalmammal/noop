@@ -295,9 +295,6 @@ fun SectionHeader(
     Column(
         modifier = modifier.fillMaxWidth(),
     ) {
-        if (trailing != null) {
-            Text(trailing, style = NoopType.footnote, color = Palette.textSecondary)
-        }
         Text(title, style = NoopType.title2, color = Palette.textPrimary)
     }
 }

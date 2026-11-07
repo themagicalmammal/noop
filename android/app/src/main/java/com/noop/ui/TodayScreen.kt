@@ -789,8 +789,6 @@ fun TodayScreen(
     // The journal widget's own opt-out (default ON). Read here too so its reorderable section emits no
     // item when disabled — an always-present zero-height slot would leave a blank draggable gap. Same
     // remember-once idiom the card uses; a resume/recompose re-reads it. (#656)
-    // S4: the Synthesis card collapses to a one-liner that expands on tap (default collapsed). Mirrors iOS.
-    var synthesisExpanded by remember { mutableStateOf(false) }
     // S5: the Key Metrics grid caps at the first METRICS_COLLAPSED_CAP tiles behind a "Show all metrics"
     // expander, and the Data Sources footer collapses to a single "Synced from: ..." line. Both default
     // collapsed and are NOT persisted, so the home screen reopens compact. Mirrors iOS.
@@ -1792,19 +1790,6 @@ fun TodayScreen(
                                 showLiveSession = true
                             },
                         )
-                        // The plain-English read-out, the Charge-tinted Synthesis card. Mirrors the iOS
-                        // Synthesis InsightCard; carries the last scored day's read at the rollover (#543).
-                        TodaySection.SYNTHESIS -> Box(modifier = Modifier.fillMaxWidth().staggeredAppear(stagger)) {
-                            SynthesisHeroCard(
-                                day = displayMetric,
-                                recoveryCalibration = recoveryCalibration,
-                                carriedDay = lastScoredRecoveryDay,
-                                days = days,
-                                synthesisExpanded = synthesisExpanded,
-                                onToggleSynthesis = { synthesisExpanded = !synthesisExpanded },
-                                onOpenReadiness = { showChargeBreakdown = true },
-                            )
-                        }
                         // METRICS: header + Edit affordance (#251) + the tile grid. Previously two
                         // LazyColumn items; merged into ONE (a section must be a single keyed item for the
                         // drag), spaced by the scaffold's 12dp row gap so the rhythm is pixel-identical.
@@ -3454,184 +3439,6 @@ private fun HeroScoreVessel(
                 color = Color.White,
                 modifier = Modifier.clearAndSetSemantics {},
             )
-        }
-    }
-}
-
-/**
- * The plain-English Synthesis card, the Charge-tinted [InsightCard] read-out under the ring hero, with a
- * WHITE headline (the key iOS Design-Reset change, `statusColor: textPrimary`, not the recovery/charge
- * colour), carrying the greeting + the SOLID / CALIBRATING data-confidence pill in its top-right. Mirrors
- * the iOS Synthesis InsightCard (which moved here when the big RecoveryRing hero that owned the pill went).
- */
-@Composable
-private fun SynthesisHeroCard(
-    day: DailyMetric?,
-    recoveryCalibration: Int?,
-    carriedDay: DailyMetric? = null,
-    // S4: the day history (for the one-word readiness read), whether the Synthesis card is expanded, and the
-    // taps to toggle it / open the Charge breakdown (where the full Readiness card lives). Defaults keep old
-    // call sites compiling; the Today call site supplies them.
-    days: List<DailyMetric> = emptyList(),
-    synthesisExpanded: Boolean = true,
-    onToggleSynthesis: () -> Unit = {},
-    onOpenReadiness: () -> Unit = {},
-) {
-    // The row the synthesis reads from: today's own when it carries recovery, else the carried-over last
-    // scored day (#543) so the card mirrors the carried Charge ring instead of blanking to "No Data". When
-    // carrying, the detail line gets a "Last night · <date>" provenance so the prior read isn't passed off
-    // as today's. today's own read wins the instant tonight is scored.
-    val readDay = carriedDay ?: day
-    val recovery = readDay?.recovery
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-        // The greeting + SOLID/CALIBRATING data-confidence pill ride in their OWN header row ABOVE the
-        // card, not as a top-end overlay over it (#527). The old overlay sat over the card's "SYNTHESIS"
-        // overline + big status word and, on a narrow phone, collided with them, and squeezing the
-        // status into the leftover width force-broke a single word ("Calibrating" → "Calibrati/ng").
-        // A separate row CAN'T overlap, and the card keeps its FULL width so the status stays one line.
-        // Mirrors the iOS Synthesis header-row layout (TodayView heroSection).
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            // The greeting yields/ellipsises first; the pill keeps its full width (#527).
-            Text(
-                greetingWord(),
-                style = NoopType.subhead,
-                color = Palette.textSecondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-            Spacer(Modifier.weight(1f))
-            // S4 (#205): the one-word readiness read kept on the hero now the full Readiness card folded
-            // into the Charge-ring tap. Push / Maintain / Rest; hidden when there isn't enough history.
-            // Tapping it opens the Charge breakdown, where the full Readiness card now lives.
-            val readinessLevel = remember(days) {
-                if (days.isEmpty()) ReadinessEngine.Level.INSUFFICIENT
-                else ReadinessEngine.evaluate(days, today = logicalDayKeyNow()).level
-            }
-            readinessWord(readinessLevel)?.let { wordRes ->
-                ReadinessHeroPill(word = uiString(wordRes), level = readinessLevel, onTap = onOpenReadiness)
-            }
-            // SOLID only when TODAY's own row carries a settled recovery, a carried prior-day read is
-            // honestly still CALIBRATING for today, matching the iOS pill (keyed on displayDay.recovery).
-            val todayRecovery = day?.recovery
-            StatePill(
-                title = if (todayRecovery != null) uiString(R.string.today_score_solid)
-                else uiString(R.string.score_state_title_calibrating).sentenceCaseLabel(),
-                tone = if (todayRecovery != null) StrandTone.Accent else StrandTone.Neutral,
-            )
-        }
-        // S4: the Synthesis card collapses to a one-liner that expands on tap. The headline (the status) is
-        // the SAME in both states, only the detail body and chrome fold, never the read (#506).
-        val status = if (recoveryCalibration != null) uiString(R.string.score_state_title_calibrating)
-        else synthesisWord(recovery)
-        val detail = if (recoveryCalibration != null) {
-            // #612: if the baseline aged out silently — connected, but no new night for > staleDays — say WHY
-            // it's calibrating instead of only "learning your baseline". `stale` is always > staleDays (14).
-            val stale = Baselines.nightsSinceNewestValidNight(days.map { it.day }, days.map { it.avgHrv }, logicalDayKeyNow())
-            if (stale != null && stale > Baselines.staleDays) {
-                uiString(R.string.l10n_today_screen_no_new_nights_from_your_strap_for_stale_days_8863bcfe, stale)
-            } else {
-                // Comma (not the old em-dash) to match the Swift canonical synthesis copy VERBATIM
-                // (TodayView "Learning your baseline, N of M nights.") and the no-em-dash standing rule.
-                // #612 above covers a TOTAL drought. The common shape is the other one: nights arriving,
-                // most of them empty. Five days in with three HRV-less nights sits at "2 of 4" with no
-                // reason given, which reads as a stuck counter rather than as missing data. Name the
-                // missing nights so a wearer has something to act on instead of something to wait for.
-                // Swift twin: TodayView.calibrationDetail.
-                val cov = Baselines.recentHrvCoverage(
-                    days.map { it.day }, days.map { it.avgHrv }, logicalDayKeyNow(),
-                )
-                val base = uiString(
-                    R.string.today_synthesis_learning_baseline, recoveryCalibration, Baselines.minNightsSeed,
-                )
-                if (cov.missing > 0 && cov.observed > 0) {
-                    base + " " + uiString(R.string.today_synthesis_nights_without_hrv, cov.missing, cov.observed)
-                } else {
-                    base
-                }
-            }
-        } else if (carriedDay != null) {
-            // Carried prior-day read, summarise that day + stamp it so it isn't passed off as today's.
-            uiString(
-                R.string.today_synthesis_carried_detail,
-                synthesisDetail(carriedDay), carriedCaption(carriedDay.day).localized(),
-            )
-        } else {
-            synthesisDetail(day)
-        }
-        if (synthesisExpanded) {
-            val expandedInteraction = remember { MutableInteractionSource() }
-            Box(
-                modifier = Modifier
-                    .liquidPress(expandedInteraction)
-                    .clickable(
-                        interactionSource = expandedInteraction,
-                        indication = null,
-                        onClickLabel = uiString(R.string.today_action_collapse),
-                        onClick = onToggleSynthesis,
-                    ),
-            ) {
-                InsightCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    category = uiString(R.string.today_section_synthesis),
-                    status = status,
-                    detail = detail,
-                    // The SYNTHESIS headline reads WHITE (textPrimary), not the recovery/charge colour, the
-                    // key iOS Design-Reset change (TodayView.synthesisSection passes statusColor textPrimary).
-                    statusColor = Palette.textPrimary,
-                    // FLAT card to match iOS (no navy-bevel gradient / border): identity comes from the white
-                    // headline alone. tint = null routes to the neutral FLAT surfaceRaised + hairline path.
-                    tint = null,
-                )
-            }
-        } else {
-            // Collapsed: a one-liner with the SYNTHESIS overline, the status headline and a down-chevron.
-            val collapsedInteraction = remember { MutableInteractionSource() }
-            NoopCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .liquidPress(collapsedInteraction)
-                    .clickable(
-                        interactionSource = collapsedInteraction,
-                        indication = null,
-                        onClickLabel = uiString(R.string.today_action_expand_full_read),
-                        onClick = onToggleSynthesis,
-                    ),
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(uiString(R.string.l10n_today_screen_synthesis_876bc749), style = NoopType.overline, color = Palette.textTertiary)
-                        Text(
-                            status,
-                            style = NoopType.headline,
-                            color = Palette.textPrimary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        // While calibrating, the detail carries the progress AND, when nights are arriving
-                        // empty, the reason. Collapsed used to show only "Calibrating", which is the state
-                        // the field report was taken in: the explanation existed one tap away and the
-                        // wearer had no way to know it was there. iOS never gated this line; matching it.
-                        if (recoveryCalibration != null) {
-                            Text(
-                                detail,
-                                style = NoopType.caption,
-                                color = Palette.textSecondary,
-                            )
-                        }
-                    }
-                    Icon(
-                        Icons.Filled.KeyboardArrowDown,
-                        contentDescription = null,
-                        tint = Palette.textTertiary,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-            }
         }
     }
 }
@@ -8304,41 +8111,6 @@ private fun greetingWord(): String {
         h < 17 -> uiString(R.string.today_greeting_afternoon)
         else -> uiString(R.string.today_greeting_evening)
     }
-}
-
-@Composable
-private fun synthesisWord(score: Double?): String {
-    if (score == null) return uiString(R.string.today_no_data)
-    // #1405: these are CHARGE/recovery-level words, a different axis from the ReadinessEngine training
-    // verdict (Run down / Strained / Balanced / Primed). They must NOT share a word, or the Synthesis
-    // card ("Steady") and the Charge-breakdown Readiness card ("Primed") read as the same thing
-    // contradicting itself. So the [70,88) band is "Strong" (which also matches this card's own "Charge is
-    // strong" detail copy), leaving "Primed" exclusively to the readiness engine. Keep parity with Swift.
-    return when {
-        score < 25 -> uiString(R.string.today_synthesis_depleted)
-        score < 50 -> uiString(R.string.today_synthesis_low)
-        score < 70 -> uiString(R.string.today_synthesis_steady)
-        score < 88 -> uiString(R.string.today_synthesis_strong)
-        else -> uiString(R.string.today_synthesis_peak)
-    }
-}
-
-@Composable
-private fun synthesisDetail(d: DailyMetric?): String {
-    val rec = d?.recovery
-        ?: return uiString(R.string.today_synthesis_no_metrics)
-    val res = when {
-        rec < 50 && d.totalSleepMin == null -> R.string.today_synthesis_charge_low
-        rec < 50 && d.totalSleepMin!! / 60.0 >= 7 -> R.string.today_synthesis_charge_low_sleep_consistent
-        rec < 50 -> R.string.today_synthesis_charge_low_sleep_short
-        rec < 70 && d.totalSleepMin == null -> R.string.today_synthesis_charge_steady
-        rec < 70 && d.totalSleepMin!! / 60.0 >= 7 -> R.string.today_synthesis_charge_steady_sleep_consistent
-        rec < 70 -> R.string.today_synthesis_charge_steady_sleep_short
-        d.totalSleepMin == null -> R.string.today_synthesis_charge_strong
-        d.totalSleepMin / 60.0 >= 7 -> R.string.today_synthesis_charge_strong_sleep_consistent
-        else -> R.string.today_synthesis_charge_strong_sleep_short
-    }
-    return uiString(res)
 }
 
 private fun sleepValue(d: DailyMetric?): String {

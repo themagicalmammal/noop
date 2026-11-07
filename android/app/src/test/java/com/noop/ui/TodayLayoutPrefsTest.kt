@@ -22,29 +22,30 @@ class TodayLayoutPrefsTest {
     fun encodeDecode_roundTripsAReorderedList() {
         val reordered = listOf(
             TodaySection.HEART_RATE, TodaySection.HERO, TodaySection.YOUR_CARDS,
-            TodaySection.LIVE_SESSION, TodaySection.SYNTHESIS, TodaySection.KEY_METRICS,
+            TodaySection.LIVE_SESSION, TodaySection.KEY_METRICS,
             TodaySection.WORKOUTS, TodaySection.RECOVERY_VITALS, TodaySection.JOURNAL,
             TodaySection.MENSTRUAL_CYCLE, TodaySection.DATA_SOURCES,
             TodaySection.ADDED_CARDS,
         )
         val encoded = TodayLayoutPrefs.encode(reordered)
         assertEquals(
-            "heartRate,hero,yourCards,liveSession,synthesis,keyMetrics,workouts,recoveryVitals,journal,menstrualCycle,dataSources,addedCards",
+            "heartRate,hero,yourCards,liveSession,keyMetrics,workouts,recoveryVitals,journal,menstrualCycle,dataSources,addedCards",
             encoded,
         )
         assertEquals(reordered, TodayLayoutPrefs.decodeOrder(encoded))
     }
 
     /** The v1 upgrade path: an order saved by the FIRST cut (6 sections — no hero/liveSession, which were
-     *  pinned then) must surface the two new sections at the TOP (their default position), not teleport
-     *  them to the bottom of the user's saved order. */
+     *  pinned then; the later-removed synthesis token is dropped as unknown) must surface the two new
+     *  sections at the TOP (their default position), not teleport them to the bottom of the user's saved
+     *  order. */
     @Test
     fun decode_savedOrderFromFirstCut_insertsHeroAndSessionAtTheirDefaultPosition() {
         val firstCut = "synthesis,keyMetrics,workouts,heartRate,recoveryVitals,yourCards"
         assertEquals(
             listOf(
-                TodaySection.HERO, TodaySection.LIVE_SESSION,
-                TodaySection.SYNTHESIS, TodaySection.KEY_METRICS, TodaySection.WORKOUTS,
+                TodaySection.HERO, TodaySection.LIVE_SESSION, TodaySection.KEY_METRICS,
+                TodaySection.WORKOUTS,
                 TodaySection.HEART_RATE, TodaySection.RECOVERY_VITALS, TodaySection.YOUR_CARDS,
                 TodaySection.MENSTRUAL_CYCLE, TodaySection.JOURNAL, TodaySection.DATA_SOURCES,
                 TodaySection.ADDED_CARDS,
@@ -62,10 +63,10 @@ class TodayLayoutPrefsTest {
         assertEquals(TodaySection.entries.size, decoded.size)
         assertEquals(
             listOf(
-                // hero(0), liveSession(1), workouts(4) all precede heartRate(5) in default order, so all
+                // hero(0), liveSession(1), workouts(3) all precede heartRate(4) in default order, so all
                 // insert before the saved heartRate, in default order among themselves:
                 TodaySection.HERO, TodaySection.LIVE_SESSION, TodaySection.WORKOUTS,
-                TodaySection.HEART_RATE, TodaySection.SYNTHESIS, TodaySection.KEY_METRICS,
+                TodaySection.HEART_RATE, TodaySection.KEY_METRICS,
                 TodaySection.RECOVERY_VITALS,
                 TodaySection.YOUR_CARDS, TodaySection.MENSTRUAL_CYCLE, TodaySection.JOURNAL,
                 TodaySection.DATA_SOURCES,
@@ -82,9 +83,9 @@ class TodayLayoutPrefsTest {
         assertEquals(TodaySection.entries.size, decoded.size)
         assertEquals(
             listOf(
-                // Every missing section's default index precedes yourCards(7), so each inserts before it,
+                // Every missing section's default index precedes yourCards(6), so each inserts before it,
                 // accumulating in default order; the saved yourCards→heartRate order is preserved at the end.
-                TodaySection.HERO, TodaySection.LIVE_SESSION, TodaySection.SYNTHESIS,
+                TodaySection.HERO, TodaySection.LIVE_SESSION,
                 TodaySection.KEY_METRICS, TodaySection.WORKOUTS, TodaySection.RECOVERY_VITALS,
                 TodaySection.YOUR_CARDS, TodaySection.HEART_RATE,
                 TodaySection.MENSTRUAL_CYCLE, TodaySection.JOURNAL, TodaySection.DATA_SOURCES,
@@ -112,7 +113,7 @@ class TodayLayoutPrefsTest {
         assertEquals(
             listOf(
                 TodaySection.HEART_RATE, TodaySection.YOUR_CARDS, TodaySection.LIVE_SESSION,
-                TodaySection.SYNTHESIS, TodaySection.KEY_METRICS, TodaySection.RECOVERY_VITALS,
+                TodaySection.KEY_METRICS, TodaySection.RECOVERY_VITALS,
                 TodaySection.MENSTRUAL_CYCLE, TodaySection.JOURNAL, TodaySection.DATA_SOURCES,
                 TodaySection.ADDED_CARDS,
             ),
@@ -199,7 +200,7 @@ class TodayLayoutPrefsTest {
         // Pin the exact wire strings — they cross the .noopbak boundary and must match macOS byte-for-byte.
         assertEquals(
             listOf(
-                "hero", "liveSession", "synthesis", "keyMetrics",
+                "hero", "liveSession", "keyMetrics",
                 "workouts", "heartRate", "recoveryVitals", "yourCards", "menstrualCycle", "journal",
                 "dataSources", "addedCards",
             ),

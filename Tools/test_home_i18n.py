@@ -268,9 +268,10 @@ class HomeLocalizationTest(unittest.TestCase):
     def test_android_section_header_trailing_copy_does_not_squeeze_title(self) -> None:
         source = (ROOT / "android/app/src/main/java/com/noop/ui/Components.kt").read_text(encoding="utf-8")
         section_header = source.split("fun SectionHeader(", 1)[1].split("// MARK: - StrandTone", 1)[0]
-        self.assertIn("if (overline != null || trailing != null)", section_header)
+        # The header renders only the title; overline/trailing are still accepted as parameters but
+        # no longer drawn, so the title can never share a row with (or be squeezed by) that copy.
         self.assertIn("Text(title, style = NoopType.title2", section_header)
-        self.assertLess(section_header.index("if (trailing != null)"), section_header.index("Text(title"))
+        self.assertNotIn("Row", section_header)
 
     def test_android_today_source_counts_use_two_plural_resources(self) -> None:
         relative = "android/app/src/main/java/com/noop/ui/TodayScreen.kt"
