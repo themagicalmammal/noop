@@ -4017,9 +4017,10 @@ private fun YourCardsSection(
     }
     Box(modifier = Modifier.fillMaxWidth().staggeredAppear(2)) {
         Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-            // Header: "YOUR CARDS" overline + a right-aligned blue EDIT action (the WHOOP ✎ affordance).
+            // Header: the "Analytics" title + a right-aligned blue EDIT action (the WHOOP ✎ affordance).
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Overline(uiString(R.string.today_section_your_cards), modifier = Modifier.weight(1f))
+                Text(uiString(R.string.today_section_your_cards), style = NoopType.title2, color = Palette.textPrimary,
+                    modifier = Modifier.weight(1f))
                 TodayEditAction(
                     onClick = onCustomise,
                     contentDescription = uiString(R.string.l10n_today_screen_customise_your_cards_2428d761),

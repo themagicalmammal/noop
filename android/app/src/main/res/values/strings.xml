@@ -2317,7 +2317,7 @@
     <string name="today_section_workouts">Workouts</string>
     <string name="today_section_heart_rate">Heart Rate</string>
     <string name="today_section_recovery_vitals">Recovery Vitals</string>
-    <string name="today_section_your_cards">Your Cards</string>
+    <string name="today_section_your_cards">Analytics</string>
     <string name="today_section_menstrual_cycle">Menstrual Cycle</string>
     <string name="today_section_journal">Journal</string>
     <string name="today_section_added_cards">Added Cards</string>
