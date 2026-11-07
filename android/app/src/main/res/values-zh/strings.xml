@@ -1871,8 +1871,6 @@
     <string name="onboarding_theme_follow_system">跟随手机的浅色或深色设置。</string>
     <string name="onboarding_theme_light_description">深蓝色点缀搭配温暖的浅色背景。</string>
     <string name="onboarding_theme_dark_description">深蓝色点缀搭配深色蓝灰背景。</string>
-    <string name="onboarding_theme_material">Material You</string>
-    <string name="onboarding_theme_material_description">根据壁纸提取的颜色。</string>
     <string name="recording_chip_title_recording">录制中</string>
     <string name="recording_chip_title_last_synced">上次同步于 %1$d 分钟前</string>
     <string name="recording_chip_title_not_recording">未在录制</string>
@@ -1924,7 +1922,6 @@
     <string name="settings_appearance_detail">选择浅色、深色，或跟随系统。深色是标志性的近黑色；浅色在明亮画布上保持同样简洁的外观。</string>
     <string name="settings_theme_light">浅色</string>
     <string name="settings_theme_dark">深色</string>
-    <string name="settings_theme_material">Material You</string>
     <string name="settings_chart_default">默认</string>
     <string name="settings_chart_classic">经典</string>
     <string name="settings_trend_line">折线</string>

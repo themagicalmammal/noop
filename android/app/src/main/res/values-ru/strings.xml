@@ -1941,8 +1941,6 @@
     <string name="onboarding_theme_follow_system">Следует светлой/тёмной настройке вашего телефона.</string>
     <string name="onboarding_theme_light_description">Глубокий синий акцент на тёплой бумаге.</string>
     <string name="onboarding_theme_dark_description">Глубокий синий акцент на тёмном сине-сером полотне.</string>
-    <string name="onboarding_theme_material">Material You</string>
-    <string name="onboarding_theme_material_description">Цвета, выведенные из ваших обоев.</string>
     <string name="recording_chip_title_recording">Запись</string>
     <string name="recording_chip_title_last_synced">Синхронизировано %1$d мин назад</string>
     <string name="recording_chip_title_not_recording">Запись не идёт</string>
@@ -1993,7 +1991,6 @@
     <string name="settings_appearance_detail">Выберите светлую, тёмную тему или системную. Тёмная — фирменный почти чёрный вид; светлая сохраняет тот же чистый стиль на светлом фоне.</string>
     <string name="settings_theme_light">Светлая</string>
     <string name="settings_theme_dark">Тёмная</string>
-    <string name="settings_theme_material">Material You</string>
     <string name="settings_chart_default">По умолчанию</string>
     <string name="settings_chart_classic">Классические</string>
     <string name="settings_trend_line">Линия</string>

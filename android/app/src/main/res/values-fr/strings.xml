@@ -1967,8 +1967,6 @@
     <string name="onboarding_theme_follow_system">Le réglage clair ou sombre de votre téléphone est utilisé.</string>
     <string name="onboarding_theme_light_description">Des accents bleu profond sur un fond clair et chaleureux.</string>
     <string name="onboarding_theme_dark_description">Des accents bleu profond sur un fond bleu-gris sombre.</string>
-    <string name="onboarding_theme_material">Material You</string>
-    <string name="onboarding_theme_material_description">Des couleurs dérivées de vos fonds d’écran.</string>
     <string name="recording_chip_title_recording">Enregistrement</string>
     <string name="recording_chip_title_last_synced">Synchronisé il y a %1$d min</string>
     <string name="recording_chip_title_not_recording">Pas d\'enregistrement</string>
@@ -2021,7 +2019,6 @@
     <string name="settings_appearance_detail">Choisissez Clair, Sombre, ou suivez votre système. Sombre est le noir profond caractéristique ; Clair conserve le même look épuré sur un fond clair.</string>
     <string name="settings_theme_light">Clair</string>
     <string name="settings_theme_dark">Sombre</string>
-    <string name="settings_theme_material">Material You</string>
     <string name="settings_chart_default">Par défaut</string>
     <string name="settings_chart_classic">Classique</string>
     <string name="settings_trend_line">Courbe</string>

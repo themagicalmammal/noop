@@ -238,13 +238,12 @@ val ClassicLight = ClassicRamp(
     stressColor = Color(0xFFCFA528), stressDeep = Color(0xFF2E9E4F), stressBright = Color(0xFFCB3A2F),
 )
 
-// MARK: - Appearance preference (System / Light / Dark / Material You)
+// MARK: - Appearance preference (System / Light / Dark)
 
 enum class AppearanceMode(val storageValue: String, val label: String) {
     SYSTEM("system", "System"),
     LIGHT("light", "Light"),
-    DARK("dark", "Dark"),
-    MATERIAL("material", "Material You");
+    DARK("dark", "Dark");
 
     companion object {
         fun fromStorage(raw: String?): AppearanceMode =
