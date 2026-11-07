@@ -1448,6 +1448,10 @@ fun LazyScreenScaffold(
     // (Today's hold-to-drag section reorder needs layoutInfo + scrollBy). Defaulted, so every existing
     // caller is byte-for-byte untouched.
     listState: LazyListState = rememberLazyListState(),
+    // The bottom content inset. Defaults to 28dp (the flat-canvas screen padding) and is extended by the
+    // floating bottom bar's height, so lazy tab screens (Today / Trends / Journal / Sleep) clear the
+    // overlay bar exactly like the eager ScreenScaffold does.
+    contentBottomPadding: Dp = 28.dp,
     content: LazyListScope.() -> Unit,
 ) {
     // The header row: optional leading action, the title/subtitle, optional trailing action. Omitted
@@ -1493,7 +1497,8 @@ fun LazyScreenScaffold(
         LazyColumn(
             modifier = listModifier,
             state = listState,
-            contentPadding = PaddingValues(start = 16.dp, top = topPadding, end = 16.dp, bottom = 28.dp),
+            contentPadding = PaddingValues(start = 16.dp, top = topPadding, end = 16.dp,
+                bottom = contentBottomPadding + BottomBarStyleStore.barHeightForContent()),
             // #765: the shared inter-card spacing token by default (Today/Explore + the eager screens share
             // one uniform card rhythm); a caller may pass a tighter [rowSpacing] (the liquid Today does, for
             // the iOS-compact section rhythm).

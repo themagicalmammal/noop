@@ -84,10 +84,10 @@ import kotlin.math.roundToInt
 // give it the frosted-glass edge. Mirrors the liquid Today heroCard (LiquidTodayView / TodayScreen).
 private val LIQUID_HERO_RADIUS: Dp = 26.dp
 
-// The Trends charts sit 60dp shorter than the shared chart token: the tab stacks hero + HRV +
+// The Trends charts sit 100dp shorter than the shared chart token: the tab stacks hero + HRV +
 // Resting HR + Effort + history, so the reduced height keeps the tab compact without touching
 // the token the Health / Apple Health / Stress / Rhythm screens still share.
-private val TRENDS_CHART_HEIGHT: Dp = Metrics.chartHeight - 60.dp
+private val TRENDS_CHART_HEIGHT: Dp = Metrics.chartHeight - 100.dp
 
 @Composable
 fun TrendsScreen(vm: AppViewModel) {
@@ -287,7 +287,7 @@ fun TrendsScreen(vm: AppViewModel) {
         // load is inherently a 42-day horizon. Shows an honest "needs N more days" state until enough
         // contiguous Effort history exists. Twin of the Apple TrainingLoadCard. ---
         item {
-            TrainingLoadCard(days = days, modifier = Modifier.staggeredAppear(index = 5))
+            TrainingLoadCard(days = days, chartHeight = TRENDS_CHART_HEIGHT, modifier = Modifier.staggeredAppear(index = 5))
         }
 
         // --- Recovery history strip (stands in for the macOS YearHeatStrip) ---

@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import com.noop.R
@@ -38,7 +39,7 @@ import kotlin.math.max
  * window) and shows an honest "needs N more days" state until 14+ contiguous days exist.
  */
 @Composable
-fun TrainingLoadCard(days: List<DailyMetric>, modifier: Modifier = Modifier) {
+fun TrainingLoadCard(days: List<DailyMetric>, chartHeight: Dp = Metrics.chartHeight, modifier: Modifier = Modifier) {
     // Model straight from the training-load engine — NOT the paired evaluateWithTrainingLoad, which
     // would also run the full Readiness synthesis this card never uses. DailyMetric.strain is the load.
     val loads = days.map { TrainingLoadEngine.DailyLoad(it.day, it.strain) }
@@ -81,7 +82,7 @@ fun TrainingLoadCard(days: List<DailyMetric>, modifier: Modifier = Modifier) {
                     LegendDot(Palette.gold, stringResource(R.string.trends_tl_legend_ctl))
                     LegendDot(Palette.metricAmber, stringResource(R.string.trends_tl_legend_atl))
                 }
-                TwoLineChart(result.points, Modifier.fillMaxWidth().height(Metrics.chartHeight))
+                TwoLineChart(result.points, Modifier.fillMaxWidth().height(chartHeight))
                 Row(Modifier.fillMaxWidth()) {
                     // CTL/ATL are universal training-science acronyms (like HRV/SpO2) — same in every language.
                     Stat("CTL", latest?.let { fmt(it.chronicLoad) } ?: "—")
