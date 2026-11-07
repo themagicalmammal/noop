@@ -1981,6 +1981,8 @@
     <string name="onboarding_theme_follow_system">Die Hell-/Dunkel-Einstellung deines Smartphones wird übernommen.</string>
     <string name="onboarding_theme_light_description">Tiefblaue Akzente auf einem warmen, hellen Hintergrund.</string>
     <string name="onboarding_theme_dark_description">Tiefblaue Akzente auf einem dunklen, blaugrauen Hintergrund.</string>
+    <string name="onboarding_theme_material">Material You</string>
+    <string name="onboarding_theme_material_description">Farben, abgeleitet aus deinen Tapeten.</string>
     <string name="recording_chip_title_recording">Aufnahme</string>
     <string name="recording_chip_title_last_synced">Zuletzt vor %1$d Min. synchronisiert</string>
     <string name="recording_chip_title_not_recording">Keine Aufzeichnung</string>
@@ -2033,6 +2035,7 @@
     <string name="settings_appearance_detail">Wähle Hell, Dunkel oder folge deinem System. Dunkel ist das charakteristische Fast-Schwarz; Hell behält denselben klaren Look auf heller Fläche.</string>
     <string name="settings_theme_light">Hell</string>
     <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_theme_material">Material You</string>
     <string name="settings_chart_default">Standard</string>
     <string name="settings_chart_classic">Klassisch</string>
     <string name="settings_trend_line">Linie</string>

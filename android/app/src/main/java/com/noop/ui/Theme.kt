@@ -12,6 +12,10 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -46,8 +50,11 @@ object Palette {
     // The active scheme's tokens — snapshot state, so a flip re-resolves every read below (in
     // composables AND Canvas DrawScopes) with no call-site changes. Set by NoopTheme.
     internal var active by mutableStateOf(DarkTokens)
+    // Set alongside [active] in NoopTheme: a Material You scheme is a DERIVED token set, so an
+    // identity check can't tell light from dark.
+    internal var lightActive by mutableStateOf(false)
     /** True when the light scheme is active (surface code uses this for the per-scheme idiom). */
-    val isLight: Boolean get() = active === LightTokens
+    val isLight: Boolean get() = lightActive
 
     // Chart style — when CLASSIC, the DATA accessors below return the throwback red→green ramps
     // (light/dark tuned). Reads ChartStylePrefs.style (snapshot state) so a flip re-colours live.
@@ -541,6 +548,25 @@ internal fun noopColorScheme(t: PaletteTokens, dark: Boolean): ColorScheme {
     )
 }
 
+/** Material You: swap the CHROME tokens for the device's dynamic [ColorScheme]; the domain DATA
+ *  colours (recovery/strain/sleep/charge/effort/rest/stress) encode meaning and stay on the base
+ *  scheme. */
+private fun PaletteTokens.withMaterialChrome(d: ColorScheme): PaletteTokens = copy(
+    surfaceBase = d.background,
+    surfaceRaised = d.surface,
+    surfaceOverlay = d.surfaceVariant,
+    surfaceInset = d.surfaceVariant,
+    hairline = d.outlineVariant,
+    hairlineStrong = d.outline,
+    textPrimary = d.onBackground,
+    textSecondary = d.onSurfaceVariant,
+    textTertiary = d.onSurfaceVariant,
+    accent = d.primary,
+    accentHover = d.secondary,
+    accentMuted = d.primaryContainer,
+    focusRing = d.primary,
+)
+
 private val NoopMaterialTypography = Typography(
     displayLarge = NoopType.display(72f),
     titleLarge = NoopType.title1,
@@ -563,19 +589,34 @@ private val NoopShapes = Shapes(
 )
 
 /**
- * NoopTheme — instrument-grade, now System / Light / Dark. The chosen mode (default System) drives
- * both `Palette.active` (so every `Palette.*` read re-resolves) and the Material scheme. The write to
- * `Palette.active` is guarded + idempotent, and happens before children compose, so there's no flash
- * and no recomposition loop (NoopTheme itself never reads `active`).
+ * NoopTheme — instrument-grade, now System / Light / Dark / Material You. The chosen mode (default
+ * System) drives both `Palette.active` (so every `Palette.*` read re-resolves) and the Material
+ * scheme. Material You swaps the CHROME tokens for the device's dynamic colours; the domain data
+ * colours stay on the base scheme. The write to `Palette.active` is guarded + idempotent, and
+ * happens before children compose, so there's no flash and no recomposition loop (NoopTheme itself
+ * never reads `active`).
  */
 @Composable
 fun NoopTheme(content: @Composable () -> Unit) {
-    val dark = when (AppearancePrefs.mode) {
+    val appearance = AppearancePrefs.mode
+    val dark = when (appearance) {
         AppearanceMode.LIGHT -> false
         AppearanceMode.DARK -> true
-        AppearanceMode.SYSTEM -> isSystemInDarkTheme()
+        else -> isSystemInDarkTheme()
     }
-    val tokens = if (dark) DarkTokens else LightTokens
+    // Material You: chrome (surfaces, hairlines, text, accent) from the device's own dynamic colors
+    // (wallpaper-derived on API 31+; below that the m3 helpers fall back to the stock scheme).
+    // Resolved here, outside the remember below: its calculation is non-composable. The remembered
+    // tokens keep Palette.active stable across compositions (no re-write loop).
+    val materialScheme = if (appearance == AppearanceMode.MATERIAL) {
+        if (dark) dynamicDarkColorScheme(LocalContext.current)
+        else dynamicLightColorScheme(LocalContext.current)
+    } else null
+    val tokens = remember(appearance, dark, materialScheme) {
+        val base = if (dark) DarkTokens else LightTokens
+        materialScheme?.let { base.withMaterialChrome(it) } ?: base
+    }
+    Palette.lightActive = !dark
     if (Palette.active !== tokens) Palette.active = tokens
 
     // Status-/nav-bar icon appearance: light icons on the dark theme, dark icons on the warm-paper

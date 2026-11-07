@@ -1942,6 +1942,8 @@
     <string name="onboarding_theme_follow_system">É utilizada a definição de tema claro ou escuro do teu telemóvel.</string>
     <string name="onboarding_theme_light_description">Destaques em azul-escuro sobre um fundo claro e acolhedor.</string>
     <string name="onboarding_theme_dark_description">Destaques em azul-escuro sobre um fundo azul-acinzentado escuro.</string>
+    <string name="onboarding_theme_material">Material You</string>
+    <string name="onboarding_theme_material_description">Cores extraídos do seu papel de parede.</string>
     <string name="recording_chip_title_recording">Gravação</string>
     <string name="recording_chip_title_last_synced">Última sincronização há %1$dm</string>
     <string name="recording_chip_title_not_recording">Não está a gravar</string>
@@ -1994,6 +1996,7 @@
     <string name="settings_appearance_detail">Escolhe Claro, Escuro ou segue o teu sistema. Escuro é o característico quase preto; Claro mantém o mesmo visual limpo num ecrã luminoso.</string>
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Escuro</string>
+    <string name="settings_theme_material">Material You</string>
     <string name="settings_chart_default">Predefinição</string>
     <string name="settings_chart_classic">Clássico</string>
     <string name="settings_trend_line">Linha</string>

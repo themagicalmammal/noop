@@ -748,7 +748,8 @@ fun SettingsScreen(
     // Display-only; the stored value never changes. Mirrors into local state like the toggles above.
     var effortScale by remember { mutableStateOf(UnitPrefs.effortScale(context)) }
 
-    // Theme (System / Light / Dark) — drives NoopTheme; AppearancePrefs mirrors it in snapshot state.
+    // Theme (System / Light / Dark / Material You) — drives NoopTheme; AppearancePrefs mirrors it in
+    // snapshot state.
     var themeMode by remember { mutableStateOf(AppearancePrefs.mode) }
     // App language owns the process resource locale; changing it recreates this Activity below so every
     // composable and non-composable resource lookup switches together.
@@ -1427,13 +1428,17 @@ fun SettingsScreen(
             SettingsRowDivider()
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_theme_a797e309)) {
                 SegmentedPillControl(
-                    items = listOf(AppearanceMode.SYSTEM, AppearanceMode.LIGHT, AppearanceMode.DARK),
+                    items = listOf(
+                        AppearanceMode.SYSTEM, AppearanceMode.LIGHT, AppearanceMode.DARK,
+                        AppearanceMode.MATERIAL,
+                    ),
                     selection = themeMode,
                     label = {
                         when (it) {
                             AppearanceMode.SYSTEM -> uiString(R.string.settings_language_system)
                             AppearanceMode.LIGHT -> uiString(R.string.settings_theme_light)
                             AppearanceMode.DARK -> uiString(R.string.settings_theme_dark)
+                            AppearanceMode.MATERIAL -> uiString(R.string.settings_theme_material)
                         }
                     },
                     onSelect = { mode ->

@@ -958,8 +958,8 @@ private fun NotificationsStep() {
     }
 }
 
-// A late step that tells new users NOOP's look is theirs to set — the same System / Light / Dark
-// choice that lives in Settings → Appearance, with a live preview. Writing the choice flips the whole
+// A late step that tells new users NOOP's look is theirs to set — the same System / Light / Dark /
+// Material You choice that lives in Settings → Appearance, with a live preview. Writing the choice flips the whole
 // app immediately (AppearancePrefs.mode is snapshot state; Palette re-resolves live), so the picker
 // IS the preview — and two mini swatches show both the warm-paper Light and dark blue-grey looks.
 @Composable
@@ -1001,13 +1001,17 @@ private fun AppearanceStep() {
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     ProfileFieldRow(label = uiString(R.string.l10n_onboarding_screen_theme_a797e309)) {
                         SegmentedPillControl(
-                            items = listOf(AppearanceMode.SYSTEM, AppearanceMode.LIGHT, AppearanceMode.DARK),
+                            items = listOf(
+                                AppearanceMode.SYSTEM, AppearanceMode.LIGHT, AppearanceMode.DARK,
+                                AppearanceMode.MATERIAL,
+                            ),
                             selection = mode,
                             label = { appearance ->
                                 when (appearance) {
                                     AppearanceMode.SYSTEM -> uiString(R.string.onboarding_system)
                                     AppearanceMode.LIGHT -> uiString(R.string.l10n_onboarding_screen_light_a36ef8ab)
                                     AppearanceMode.DARK -> uiString(R.string.l10n_onboarding_screen_dark_ae1ef014)
+                                    AppearanceMode.MATERIAL -> uiString(R.string.onboarding_theme_material)
                                 }
                             },
                             onSelect = {
@@ -1033,6 +1037,7 @@ private fun AppearanceStep() {
                                 AppearanceMode.SYSTEM -> uiString(R.string.onboarding_theme_follow_system)
                                 AppearanceMode.LIGHT -> uiString(R.string.onboarding_theme_light_description)
                                 AppearanceMode.DARK -> uiString(R.string.onboarding_theme_dark_description)
+                                AppearanceMode.MATERIAL -> uiString(R.string.onboarding_theme_material_description)
                             },
                             style = NoopType.footnote,
                             color = Palette.textTertiary,

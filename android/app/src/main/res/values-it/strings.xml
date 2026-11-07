@@ -2036,6 +2036,8 @@
     <string name="onboarding_theme_follow_system">Segue l\'impostazione chiaro/scuro del telefono.</string>
     <string name="onboarding_theme_light_description">Accento blu intenso su carta calda.</string>
     <string name="onboarding_theme_dark_description">Accento blu intenso su uno sfondo grigio-blu scuro.</string>
+    <string name="onboarding_theme_material">Material You</string>
+    <string name="onboarding_theme_material_description">Colori estratti dal tuo sfondo.</string>
     <string name="recording_chip_title_recording">Registrazione</string>
     <string name="recording_chip_title_last_synced">Ultima sincronizzazione %1$dm fa</string>
     <string name="recording_chip_title_not_recording">Non in registrazione</string>
@@ -2088,6 +2090,7 @@
     <string name="settings_appearance_detail">Scegli Chiaro, Scuro o segui il sistema. Lo scuro è il caratteristico quasi-nero; il chiaro mantiene lo stesso aspetto pulito su uno sfondo luminoso.</string>
     <string name="settings_theme_light">Chiaro</string>
     <string name="settings_theme_dark">Scuro</string>
+    <string name="settings_theme_material">Material You</string>
     <string name="settings_chart_default">Predefinito</string>
     <string name="settings_chart_classic">Classico</string>
     <string name="settings_trend_line">Linea</string>

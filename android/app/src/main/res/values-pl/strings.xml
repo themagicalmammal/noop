@@ -1938,6 +1938,8 @@
     <string name="onboarding_theme_follow_system">Postępuj zgodnie z ustawieniami jasny/ciemny telefonu.</string>
     <string name="onboarding_theme_light_description">Głęboki niebieski akcent na ciepłym papierze.</string>
     <string name="onboarding_theme_dark_description">Głęboki niebieski akcent na ciemnoniebiesko-szarym płótnie.</string>
+    <string name="onboarding_theme_material">Material You</string>
+    <string name="onboarding_theme_material_description">Kolory wywnętrowane z twoich tapet.</string>
     <string name="recording_chip_title_recording">Nagranie</string>
     <string name="recording_chip_title_last_synced">Ostatnia synchronizacja %1$dm temu</string>
     <string name="recording_chip_title_not_recording">Nie nagrywa</string>
@@ -1994,6 +1996,7 @@
     <string name="settings_appearance_detail">Wybierz Jasny, Ciemny lub podążaj za swoim systemem. Ciemność jest charakterystyczna prawie czarna; Światło utrzymuje ten sam czysty wygląd na jasnym płótnie.</string>
     <string name="settings_theme_light">Jasny</string>
     <string name="settings_theme_dark">Ciemny</string>
+    <string name="settings_theme_material">Material You</string>
     <string name="settings_chart_default">Domyślny</string>
     <string name="settings_chart_classic">Klasyczny</string>
     <string name="settings_trend_line">Linia</string>

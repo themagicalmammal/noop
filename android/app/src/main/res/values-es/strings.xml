@@ -1949,6 +1949,8 @@
     <string name="onboarding_theme_follow_system">Se usa el ajuste claro u oscuro de tu teléfono.</string>
     <string name="onboarding_theme_light_description">Acentos azul oscuro sobre un fondo cálido y claro.</string>
     <string name="onboarding_theme_dark_description">Acentos azul oscuro sobre un fondo azul grisáceo oscuro.</string>
+    <string name="onboarding_theme_material">Material You</string>
+    <string name="onboarding_theme_material_description">Colores derivados de tus fondos de pantalla.</string>
     <string name="recording_chip_title_recording">Grabando</string>
     <string name="recording_chip_title_last_synced">Sincronizado hace %1$dm</string>
     <string name="recording_chip_title_not_recording">Sin grabar</string>
@@ -2001,6 +2003,7 @@
     <string name="settings_appearance_detail">Elige Claro, Oscuro o seguir tu sistema. Oscuro es el casi negro característico; Claro mantiene el mismo aspecto limpio sobre un lienzo brillante.</string>
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_theme_material">Material You</string>
     <string name="settings_chart_default">Predeterminado</string>
     <string name="settings_chart_classic">Clásico</string>
     <string name="settings_trend_line">Línea</string>
