@@ -83,7 +83,7 @@ private fun StageBreakdownRow(stage: String, minutes: Double, total: Double, col
                 .background(color),
         )
         Text(
-            stage.uppercase(Locale.getDefault()),
+            stage.sentenceCaseLabel(),
             style = NoopType.overline,
             color = Palette.textPrimary,
             maxLines = 1,
@@ -385,7 +385,7 @@ internal fun FilledHypnogram(
                 ),
             ) {
                 Text(
-                    hit.stage.uppercase(),
+                    hit.stage.sentenceCaseLabel(),
                     style = NoopType.footnote,
                     color = Palette.textSecondary,
                     maxLines = 1,

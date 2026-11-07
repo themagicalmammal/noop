@@ -141,14 +141,10 @@ class MainActivity : ComponentActivity() {
         // and chart ramps are correct from the very first frame (no flash).
         AppearancePrefs.load(this)
         ChartStylePrefs.load(this)
-        AccentPrefs.load(this)   // chrome accent colour (mint / WHOOP blue / custom), live snapshot state
-        // Decode the optional on-device profile photo (if set) before first composition so the Today
-        // header + Settings avatars show it from the first frame. No-op when no photo is set.
-        ProfileAvatarStore.load(this)
+        // Remove the retired on-device profile photo and its preference flag.
+        deleteFile("avatar.jpg")
+        getSharedPreferences("noop_profile", MODE_PRIVATE).edit().remove("avatar_present").apply()
 
-        // Decode the optional custom background image (if set) + its toggles before first composition so
-        // the backdrop is right from the first frame on every tab. No-op when no image is set.
-        BackgroundImageStore.load(this)
         BottomBarStyleStore.load(this)   // #1836: bottom-bar layout choice, default the shipped slot
 
         setContent {
@@ -730,19 +726,6 @@ object NoopPrefs {
         of(context).edit().putBoolean(KEY_BUZZ_WHOOP4_WITH_ALARM, enabled).apply()
     }
 
-    /** Launcher-icon preference (v3 "Titanium & Gold"). false = machined-titanium (.IconDefault,
-     *  the default); true = blued/dark-blue titanium (.IconNavy). The actual swap is done by
-     *  enabling exactly one of the two <activity-alias> entries via PackageManager, this bool just
-     *  records the user's choice so the App Icon control reflects it across restarts. */
-    const val KEY_APP_ICON_NAVY = "noop.appIconNavy"
-
-    fun appIconNavy(context: Context): Boolean =
-        of(context).getBoolean(KEY_APP_ICON_NAVY, false)
-
-    fun setAppIconNavy(context: Context, navy: Boolean) {
-        of(context).edit().putBoolean(KEY_APP_ICON_NAVY, navy).apply()
-    }
-
     /** #1839: hide the overlay bottom bar while scrolling down, restore it on scrolling up. Default
      *  ON (#1841). Only meaningful with the overlay layout, where the bar sits over content. */
     const val KEY_BOTTOM_BAR_AUTO_HIDE = "noop.bottomBarAutoHide"
@@ -1046,52 +1029,6 @@ object NoopPrefs {
 
     fun setSkyBehindCards(context: Context, enabled: Boolean) {
         of(context).edit().putBoolean(KEY_SKY_BEHIND_CARDS, enabled).apply()
-    }
-
-    /** Custom background image (#custom-background): a user-picked photo drawn full-bleed behind every
-     *  screen, REPLACING the day-cycle sky when enabled (precedence: image > sky > flat canvas). The
-     *  image itself is a device-local file (see [BackgroundImageStore]) — like the avatar it is
-     *  deliberately kept OUT of the .noopbak whitelist. The three key strings are byte-identical to the
-     *  iOS BackgroundImagePrefs. */
-    const val KEY_BACKGROUND_IMAGE_ENABLED = "noop.backgroundImageEnabled"
-
-    fun backgroundImageEnabled(context: Context): Boolean =
-        of(context).getBoolean(KEY_BACKGROUND_IMAGE_ENABLED, false)
-
-    fun setBackgroundImageEnabled(context: Context, enabled: Boolean) {
-        of(context).edit().putBoolean(KEY_BACKGROUND_IMAGE_ENABLED, enabled).apply()
-    }
-
-    /** The [BackgroundFillMode] rawValue (default "fill"). */
-    const val KEY_BACKGROUND_FILL_MODE = "noop.backgroundFillMode"
-
-    fun backgroundFillMode(context: Context): BackgroundFillMode =
-        BackgroundFillMode.fromStorage(of(context).getString(KEY_BACKGROUND_FILL_MODE, null))
-
-    fun setBackgroundFillMode(context: Context, mode: BackgroundFillMode) {
-        of(context).edit().putString(KEY_BACKGROUND_FILL_MODE, mode.storageValue).apply()
-    }
-
-    /** Whether a background image file has been stored (so the UI can offer Remove and the backdrop can
-     *  skip a decode when absent). Default false. */
-    const val KEY_BACKGROUND_IMAGE_PRESENT = "noop.backgroundImagePresent"
-
-    fun backgroundImagePresent(context: Context): Boolean =
-        of(context).getBoolean(KEY_BACKGROUND_IMAGE_PRESENT, false)
-
-    fun setBackgroundImagePresent(context: Context, present: Boolean) {
-        of(context).edit().putBoolean(KEY_BACKGROUND_IMAGE_PRESENT, present).apply()
-    }
-
-    /** Recent background images (MRU, up to 3), serialized as `"<file>,<fillMode>;…"` — see
-     *  BackgroundImageStore. Default "". Device-local like the image files, NOT in the .noopbak whitelist. */
-    const val KEY_BACKGROUND_RECENTS = "noop.backgroundRecents"
-
-    fun backgroundRecents(context: Context): String =
-        of(context).getString(KEY_BACKGROUND_RECENTS, "") ?: ""
-
-    fun setBackgroundRecents(context: Context, value: String) {
-        of(context).edit().putString(KEY_BACKGROUND_RECENTS, value).apply()
     }
 
     /** "Reduce motion in NOOP" (opt-in, default OFF). The literal key matches Apple so the setting has

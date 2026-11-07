@@ -89,6 +89,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import java.util.Locale
 import androidx.compose.ui.unit.sp
 import kotlin.math.cos
 import kotlin.math.min
@@ -260,11 +261,26 @@ fun SyncingHistoryNote(chunks: Int, modifier: Modifier = Modifier) {
 @Composable
 fun Overline(text: String, modifier: Modifier = Modifier, color: Color = Palette.textSecondary) {
     Text(
-        text = text.uppercase(),
+        text = text,
         style = NoopType.overline,
         color = color,
         modifier = modifier,
     )
+}
+
+/** Natural sentence case for compact labels while preserving common health and brand abbreviations. */
+internal fun String.sentenceCaseLabel(): String {
+    val locale = Locale.getDefault()
+    var result = lowercase(locale).replaceFirstChar { it.titlecase(locale) }
+    val abbreviations = mapOf(
+        "hrv" to "HRV", "rhr" to "RHR", "gps" to "GPS", "ecg" to "ECG", "ppg" to "PPG",
+        "rem" to "REM", "nrem" to "NREM", "whoop" to "WHOOP", "noop" to "NOOP",
+        "spo₂" to "SpO₂", "bpm" to "bpm",
+    )
+    abbreviations.forEach { (key, value) ->
+        result = Regex("(?i)\\b${Regex.escape(key)}\\b").replace(result, value)
+    }
+    return result
 }
 
 // MARK: - Section header
@@ -438,7 +454,7 @@ fun SourceBadge(text: String, tint: Color = Palette.accent, modifier: Modifier =
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = text.uppercase(),
+            text = text.sentenceCaseLabel(),
             style = NoopType.overline.copy(fontSize = 10.sp, letterSpacing = 0.5.sp),
             color = tint,
             maxLines = 1,                      // #74: e.g. "ON-DEVICE" stays on one line, never wraps the hero

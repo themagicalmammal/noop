@@ -661,7 +661,7 @@ private fun AddMetricMenu(
                 val metrics = CompareCatalog.inCategory(category)
                 if (metrics.isNotEmpty()) {
                     Text(
-                        category.uppercase(),
+                        category.sentenceCaseLabel(),
                         style = NoopType.overline,
                         color = Palette.textTertiary,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),

@@ -2182,7 +2182,7 @@ private fun StageTimelineRow(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                label.uppercase(Locale.getDefault()),
+                label.sentenceCaseLabel(),
                 style = NoopType.overline,
                 color = Palette.textPrimary,
                 maxLines = 1,

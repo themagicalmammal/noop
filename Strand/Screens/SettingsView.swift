@@ -1,12 +1,4 @@
 import SwiftUI
-#if os(macOS)
-import AppKit
-#endif
-#if os(iOS)
-import UIKit
-#endif
-import UniformTypeIdentifiers
-import PhotosUI
 import StrandDesign
 import StrandAnalytics
 import WhoopStore
@@ -20,15 +12,6 @@ struct SettingsView: View {
     @EnvironmentObject var model: AppModel
     @EnvironmentObject var live: LiveState
     @EnvironmentObject var profile: ProfileStore
-
-    /// Profile-photo picker selection (PhotosUI). Cleared back to nil once the bytes are loaded.
-    @State private var avatarPickerItem: PhotosPickerItem?
-
-    /// Custom background image (#custom-background). The store owns the decoded image + toggles; the
-    /// picker selection + the file-importer flag are local UI state.
-    @ObservedObject private var backgroundStore = BackgroundImageStore.shared
-    @State private var backgroundPickerItem: PhotosPickerItem?
-    @State private var showBackgroundFileImporter = false
 
     /// Backup & restore UI state.
     @State private var backupBusy = false
@@ -123,9 +106,6 @@ struct SettingsView: View {
     @AppStorage(UnitPrefs.syncLiveActivityKey) private var syncLiveActivityEnabled = true
     @AppStorage(UnitPrefs.liftLiveActivityKey) private var liftLiveActivityEnabled = true
     @AppStorage(DayCycleMode.storageKey) private var dayCycleModeRaw = DayCycleMode.sleepOnset.rawValue
-    // Alternate app icon (iOS only) — false = Titanium (primary AppIcon), true = Blue Titanium
-    // ("AppIcon-Navy"). Display-only preference; the live switch goes through setAlternateIconName.
-    @AppStorage("appIcon.alt") private var useNavyIcon = false
     // Light/Dark/System theme. Read by both app roots' .preferredColorScheme; default follows the OS.
     @AppStorage(AppearanceMode.storageKey) private var appearanceRaw = AppearanceMode.system.rawValue
     // App-owned copy language. Apple binds a bundle localization at process launch, so this writes the
@@ -135,9 +115,6 @@ struct SettingsView: View {
     @AppStorage(ChartStyle.storageKey) private var chartStyleRaw = ChartStyle.titanium.rawValue
     // Sleep tab stage-CHART shape: Classic per-stage rows, or the WHOOP-style stepped hypnogram Filled/Ribbon.
     @AppStorage(SleepChartStyle.storageKey) private var sleepChartStyleRaw = SleepChartStyle.classic.rawValue
-    // Chrome accent colour (mint / WHOOP blue / custom). Chrome only — never the data colour worlds.
-    @AppStorage(AccentColor.storageKey) private var accentRaw = AccentColor.mint.rawValue
-    @AppStorage(AccentColor.customHexKey) private var accentCustomHex = AccentColor.defaultCustomHex
     // Day-cycle scene backdrop behind Today (#698). Default ON. Off swaps the scene for a plain dark
     // canvas. TodayView reads the same key to gate its SceneScreenBackground.
     @AppStorage(SceneBackgroundPrefs.enabledKey) private var showDayCycleBackground = true
@@ -294,6 +271,7 @@ struct SettingsView: View {
                 // About stays expanded at the foot (version, links and the help sheets people return to).
                 aboutCard.staggeredAppear(index: 7)
             }
+            .tint(StrandPalette.accent)
         }
         .alert(backupAlertTitle, isPresented: $showBackupAlert) {
             Button("OK", role: .cancel) { }
@@ -367,8 +345,6 @@ struct SettingsView: View {
             blurb: "These power your heart-rate zones, calorie estimates and recovery baselines. Keep them accurate."
         ) {
             VStack(spacing: 0) {
-                profilePhotoRow
-                rowDivider
                 FormRow(label: "Date of birth") {
                     HStack(spacing: 12) {
                         Text("\(profile.age)")
@@ -550,180 +526,6 @@ struct SettingsView: View {
                     .foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-        }
-    }
-
-    /// Compact profile-photo control kept inside the Profile card so the optional avatar does not
-    /// consume a second top-level settings section. PhotosUI works on both supported platforms.
-    private var profilePhotoRow: some View {
-        let hasAvatar = profile.hasAvatar
-        return VStack(alignment: .leading, spacing: NoopMetrics.space2) {
-            HStack(spacing: NoopMetrics.space3) {
-                ProfileAvatarView(
-                    imageData: profile.avatarImageData,
-                    size: NoopMetrics.profileAvatarDiameter
-                )
-                    .accessibilityLabel(hasAvatar ? "Your profile photo" : "No profile photo set")
-
-                PhotosPicker(selection: $avatarPickerItem, matching: .images) {
-                    Text(hasAvatar ? "Change photo" : "Choose photo")
-                }
-                .buttonStyle(NoopButtonStyle(.secondary, fullWidth: true))
-
-                if hasAvatar {
-                    Button {
-                        profile.clearAvatar()
-                    } label: {
-                        Image(systemName: "trash")
-                    }
-                    .buttonStyle(NoopButtonStyle(.tertiary))
-                    .accessibilityLabel("Remove photo")
-                    .accessibilityHint("Reverts to the default profile icon")
-                }
-            }
-
-            Text("Optional. Add a photo for your avatar. It stays on \(Platform.deviceNounPhrase) and is never uploaded.")
-                .font(StrandFont.footnote)
-                .foregroundStyle(StrandPalette.textTertiary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        // Load the picked photo's bytes, then hand them to the store (which downscales + persists).
-        // Clearing the selection afterwards lets the user re-pick the same photo if they want.
-        .onChange(of: avatarPickerItem) { newItem in
-            guard let newItem else { return }
-            Task {
-                let data = try? await newItem.loadTransferable(type: Data.self)
-                await MainActor.run {
-                    if let data { profile.setAvatar(data) }
-                    avatarPickerItem = nil
-                }
-            }
-        }
-    }
-
-    /// One recent-background preset: a small cropped thumbnail (accent-ringed when active) over its
-    /// fill-mode label. Tapping re-applies that image + scaling.
-    @ViewBuilder
-    private func backgroundRecentThumb(thumb: Image?, mode: BackgroundFillMode, active: Bool,
-                                       action: @escaping () -> Void) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 10, style: .continuous)
-        Button(action: action) {
-            VStack(spacing: 3) {
-                Group {
-                    if let thumb { thumb.resizable().scaledToFill() } else { StrandPalette.surfaceInset }
-                }
-                .frame(width: 64, height: 64)
-                .clipShape(shape)
-                .overlay(shape.strokeBorder(active ? StrandPalette.accent : StrandPalette.hairline,
-                                            lineWidth: active ? 2 : 1))
-                Text(mode.label)
-                    .font(StrandFont.caption)
-                    .foregroundStyle(active ? StrandPalette.accent : StrandPalette.textTertiary)
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
-    /// Custom background image controls (#custom-background): pick from Photos or Browse the files,
-    /// choose the fill mode, and (once set) enable / remove. The store downscales + persists a
-    /// device-local file — nothing here is uploaded (NOOP is offline), and it is left out of `.noopbak`.
-    /// Wrapped in a layout-transparent `Group` so the picker `onChange` + the file importer can hang off
-    /// the whole cluster while it still flows inside the appearance VStack.
-    @ViewBuilder
-    private var backgroundImageControls: some View {
-        let hasImage = backgroundStore.hasImage
-        Group {
-            HStack(spacing: NoopMetrics.space2) {
-                PhotosPicker(selection: $backgroundPickerItem, matching: .images) {
-                    Text(hasImage ? "Replace from Photos" : "Choose from Photos")
-                }
-                .buttonStyle(NoopButtonStyle(.secondary, fullWidth: true))
-
-                Button {
-                    showBackgroundFileImporter = true
-                } label: {
-                    Text("Browse files")
-                }
-                .buttonStyle(NoopButtonStyle(.secondary, fullWidth: true))
-            }
-
-            if hasImage {
-                // Recent presets: tap a thumbnail to re-apply that image + the scaling it was last shown
-                // with. The first (accent-ringed) one is the active background.
-                if !backgroundStore.recents.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Recent")
-                            .font(StrandFont.footnote)
-                            .foregroundStyle(StrandPalette.textSecondary)
-                        HStack(spacing: 10) {
-                            ForEach(backgroundStore.recents.indices, id: \.self) { index in
-                                backgroundRecentThumb(
-                                    thumb: backgroundStore.thumbnails.indices.contains(index)
-                                        ? backgroundStore.thumbnails[index] : nil,
-                                    mode: backgroundStore.recents[index].fillMode,
-                                    active: index == 0,
-                                    action: { backgroundStore.applyRecent(index) })
-                            }
-                        }
-                    }
-                }
-
-                Toggle(isOn: $backgroundStore.enabled) {
-                    Text("Show custom background")
-                        .font(StrandFont.subhead)
-                        .foregroundStyle(StrandPalette.textPrimary)
-                }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
-
-                FormRow(label: "Scaling") {
-                    Picker("Scaling", selection: Binding(
-                        get: { backgroundStore.fillMode },
-                        set: { backgroundStore.setFillMode($0) })) {
-                        ForEach(BackgroundFillMode.allCases) { mode in
-                            Text(mode.label).tag(mode)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
-                    .accessibilityLabel("Background scaling")
-                }
-
-                Button {
-                    backgroundStore.clearImage()
-                } label: {
-                    Text("Remove image")
-                }
-                .buttonStyle(NoopButtonStyle(.tertiary))
-                .accessibilityHint("Removes the custom background and restores the day-cycle sky")
-            }
-
-            Text("Optional. Use your own photo behind every tab, in place of the day-cycle sky. It stays on \(Platform.deviceNounPhrase) and is never uploaded. Pair it with Transparent cards above to let it show through.")
-                .font(StrandFont.caption)
-                .foregroundStyle(StrandPalette.textTertiary)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        // Load the picked photo's bytes, hand them to the store (which downscales + persists), then clear
-        // the selection so the same photo can be re-picked. Mirrors the avatar row.
-        .onChange(of: backgroundPickerItem) { newItem in
-            guard let newItem else { return }
-            Task {
-                let data = try? await newItem.loadTransferable(type: Data.self)
-                await MainActor.run {
-                    if let data { backgroundStore.setImage(from: data) }
-                    backgroundPickerItem = nil
-                }
-            }
-        }
-        // "Browse files" — the system file browser. The picked URL is security-scoped (outside the
-        // sandbox), so bracket the one-time read; we copy the bytes into our own file immediately.
-        .fileImporter(isPresented: $showBackgroundFileImporter, allowedContentTypes: [.image]) { result in
-            guard case .success(let url) = result else { return }
-            let didAccess = url.startAccessingSecurityScopedResource()
-            defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
-            if let data = try? Data(contentsOf: url) { backgroundStore.setImage(from: data) }
         }
     }
 
@@ -1058,35 +860,6 @@ struct SettingsView: View {
         }
     }
 
-    /// Bridges the SwiftUI `ColorPicker` (a `Color`) to the persisted custom-accent hex string.
-    private var customAccentBinding: Binding<Color> {
-        Binding(
-            get: { Color(hex: accentCustomHex) },
-            set: { accentCustomHex = $0.noopAccentHex ?? AccentColor.defaultCustomHex }
-        )
-    }
-
-    /// The Theme PRESET is derived from the four coordinated prefs (no stored value): reads which preset
-    /// the live combination matches (or `.custom`), and on pick writes accent + chart + backdrop + opacity.
-    private var themePresetBinding: Binding<ThemePreset> {
-        Binding(
-            get: {
-                ThemePreset.matching(
-                    accent: AccentColor.resolve(accentRaw),
-                    chart: ChartStyle.resolve(chartStyleRaw),
-                    backdrop: showDayCycleBackground,
-                    cardOpacity: cardOpacityPercent)
-            },
-            set: { preset in
-                guard let r = preset.recipe else { return }   // .custom → no-op
-                accentRaw = r.accent.rawValue
-                chartStyleRaw = r.chart.rawValue
-                showDayCycleBackground = r.backdrop
-                cardOpacityPercent = r.cardOpacity
-            }
-        )
-    }
-
     private var appearanceCard: some View {
         SettingsSection(
             icon: "circle.lefthalf.filled",
@@ -1170,20 +943,6 @@ struct SettingsView: View {
                 }
                 #endif
                 rowDivider
-                // Theme presets — one-tap bundles coordinating accent + chart world + backdrop + card
-                // opacity. Derived (no stored value): tweaking any control below flips this to Custom.
-                FormRow(label: "Preset") {
-                    Picker("Preset", selection: themePresetBinding) {
-                        ForEach(ThemePreset.allCases) { p in
-                            Text(p.label).tag(p)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
-                    .accessibilityLabel("Theme preset")
-                }
-                rowDivider
                 FormRow(label: "Theme") {
                     Picker("Theme", selection: $appearanceRaw) {
                         ForEach(AppearanceMode.allCases) { mode in
@@ -1225,28 +984,6 @@ struct SettingsView: View {
                     .accessibilityLabel("Sleep chart")
                 }
                 rowDivider
-                // Chrome accent colour — the links/buttons/selection tint only. The recovery/strain/sleep
-                // DATA colours follow "Chart colours" above, never this. Custom reveals a colour well.
-                FormRow(label: "Accent") {
-                    Picker("Accent", selection: $accentRaw) {
-                        ForEach(AccentColor.allCases) { c in
-                            Text(c.label).tag(c.rawValue)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
-                    .accessibilityLabel("Accent colour")
-                }
-                if AccentColor.resolve(accentRaw) == .custom {
-                    rowDivider
-                    FormRow(label: "Custom colour") {
-                        ColorPicker("Custom colour", selection: customAccentBinding, supportsOpacity: false)
-                            .labelsHidden()
-                            .accessibilityLabel("Custom accent colour")
-                    }
-                }
-                rowDivider
                 // Trend chart style (line vs bar). Display-only: flips the Trends tab's charts between the
                 // gradient line + area and value-ramp bars. The plotted data is identical either way.
                 FormRow(label: "Trend charts") {
@@ -1260,21 +997,6 @@ struct SettingsView: View {
                     .tint(StrandPalette.accent)
                     .accessibilityLabel("Trend chart style")
                 }
-                #if os(iOS)
-                rowDivider   // #79: separator before App icon (inside #if so macOS keeps a single divider)
-                FormRow(label: "App icon") {
-                    Picker("App icon", selection: $useNavyIcon) {
-                        Text("Default").tag(false)
-                        Text("Navy").tag(true)
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.menu)
-                    .tint(StrandPalette.accent)
-                    .accessibilityLabel("App icon")
-                    .onChangeCompat(of: useNavyIcon) { applyAppIcon($0) }
-                }
-                #endif
-
                 rowDivider
                 // MARK: Reduce motion in NOOP — pose every looping animation still and stop the tilt
                 // sensor, WITHOUT requiring system Low Power Mode. Off by default; system Reduce Motion
@@ -1328,8 +1050,8 @@ struct SettingsView: View {
 
                 // MARK: Transparent cards — a quick on/off over the SAME cardOpacityPercent (no separate
                 // pref), so it stays in lock-step with the slider below. Off = solid (100%); on = a sensible
-                // see-through default the slider then fine-tunes. Lets the custom background (or the sky)
-                // show through the cards. `isOn` is derived from the opacity, so dragging to solid flips off.
+                // see-through default the slider then fine-tunes. Lets the day-cycle sky show
+                // through the cards. `isOn` is derived from the opacity, so dragging to solid flips off.
                 Toggle(isOn: Binding(
                     get: { cardOpacityPercent < 100 },
                     set: { on in cardOpacityPercent = on ? (cardOpacityPercent >= 100 ? 70 : cardOpacityPercent) : 100 }
@@ -1372,33 +1094,9 @@ struct SettingsView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                rowDivider
-                backgroundImageControls
             }
         }
     }
-
-    #if os(iOS)
-    /// Apply the alternate-icon choice. Runs on the main actor (UIKit requirement) and tolerates the
-    /// no-op cases (already-set, unsupported); on failure it surfaces the error and reverts the toggle
-    /// so the control never disagrees with what's actually on the Home Screen.
-    private func applyAppIcon(_ useNavy: Bool) {
-        Task { @MainActor in
-            let target = useNavy ? "AppIcon-Navy" : nil
-            // No-op if iOS already shows the requested icon (avoids a needless system prompt).
-            guard UIApplication.shared.supportsAlternateIcons,
-                  UIApplication.shared.alternateIconName != target else { return }
-            do {
-                try await UIApplication.shared.setAlternateIconName(target)
-            } catch {
-                useNavyIcon = !useNavy
-                backupAlertTitle = String(localized: "Couldn't change the app icon")
-                backupAlertMessage = error.localizedDescription
-                showBackupAlert = true
-            }
-        }
-    }
-    #endif
 
     // MARK: - Strap
 
@@ -2765,10 +2463,7 @@ struct SettingsView: View {
     // MARK: - Shared bits
 
     private var rowDivider: some View {
-        Rectangle()
-            .fill(StrandPalette.hairline)
-            .frame(height: 1)
-            .padding(.vertical, 4)
+        Color.clear.frame(height: 8)
     }
 }
 
@@ -3454,21 +3149,3 @@ private struct FormRow<Control: View>: View {
         .preferredColorScheme(.dark)
 }
 #endif
-
-// MARK: - Custom accent colour bridge
-
-private extension Color {
-    /// sRGB hex (`#RRGGBB`) for persisting a `ColorPicker` selection into `AccentColor.customHexKey`.
-    /// Falls back to nil if the colour can't resolve to sRGB (the caller then keeps the default).
-    var noopAccentHex: String? {
-        #if os(iOS)
-        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
-        guard UIColor(self).getRed(&r, green: &g, blue: &b, alpha: &a) else { return nil }
-        #elseif os(macOS)
-        guard let ns = NSColor(self).usingColorSpace(.sRGB) else { return nil }
-        let r = ns.redComponent, g = ns.greenComponent, b = ns.blueComponent
-        #endif
-        return String(format: "#%02X%02X%02X",
-                      Int((r * 255).rounded()), Int((g * 255).rounded()), Int((b * 255).rounded()))
-    }
-}

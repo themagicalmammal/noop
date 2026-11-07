@@ -196,8 +196,6 @@ struct LiquidTodayView: View {
     /// dark canvas — parity with Android and the classic TodayView, which already honour this pref. Mirrors
     /// Kotlin `NoopPrefs.showDayCycleBackground`.
     @AppStorage(SceneBackgroundPrefs.enabledKey) private var showDayCycleBackground = true
-    /// Custom background image (#custom-background): when active it overrides the sky in the backdrop below.
-    @ObservedObject private var backgroundStore = BackgroundImageStore.shared
 
     // MARK: - Day navigation (ported from classic Today: swipe + calendar, day-keyed reads)
 
@@ -434,14 +432,9 @@ struct LiquidTodayView: View {
         .background(alignment: .top) {
             ZStack(alignment: .top) {
                 StrandPalette.surfaceBase
-                // Custom background image (#custom-background): a picked photo OVERRIDES the sky, filling
-                // the whole backdrop (same cached image as every other tab, so it's seamless).
-                if backgroundStore.isActive {
-                    BackgroundImageBackdrop()
-                }
-                // Day-cycle scene (#698): the sky only paints when the toggle is ON AND no custom image is
-                // active; off = the plain surfaceBase canvas above (parity with Android + classic TodayView).
-                else if showDayCycleBackground {
+                // Day-cycle scene (#698): the sky only paints when the toggle is ON; off = the plain
+                // surfaceBase canvas above (parity with Android + classic TodayView).
+                if showDayCycleBackground {
                     // Reduce-motion (and low-power) users get the same sky posed still — no twinkle/breath.
                     // Also static until the first data load settles, so launch isn't fighting a live sky too.
                     // "Sky behind cards" (opt-in): fill the whole backdrop with a softer settle so the sky
@@ -607,24 +600,17 @@ struct LiquidTodayView: View {
                 // which is the push-left behaviour rather than a separate approximation of it.
                 .headerTrailingControlFadeMask(reserving: headerControlsWidth)
                 HStack(spacing: headerClusterSpacing) {
-                    // Profile pic (the one set in Settings) → opens Settings, matching the classic Today.
+                    // Profile and settings → opens Settings, matching the classic Today.
                     Button { showSettings = true } label: {
-                        Color.clear.frame(
-                            width: NoopMetrics.compactControlSize,
-                            height: NoopMetrics.compactControlSize
-                        )
+                        Image(systemName: "person.fill")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(StrandPalette.textPrimary)
+                            .frame(
+                                width: NoopMetrics.compactControlSize,
+                                height: NoopMetrics.compactControlSize
+                            )
                     }
                     .nativeLiquidGlassHeaderButton()
-                    .overlay {
-                        GeometryReader { proxy in
-                            let diameter = min(proxy.size.width, proxy.size.height)
-                            ProfileAvatarView(imageData: profile.avatarImageData, size: diameter)
-                                .frame(width: diameter, height: diameter)
-                                .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
-                        }
-                        .allowsHitTesting(false)
-                    }
-                    .nativeLiquidGlassPhotoFinish()
                     .accessibilityLabel("Profile and settings")
                     LiquidAddButton()
                     LiquidBatteryButton()
@@ -3041,15 +3027,6 @@ private struct LiquidBatteryButton: View {
 }
 
 private extension View {
-    /// The edge-to-edge photo is overlaid after the native button style so it can fill the face. Finish
-    /// the composed control with interactive system glass as the topmost visual layer; otherwise the
-    /// opaque photo would conceal the button style's refraction and highlight. macOS keeps the photo
-    /// as-is (Liquid Glass is iOS-only).
-    @ViewBuilder
-    func nativeLiquidGlassPhotoFinish() -> some View {
-        self.nativeLiquidGlassCircleFinish()
-    }
-
     /// Platform-owned Home-header button chrome. iOS 26 supplies the interactive Liquid Glass button
     /// material; macOS and older iOS keep the same circular geometry with a native system material.
     @ViewBuilder

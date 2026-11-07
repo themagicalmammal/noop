@@ -83,8 +83,7 @@ public enum NoopMetrics {
     public static let controlHeight: CGFloat = 48
     /// Standard one-pixel edge used by cards and compact controls.
     public static let hairlineWidth: CGFloat = 1
-    /// Profile form dimensions shared by avatar and numeric controls.
-    public static let profileAvatarDiameter: CGFloat = 44
+    /// Profile form dimensions shared by the numeric controls.
     public static let formValueColumnWidth: CGFloat = 48
     public static let formWideValueColumnWidth: CGFloat = 64
     /// Compact metadata and explanatory-footer heights.

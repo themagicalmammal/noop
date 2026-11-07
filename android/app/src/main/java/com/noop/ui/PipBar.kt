@@ -210,7 +210,7 @@ fun PipBarRow(
     ) {
         // UPPERCASE label.
         Text(
-            text = label.uppercase(),
+            text = label.sentenceCaseLabel(),
             style = NoopType.overline,
             color = Palette.textSecondary,
         )

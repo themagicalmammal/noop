@@ -167,7 +167,7 @@ private data class InsightModel(
  * numbers, matching the macOS data-display contract.
  */
 @Composable
-fun InsightsScreen(vm: AppViewModel, onOpenInsightsHub: () -> Unit = {}) {
+fun InsightsScreen(vm: AppViewModel, titleRes: Int = R.string.nav_insights, onOpenInsightsHub: () -> Unit = {}) {
     val days by vm.recentDays.collectAsStateWithLifecycle()
 
     // Journal answers (all history): imported "my-whoop" rows UNIONED with native "noop-journal"
@@ -322,7 +322,7 @@ fun InsightsScreen(vm: AppViewModel, onOpenInsightsHub: () -> Unit = {}) {
     val showDayCycleBackground = remember { NoopPrefs.showDayCycleBackground(skyCtx) }
     val skyBehindCards = remember { NoopPrefs.skyBehindCards(skyCtx) }
     LazyScreenScaffold(
-        title = uiString(R.string.l10n_insights_screen_insights_b4510362),
+        title = uiString(titleRes),
         subtitle = "Interrogate what affects what.",
         topBackground = screenBackdropSlot(showDayCycleBackground, skyBehindCards),
         // Sky-behind-cards fills the viewport so the transparent cards reveal the sky the whole way

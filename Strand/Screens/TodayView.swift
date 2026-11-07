@@ -1386,9 +1386,13 @@ struct TodayView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("Quick actions")
                 .accessibilityHint("Start a workout, log your journal, or breathe")
-                // Menu (Settings), the avatar, same 36 size.
+                // Menu (Settings), same 36 size as the rest of the icon set.
                 Button { showSettings = true } label: {
-                    ProfileAvatarView(imageData: profile.avatarImageData, size: 36)
+                    Image(systemName: "person.fill")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(StrandPalette.textSecondary)
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(StrandPalette.surfaceInset))
                         .contentShape(Circle())
                 }
                 .buttonStyle(.plain)
@@ -4411,7 +4415,7 @@ struct TodayView: View {
         if !recent.isEmpty {
             VStack(alignment: .leading, spacing: NoopMetrics.gap) {
                 // Header mirrors the "Your cards" row: the overline + title, the user-edited window
-                // label, then the shared blue EDIT affordance (the same control as Your Cards) —
+                // label, then the shared EDIT affordance (the same control as Your Cards) —
                 // one edit entry-point style for every Today section that has one.
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 2) {
@@ -4435,19 +4439,19 @@ struct TodayView: View {
                     .foregroundStyle(StrandPalette.accent)
                     .accessibilityLabel(String(localized: "Customize Workouts"))
                 }
-                VStack(spacing: 0) {
-                    ForEach(Array(recent.prefix(feedCount).enumerated()), id: \.offset) { index, w in
-                        Button { workoutDetail = WorkoutDetailTarget(row: w) } label: {
-                            WorkoutTimelineRow(workout: w, date: workoutDate(w), timeRange: workoutTimeRange(w), duration: workoutDuration(w), fields: workoutFields)
-                        }
-                        .buttonStyle(LiquidPressStyle())
-                        if index < min(recent.count, feedCount) - 1 {
-                            Rectangle().fill(.white.opacity(0.08)).frame(height: 0.5).padding(.horizontal, 16)
+                NoopCard(padding: 0) {
+                    VStack(spacing: 0) {
+                        ForEach(Array(recent.prefix(feedCount).enumerated()), id: \.offset) { index, w in
+                            Button { workoutDetail = WorkoutDetailTarget(row: w) } label: {
+                                WorkoutTimelineRow(workout: w, date: workoutDate(w), timeRange: workoutTimeRange(w), duration: workoutDuration(w), fields: workoutFields)
+                            }
+                            .buttonStyle(LiquidPressStyle())
+                            if index < min(recent.count, feedCount) - 1 {
+                                Divider().overlay(StrandPalette.hairline)
+                            }
                         }
                     }
                 }
-                .background(StrandPalette.surfaceRaised, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(.white.opacity(0.06), lineWidth: 1))
             }
         }
     }
@@ -5684,9 +5688,6 @@ private struct WorkoutTimelineRow: View {
     // #today-layout: the per-row chips the feed editor enabled (every chip by default); each chip
     // below renders only when its value exists AND its field is enabled.
     let fields: Set<WorkoutField>
-    // One icon color for every sport, matching the "More > Workouts" icon: effortColor on a
-    // 20%-tinted circle.
-    private var color: Color { StrandPalette.effortColor }
     private var strainPercent: Int? { workout.strain.map { Int($0.rounded()) } }
     /// A zero/unknown span renders no duration chip (the Android twin hides its NO_DATA sentinel).
     private var hasDuration: Bool {
@@ -5695,10 +5696,10 @@ private struct WorkoutTimelineRow: View {
     }
     var body: some View {
         HStack(spacing: 16) {
-            Circle().fill(color.opacity(0.20)).frame(width: 40, height: 40)
+            Circle().fill(StrandPalette.surfaceInset).frame(width: 40, height: 40)
                 .overlay(Image(systemName: sportSymbol(workout.sport))
                     .font(.system(size: 19, weight: .semibold))
-                    .foregroundStyle(color))
+                    .foregroundStyle(StrandPalette.effortColor))
             VStack(alignment: .leading, spacing: 6) {
                 // Top line mirrors the "More > Workouts" rows: the sport in subhead primary, the
                 // date trailing in footnote tertiary, then the small chevron — the row opens a detail.
@@ -5744,17 +5745,17 @@ private struct WorkoutTimelineRow: View {
                     if let avg = workout.avgHr, fields.contains(.heartRate) {
                         HStack(spacing: 4) {
                             Image(systemName: "heart.fill")
-                                .foregroundStyle(StrandPalette.metricRose)
+                                .foregroundStyle(StrandPalette.textTertiary)
                             Text(String(localized: "\(avg) bpm"))
-                                .foregroundStyle(StrandPalette.metricRose)
+                                .foregroundStyle(StrandPalette.textSecondary)
                         }
                     }
                     if let kcal = workout.energyKcal, fields.contains(.calories) {
                         HStack(spacing: 4) {
                             Image(systemName: "flame.fill")
-                                .foregroundStyle(StrandPalette.metricAmber)
+                                .foregroundStyle(StrandPalette.textTertiary)
                             Text("\(Int(kcal.rounded())) kcal")
-                                .foregroundStyle(StrandPalette.metricAmber)
+                                .foregroundStyle(StrandPalette.textSecondary)
                         }
                     }
                 }

@@ -332,9 +332,6 @@ fun TodayScreen(
     // The liquid header battery ring taps through to Devices (iOS parity: the battery ring → router.openDevices()).
     // Defaulted to fall back to Settings so the call site stays compiling; AppRoot binds it to the Devices route.
     onOpenDevices: () -> Unit = onOpenSettings,
-    // The #627 journal-reminder card links straight to the journal (Insights). Defaulted to a no-op so
-    // the call site stays compiling; AppRoot binds it to nav.navigateTopLevel(Insights), same as Sleep.
-    onOpenJournal: () -> Unit = {},
 ) {
     val today by viewModel.today.collectAsStateWithLifecycle()
     val alert by viewModel.healthAlert.collectAsStateWithLifecycle()
@@ -792,7 +789,6 @@ fun TodayScreen(
     // The journal widget's own opt-out (default ON). Read here too so its reorderable section emits no
     // item when disabled — an always-present zero-height slot would leave a blank draggable gap. Same
     // remember-once idiom the card uses; a resume/recompose re-reads it. (#656)
-    val journalReminderOn = remember { NoopPrefs.journalReminderEnabled(context) }
     // S4: the Synthesis card collapses to a one-liner that expands on tap (default collapsed). Mirrors iOS.
     var synthesisExpanded by remember { mutableStateOf(false) }
     // S5: the Key Metrics grid caps at the first METRICS_COLLAPSED_CAP tiles behind a "Show all metrics"
@@ -1457,7 +1453,6 @@ fun TodayScreen(
                 onRescan = if (liveSnap.connected) null else requestScan,
                 onPickDay = { offset -> selectedDayOffset = offset },
                 onQuickActions = onQuickActions,
-                onOpenSettings = onOpenSettings,
                 onOpenDevices = onOpenDevices,
             )
             // WORDMARK (iOS LiquidWordmark parity): a subtle centred "N O O P" @ ~50% opacity, with a
@@ -1666,7 +1661,7 @@ fun TodayScreen(
         // neighbours as it crosses their centres (the screen-level frame loop also auto-scrolls at the
         // viewport edges and keeps swapping while it does), and the order persists on drop. The stagger
         // index follows the section's live position.
-        sectionOrder.filterNot { it in hiddenSections }.forEach { section ->
+        sectionOrder.filterNot { it in hiddenSections || it == TodaySection.JOURNAL }.forEach { section ->
             // Entrance stagger keyed on the section's FIXED default position, not its live position: the
             // stagger only matters on first appearance (staggeredAppear latches), and a live-position
             // stagger changes every moved section's content lambda on every mid-drag swap — recomposing
@@ -1693,8 +1688,7 @@ fun TodayScreen(
                 TodaySection.MENSTRUAL_CYCLE ->
                     selectedDayOffset == 0 && !cycleHidden &&
                         (cycleOptInApplies(profileStore.sex) || cycleEnabled || periodStarts.isNotEmpty())
-                TodaySection.JOURNAL ->
-                    selectedDayOffset == 0 && journalReminderOn
+                TodaySection.JOURNAL -> false
                 TodaySection.DATA_SOURCES ->
                     true
                 TodaySection.ADDED_CARDS ->
@@ -1951,15 +1945,7 @@ fun TodayScreen(
                             onOpen = { showCycleTracker = true },
                             onLogToday = { viewModel.logPeriodStart() },
                         )
-                        // #656: the persistent journal widget (last-7-days strip + tap-through). Now a
-                        // reorderable section like the others — hold-drag or Arrange moves it. Today-only
-                        // and enabled-gated at the loop level (sectionVisible) so it never leaves a blank
-                        // draggable slot. Twin of iOS LiquidTodayView's `.journal` arm.
-                        TodaySection.JOURNAL -> JournalReminderCard(
-                            viewModel = viewModel,
-                            days = days,
-                            onOpenJournal = onOpenJournal,
-                        )
+                        TodaySection.JOURNAL -> Unit
                         // #today-hosted-cards: the Trends/Sleep cards the user pulled into Today, in
                         // arranged order. Each is the SAME card its home tab renders (a mirror).
                         TodaySection.ADDED_CARDS -> HostedCardsSection(
@@ -2168,8 +2154,8 @@ fun TodayScreen(
 
     if (showLayoutEditor) {
         TodayLayoutEditorDialog(
-            initialOrder = sectionOrder,
-            initialHidden = hiddenSections,
+            initialOrder = sectionOrder.filterNot { it == TodaySection.JOURNAL },
+            initialHidden = hiddenSections.filterNot { it == TodaySection.JOURNAL },
             onDismiss = { showLayoutEditor = false },
             onEditAdded = {
                 showLayoutEditor = false
@@ -2188,8 +2174,8 @@ fun TodayScreen(
 
 /**
  * The accent quick-action "+" in the Today header's top-right. Moved off the bottom bar (now four clean
- * tabs) to balance the header and open the existing quick-action sheet. A small CONTAINED accent disc,  * the accented primary among an otherwise-neutral icon set, ~36dp, no float and no glow: a flat reset-blue
- * accent fill with a hairline rim, the "+" glyph in crisp white. Mirrors the iOS quick-action + (a glyph on
+ * tabs) to balance the header and open the existing quick-action sheet. A small CONTAINED accent disc, the accented primary among an otherwise-neutral icon set, ~36dp, no float
+ * and no glow: a red accent fill with a hairline rim, the "+" glyph in crisp white. Mirrors the iOS quick-action + (a glyph on
  * Circle().fill(StrandPalette.accent)).
  */
 /**
@@ -2467,7 +2453,7 @@ private fun CustomizeDisc(onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     Box(
         modifier = Modifier
-            // Level with the avatar / + / battery ring (shared size), so the cluster reads as one row.
+            // Level with the + / battery ring (shared size), so the cluster reads as one row.
             .size(HeaderClusterControl)
             .liquidPress(interaction)
             .clip(CircleShape)
@@ -2483,7 +2469,7 @@ private fun CustomizeDisc(onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            Icons.Filled.Tune,
+            Icons.Filled.Edit,
             contentDescription = null,
             tint = Color.White,
             modifier = Modifier.size(16.dp),
@@ -2496,7 +2482,7 @@ private fun QuickActionDisc(onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     Box(
         modifier = Modifier
-            // Sit level with the avatar / battery ring in the liquid header cluster (shared size).
+            // Sit level with the battery ring in the liquid header cluster (shared size).
             .size(HeaderClusterControl)
             .liquidPress(interaction)
             .clip(CircleShape)
@@ -2601,11 +2587,11 @@ private fun ScoringGuideIntroCard(onOpen: () -> Unit, onDismiss: () -> Unit) {
 // A STRUCTURAL rebuild to mirror the iOS liquid Today header element-for-element (NOT the old numeric-date +
 // recording-light + bell header). LEFT: a tappable title block — the big rounded-bold day title over a human
 // date line ("Friday, 3 July"), tap opens the day picker. RIGHT: exactly the iOS four controls, in order —
-// a filled HEART (→ Support), the PROFILE AVATAR (→ Settings), a "+" ADD button (→ quick actions), and the
-// strap BATTERY RING (→ Devices). Each ~36dp, spacing ~8dp. There is no recording light and no bell here;
+// a filled HEART (→ Support), a "+" ADD button (→ quick actions), and the strap BATTERY RING (→ Devices).
+// Each ~36dp, spacing ~8dp. There is no recording light and no bell here;
 // iOS's Today header has neither, and the Updates inbox is relocated into the "+" quick-actions sheet.
 
-/** The uniform diameter of the round Today-header controls — profile avatar, quick-add (+) and the strap
+/** The uniform diameter of the round Today-header controls — quick-add (+) and the strap
  *  battery ring — so they sit level in the liquid cluster (the sync chip beside them is content-sized).
  *  Single source of truth so a size tweak keeps all three in lockstep. */
 private val HeaderClusterControl = 36.dp
@@ -2631,7 +2617,6 @@ private fun LiquidTodayHeader(
     onRescan: (() -> Unit)? = null,
     onPickDay: (Int) -> Unit,
     onQuickActions: () -> Unit,
-    onOpenSettings: () -> Unit,
     onOpenDevices: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -2707,7 +2692,7 @@ private fun LiquidTodayHeader(
             )
         }
 
-        // RIGHT: the controls, in order — [sync chip] · avatar · + · battery ring. Each ~36dp, 8dp apart.
+        // RIGHT: the controls, in order — [sync chip] · + · battery ring. Each ~36dp, 8dp apart.
         //
         // #2110: deliberately NOT where the Customize control went, even though that is where iOS keeps it.
         // The title Column beside this is weight(1f) with maxLines=1 + Ellipsis, so every control added here
@@ -2729,22 +2714,7 @@ private fun LiquidTodayHeader(
                 pagesBehind = pagesBehindAtConnect,
                 scanning = scanning, onRescan = onRescan,
             )
-            // (a) Profile avatar (the photo set in Settings, or the NOOP loop mark) → Settings. Mirrors iOS.
-            Box(
-                modifier = Modifier
-                    .size(HeaderClusterControl)
-                    .clip(CircleShape)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onOpenSettings,
-                    )
-                    .semantics { contentDescription = uiString(R.string.l10n_today_screen_profile_and_settings_9b3d12f2) },
-                contentAlignment = Alignment.Center,
-            ) {
-                ProfileAvatar(size = HeaderClusterControl)
-            }
-            // (b) Quick-add (+), the accented primary. Mirrors iOS's LiquidAddButton (a glyph on a translucent
+            // Quick-add (+), the accented primary. Mirrors iOS's LiquidAddButton (a glyph on a translucent
             // disc → the quick-actions menu). Sized to match the rest of the liquid cluster (shared HeaderClusterControl).
             QuickActionDisc(onClick = onQuickActions)
             // (c) Active-device battery ring showing the % (iOS LiquidBatteryButton). Tap → Devices.
@@ -3350,7 +3320,7 @@ private fun HeroRingColumn(
             // the complete fixed score-column width prevents longer translations (for example ERHOLUNG)
             // from pushing the third column right or being clipped at the screen edge.
             AutoSizeValue(
-                text = domainLabel.uppercase(),
+                text = domainLabel.sentenceCaseLabel(),
                 style = NoopType.overline,
                 color = Palette.textSecondary,
                 modifier = Modifier
@@ -3550,7 +3520,7 @@ private fun SynthesisHeroCard(
             val todayRecovery = day?.recovery
             StatePill(
                 title = if (todayRecovery != null) uiString(R.string.today_score_solid)
-                else uiString(R.string.score_state_title_calibrating).uppercase(),
+                else uiString(R.string.score_state_title_calibrating).sentenceCaseLabel(),
                 tone = if (todayRecovery != null) StrandTone.Accent else StrandTone.Neutral,
             )
         }
@@ -3684,7 +3654,7 @@ private fun ReadinessHeroPill(word: String, level: ReadinessEngine.Level, onTap:
             .semantics { contentDescription = uiString(R.string.l10n_today_screen_readiness_word_749b3330, word) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(word.uppercase(), style = NoopType.overline, color = tone)
+        Text(word.sentenceCaseLabel(), style = NoopType.overline, color = tone)
     }
 }
 
@@ -3956,8 +3926,7 @@ private fun HeroVitalRow(
 // big white value + small unit + chevron on the right. A card with no value yet renders a dash rather than
 // vanishing. Mirrors iOS TodayView.yourCardsSection / pinnedCardRow / dashboardValue / dashboardTint.
 
-/** Shared Today section edit affordance. The 48dp box keeps the whole control easy to tap while its
- *  visible content stays pinned to the overline instead of centring against a two-line header. */
+/** Shared Today section edit affordance. A compact icon keeps the control visually quiet and easy to tap. */
 @Composable
 private fun TodayEditAction(
     contentDescription: String,
@@ -3966,28 +3935,17 @@ private fun TodayEditAction(
 ) {
     Box(
         modifier = Modifier
-            .height(48.dp)
+            .size(36.dp)
             .clickable(onClick = onClick)
             .semantics { this.contentDescription = contentDescription }
-            .padding(horizontal = Metrics.space12),
+            .padding(4.dp),
     ) {
-        Row(
-            modifier = Modifier.align(contentAlignment),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                Icons.Filled.Tune,
-                contentDescription = null,
-                tint = Palette.accent,
-                modifier = Modifier.size(14.dp),
-            )
-            Spacer(Modifier.width(Metrics.space4))
-            Text(
-                uiString(R.string.l10n_today_screen_edit_5301648d).uppercase(Locale.getDefault()),
-                style = NoopType.overline.copy(letterSpacing = 0.4.sp),
-                color = Palette.accent,
-            )
-        }
+        Icon(
+            Icons.Filled.Edit,
+            contentDescription = null,
+            tint = Palette.accent,
+            modifier = Modifier.align(contentAlignment).size(18.dp),
+        )
     }
 }
 
@@ -4429,12 +4387,12 @@ private fun dashboardCardDestination(
 }
 
 /** A dashboard card's WHOOP-token tint (icon + accent). Score cards take their domain colour; vitals take
- *  their biometric hue; everything else the blue accent. No gold (WHOOP), tokens only. Mirrors iOS
+ *  their biometric hue; everything else the red accent. Tokens only. Mirrors iOS
  *  dashboardTint. This drives the mini liquid ring's tint on each row, so it follows the iOS `liquidCard`
  *  per-card tints exactly: Stress=accent, Fitness age=charge-green, Vitality=liquid-purple, HRV=cyan,
  *  Resting HR=rose, Respiratory=accent, Steps=cyan, Sleep=rest, Coupled=charge. */
 private fun dashboardCardTint(card: DashboardCard): Color = when (card) {
-    // iOS `liquidCard`: stress → StrandPalette.accent (blue), not the Effort orange.
+    // iOS `liquidCard`: stress → StrandPalette.accent, not the Effort orange.
     DashboardCard.STRESS -> Palette.accent
     DashboardCard.FITNESS_AGE -> Palette.chargeColor
     DashboardCard.VO2MAX -> Palette.chargeColor
@@ -4709,7 +4667,7 @@ private fun DashboardCardRow(
         ) {
             // iOS: overline 11 / +1.0 tracking, textPrimary.
             Text(
-                uiString(card.titleRes).uppercase(),
+                uiString(card.titleRes).sentenceCaseLabel(),
                 style = NoopType.overline.copy(fontSize = 11.sp, letterSpacing = 1.0.sp),
                 color = Palette.textPrimary,
                 maxLines = 1,
@@ -4804,7 +4762,7 @@ private fun DashboardCardGridTile(
             verticalArrangement = Arrangement.spacedBy(1.dp),
         ) {
             Text(
-                uiString(card.titleRes).uppercase(),
+                uiString(card.titleRes).sentenceCaseLabel(),
                 style = NoopType.overline.copy(fontSize = 11.sp, letterSpacing = 1.0.sp),
                 color = Palette.textPrimary,
             )
@@ -6685,7 +6643,7 @@ private fun LiquidKeyTile(
                 modifier = Modifier.size(12.dp),
             )
             Text(
-                data.label.uppercase(),
+                data.label.sentenceCaseLabel(),
                 style = NoopType.overline.copy(fontSize = 9.sp, letterSpacing = 1.2.sp),
                 color = Palette.textTertiary,
                 maxLines = 1,
@@ -7662,14 +7620,11 @@ private fun TodayWorkoutsSection(workouts: List<WorkoutRow>, limit: Int, windowD
 
     // "Latest Workouts", not "Last": "Last" read as "final". Mirrored on iOS (TodayView). Lives in
     // strings.xml (values + values-de) so the header is localizable like the nav labels.
-    // The header mirrors the "Your cards" row: overline + title left, the user-edited window
-    // label, then the shared blue EDIT affordance (the same control as Your Cards) — one edit
+    // Compact title, the user-edited window label, and a small icon-only edit affordance — one edit
     // entry-point style for every Today section that has one.
-    Row(verticalAlignment = Alignment.Top) {
-        Column(modifier = Modifier.weight(1f)) {
-            Overline(uiString(R.string.today_workouts_activity))
-            Text(stringResource(R.string.today_latest_workouts), style = NoopType.title2, color = Palette.textPrimary)
-        }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(R.string.today_latest_workouts), style = NoopType.title2, color = Palette.textPrimary,
+            modifier = Modifier.weight(1f))
         Text(workoutsWindowLabel(windowDays), style = NoopType.footnote, color = Palette.textSecondary)
         TodayEditAction(
             onClick = onEditCount,
@@ -7677,45 +7632,44 @@ private fun TodayWorkoutsSection(workouts: List<WorkoutRow>, limit: Int, windowD
             contentAlignment = Alignment.TopCenter,
         )
     }
-    Column(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).frostedCardSurface(cornerRadius = 24.dp)
-            .border(1.dp, Color.White.copy(alpha = 0.06f), RoundedCornerShape(24.dp)),
-        verticalArrangement = Arrangement.spacedBy(0.dp),
+    NoopCard(
+        modifier = Modifier.fillMaxWidth(),
+        padding = 0.dp,
     ) {
-      feed.forEachIndexed { index, workout ->
-            val interaction = remember(workout.startTs, workout.source) { MutableInteractionSource() }
-            WorkoutTimelineRow(
-                workout = workout,
-                fields = fields,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .liquidPress(interaction)
-                    .clickable(interactionSource = interaction, indication = null,
-                        onClickLabel = uiString(R.string.today_action_show_workout), onClick = { onSelect(workout) }),
-            )
-            if (index < feed.lastIndex) HorizontalDivider(color = Color.White.copy(alpha = 0.08f), thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
+        // NoopCard's body is a Box; the feed must be a Column or every row stacks in place.
+        Column {
+            feed.forEachIndexed { index, workout ->
+                val interaction = remember(workout.startTs, workout.source) { MutableInteractionSource() }
+                WorkoutTimelineRow(
+                    workout = workout,
+                    fields = fields,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .liquidPress(interaction)
+                        .clickable(interactionSource = interaction, indication = null,
+                            onClickLabel = uiString(R.string.today_action_show_workout), onClick = { onSelect(workout) }),
+                )
+                if (index < feed.lastIndex) HorizontalDivider(color = Palette.hairline, thickness = 0.5.dp)
+            }
         }
     }
 }
 
 @Composable
 private fun WorkoutTimelineRow(workout: WorkoutRow, fields: Set<WorkoutField>, modifier: Modifier = Modifier) {
-    // One icon color for every sport, matching the "More > Workouts" icon: effortColor on a
-    // 20%-tinted circle.
-    val color = Palette.effortColor
     val strainPct = workout.strain?.roundToInt()
     val duration = workoutDuration(workout)
     val start = workoutTimeFmt.format(Instant.ofEpochSecond(workout.startTs))
     val end = if (workout.endTs > workout.startTs) workoutTimeFmt.format(Instant.ofEpochSecond(workout.endTs)) else null
     val date = workoutDateFmt.format(Instant.ofEpochSecond(workout.startTs))
     val timeRange = if (end != null) stringResource(R.string.today_workout_time_range, start, end) else start
-    Row(modifier = modifier.heightIn(min = 80.dp).padding(horizontal = Metrics.cardPadding, vertical = Metrics.space10), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Metrics.space16)) {
-        Box(Modifier.size(40.dp).clip(CircleShape).background(color.copy(alpha = 0.20f)), contentAlignment = Alignment.Center) {
+    Row(modifier = modifier.heightIn(min = 72.dp).padding(horizontal = Metrics.cardPadding, vertical = Metrics.space8), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Metrics.space12)) {
+        Box(Modifier.size(36.dp).clip(CircleShape).background(Palette.surfaceInset), contentAlignment = Alignment.Center) {
             // Per-sport glyph from the shared catalog (the same mapping as More > Workouts), not a
             // generic dumbbell: a swim reads as a swim, a ride reads as a ride.
-            Icon(sportIcon(workout.sport), null, tint = color, modifier = Modifier.size(22.dp))
+            Icon(sportIcon(workout.sport), null, tint = Palette.effortColor, modifier = Modifier.size(20.dp))
         }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Metrics.space6)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Metrics.space4)) {
             // Top line mirrors the "More > Workouts" rows: the sport in subhead primary, the date
             // trailing in footnote tertiary, then the small chevron — the row opens a detail.
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Metrics.space8)) {
@@ -7755,15 +7709,15 @@ private fun WorkoutTimelineRow(workout: WorkoutRow, fields: Set<WorkoutField>, m
                 // neither, so each chip renders nothing when its value is null.
                 if (workout.avgHr != null && fields.contains(WorkoutField.HEART_RATE)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Metrics.space4)) {
-                        Icon(Icons.Filled.Favorite, null, tint = Palette.metricRose, modifier = Modifier.size(14.dp))
-                        Text(workout.avgHr.toString(), style = NoopType.number(12f, FontWeight.Normal), color = Palette.metricRose, maxLines = 1)
-                        Text(uiString(R.string.today_unit_bpm), style = NoopType.number(12f, FontWeight.Normal), color = Palette.metricRose, maxLines = 1)
+                        Icon(Icons.Filled.Favorite, null, tint = Palette.textTertiary, modifier = Modifier.size(14.dp))
+                        Text(workout.avgHr.toString(), style = NoopType.number(12f, FontWeight.Normal), color = Palette.textSecondary, maxLines = 1)
+                        Text(uiString(R.string.today_unit_bpm), style = NoopType.number(12f, FontWeight.Normal), color = Palette.textSecondary, maxLines = 1)
                     }
                 }
                 if (workout.energyKcal != null && fields.contains(WorkoutField.CALORIES)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Metrics.space4)) {
-                        Icon(Icons.Filled.LocalFireDepartment, null, tint = Palette.metricAmber, modifier = Modifier.size(14.dp))
-                        Text(stringResource(R.string.today_workout_kcal, workout.energyKcal.roundToInt()), style = NoopType.number(12f, FontWeight.Normal), color = Palette.metricAmber, maxLines = 1)
+                        Icon(Icons.Filled.LocalFireDepartment, null, tint = Palette.textTertiary, modifier = Modifier.size(14.dp))
+                        Text(stringResource(R.string.today_workout_kcal, workout.energyKcal.roundToInt()), style = NoopType.number(12f, FontWeight.Normal), color = Palette.textSecondary, maxLines = 1)
                     }
                 }
             }

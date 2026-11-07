@@ -64,7 +64,7 @@ fun CycleTrackerDialog(
                 modifier = Modifier.heightIn(max = Metrics.dialogScrollableMaxHeight).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(Metrics.gap),
             ) {
-                Text(uiString(com.noop.R.string.cycle_tracker_current_estimate).uppercase(Locale.getDefault()), style = NoopType.overline, color = Palette.textTertiary)
+                Text(uiString(com.noop.R.string.cycle_tracker_current_estimate).sentenceCaseLabel(), style = NoopType.overline, color = Palette.textTertiary)
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
                     Text(cycleTrackerPhase(result.phase), style = NoopType.headline, color = Palette.textPrimary)
                     Spacer(Modifier.weight(1f))
@@ -80,7 +80,7 @@ fun CycleTrackerDialog(
                 }
 
                 HorizontalDivider(color = Palette.hairline)
-                Text(uiString(com.noop.R.string.cycle_tracker_log_heading).uppercase(Locale.getDefault()), style = NoopType.overline, color = Palette.textTertiary)
+                Text(uiString(com.noop.R.string.cycle_tracker_log_heading).sentenceCaseLabel(), style = NoopType.overline, color = Palette.textTertiary)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -113,7 +113,7 @@ fun CycleTrackerDialog(
 
                 HorizontalDivider(color = Palette.hairline)
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(uiString(com.noop.R.string.cycle_tracker_logged_starts).uppercase(Locale.getDefault()), style = NoopType.overline, color = Palette.textTertiary)
+                    Text(uiString(com.noop.R.string.cycle_tracker_logged_starts).sentenceCaseLabel(), style = NoopType.overline, color = Palette.textTertiary)
                     Spacer(Modifier.weight(1f))
                     if (starts.isNotEmpty()) {
                         TextButton(onClick = { confirmingDeleteAll = true }) {

@@ -416,7 +416,7 @@ private fun HeroCentre(recovery: Double?, readinessLevel: ReadinessEngine.Level)
 private fun ReadinessPill(word: String, level: ReadinessEngine.Level) {
     val tint = readinessTint(level)
     Text(
-        word.uppercase(),
+        word.sentenceCaseLabel(),
         style = NoopType.overline,
         color = tint,
         modifier = Modifier
@@ -524,7 +524,7 @@ private fun OptimalStat(title: String, recovery: Double?) {
         // ONE of the four visible and fails the gate. Localising a single stat title while its three
         // siblings stay hardcoded would be the wrong fix for a parity PR; the four of them are one
         // pre-existing gap and belong to one change.
-        Text(title.uppercase(), style = NoopType.overline, color = Palette.textSecondary)
+        Text(title.sentenceCaseLabel(), style = NoopType.overline, color = Palette.textSecondary)
         // Deliberately the same bare Text as [HeroStat]'s value, with no maxLines. Swift shrinks this
         // (lineLimit(1).minimumScaleFactor(0.6)) but so does its heroStat, and Android's HeroStat does
         // neither - so that divergence belongs to all four coupled stats, not to this one. Adding a
@@ -549,7 +549,7 @@ private fun HeroStat(title: String, value: String, tint: Color) {
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Text(title.uppercase(), style = NoopType.overline, color = Palette.textSecondary)
+        Text(title.sentenceCaseLabel(), style = NoopType.overline, color = Palette.textSecondary)
         Text(value, style = NoopType.number(20f), color = tint)
     }
 }

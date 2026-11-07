@@ -1343,7 +1343,7 @@ private fun ColHeader(text: String, modifier: Modifier, align: TextAlign) {
     // Built from the overline style directly (not the Overline composable) so the
     // numeric columns can right-align their headers over the right-aligned cells.
     Text(
-        text = text.uppercase(),
+        text = text.sentenceCaseLabel(),
         style = NoopType.overline,
         color = Palette.textSecondary,
         textAlign = align,

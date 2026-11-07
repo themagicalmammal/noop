@@ -542,7 +542,7 @@ struct RootTabView: View {
     /// Insights + Body default open, Data + App default collapsed (the `expandedMoreSections` seed) so the
     /// list is shorter at rest without dropping a single row. The grouped card is unchanged: a single
     /// `NoopCard` holding a `VStack(spacing: 0)` whose `MoreRow`s draw their own hairlines, clipped to the
-    /// card's rounded shape so the last divider is trimmed inside the corners. Same idiom Settings/Health use.
+    /// card's rounded shape. Same idiom Settings/Health use.
     @ViewBuilder
     private func moreSection<Rows: View>(_ title: String,
                                          @ViewBuilder rows: @escaping () -> Rows) -> some View {
@@ -577,15 +577,10 @@ struct RootTabView: View {
             .accessibilityHint(Text(isOpen ? String(localized: "Double tap to collapse") : String(localized: "Double tap to expand")))
 
             if isOpen {
-                // Zero internal padding so each MoreRow owns its own comfortable insets + height; the rows
-                // supply their own hairline separators (drawn at the bottom of every row but the last via the
-                // divider overlay) so the group reads as one continuous grouped list, matching Settings/Health.
+                // Zero internal padding so each MoreRow owns its own comfortable insets + height; the group
+                // reads as one continuous flat list, matching Settings/Health.
                 NoopCard(padding: 0) {
                     VStack(spacing: 0) { rows() }
-                        // Clip the rows column to the card's rounded shape so the last row's bottom hairline is
-                        // trimmed inside the corners (the card draws its surface in the BACKGROUND and doesn't
-                        // clip content itself, so without this the final divider would run past the rounded edge).
-                        .clipShape(RoundedRectangle(cornerRadius: NoopMetrics.cardRadius, style: .continuous))
                 }
             }
         }
@@ -672,14 +667,6 @@ private struct MoreRow: View {
             .frame(minHeight: 44)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
-            // Hairline under every row; the grouped container clips the last one's overflow so the bottom
-            // edge stays clean (the divider sits inside the card's rounded corners).
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(StrandPalette.hairline)
-                    .frame(height: 1)
-                    .padding(.leading, 16)
-            }
         }
         .buttonStyle(.plain)
     }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -200,13 +201,7 @@ internal fun SettingsFormRow(label: String, control: @Composable () -> Unit) {
 
 @Composable
 internal fun SettingsRowDivider() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .height(1.dp)
-            .background(Palette.hairline),
-    )
+    Spacer(Modifier.height(8.dp))
 }
 
 @Composable

@@ -305,7 +305,7 @@ private fun JournalGroupBlock(
             modifier = Modifier.fillMaxWidth().clickable { collapsed = !collapsed },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(group.title.uppercase(), style = NoopType.overline, color = Palette.textTertiary)
+            Text(group.title.sentenceCaseLabel(), style = NoopType.overline, color = Palette.textTertiary)
             Spacer(Modifier.width(6.dp))
             Text(uiString(R.string.l10n_journal_log_items_size_f76ab912, items.size), style = NoopType.caption, color = Palette.textTertiary)
             Spacer(Modifier.weight(1f))

@@ -2,22 +2,17 @@ package com.noop.ui
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.ComponentName
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberScrollState
@@ -724,7 +719,6 @@ fun SettingsScreen(
     var rhythmEnabled by remember { mutableStateOf(RhythmConsent.isEnabled(context)) }
     var coachSignals by remember { mutableStateOf(NoopPrefs.coachSignals(context)) }
     var autoDetectWorkouts by remember { mutableStateOf(NoopPrefs.autoDetectWorkouts(context)) }
-    var journalReminder by remember { mutableStateOf(NoopPrefs.journalReminderEnabled(context)) }
     // Keep the screen on during a manual workout recording (#703), default OFF. The live-workout
     // screen reads this same "workoutKeepScreenOn" key. String shared verbatim with the iOS/Mac twin
     // (AppStorage "workoutKeepScreenOn"). Read/written inline against the shared prefs store.
@@ -744,7 +738,6 @@ fun SettingsScreen(
     val distanceUnitSystem = UnitPrefs.resolveDistance(unitSystem, distanceSystemRaw)
     var clockFormat by remember { mutableStateOf(ClockPrefs.preference(context)) }   // #1821
     // #2346: gauge numeral weight, mirrored locally so the pill is live; AppearancePrefs is the store.
-    var gaugeNumerals by remember { mutableStateOf(AppearancePrefs.gaugeNumerals) }
     var temperatureRaw by remember {
         mutableStateOf(NoopPrefs.of(context).getString(NoopPrefs.KEY_TEMPERATURE_UNIT, "") ?: "")
     }
@@ -755,11 +748,6 @@ fun SettingsScreen(
     // Display-only; the stored value never changes. Mirrors into local state like the toggles above.
     var effortScale by remember { mutableStateOf(UnitPrefs.effortScale(context)) }
 
-    // App icon (v3 "Titanium & Gold") — machined-titanium (.IconDefault) or blued-titanium (.IconNavy).
-    // SharedPreferences isn't reactive, so the segmented control drives this local mirror; flipping it
-    // enables exactly one launcher alias via PackageManager (see setAppIcon below).
-    var appIconNavy by remember { mutableStateOf(NoopPrefs.appIconNavy(context)) }
-
     // Theme (System / Light / Dark) — drives NoopTheme; AppearancePrefs mirrors it in snapshot state.
     var themeMode by remember { mutableStateOf(AppearancePrefs.mode) }
     // App language owns the process resource locale; changing it recreates this Activity below so every
@@ -767,9 +755,6 @@ fun SettingsScreen(
     var appLanguage by remember { mutableStateOf(AppLanguagePrefs.selected(context)) }
     // Chart colours (Titanium / Classic) — re-colours gauges + charts; ChartStylePrefs mirrors it live.
     var chartStyle by remember { mutableStateOf(ChartStylePrefs.style) }
-    // Chrome accent (Mint / WHOOP Blue / Custom) — chrome only; AccentPrefs mirrors it in snapshot state.
-    var accentColor by remember { mutableStateOf(AccentPrefs.color) }
-    var accentCustomHex by remember { mutableStateOf(AccentPrefs.customHex) }
     // Trend charts (Line / Bar) — flips the Trends tab between the gradient line and value-ramp bars.
     // Display-only; SharedPreferences isn't reactive, so mirror into local state and persist on select.
     var trendChartStyle by remember { mutableStateOf(UnitPrefs.trendChartStyle(context)) }
@@ -879,42 +864,6 @@ fun SettingsScreen(
         }
     }
 
-    // Modern Photo Picker for the optional profile photo (no READ_EXTERNAL_STORAGE permission needed).
-    // Returns a single image Uri (or null if cancelled); we decode + downscale + persist off the main
-    // thread via ProfileAvatarStore, which updates the live avatar everywhere. Stored only on this phone.
-    val avatarPickerLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia(),
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            val ok = withContext(Dispatchers.IO) {
-                ProfileAvatarStore.setAvatarFromUri(context, uri)
-            }
-            if (!ok) {
-                Toast.makeText(context, "Couldn't use that photo. Try another.", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    // Custom background image (#custom-background) — two sources per the design: the modern Photo Picker
-    // (no storage permission) and the system file browser ("Browse"). Both read the bytes ONCE, downscale
-    // + persist a private JPEG off the main thread via BackgroundImageStore, which flips the live backdrop
-    // on every tab. We copy immediately, so no persistable-Uri grant is needed for the file source.
-    val setBackgroundFromUri: (Uri) -> Unit = { uri ->
-        scope.launch {
-            val ok = withContext(Dispatchers.IO) { BackgroundImageStore.setImageFromUri(context, uri) }
-            if (!ok) {
-                Toast.makeText(context, "Couldn't use that image. Try another.", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-    val backgroundPhotoLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia(),
-    ) { uri -> if (uri != null) setBackgroundFromUri(uri) }
-    val backgroundFileLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument(),
-    ) { uri -> if (uri != null) setBackgroundFromUri(uri) }
-
     ScreenScaffold(
         title = uiString(R.string.l10n_settings_screen_settings_c7f73bb5),
         subtitle = "Your numbers, your strap, and how NOOP works. All on this phone.",
@@ -932,12 +881,6 @@ fun SettingsScreen(
         // (SharedPreferences is not observable; `mutate` bumps `rev` after each write).
         @Suppress("UNUSED_VARIABLE") val tick = rev
 
-        // --- Profile photo (optional, on-device) ---
-        // Split into its own section ahead of the body-numbers Profile card, mirroring the iOS
-        // SettingsView `profilePhotoCard` (person.crop.circle, the offline blurb). A large avatar + a
-        // Choose/Change button and, once set, a Remove. Local-only and honest: the picked image is
-        // downscaled and kept on this phone, never uploaded. Reads ProfileAvatarStore.hasAvatar
-        // (snapshot state) so the controls update the instant a photo is set or cleared.
         // Day streak (#569): consecutive days with a Charge score, computed on-device from your own
         // history. Uses NoopCard directly (not SettingsSection) to keep the wiring self-contained.
         val streaks by vm.streaks.collectAsStateWithLifecycle()
@@ -952,45 +895,6 @@ fun SettingsScreen(
                     pluralStringResource(R.plurals.settings_streak_longest, streaks.longest, streaks.longest),
                     style = NoopType.footnote, color = Palette.textSecondary,
                 )
-            }
-        }
-
-        SettingsCard(
-            icon = Icons.Outlined.AccountCircle,
-            title = uiString(R.string.l10n_settings_screen_profile_photo_33f385bb),
-            blurb = "Optional. Add a photo for the avatar in the top-left. Stored only on this phone. NOOP is offline, so it's never uploaded.",
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                ProfileAvatar(size = 64.dp, contentDescription = uiString(R.string.l10n_settings_screen_profile_photo_33f385bb))
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        NoopButton(
-                            text = if (ProfileAvatarStore.hasAvatar) "Change photo" else "Choose photo",
-                            kind = NoopButtonKind.Secondary,
-                            modifier = Modifier.weight(1f),
-                            onClick = {
-                                avatarPickerLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                                )
-                            },
-                        )
-                        if (ProfileAvatarStore.hasAvatar) {
-                            NoopButton(
-                                text = uiString(R.string.l10n_settings_screen_remove_photo_c8f5eda8),
-                                kind = NoopButtonKind.Tertiary,
-                                modifier = Modifier.weight(1f),
-                                onClick = { ProfileAvatarStore.clearAvatar(context) },
-                            )
-                        }
-                    }
-                }
             }
         }
 
@@ -1520,50 +1424,6 @@ fun SettingsScreen(
                 )
             }
             SettingsRowDivider()
-            // #2346: how heavy the numeral over a gauge is drawn. A reporter found the Today gauges "too
-            // much in your face"; bold display numerals are the house style on BOTH platforms, so this is
-            // a preference rather than a defect and Bold stays the default. Only the WEIGHT is offered:
-            // the size is pinned to the iOS ratio and is not a per-platform knob. Twin of the Apple row.
-            SettingsFormRow(label = uiString(R.string.l10n_settings_screen_gauge_numbers_db0d45e3)) {
-                SegmentedPillControl(
-                    items = listOf(GaugeNumeralStyle.BOLD, GaugeNumeralStyle.SOFT),
-                    selection = gaugeNumerals,
-                    label = {
-                        when (it) {
-                            GaugeNumeralStyle.BOLD -> uiString(R.string.l10n_settings_screen_bold_19e07430)
-                            GaugeNumeralStyle.SOFT -> uiString(R.string.l10n_settings_screen_softer_9edfeba1)
-                        }
-                    },
-                    onSelect = {
-                        gaugeNumerals = it
-                        AppearancePrefs.setGaugeNumerals(context, it)
-                    },
-                )
-            }
-            SettingsRowDivider()
-            // Theme presets — one-tap bundles coordinating accent + chart world + backdrop + card opacity.
-            // Derived (no stored value): tweaking any control below flips this to Custom.
-            SettingsFormRow(label = uiString(R.string.l10n_settings_screen_preset)) {
-                ThemePresetDropdown(
-                    current = ThemePreset.matching(
-                        accentColor, chartStyle, showDayCycleBackground, (cardOpacity * 100).roundToInt(),
-                    ),
-                    onSelect = { p ->
-                        val accent = p.accent
-                        val chart = p.chart
-                        if (accent != null && chart != null) {
-                            accentColor = accent
-                            chartStyle = chart
-                            showDayCycleBackground = p.backdrop
-                            cardOpacity = p.cardOpacity / 100f
-                            AccentPrefs.setColor(context, accent)
-                            ChartStylePrefs.set(context, chart)
-                            NoopPrefs.setShowDayCycleBackground(context, p.backdrop)
-                            NoopPrefs.setCardOpacityPercent(context, p.cardOpacity)
-                        }
-                    },
-                )
-            }
             SettingsRowDivider()
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_theme_a797e309)) {
                 SegmentedPillControl(
@@ -1597,30 +1457,6 @@ fun SettingsScreen(
                     onSelect = { style ->
                         chartStyle = style
                         ChartStylePrefs.set(context, style)
-                    },
-                )
-            }
-            SettingsRowDivider()
-            // Chrome accent colour — links/buttons/selection tint only. The recovery/strain/sleep DATA
-            // colours follow "Chart colours", never this. Custom reveals RGB sliders.
-            SettingsFormRow(label = uiString(R.string.l10n_settings_screen_accent)) {
-                SegmentedPillControl(
-                    items = listOf(AccentColor.MINT, AccentColor.WHOOP_BLUE, AccentColor.CUSTOM),
-                    selection = accentColor,
-                    label = { it.label },
-                    onSelect = { c ->
-                        accentColor = c
-                        AccentPrefs.setColor(context, c)
-                    },
-                )
-            }
-            if (accentColor == AccentColor.CUSTOM) {
-                SettingsRowDivider()
-                AccentCustomPicker(
-                    hex = accentCustomHex,
-                    onHexChange = { hex ->
-                        accentCustomHex = hex
-                        AccentPrefs.setCustomHex(context, hex)
                     },
                 )
             }
@@ -1973,123 +1809,6 @@ fun SettingsScreen(
                         thumbColor = Palette.accent,
                         activeTrackColor = Palette.accent,
                     ),
-                )
-            }
-        }
-        // --- Background image (#custom-background) ---
-        // An optional custom photo drawn full-bleed behind EVERY tab (including More), in place of the
-        // day-cycle sky (precedence: image > sky > flat canvas). Pick from Photos or Browse the files; the
-        // image is downscaled + kept on this phone only (NOOP is offline, so it's never uploaded), and left
-        // out of the .noopbak backup like the avatar. Reads BackgroundImageStore snapshot state, so the
-        // controls + the live backdrop update the instant an image is set, removed, or re-scaled.
-        SettingsCard(
-            icon = Icons.Outlined.Image,
-            title = "Background image",
-            blurb = "Optional. Use your own photo behind every tab, in place of the day-cycle sky. " +
-                "Stored only on this phone. Pair it with Transparent cards above to let it show through.",
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                NoopButton(
-                    text = if (BackgroundImageStore.hasImage) "Replace from Photos" else "Choose from Photos",
-                    kind = NoopButtonKind.Secondary,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        backgroundPhotoLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                        )
-                    },
-                )
-                NoopButton(
-                    text = "Browse files",
-                    kind = NoopButtonKind.Secondary,
-                    modifier = Modifier.weight(1f),
-                    onClick = { backgroundFileLauncher.launch(arrayOf("image/*")) },
-                )
-            }
-
-            if (BackgroundImageStore.hasImage) {
-                // Recent presets: tap a thumbnail to re-apply that image + the scaling it was last shown
-                // with. The first (accent-ringed) one is the active background.
-                val recents = BackgroundImageStore.recents
-                if (recents.isNotEmpty()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Recent", style = NoopType.footnote, color = Palette.textSecondary)
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            recents.forEachIndexed { i, r ->
-                                BackgroundRecentThumb(
-                                    thumb = BackgroundImageStore.thumbnails.getOrNull(i),
-                                    mode = r.fillMode,
-                                    active = i == 0,
-                                    // Off-main: applyRecent re-decodes the full-size active image.
-                                    onClick = {
-                                        scope.launch { withContext(Dispatchers.IO) { BackgroundImageStore.applyRecent(context, i) } }
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
-                // Master gate + scaling only make sense once an image exists.
-                SettingsToggleRow(
-                    title = "Show custom background",
-                    detail = "Draw your photo behind every tab, replacing the day-cycle sky.",
-                    checked = BackgroundImageStore.enabled,
-                    onCheckedChange = { BackgroundImageStore.setEnabled(context, it) },
-                )
-                // Scaling label ABOVE a full-width segmented control — NOT a SettingsFormRow. In a
-                // label|control row the adaptsToAvailableWidth pill fills the width and starves the label
-                // to ~0px, which wrapped "Scaling" one letter per line and blew the row up to a tall
-                // empty gap. A stacked label sidesteps that entirely.
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Scaling", style = NoopType.footnote, color = Palette.textSecondary)
-                    SegmentedPillControl(
-                        items = BackgroundFillMode.entries,
-                        selection = BackgroundImageStore.fillMode,
-                        label = { mode ->
-                            when (mode) {
-                                BackgroundFillMode.FILL -> "Fill"
-                                BackgroundFillMode.FIT -> "Fit"
-                                BackgroundFillMode.STRETCH -> "Stretch"
-                                BackgroundFillMode.TILE -> "Tile"
-                            }
-                        },
-                        onSelect = { BackgroundImageStore.setFillMode(context, it) },
-                        // Four segments share the row width equally so the labels can't widen the card.
-                        adaptsToAvailableWidth = true,
-                    )
-                }
-                NoopButton(
-                    text = "Remove image",
-                    kind = NoopButtonKind.Tertiary,
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        scope.launch { withContext(Dispatchers.IO) { BackgroundImageStore.clearImage(context) } }
-                    },
-                )
-            }
-        }
-
-        // --- App icon (v3 "Titanium & Gold") ---
-        // Two staged launcher icons — machined titanium (default) and blued/dark-blue titanium. The
-        // swap is done by enabling exactly one <activity-alias> (.IconDefault / .IconNavy) at runtime;
-        // the launcher may take a beat (or briefly disappear/redraw) while it re-reads the icon.
-        SettingsCard(
-            icon = Icons.Filled.Palette,
-            title = uiString(R.string.l10n_settings_screen_app_icon_abde7a74),
-            blurb = "Choose how NOOP looks on your home screen. The launcher may take a moment to refresh the icon after you change it.",
-        ) {
-            SettingsFormRow(label = uiString(R.string.l10n_settings_screen_icon_716f63b9)) {
-                SegmentedPillControl(
-                    items = listOf(false, true),
-                    selection = appIconNavy,
-                    label = { if (it) "Blue Titanium" else "Titanium" },
-                    onSelect = { navy ->
-                        appIconNavy = navy
-                        setAppIcon(context, navy)
-                    },
                 )
             }
         }
@@ -3344,16 +3063,6 @@ fun SettingsScreen(
                 )
                 SettingsRowDivider()
                 SettingsToggleRow(
-                    title = uiString(R.string.l10n_journal_reminder_journal_reminder_0fdc0d9c),
-                    detail = uiString(R.string.l10n_journal_reminder_show_a_today_card_reminding_you_to_log_your_journal_8228bc77),
-                    checked = journalReminder,
-                    onCheckedChange = {
-                        journalReminder = it
-                        NoopPrefs.setJournalReminderEnabled(context, it)
-                    },
-                )
-                SettingsRowDivider()
-                SettingsToggleRow(
                     title = uiString(R.string.l10n_settings_screen_keep_screen_on_during_a_workout_42d27284),
                     detail = "Holds the screen awake while you're recording a workout, so your live heart rate stays visible without the phone dimming. Only applies during a recording. The screen sleeps normally the rest of the time. Leaving it on does use a bit more battery, and means your unlocked screen stays visible for the whole workout, so flip it off if that's a concern.",
                     checked = workoutKeepScreenOn,
@@ -4165,183 +3874,6 @@ fun SettingsScreen(
 
 private const val SUPPORT_EMAIL = "thenoopapp@gmail.com"
 
-// MARK: - App icon swap (v3 "Titanium & Gold")
-
-/**
- * The two launcher-icon aliases declared in AndroidManifest.xml. Exactly one is ever enabled — the
- * enabled one is the app's home-screen entry point and supplies the launcher icon.
- */
-private const val ALIAS_DEFAULT = "com.noop.IconDefault" // machined titanium
-private const val ALIAS_NAVY = "com.noop.IconNavy"       // blued / dark-blue titanium
-
-/**
- * Persist the chosen launcher icon and flip the manifest aliases so exactly one is enabled:
- * [navy] true enables `.IconNavy` and disables `.IconDefault`, false does the inverse. We use
- * DONT_KILL_APP so the toggle doesn't tear down our own process. The home launcher may briefly hide
- * and redraw the icon (or take a few seconds) while it re-reads the component state — that's expected
- * and is the only user-visible side effect.
- */
-private fun setAppIcon(context: Context, navy: Boolean) {
-    NoopPrefs.setAppIconNavy(context, navy)
-    val pm = context.packageManager
-    pm.setComponentEnabledSetting(
-        ComponentName(context, ALIAS_NAVY),
-        if (navy) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-        else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-        PackageManager.DONT_KILL_APP,
-    )
-    pm.setComponentEnabledSetting(
-        ComponentName(context, ALIAS_DEFAULT),
-        if (navy) PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-        else PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-        PackageManager.DONT_KILL_APP,
-    )
-}
-
-/** sRGB [Color] for an HSV triple, via the framework converter (Material3 ships no HSV colour helper). */
-private fun hsvColor(h: Float, s: Float, v: Float): Color =
-    Color(android.graphics.Color.HSVToColor(floatArrayOf(h.coerceIn(0f, 360f), s.coerceIn(0f, 1f), v.coerceIn(0f, 1f))))
-
-/** #accent: the CUSTOM chrome-accent picker — a standard HSV colour picker (a saturation × brightness square
- *  plus a hue rail), the recognisable "colour picker" UX with no third-party dependency. iOS uses the native
- *  SwiftUI `ColorPicker`; this is its Compose counterpart (Material3 ships none). Emits `#RRGGBB` on every
- *  change; the Palette accent updates live via [AccentPrefs]. Shown only when the accent picker is Custom. */
-@Composable
-private fun AccentCustomPicker(hex: String, onHexChange: (String) -> Unit) {
-    // Seed HSV from the current hex once (the picker only mounts while Custom is selected).
-    val seed = remember(Unit) {
-        FloatArray(3).also {
-            val c = AccentColor.parseHex(hex, Color(0xFF149A78))
-            android.graphics.Color.RGBToHSV(
-                (c.red * 255).roundToInt(), (c.green * 255).roundToInt(), (c.blue * 255).roundToInt(), it,
-            )
-        }
-    }
-    var hue by remember { mutableStateOf(seed[0]) }    // 0..360
-    var sat by remember { mutableStateOf(seed[1]) }    // 0..1
-    var value by remember { mutableStateOf(seed[2]) }  // 0..1
-    fun emit() {
-        val c = hsvColor(hue, sat, value)
-        onHexChange(
-            String.format("#%02X%02X%02X", (c.red * 255).roundToInt(), (c.green * 255).roundToInt(), (c.blue * 255).roundToInt()),
-        )
-    }
-    val density = LocalDensity.current
-
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        // Saturation (x) × brightness (y) square, tinted by the current hue.
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .border(1.dp, Palette.hairline, RoundedCornerShape(12.dp)),
-        ) {
-            val wPx = constraints.maxWidth.toFloat()
-            val hPx = constraints.maxHeight.toFloat()
-            Box(
-                Modifier
-                    .matchParentSize()
-                    .background(Brush.horizontalGradient(listOf(Color.White, hsvColor(hue, 1f, 1f))))
-                    .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black)))
-                    .pointerInput(Unit) {
-                        awaitEachGesture {
-                            // Consume the down so the vertically-scrolling settings list can't steal a
-                            // drag inside the picker (esp. the square's vertical brightness axis).
-                            val down = awaitFirstDown().also { it.consume() }
-                            fun set(x: Float, y: Float) {
-                                sat = (x / wPx).coerceIn(0f, 1f)
-                                value = (1f - y / hPx).coerceIn(0f, 1f)
-                                emit()
-                            }
-                            set(down.position.x, down.position.y)
-                            drag(down.id) { set(it.position.x, it.position.y); it.consume() }
-                        }
-                    },
-            )
-            Box(
-                Modifier
-                    .offset(
-                        x = with(density) { (sat * wPx).toDp() } - 9.dp,
-                        y = with(density) { ((1f - value) * hPx).toDp() } - 9.dp,
-                    )
-                    .size(18.dp)
-                    .clip(CircleShape)
-                    .background(hsvColor(hue, sat, value))
-                    .border(2.dp, Color.White, CircleShape),
-            )
-        }
-        // Hue rail (0..360°).
-        BoxWithConstraints(
-            modifier = Modifier.fillMaxWidth().height(22.dp).clip(RoundedCornerShape(50)),
-        ) {
-            val wPx = constraints.maxWidth.toFloat()
-            Box(
-                Modifier
-                    .matchParentSize()
-                    .background(Brush.horizontalGradient((0..6).map { hsvColor(it * 60f, 1f, 1f) }))
-                    .pointerInput(Unit) {
-                        awaitEachGesture {
-                            // Consume the down so the vertically-scrolling settings list can't steal a
-                            // drag inside the picker (esp. the square's vertical brightness axis).
-                            val down = awaitFirstDown().also { it.consume() }
-                            fun set(x: Float) {
-                                hue = (x / wPx).coerceIn(0f, 1f) * 360f
-                                emit()
-                            }
-                            set(down.position.x)
-                            drag(down.id) { set(it.position.x); it.consume() }
-                        }
-                    },
-            )
-            Box(
-                Modifier
-                    .offset(x = with(density) { ((hue / 360f) * wPx).toDp() } - 11.dp)
-                    .size(22.dp)
-                    .clip(CircleShape)
-                    .background(hsvColor(hue, 1f, 1f))
-                    .border(2.dp, Color.White, CircleShape),
-            )
-        }
-    }
-}
-
-/** #theme: the theme-PRESET picker — a pill showing the current (derived) preset, opening a menu of the
- *  selectable presets. Picking one writes accent + chart world + backdrop + card opacity at once; the
- *  granular controls below stay available and flip this back to Custom when tweaked. */
-@Composable
-private fun ThemePresetDropdown(current: ThemePreset, onSelect: (ThemePreset) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    Box {
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(999.dp))
-                .clickable { expanded = true }
-                .background(Palette.surfaceInset)
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text(current.label, style = NoopType.subhead, color = Palette.textPrimary)
-            Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = Palette.textSecondary)
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            ThemePreset.selectable.forEach { p ->
-                DropdownMenuItem(
-                    text = { Text(p.label, color = Palette.textPrimary) },
-                    onClick = {
-                        expanded = false
-                        onSelect(p)
-                    },
-                )
-            }
-        }
-    }
-}
-
 /** Compose may provide a themed ContextWrapper rather than the Activity directly. */
 private fun Context.hostingActivity(): Activity? {
     var current: Context = this
@@ -4352,51 +3884,3 @@ private fun Context.hostingActivity(): Activity? {
     return current as? Activity
 }
 
-/** One recent-background preset: a small cropped thumbnail (accent-ringed when active) over its fill-mode
- *  label. Tapping re-applies that image + scaling via [BackgroundImageStore.applyRecent]. */
-@Composable
-private fun BackgroundRecentThumb(
-    thumb: ImageBitmap?,
-    mode: BackgroundFillMode,
-    active: Boolean,
-    onClick: () -> Unit,
-) {
-    val shape = RoundedCornerShape(10.dp)
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(3.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .size(64.dp)
-                .clip(shape)
-                .border(
-                    width = if (active) 2.dp else 1.dp,
-                    color = if (active) Palette.accent else Palette.hairline,
-                    shape = shape,
-                )
-                .clickable(onClick = onClick),
-        ) {
-            if (thumb != null) {
-                Image(
-                    bitmap = thumb,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                )
-            } else {
-                Box(Modifier.fillMaxSize().background(Palette.surfaceInset))
-            }
-        }
-        Text(
-            text = when (mode) {
-                BackgroundFillMode.FILL -> "Fill"
-                BackgroundFillMode.FIT -> "Fit"
-                BackgroundFillMode.STRETCH -> "Stretch"
-                BackgroundFillMode.TILE -> "Tile"
-            },
-            style = NoopType.caption,
-            color = if (active) Palette.accent else Palette.textTertiary,
-        )
-    }
-}

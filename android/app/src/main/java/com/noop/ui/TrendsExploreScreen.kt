@@ -295,7 +295,7 @@ fun TrendsExploreScreen(vm: AppViewModel) {
                 val known = knownSeriesMetrics[k]
                 known?.copy(seriesKey = k, seriesSource = src) ?: MetricSpec(
                     key = k,
-                    title = k.replace('_', ' ').replaceFirstChar { c -> c.uppercase() },
+                    title = k.replace('_', ' ').sentenceCaseLabel(),
                     unit = "",
                     category = "Other",
                     accent = Palette.metricCyan,

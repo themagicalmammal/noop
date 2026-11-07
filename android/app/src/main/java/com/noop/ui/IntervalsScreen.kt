@@ -476,7 +476,7 @@ private fun OverviewStat(
     color: Color,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(3.dp)) {
-        Text(label.uppercase(), style = NoopType.footnote, color = Palette.textTertiary)
+        Text(label.sentenceCaseLabel(), style = NoopType.footnote, color = Palette.textTertiary)
         Text(value, style = NoopType.number(18f), color = color, maxLines = 1)
     }
 }

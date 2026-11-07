@@ -235,77 +235,54 @@ fun TrendsScreen(vm: AppViewModel) {
             }
         }
 
-        // --- Hero , charge over time. Charge (green) world: domain card wash, a crisp flat line with a
-        // bright "now" end-cap, and a TrendChip for the window's move. ---
-        item {
-            ChartCard(
-                modifier = Modifier.staggeredAppear(index = 3),
-                title = stringResource(R.string.trends_charge),
-                // The range bar above already prints the authoritative reading-count caption;
-                // the hero only names its window so the count isn't doubled in one card height.
-                subtitle = rangeSubtitle,
-                trailing = recAvg?.let { "${it.roundToInt()}" },
-                // LIQUID hero: the translucent-black frosted wrapper + a small count-up Charge vessel accent
-                // in the header (the screen's one headline single value — the window-average Charge). The
-                // line chart below stays crisp. Small multiples pass liquidHero = false → untouched.
-                liquidHero = true,
-                headlineValue = recAvg,
-                color = Palette.chargeColor,
-                tipColor = Palette.chargeBright,
-                values = recovery.values,
-                dates = recovery.dates,
-                formatY = { "${it.roundToInt()}" },
-                change = periodChange(recovery.values),
-                higherIsBetter = true,
-                changeFmt = { "${it.roundToInt()}" },
-                // Lift the ceiling ~6% so a near-100 peak and the now-cap halo clear the top gridline ,
-                // mirrors the iOS hero's `valueRange: 0...106`.
-                chartHeadroom = 0.06f,
-                footer = listOf(
-                    stringResource(R.string.trends_avg) to (recAvg?.let { "${it.roundToInt()}" } ?: EM_DASH),
-                    stringResource(R.string.trends_peak) to (recovery.values.maxOrNull()?.let { "${it.roundToInt()}" } ?: EM_DASH),
-                    stringResource(R.string.trends_low) to (recovery.values.minOrNull()?.let { "${it.roundToInt()}" } ?: EM_DASH),
-                    stringResource(R.string.trends_days) to "${recovery.values.size}",
-                ),
-            )
-        }
-
-        // --- Small multiples , HRV / Resting HR / Effort. HRV/RHR are Charge sub-signals; the card
-        // surface is neutral (EXP-004) and each line keeps its metric hue; Effort is the WHOOP blue
-        // strain world. ---
-        // No trailing window label , the range bar's overline already states it.
+        // Four trend charts in a compact 2×2 grid. Keep every series and its metric color together.
         item {
             Column(
-                modifier = Modifier.staggeredAppear(index = 4),
-                verticalArrangement = Arrangement.spacedBy(Metrics.gap),
+                modifier = Modifier.staggeredAppear(index = 3),
+                verticalArrangement = Arrangement.spacedBy(Metrics.space12),
             ) {
-                SectionHeader(stringResource(R.string.trends_daily_signals), overline = stringResource(R.string.nav_trends))
-                MetricTrendCard(
-                    title = stringResource(R.string.trends_hrv_full), unit = "ms",
-                    color = Palette.metricPurple,
-                    higherIsBetter = true,
-                    resolved = hrv,
-                    fmt = { "${it.roundToInt()}" },
-                )
-                MetricTrendCard(
-                    title = stringResource(R.string.trends_resting_hr_full), unit = "bpm",
-                    color = Palette.metricRose,
-                    higherIsBetter = false,
-                    resolved = rhr,
-                    fmt = { "${it.roundToInt()}" },
-                )
-                MetricTrendCard(
-                    // Plotted values stay on the stored 0–100 scale (line shape unchanged); only the displayed
-                    // numbers + unit follow the Effort-scale toggle, converted inside `fmt`. (#268)
-                    title = stringResource(R.string.trends_effort), unit = "/ ${UnitFormatter.effortScaleMax(effortScale)}",
-                    // WHOOP: Effort/Strain is always BLUE , a deep→bright blue line, not the amber ramp.
-                    color = Palette.effortColor,
-                    tint = Palette.effortColor,
-                    tipColor = Palette.effortBright,
-                    higherIsBetter = null,
-                    resolved = strain,
-                    fmt = { UnitFormatter.effortDisplay(it, effortScale) },
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(Metrics.space12)) {
+                    ChartCard(
+                        modifier = Modifier.weight(1f),
+                        title = stringResource(R.string.trends_charge), subtitle = null,
+                        trailing = recAvg?.let { "${it.roundToInt()}" },
+                        liquidHero = true, headlineValue = recAvg,
+                        color = Palette.chargeColor, tipColor = Palette.chargeBright,
+                        values = recovery.values, dates = recovery.dates,
+                        formatY = { "${it.roundToInt()}" },
+                        change = periodChange(recovery.values), higherIsBetter = true,
+                        changeFmt = { "${it.roundToInt()}" }, chartHeadroom = 0.06f,
+                        footer = listOf(
+                            stringResource(R.string.trends_avg) to (recAvg?.let { "${it.roundToInt()}" } ?: EM_DASH),
+                            stringResource(R.string.trends_peak) to (recovery.values.maxOrNull()?.let { "${it.roundToInt()}" } ?: EM_DASH),
+                            stringResource(R.string.trends_low) to (recovery.values.minOrNull()?.let { "${it.roundToInt()}" } ?: EM_DASH),
+                            stringResource(R.string.trends_days) to "${recovery.values.size}",
+                        ),
+                    )
+                    MetricTrendCard(
+                        modifier = Modifier.weight(1f),
+                        title = stringResource(R.string.trends_hrv_full), unit = "ms",
+                        color = Palette.metricPurple, higherIsBetter = true,
+                        resolved = hrv, fmt = { "${it.roundToInt()}" },
+                    )
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(Metrics.space12)) {
+                    MetricTrendCard(
+                        modifier = Modifier.weight(1f),
+                        title = stringResource(R.string.trends_resting_hr_full), unit = "bpm",
+                        color = Palette.metricRose, higherIsBetter = false,
+                        resolved = rhr, fmt = { "${it.roundToInt()}" },
+                    )
+                    MetricTrendCard(
+                        modifier = Modifier.weight(1f),
+                        title = stringResource(R.string.trends_effort),
+                        unit = "/ ${UnitFormatter.effortScaleMax(effortScale)}",
+                        color = Palette.effortColor, tint = Palette.effortColor,
+                        tipColor = Palette.effortBright, higherIsBetter = null,
+                        resolved = strain,
+                        fmt = { UnitFormatter.effortDisplay(it, effortScale) },
+                    )
+                }
             }
         }
 
@@ -536,7 +513,7 @@ private fun PipScoreRow(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.space8)) {
         Text(
-            text = label.uppercase(),
+            text = label.sentenceCaseLabel(),
             style = NoopType.overline,
             color = Palette.textSecondary,
         )
@@ -1015,9 +992,11 @@ private fun MetricTrendCard(
     tint: Color? = null,
     tipColor: Color = color,
     higherIsBetter: Boolean? = null,
+    modifier: Modifier = Modifier,
 ) {
     val avg = resolved.values.averageOrNull()
     ChartCard(
+        modifier = modifier,
         title = title,
         subtitle = null,
         trailing = avg?.let { fmt(it) },

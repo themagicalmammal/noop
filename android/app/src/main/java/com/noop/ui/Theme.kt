@@ -30,10 +30,10 @@ import androidx.compose.ui.unit.sp
 
 // MARK: - Palette — the "Titanium & Gold" re-skin (mirrors StrandDesign/Palette.swift)
 //
-// A premium dark theme built on a deep NAVY canvas (NOT pure black) with per-domain
-// accent "colour worlds": Charge/recovery = GOLD, Effort/strain = amber, Rest/sleep =
-// blue, HRV = teal, high stress = burnt orange. Gold is the dominant brand anchor —
-// no greens anywhere.
+// A premium dark theme built on a near-black canvas (black-and-white foundation) with a
+// fixed red brand anchor (formerly gold). Data "colour worlds" are neutral greys for
+// effort/rest/sleep/strain, with green charge, amber stress and red risk — see the token
+// blocks below. The titanium ramp drives the neutral chrome (tiles, avatars).
 //
 // PUBLIC API IS FROZEN: every token NAME below is depended on by screens across the
 // app, so the names never change — only the VALUES were re-themed to Titanium & Gold.
@@ -74,30 +74,16 @@ object Palette {
     val heroBorder get() = active.heroBorder
     // Light-on-dark text for a GENUINELY-always-dark surface (twin of StrandPalette.onDarkSecondary). The
     // theme-aware hero no longer uses this; kept for any always-dark chrome.
-    val onDarkSecondary = Color(0xFFC8CFD8)
+    val onDarkSecondary = Color(0xFFC9C9C9)
 
     // Glow.
     val glowAmbient get() = active.glowAmbient
 
-    // Accent — user-selectable chrome anchor (mint default / WHOOP blue / custom). Chrome ONLY; the
-    // recovery/strain/sleep DATA worlds are never themed by this. Reads AccentPrefs snapshot state so a
-    // change is live. Twin of macOS StrandPalette.accent* branching on AccentColor.
-    val accent get() = when (AccentPrefs.color) {
-        AccentColor.MINT -> active.accent
-        AccentColor.WHOOP_BLUE -> if (isLight) Color(0xFF234F9E) else Color(0xFF60A0E0)
-        AccentColor.CUSTOM -> AccentColor.parseHex(AccentPrefs.customHex, active.accent)
-    }
-    val accentHover get() = when (AccentPrefs.color) {
-        AccentColor.MINT -> active.accentHover
-        AccentColor.WHOOP_BLUE -> if (isLight) Color(0xFF3A6FC0) else Color(0xFF8FBEEC)
-        AccentColor.CUSTOM -> AccentColor.lighten(AccentPrefs.customHex)
-    }
-    val accentMuted get() = when (AccentPrefs.color) {
-        AccentColor.MINT -> active.accentMuted
-        AccentColor.WHOOP_BLUE -> (if (isLight) Color(0xFF234F9E) else Color(0xFF60A0E0)).copy(alpha = 0.18f)
-        AccentColor.CUSTOM -> AccentColor.parseHex(AccentPrefs.customHex, active.accent).copy(alpha = 0.18f)
-    }
-    val focusRing get() = if (AccentPrefs.color == AccentColor.MINT) active.focusRing else accent
+    // Accent applies to app chrome only; health-data colours remain encoded by their metric tokens.
+    val accent get() = active.accent
+    val accentHover get() = active.accentHover
+    val accentMuted get() = active.accentMuted
+    val focusRing get() = active.focusRing
     const val disabledOpacity = 0.45f
 
     // Recovery / Charge gradient.
@@ -149,7 +135,7 @@ object Palette {
     val metricAmber get() = if (isClassic) classic.metricAmber else active.metricAmber
     val metricRose get() = if (isClassic) classic.metricRose else active.metricRose
 
-    // Domain "colour worlds" (Classic: Charge green, Effort blue, Rest indigo, Stress amber).
+    // Domain "colour worlds" (Classic: Charge green, Effort grey, Rest grey, Stress amber).
     val chargeColor get() = if (isClassic) classic.chargeColor else active.chargeColor
     val chargeDeep get() = if (isClassic) classic.chargeDeep else active.chargeDeep
     val chargeBright get() = if (isClassic) classic.chargeBright else active.chargeBright
@@ -169,10 +155,9 @@ object Palette {
      * The Rest family's most legible LINE colour — for strokes that must read on a busy or translucent
      * surface, such as the body-clock dial's arcs over a custom background image.
      *
-     * Introduces no new value: it selects the existing token that is the bright blue in each palette. The
-     * families are not parallel — classic's restBright is a PURPLE accent while modern's is the blue, and
-     * classic's restColor is the blue where modern's is a muted steel — so a card naming either token
-     * directly gets the right colour in one palette and the wrong one in the other. Mirrors the Swift twin.
+     * Introduces no new value: it selects the existing token that is the bright grey in each palette.
+     * Both Rest families now share the same neutral ramp (restColor #8C8C8C / restBright #B3B3B3 in
+     * dark), so a card naming either token directly renders identically. Mirrors the Swift twin.
      */
     val restLine get() = if (isClassic) restColor else restBright
 
@@ -185,7 +170,7 @@ object Palette {
     val chargeGradientStops: List<Pair<Float, Color>> get() = listOf(0.0f to chargeDeep, 1.0f to chargeBright)
     val effortGradientStops: List<Pair<Float, Color>> get() = listOf(0.0f to effortDeep, 1.0f to effortBright)
     val restGradientStops: List<Pair<Float, Color>> get() = listOf(0.0f to restDeep, 1.0f to restBright)
-    // Stress ramp: Titanium calm-blue→gold→orange, or Classic green→amber→red.
+    // Stress ramp: Titanium green→gold→orange, or Classic green→amber→red.
     val stressGradientStops: List<Pair<Float, Color>>
         get() = if (isClassic) classic.stress else listOf(0.0f to stressDeep, 0.5f to stressColor, 1.0f to stressBright)
 
@@ -492,10 +477,10 @@ object NoopType {
     val caption = TextStyle(fontFamily = sans, fontWeight = FontWeight.Normal, fontSize = 12.sp)
     val footnote = TextStyle(fontFamily = sans, fontWeight = FontWeight.Normal, fontSize = 11.sp)
 
-    /** Overline 11 / Bold, +1.4 tracking, ALL-CAPS at use site. */
+    /** Overline 11 / medium weight with restrained tracking. */
     val overline = TextStyle(
-        fontFamily = sans, fontWeight = FontWeight.Bold, fontSize = 11.sp,
-        letterSpacing = 1.4.sp,
+        fontFamily = sans, fontWeight = FontWeight.Medium, fontSize = 11.sp,
+        letterSpacing = 0.2.sp,
     )
 
     /** Mono 13 — raw / log views. */

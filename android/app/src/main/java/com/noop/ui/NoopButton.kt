@@ -44,15 +44,11 @@ import androidx.compose.foundation.clickable
 // optional leading icon as one unit, and degrade gracefully under Reduce Motion (the press scale
 // drops; only the dim remains).
 //
-// NOTE ON COLOUR (Design Reset): the accent here is the WHOOP link/action BLUE, matching the
-// iOS reset (`StrandPalette.accent` = #60A0E0 dark / #234F9E light, "gold killed 2026-06-22").
-// The Android `Palette.accent` token still carries the pre-reset GOLD, so this file pins the
-// reset blue locally rather than reading the stale token — keeping the hard "no gold" rule and
-// the iOS values exactly. Label-on-fill is crisp white (iOS `goldDeepText` is #FFFFFF post-reset).
+// Chrome actions use the shared accent token; labels on filled controls stay crisp white.
 
 /** The four button roles. Colour + emphasis differ; geometry is identical across all four. */
 enum class NoopButtonKind {
-    /** Filled accent (blue), white label — the one primary action on a screen. */
+    /** Filled accent, white label — the one primary action on a screen. */
     Primary,
     /** Raised-surface fill, primary-text label, hairline edge — secondary actions. */
     Secondary,
@@ -83,11 +79,11 @@ private object NoopButtonMetrics {
     const val disabledOpacity = 0.4f
 }
 
-// MARK: - Design-reset accent (WHOOP blue) — pinned to the iOS values, never gold
+// MARK: - App chrome accent
 
-/** The reset accent blue (iOS `StrandPalette.accent`: #234F9E light / #60A0E0 dark). */
-private val noopAccentBlue: Color
-    @Composable get() = if (Palette.isLight) Color(0xFF234F9E) else Color(0xFF60A0E0)
+/** The shared red chrome accent. */
+private val noopAccent: Color
+    @Composable get() = Palette.accent
 
 /** Crisp white label/icon on accent + critical fills (iOS `goldDeepText` = #FFFFFF post-reset). */
 private val noopOnFill: Color = Color(0xFFFFFFFF)
@@ -102,13 +98,13 @@ private data class NoopButtonAppearance(
 @Composable
 private fun appearanceFor(kind: NoopButtonKind): NoopButtonAppearance = when (kind) {
     NoopButtonKind.Primary -> NoopButtonAppearance(
-        fill = noopAccentBlue, label = noopOnFill, border = null,
+        fill = noopAccent, label = noopOnFill, border = null,
     )
     NoopButtonKind.Secondary -> NoopButtonAppearance(
         fill = Palette.surfaceRaised, label = Palette.textPrimary, border = Palette.hairline,
     )
     NoopButtonKind.Tertiary -> NoopButtonAppearance(
-        fill = null, label = noopAccentBlue, border = null,
+        fill = null, label = noopAccent, border = null,
     )
     NoopButtonKind.Destructive -> NoopButtonAppearance(
         fill = Palette.statusCritical, label = noopOnFill, border = null,

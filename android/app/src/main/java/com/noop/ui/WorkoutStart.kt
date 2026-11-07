@@ -216,7 +216,7 @@ fun WorkoutStartSection(vm: AppViewModel, onAdd: () -> Unit) {
                 // reads on top, the actions sit below with equal weight.
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                        Text(uiString(R.string.l10n_workout_start_w_sport_name_uppercase_e59bc678, w.sport.name.uppercase()), style = NoopType.overline, color = Palette.statusCritical)
+                        Text(uiString(R.string.l10n_workout_start_w_sport_name_uppercase_e59bc678, w.sport.name.sentenceCaseLabel()), style = NoopType.overline, color = Palette.statusCritical)
                         // A frozen clock alone is ambiguous with a STALLED one, so say which it is. Reuses
                         // the string #1533 already localized rather than minting new copy for a tag.
                         if (w.pausedAtMs != null) {

@@ -237,15 +237,15 @@ object TrendsReportRenderer {
     private const val PAGE_H = 850
     private const val MARGIN = 28f
 
-    // Palette (raw ARGB — the same hex tokens as Theme.kt's Palette / StrandPalette dark, WHOOP-reset).
-    private const val SURFACE_BASE = 0xFF121518.toInt()
-    private const val CARD_TOP = 0xFF15243C.toInt()
-    private const val CARD_BOTTOM = 0xFF0B1424.toInt()
+    // Palette (raw ARGB — the same hex tokens as Theme.kt's dark Palette).
+    private const val SURFACE_BASE = 0xFF121212.toInt()
+    private const val CARD_TOP = 0xFF161616.toInt()
+    private const val CARD_BOTTOM = 0xFF0C0C0C.toInt()
     private const val HAIRLINE = 0xFF21304A.toInt()
-    private const val TEXT_PRIMARY = 0xFFF4F6F8.toInt()
-    private const val TEXT_SECONDARY = 0xFFC8CFD8.toInt()
-    private const val TEXT_TERTIARY = 0xFF8A94A4.toInt()
-    private const val ACCENT = 0xFF60A0E0.toInt()     // WHOOP blue accent (gold killed 2026-06-22)
+    private const val TEXT_PRIMARY = 0xFFF5F5F5.toInt()
+    private const val TEXT_SECONDARY = 0xFFC9C9C9.toInt()
+    private const val TEXT_TERTIARY = 0xFF8C8C8C.toInt()
+    private const val ACCENT = 0xFFE45555.toInt()     // App chrome accent
     private const val POSITIVE = 0xFF03E095.toInt()   // WHOOP green (matches statusPositive)
     private const val NEGATIVE = 0xFFE0662F.toInt()
 
@@ -303,7 +303,7 @@ object TrendsReportRenderer {
         val left = MARGIN + 16f
         var ty = cardTop + 26f
         text(canvas, "NOOP", left, ty, 11f, sansBold, ACCENT, letterSpacing = 0.12f)
-        textRight(canvas, range.longName.uppercase(), PAGE_W - MARGIN - 16f, ty, 10f, sansBold, TEXT_TERTIARY)
+        textRight(canvas, range.longName.sentenceCaseLabel(), PAGE_W - MARGIN - 16f, ty, 10f, sansBold, TEXT_TERTIARY)
         ty += 30f
         text(canvas, "Trends report", left, ty, 26f, sansBold, TEXT_PRIMARY)
         ty += 22f
@@ -377,7 +377,7 @@ object TrendsReportRenderer {
         var ty = top + 24f
 
         // Title + mean + trend chip.
-        text(canvas, stat.metric.label.uppercase(), left, ty, 11f, sansBold, accent, letterSpacing = 0.08f)
+        text(canvas, stat.metric.label.sentenceCaseLabel(), left, ty, 11f, sansBold, accent, letterSpacing = 0.08f)
         val meanStr = TrendsReportFormat.meanText(stat, units)
         textRight(canvas, meanStr, right, ty, 14f, sansMedium, TEXT_PRIMARY)
 

@@ -434,7 +434,7 @@ private fun DayCard(d: DailyMetric, effortScale: EffortScale) {
 private fun DayStat(label: String, value: String, color: Color, modifier: Modifier = Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(3.dp)) {
         Text(
-            label.uppercase(),
+            label.sentenceCaseLabel(),
             style = NoopType.footnote,
             color = Palette.textTertiary,
             maxLines = 1,

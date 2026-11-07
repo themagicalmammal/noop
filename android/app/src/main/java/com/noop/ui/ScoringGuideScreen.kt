@@ -343,7 +343,7 @@ private fun ScoreCard(
                             modifier = Modifier.size(16.dp),
                         )
                         Text(
-                            stringResource(section.labelRes).uppercase(),
+                            stringResource(section.labelRes).sentenceCaseLabel(),
                             style = NoopType.overline,
                             color = section.accent,
                         )
@@ -393,7 +393,7 @@ private fun SampleRing(section: ScoreSection) {
             lineWidth = 8.dp,
         )
         Text(
-            stringResource(section.labelRes).uppercase(),
+            stringResource(section.labelRes).sentenceCaseLabel(),
             style = NoopType.overline,
             color = Palette.textTertiary,
         )

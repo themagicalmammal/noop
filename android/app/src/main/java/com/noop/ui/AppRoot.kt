@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.Hexagon
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Notifications
@@ -59,7 +60,6 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -122,7 +122,7 @@ import com.noop.push.SelfHostedPushScreen
 // MARK: - Navigation model
 //
 // The macOS app's sidebar holds many sections; on Android (mirroring the iOS RootTabView) we surface
-// them through a unified floating "glass" bottom bar (Today · Trends · Sleep · More) for the everyday
+// them through a unified floating "glass" bottom bar (Today · Trends · Journal · Sleep · More) for the everyday
 // screens, with a "More" sheet that lists the full grouped set — so every destination is one tap away
 // without a global hamburger/drawer. Destinations are grouped exactly as the sidebar groups them.
 // Routes whose screens belong to later waves point at a ComingSoon placeholder so the app compiles today.
@@ -160,7 +160,7 @@ internal enum class Destination(
     // one-for-one, and the iOS twin hangs off Coach in the same way.
     CoachSettings("coach_settings", R.string.coach_settings, Icons.Filled.Tune),
     InsightsHub("insights_hub", R.string.nav_insights_hub, Icons.Filled.Insights),
-    Insights("insights", R.string.nav_insights, Icons.Filled.Insights),
+    Journal("journal", R.string.l10n_journal_reminder_journal_57d7f743, Icons.AutoMirrored.Filled.MenuBook),
     Explore("explore", R.string.nav_explore, Icons.Filled.Explore),
     Compare("compare", R.string.nav_compare, Icons.AutoMirrored.Filled.CompareArrows),
 
@@ -239,7 +239,7 @@ internal val drawerGroups: List<DrawerGroup> = listOf(
         // same destination in two places at once, which is the duplication the note above says this
         // list exists to avoid. (#2218)
         Destination.InsightsHub, Destination.Intelligence,
-        Destination.Insights, Destination.Explore, Destination.Compare,
+        Destination.Explore, Destination.Compare,
     ), defaultExpanded = true),
     DrawerGroup("Body", R.string.more_group_body, listOf(
         Destination.Live, Destination.Workouts, Destination.Health, Destination.VitalSigns,
@@ -331,7 +331,7 @@ internal fun barCollapseFraction(hidden: Boolean, reduceMotion: Boolean): Float 
 
 /**
  * #1836: which bottom-bar layout to use, snapshot-backed so the Settings toggle applies without a
- * relaunch (the same shape as `BackgroundImageStore.enabled`).
+ * relaunch (mirroring the NoopPrefs-backed appearance toggles).
  *
  * Default ON as of #1841. It shipped switchable and default-off first so it could be tried without being
  * imposed; the overlay was then confirmed on a device. The switch stays, so anyone who dislikes it — or
@@ -524,7 +524,7 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
     var showWhatsNewFromInbox by remember { mutableStateOf(false) }
 
     // #1836: an overlay container, not a bottomBar slot. The slot sat OUTSIDE the screen content, so a
-    // screen's own backdrop (LiquidScreenSky / BackgroundImageBackdrop) stopped where the bar began and
+    // screen's own backdrop (LiquidScreenSky) stopped where the bar began and
     // the bar's 0.80 "glass" had nothing behind it but surfaceBase — a bar built to float rendered as a
     // dark strip cut out of the background. As a sibling drawn OVER the Scaffold it sits on the screen's
     // own sky, which is what the translucency was written for.
@@ -574,9 +574,9 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
         Scaffold(
             containerColor = Palette.surfaceBase,
             bottomBar = {
-                // One unified "glass" bar: four evenly-spaced tabs — Today · Trends · Sleep · More
+                // One unified "glass" bar: four evenly-spaced tabs — Today · Trends · Journal · Sleep · More
                 // (matches the iOS FloatingTabBar). The quick-action "+" lives in the Today header's
-                // top-right (balancing the avatar), so the bar is clean tabs only. "More" navigates to
+                // top-right, so the bar stays focused on top-level destinations. "More" navigates to
                 // its own page (mirroring the iOS More tab) that reaches every grouped destination, so no
                 // destination is lost without the drawer.
                 // DEFAULT path: the shipped reserved slot, unchanged. Empty only when the overlay is
@@ -636,9 +636,6 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
                         // sheet AppRoot presents (it owns the nav for deep-links).
                         updateStore = updateStore,
                         onOpenUpdates = { showUpdatesInbox = true },
-                        // The leading profile avatar opens Settings (where the photo is set/changed),
-                        // mirroring iOS's avatar-leading Today header. The drawer hamburger is unchanged.
-                        onOpenSettings = { nav.navigateTopLevel(Destination.Settings.route) },
                         // The opt-in Hydration card (only shown when Hydration tracking is on) pushes its
                         // detail. A normal push so the back-stack returns to Today.
                         onOpenHydration = { nav.navigate(Destination.Hydration.route) },
@@ -667,9 +664,6 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
                         // The liquid header's strap battery ring taps through to Devices (iOS parity: the
                         // battery ring → router.openDevices()).
                         onOpenDevices = { nav.navigateTopLevel(Destination.Devices.route) },
-                        // #627: the journal-reminder card opens the journal (hosted in Insights), same
-                        // destination the Sleep screen's morning sheet uses.
-                        onOpenJournal = { nav.navigateTopLevel(Destination.Insights.route) },
                     )
                 }
                 composable(Destination.Live.route) {
@@ -681,7 +675,7 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
                 composable(Destination.Sleep.route) {
                     SleepScreen(
                         vm = viewModel,
-                        onOpenJournal = { nav.navigateTopLevel(Destination.Insights.route) },
+                        onOpenJournal = { nav.navigateTopLevel(Destination.Journal.route) },
                         onOpenAlarms = { nav.navigate(Destination.SmartAlarm.route) },
                     )
                 }
@@ -725,7 +719,13 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
                     )
                 }
                 composable(Destination.Trends.route) { TrendsScreen(viewModel) }
-                composable(Destination.Insights.route) { InsightsScreen(viewModel, onOpenInsightsHub = { nav.navigateTopLevel(Destination.InsightsHub.route) }) }
+                composable(Destination.Journal.route) {
+                    InsightsScreen(
+                        viewModel,
+                        titleRes = R.string.l10n_journal_reminder_journal_57d7f743,
+                        onOpenInsightsHub = { nav.navigateTopLevel(Destination.InsightsHub.route) },
+                    )
+                }
                 composable(Destination.Compare.route) { CompareScreen(viewModel) }
                 composable(Destination.Health.route) {
                     HealthScreen(
@@ -1021,12 +1021,7 @@ private fun MoreScreen(onNavigate: (String) -> Unit) {
                         Column(modifier = Modifier.fillMaxWidth()) {
                             group.items.forEachIndexed { i, dest ->
                                 MoreRow(dest = dest, onClick = { onNavigate(dest.route) })
-                                if (i < group.items.lastIndex) {
-                                    HorizontalDivider(
-                                        color = Palette.hairline,
-                                        modifier = Modifier.padding(start = 50.dp),
-                                    )
-                                }
+                                if (i < group.items.lastIndex) Spacer(Modifier.height(6.dp))
                             }
                         }
                     }
@@ -1095,8 +1090,8 @@ private fun MoreRow(dest: Destination, onClick: () -> Unit) {
 // MARK: - Glass bottom bar
 //
 // The signature bar, ported from iOS's FloatingTabBar: ONE rounded "glass" island holding four
-// evenly-spaced inline slots — Today · Trends · Sleep · More. The quick-action "+" now lives in the
-// Today header's top-right (it left the bar to balance the avatar), so the bar is clean tabs only.
+// evenly-spaced inline slots — Today · Trends · Journal · Sleep · More. The quick-action "+" now lives in the
+// Today header's top-right, so the bar stays focused on top-level destinations.
 // The "glass" feel is a translucent raised surface with a low elevation and a subtle hairline border
 // — frosted, not a hard opaque slab and not a glow. Each nav slot is an icon over a small label;
 // active = gold accent, inactive = textSecondary. All routing is unchanged: the four tabs switch the
@@ -1111,6 +1106,7 @@ internal val barLeadingTabs = listOf(
     BarTab(Destination.Today, Icons.Outlined.GridView, R.string.nav_today),
     // chart.line.uptrend.xyaxis on iOS — the rising-trend glyph, not a flat bar chart.
     BarTab(Destination.Trends, Icons.AutoMirrored.Filled.TrendingUp, R.string.nav_trends),
+    BarTab(Destination.Journal, Icons.AutoMirrored.Filled.MenuBook, R.string.l10n_journal_reminder_journal_57d7f743),
 )
 /**
  * The trailing tabs, as shipped. [barTrailingTabsFor] is what the bar actually draws: Coach is
@@ -1276,7 +1272,7 @@ private data class QuickAction(@StringRes val titleRes: Int, val icon: ImageVect
 private val quickActions: List<QuickAction> = listOf(
     QuickAction(R.string.action_live_hr, Destination.Live.icon, Destination.Live.route),
     QuickAction(R.string.action_start_workout, Icons.Filled.FitnessCenter, Destination.Workouts.route),
-    QuickAction(R.string.action_log_journal, Icons.Filled.Edit, Destination.Insights.route),
+    QuickAction(R.string.action_log_journal, Icons.Filled.Edit, Destination.Journal.route),
     QuickAction(R.string.action_breathe, Icons.Filled.Air, Destination.Breathe.route),
 )
 
