@@ -60,7 +60,7 @@ struct CoachView: View {
     var body: some View {
         ScreenScaffold(title: "Coach",
                        subtitle: "Ask about your charge, effort, rest and workouts, grounded in your own numbers.",
-                       // The conversation owns its own scroll region: the header, provider strip and
+                       // The conversation owns its own scroll region: the header and
                        // composer stay fixed while only the transcript scrolls.
                        scrollable: false,
                        // Liquid finish: the same full-bleed day-of-sky backdrop Today + the other liquid
@@ -404,21 +404,10 @@ struct CoachView: View {
 
     private var connectedHeader: some View {
         HStack(spacing: 10) {
-            StatePill("\(coach.provider.displayName) · \(coach.model)", tone: .accent, showsDot: true)
-            Spacer()
             if coach.sending {
                 StatePill("Thinking", tone: .accent, pulsing: true)
             }
-            // #2243: the way through to what used to be stacked under this header.
-            Button {
-                showSettings = true
-            } label: {
-                Image(systemName: "slider.horizontal.3")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(StrandPalette.textSecondary)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(String(localized: "Coach settings"))
+            Spacer()
             #if os(iOS)
             connectionMenu
             #endif
@@ -776,6 +765,19 @@ struct CoachView: View {
     /// distinct docked surface above the canvas rather than two floating controls.
     private var composer: some View {
         HStack(alignment: .bottom, spacing: 10) {
+            // Settings entry point, relocated from the header so the transcript region
+            // stays free of chrome.
+            Button {
+                showSettings = true
+            } label: {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(StrandPalette.textSecondary)
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "Coach settings"))
+
             TextField("Ask Coach about your data…", text: $draft, axis: .vertical)
                 .textFieldStyle(.plain)
                 .font(StrandFont.body)

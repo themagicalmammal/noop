@@ -75,7 +75,7 @@ import com.noop.ai.CustomAiAuthHeader
  *    row with Send (disabled while sending), an error line in red, and a reset-key affordance.
  *
  * Everything is composed from the locked design system (ScreenScaffold / NoopCard / NoopType /
- * Palette / StatePill / SegmentedPillControl), dark Material3.
+ * Palette / SegmentedPillControl), dark Material3.
  */
 @Composable
 fun CoachScreen(vm: CoachViewModel = viewModel(), onOpenSettings: () -> Unit = {}) {
@@ -288,7 +288,6 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
     // Also controls the inline editor's rejection hint, which is the only way that editor opens.
     val keyRejected by vm.keyRejected.collectAsStateWithLifecycle()
     val provider by vm.provider.collectAsStateWithLifecycle()
-    val model by vm.model.collectAsStateWithLifecycle()
     val suggestions by vm.suggestions.collectAsStateWithLifecycle()
     // K15: the composer draft is persisted to SharedPreferences so it survives an app relaunch.
     // Restored on first composition, saved on every change. Keyed identically to the iOS twin.
@@ -343,39 +342,6 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 
-        // Active-provider strip. The consent toggle, the coach instructions and the morning brief
-        // moved to CoachSettingsScreen (#2243) so this tab is the conversation; the key editor,
-        // the privacy note and Disconnect moved there in the same breath, so what stays is the
-        // one line saying which model is answering, and the way through to the rest.
-        //
-        // The two settings screens do NOT hold the same cards: see CoachSettingsScreen's own
-        // note on the two Gemini/signals opt-ins.
-        NoopCard(padding = 14.dp, tint = Palette.chargeColor) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // The pill takes the flexible space (ellipsizing a long model id); the actions
-                // keep their intrinsic single-line width so they can never be squeezed into a vertical
-                // stack (#1074).
-                StatePill(
-                    title = uiString(R.string.l10n_coach_screen_provider_displayname_model_8b39f761, provider.displayName, model),
-                    tone = StrandTone.Accent, showsDot = true,
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(Modifier.width(8.dp))
-                val settingsInteraction = remember { MutableInteractionSource() }
-                Icon(
-                    Icons.Filled.Tune,
-                    contentDescription = uiString(R.string.coach_settings),
-                    tint = Palette.textSecondary,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .liquidPress(settingsInteraction)
-                        .clickable(interactionSource = settingsInteraction, indication = null) { onOpenSettings() }
-                        .padding(6.dp)
-                        .size(20.dp),
-                )
-            }
-        }
-
         if (showClearConfirm) {
             AlertDialog(
                 onDismissRequest = { showClearConfirm = false },
@@ -393,8 +359,8 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
         }
 
         // Transcript or empty-state with suggested prompts. The Box claims every remaining
-        // point between the pinned provider strip above and the fixed composer below, so the
-        // header, strip and composer stay put and only this region scrolls when it overflows.
+        // point between the pinned header above and the fixed composer below, so the
+        // header and composer stay put and only this region scrolls when it overflows.
         Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
             if (messages.isEmpty()) {
                 // ChatGPT-style empty state: a centred greeting on the plain canvas, with the
@@ -489,6 +455,7 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
                 if (error != null) vm.clearError()
             },
             sending = sending,
+            onOpenSettings = onOpenSettings,
             onSend = {
                 vm.send(context, input)
                 input = ""
@@ -931,6 +898,7 @@ private fun MicComposerRow(
     input: String,
     onInputChange: (String) -> Unit,
     sending: Boolean,
+    onOpenSettings: () -> Unit,
     onSend: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -998,6 +966,26 @@ private fun MicComposerRow(
             colors = composerFieldColors(),
             shape = RoundedCornerShape(14.dp),
         )
+
+        // Settings entry point, relocated from the provider strip so the transcript region
+        // stays free of chrome.
+        val settingsInteraction = remember { MutableInteractionSource() }
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clip(RoundedCornerShape(50))
+                .liquidPress(settingsInteraction)
+                .clickable(interactionSource = settingsInteraction, indication = null) { onOpenSettings() }
+                .semantics { contentDescription = uiString(R.string.coach_settings) },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                Icons.Filled.Tune,
+                contentDescription = null,
+                tint = Palette.textSecondary,
+                modifier = Modifier.size(20.dp),
+            )
+        }
 
         // K4: mic button — on-device voice input. Hidden entirely when on-device recognition
         // is not available (API < 31 or locale without an offline model), matching iOS which
