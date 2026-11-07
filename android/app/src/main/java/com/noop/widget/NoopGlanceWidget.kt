@@ -78,24 +78,24 @@ class NoopGlanceWidget : GlanceAppWidget() {
 
 // Per-scheme widget colours (mirror the app palette; deepened gold/amber/orange on light for contrast
 // on the warm-paper card). The widget is a separate surface, so these are local — not Palette reads.
-private fun widgetSurface(dark: Boolean) = ColorProvider(if (dark) Color(0xFF0A1322) else Color(0xFFF4F1EA))
-private fun widgetTextPrimary(dark: Boolean) = ColorProvider(if (dark) Color(0xFFF4F6F8) else Color(0xFF1A2230))
-private fun widgetTextSecondary(dark: Boolean) = ColorProvider(if (dark) Color(0xFF8A94A4) else Color(0xFF7C8696))
+private fun widgetSurface(dark: Boolean) = ColorProvider(if (dark) Color(0xFF0D0D0F) else Color(0xFFF4F1EA))
+private fun widgetTextPrimary(dark: Boolean) = ColorProvider(if (dark) Color(0xFFFFFFFF) else Color(0xFF1A2230))
+private fun widgetTextSecondary(dark: Boolean) = ColorProvider(if (dark) Color(0xFF9A9AA0) else Color(0xFF7C8696))
 
 /** Recovery-band colour, the app-wide 67 / 34 cuts (RecoveryScorer.band); deepened on light. Charge and
  *  Rest both read on the recovery band in the app, so they share this. */
 private fun bandColor(recovery: Int, dark: Boolean): ColorProvider = ColorProvider(
     when {
-        recovery >= 67 -> if (dark) Color(0xFFE8B84B) else Color(0xFFB07D17)
-        recovery >= 34 -> if (dark) Color(0xFFD98A3D) else Color(0xFFC2792E)
-        else -> if (dark) Color(0xFFE0662F) else Color(0xFFC84E1E)
+        recovery >= 67 -> if (dark) Color(0xFF4FE3A9) else Color(0xFFB07D17)
+        recovery >= 34 -> if (dark) Color(0xFFE8743C) else Color(0xFFC2792E)
+        else -> if (dark) Color(0xFFE0463C) else Color(0xFFC84E1E)
     },
 )
 
-/** Effort tint — the app's strain colour (Palette.strain066), a distinct teal so Effort doesn't read as
+/** Effort tint — the app's effort colour (Palette.effortColor), a distinct orange so Effort doesn't read as
  *  another recovery band. Deepened on light for contrast on the warm-paper card. (#516) */
 private fun effortColor(dark: Boolean): ColorProvider =
-    ColorProvider(if (dark) Color(0xFF4FB6A8) else Color(0xFF2E7D74))
+    ColorProvider(if (dark) Color(0xFFF26A21) else Color(0xFFB4540F))
 
 @Composable
 private fun WidgetContent(snap: WidgetSnapshot, dark: Boolean) {

@@ -63,22 +63,22 @@ class NoopCompactGlanceWidget : GlanceAppWidget() {
 }
 
 private fun compactWidgetSurface(dark: Boolean) =
-    ColorProvider(if (dark) Color(0xFF0A1322) else Color(0xFFF4F1EA))
+    ColorProvider(if (dark) Color(0xFF0D0D0F) else Color(0xFFF4F1EA))
 private fun compactWidgetTextPrimary(dark: Boolean) =
-    ColorProvider(if (dark) Color(0xFFF4F6F8) else Color(0xFF1A2230))
+    ColorProvider(if (dark) Color(0xFFFFFFFF) else Color(0xFF1A2230))
 private fun compactWidgetTextSecondary(dark: Boolean) =
-    ColorProvider(if (dark) Color(0xFF8A94A4) else Color(0xFF7C8696))
+    ColorProvider(if (dark) Color(0xFF9A9AA0) else Color(0xFF7C8696))
 
 private fun compactBandColor(recovery: Int, dark: Boolean): ColorProvider = ColorProvider(
     when {
-        recovery >= 67 -> if (dark) Color(0xFFE8B84B) else Color(0xFFB07D17)
-        recovery >= 34 -> if (dark) Color(0xFFD98A3D) else Color(0xFFC2792E)
-        else -> if (dark) Color(0xFFE0662F) else Color(0xFFC84E1E)
+        recovery >= 67 -> if (dark) Color(0xFF4FE3A9) else Color(0xFFB07D17)
+        recovery >= 34 -> if (dark) Color(0xFFE8743C) else Color(0xFFC2792E)
+        else -> if (dark) Color(0xFFE0463C) else Color(0xFFC84E1E)
     },
 )
 
 private fun compactEffortColor(dark: Boolean): ColorProvider =
-    ColorProvider(if (dark) Color(0xFF4FB6A8) else Color(0xFF2E7D74))
+    ColorProvider(if (dark) Color(0xFFF26A21) else Color(0xFFB4540F))
 
 @Composable
 private fun CompactWidgetContent(snap: WidgetSnapshot, dark: Boolean) {

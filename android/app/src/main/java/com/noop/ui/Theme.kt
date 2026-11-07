@@ -155,9 +155,9 @@ object Palette {
      * The Rest family's most legible LINE colour — for strokes that must read on a busy or translucent
      * surface, such as the body-clock dial's arcs over a custom background image.
      *
-     * Introduces no new value: it selects the existing token that is the bright grey in each palette.
-     * Both Rest families now share the same neutral ramp (restColor #8C8C8C / restBright #B3B3B3 in
-     * dark), so a card naming either token directly renders identically. Mirrors the Swift twin.
+     * Introduces no new value: it selects the existing token that is the brightest of the Rest
+     * ramp in each palette, so a card naming either token directly renders identically.
+     * Mirrors the Swift twin.
      */
     val restLine get() = if (isClassic) restColor else restBright
 
@@ -165,6 +165,11 @@ object Palette {
     val stressDeep get() = if (isClassic) classic.stressDeep else active.stressDeep
     val stressBright get() = if (isClassic) classic.stressBright else active.stressBright
     val stressGlow get() = if (isClassic) classic.stressColor else active.stressGlow
+
+    // Domain accents for the Today hero, live heart-rate, and Activity/live-workout surfaces.
+    val todayColor get() = active.todayColor
+    val heartRateColor get() = active.heartRateColor
+    val activityColor get() = active.activityColor
 
     /** Deep → bright accent pairs (gauge stroke + diagonal card wash) per domain. */
     val chargeGradientStops: List<Pair<Float, Color>> get() = listOf(0.0f to chargeDeep, 1.0f to chargeBright)
@@ -390,7 +395,7 @@ object Metrics {
     val space18 = 18.dp
     val space24 = 24.dp
     val sourceBadgeHeight = 18.dp
-    val cardRadius = 18.dp   // Bevel continuous radius (18–22dp)
+    val cardRadius = 28.dp   // Bevel continuous radius
     val cornerXs = 2.dp
     val cornerSm = 12.dp
     val cornerBadge = 6.dp

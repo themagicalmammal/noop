@@ -1417,13 +1417,11 @@ private fun HeartRateSection(vm: AppViewModel, hrMax: Int) {
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                         ) {
-                            // The big fallback numeral ticks up to the live value (mirrors HealthView.swift's
-                            // CountUpText); a crisp em-dash when there's no HR yet.
+                            // The big fallback numeral is a static dot-matrix hero number (mirrors
+                            // HealthView.swift's DotNumber); a crisp em-dash when there's no HR yet.
                             if (displayHr != null) {
-                                CountUpText(
-                                    value = displayHr.toDouble(),
-                                    format = { it.roundToInt().toString() },
-                                    style = NoopType.display(72f),
+                                DotNumber(
+                                    text = displayHr.toString(),
                                     color = zoneColor,
                                 )
                             } else {

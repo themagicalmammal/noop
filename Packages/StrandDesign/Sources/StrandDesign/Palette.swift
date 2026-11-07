@@ -229,13 +229,12 @@ public enum StrandPalette {
     public static var strainGradient: Gradient { Gradient(stops: strainStops) }
 
     // MARK: Sleep stages — the neutral "Rest" colour world (Titanium); Classic matches it.
-    // One black-and-white ramp per stage — Awake #C9C9C9, Light #A6A6A6, REM #8C8C8C, Deep #5A5A5A
-    // in dark — because the previous multi-hue blues made the theme read as blue in places it
-    // should not. Light-mode variants are the same ramp darkened for contrast on white.
-    public static var sleepAwake: Color { isClassic ? cSleepAwake : Color(light: "#8C8C8C", dark: "#C9C9C9") }
-    public static var sleepLight: Color { isClassic ? cSleepLight : Color(light: "#7A7A7A", dark: "#A6A6A6") }
-    public static var sleepDeep:  Color { isClassic ? cSleepDeep  : Color(light: "#4A4A4A", dark: "#5A5A5A") }
-    public static var sleepREM:   Color { isClassic ? cSleepREM   : Color(light: "#6E6E6E", dark: "#8C8C8C") }
+    // One hue per stage in the default world; the Classic world keeps its throwback grey
+    // ramp. Light-mode variants are the same ramp darkened for contrast on white.
+    public static var sleepAwake: Color { isClassic ? cSleepAwake : Color(light: "#B07D17", dark: "#F2B84B") }
+    public static var sleepLight: Color { isClassic ? cSleepLight : Color(light: "#6A74C8", dark: "#9BA8E8") }
+    public static var sleepDeep:  Color { isClassic ? cSleepDeep  : Color(light: "#2A38A8", dark: "#4653C4") }
+    public static var sleepREM:   Color { isClassic ? cSleepREM   : Color(light: "#6A4FC0", dark: "#8B7BE8") }
 
     // MARK: HR zones — Titanium cool→warm (no green), or the Classic grey→green→yellow→orange→red.
     public static var zone1: Color { isClassic ? cZone1 : Color(light: "#828282", dark: "#8C8C8C") }
@@ -270,31 +269,32 @@ public enum StrandPalette {
     // full red→green / blue / green→red in Classic regardless of these.
 
     /// Charge (recovery) — gold world / Classic green.
-    public static var chargeColor: Color  { isClassic ? Color(light: "#2E9E4F", dark: "#46B45A") : Color(light: "#0F9D62", dark: "#03E095") }
-    public static var chargeDeep: Color    { isClassic ? Color(light: "#207A3C", dark: "#2E9E4F") : Color(light: "#0B7A4A", dark: "#0B9D62") }
-    public static var chargeBright: Color  { isClassic ? Color(light: "#5FBE6E", dark: "#86D98E") : Color(light: "#5FD89A", dark: "#6BF0B4") }
-    public static var chargeGlow: Color    { isClassic ? Color(light: "#2E9E4F", dark: "#46B45A") : Color(light: "#0F9D62", dark: "#03E095") }
+    public static var chargeColor: Color  { isClassic ? Color(light: "#2E9E4F", dark: "#46B45A") : Color(light: "#0F9D62", dark: "#4FE3A9") }
+    public static var chargeDeep: Color    { isClassic ? Color(light: "#207A3C", dark: "#2E9E4F") : Color(light: "#0B7A4A", dark: "#0B3B2B") }
+    public static var chargeBright: Color  { isClassic ? Color(light: "#5FBE6E", dark: "#86D98E") : Color(light: "#5FD89A", dark: "#8CF5CD") }
+    public static var chargeGlow: Color    { isClassic ? Color(light: "#2E9E4F", dark: "#46B45A") : Color(light: "#0F9D62", dark: "#4FE3A9") }
     /// Diagonal accent pair for the Charge card wash + gauge stroke (deep → bright).
     public static var chargeGradient: Gradient { Gradient(colors: [chargeDeep, chargeBright]) }
 
-    /// Effort (strain) — one neutral grey ramp in both chart styles.
-    public static var effortColor: Color   { Color(light: "#4A4A4A", dark: "#B3B3B3") }
-    public static var effortDeep: Color    { Color(light: "#333333", dark: "#8C8C8C") }
-    public static var effortBright: Color  { Color(light: "#6B6B6B", dark: "#D6D6D6") }
-    public static var effortGlow: Color    { Color(light: "#4A4A4A", dark: "#B3B3B3") }
+    /// Effort (strain) — a warm orange ramp in both chart styles.
+    public static var effortColor: Color   { Color(light: "#B4540F", dark: "#F26A21") }
+    public static var effortDeep: Color    { Color(light: "#7A3406", dark: "#5A240A") }
+    public static var effortBright: Color  { Color(light: "#D97B2E", dark: "#FF9A5C") }
+    public static var effortGlow: Color    { Color(light: "#B4540F", dark: "#F26A21") }
     public static var effortGradient: Gradient { Gradient(colors: [effortDeep, effortBright]) }
 
-    /// Rest (sleep) — one neutral grey ramp in both chart styles.
-    public static var restColor: Color     { Color(light: "#6E6E6E", dark: "#8C8C8C") }
-    public static var restDeep: Color      { Color(light: "#4A4A4A", dark: "#5A5A5A") }
-    public static var restBright: Color    { Color(light: "#969696", dark: "#B3B3B3") }
-    public static var restGlow: Color      { Color(light: "#6E6E6E", dark: "#8C8C8C") }
+    /// Rest (sleep) — a deep navy ramp in both chart styles.
+    public static var restColor: Color     { Color(light: "#1E2E8C", dark: "#1E2E8C") }
+    public static var restDeep: Color      { Color(light: "#101A52", dark: "#101A52") }
+    public static var restBright: Color    { Color(light: "#33409E", dark: "#4653C4") }
+    public static var restGlow: Color      { Color(light: "#1E2E8C", dark: "#1E2E8C") }
     /// The Rest family's most legible LINE colour — for strokes that must read on a busy or translucent
     /// surface, such as the body-clock dial's arcs over a custom background image.
     ///
-    /// Introduces no new value: it selects the existing token that is the bright grey in each palette.
-    /// Both Rest families now share the same neutral ramp (restColor #8C8C8C / restBright #B3B3B3 in
-    /// dark), so a card naming either token directly renders identically.
+    /// Introduces no new value: it selects the existing token that is the brightest of the Rest
+    /// ramp in each palette.
+    /// Both Rest families now share the same ramp, so a card naming either token directly
+    /// renders identically.
     public static var restLine: Color { isClassic ? restColor : restBright }
 
     public static var restGradient: Gradient { Gradient(colors: [restDeep, restBright]) }
@@ -307,10 +307,15 @@ public enum StrandPalette {
     /// 3-stop gauge ramp: calm → balanced → high.
     public static var stressGradient: Gradient { Gradient(colors: [stressDeep, stressColor, stressBright]) }
 
+    /// Domain accents for the Today hero, live heart-rate, and Activity/live-workout surfaces.
+    public static let todayColor     = Color(light: "#3B1FA8", dark: "#6A4BD6")
+    public static let heartRateColor = Color(light: "#C8403F", dark: "#F0595A")
+    public static let activityColor  = Color(light: "#6E8F1F", dark: "#A8E05A")
+
     // MARK: Scenic background (NEW) — detail-screen hero gradient + starfield.
     /// Radial canvas: lit center → deep edge. Used by `ScenicHeroBackground` (warm-lit on light).
-    public static let scenicCenter     = Color(light: "#FBF6EA", dark: "#1D1D1D")
-    public static let scenicEdge       = Color(light: "#EDE6D6", dark: "#131313")
+    public static let scenicCenter     = Color(light: "#FBF6EA", dark: "#141419")
+    public static let scenicEdge       = Color(light: "#EDE6D6", dark: "#000000")
     /// Star tint for the scenic starfield (very faint on light; the hero suppresses stars there).
     public static let scenicStar       = Color(light: "#D8CDB6", dark: "#CCCCCC")
 

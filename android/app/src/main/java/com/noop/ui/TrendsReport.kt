@@ -159,7 +159,7 @@ object TrendsReportData {
 private fun ReportMetric.accentArgb(): Int = when (this) {
     ReportMetric.WORKOUTS -> 0xFFD98A3D.toInt()       // activity → the Effort (amber) world
     ReportMetric.STRESS -> 0xFFF0A020.toInt()         // the Stress world hue (matches stressColor)
-    ReportMetric.RECOVERY -> 0xFF03E095.toInt()       // charge — WHOOP green (matches chargeColor)
+    ReportMetric.RECOVERY -> 0xFF4FE3A9.toInt()       // charge — mint green (matches chargeColor)
     ReportMetric.STRAIN -> 0xFF4090E0.toInt()         // effort — WHOOP blue (matches effortColor)
     ReportMetric.SLEEP_HOURS -> 0xFF83A0B8.toInt()    // rest — slate (matches restColor)
     ReportMetric.HRV -> 0xFF4A90E2.toInt()            // HRV shares the rest/blue world

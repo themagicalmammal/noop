@@ -20,11 +20,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -280,6 +286,107 @@ fun CountUpText(
         maxLines = 1,
         modifier = modifier,
     )
+}
+
+// MARK: - DotMatrix / DotNumber
+//
+// The dot-matrix numeral: hero metrics rendered as dots on a regular grid (Doto-flavoured).
+// The glyph tables live in a pure object so the layout can be pinned byte-identically against
+// the SwiftUI twin; `DotNumber` draws the resulting grid.
+
+/**
+ * Pure dot-matrix glyph tables shared by [DotNumber]. A glyph is 3 columns x 7 rows of dots and
+ * advances by one extra blank column per character; [grid] is the byte-identical contract with
+ * the Swift twin (`StrandDesign.DotMatrix`), pinned by tests on both platforms.
+ */
+object DotMatrix {
+    const val GLYPH_COLUMNS = 3
+    const val GLYPH_ADVANCE = 4
+    const val ROWS = 7
+
+    // Row masks, one per glyph row. Bit 2 (0b100) is the leftmost column, bit 1 the middle,
+    // bit 0 the rightmost.
+    private val glyphs: Map<Char, IntArray> = mapOf(
+        '0' to intArrayOf(7, 5, 5, 5, 5, 5, 7),
+        '1' to intArrayOf(2, 6, 2, 2, 2, 2, 7),
+        '2' to intArrayOf(7, 1, 7, 6, 4, 4, 7),
+        '3' to intArrayOf(7, 1, 1, 7, 1, 1, 7),
+        '4' to intArrayOf(5, 5, 5, 7, 1, 1, 1),
+        '5' to intArrayOf(7, 4, 7, 1, 1, 1, 7),
+        '6' to intArrayOf(7, 4, 7, 5, 5, 5, 7),
+        '7' to intArrayOf(7, 1, 1, 2, 4, 4, 4),
+        '8' to intArrayOf(7, 5, 5, 7, 5, 5, 7),
+        '9' to intArrayOf(7, 5, 5, 7, 1, 1, 7),
+        ',' to intArrayOf(0, 0, 0, 0, 0, 7, 7),
+        '.' to intArrayOf(0, 0, 0, 0, 0, 7, 7),
+        ':' to intArrayOf(0, 2, 0, 0, 2, 0, 0),
+        '-' to intArrayOf(0, 0, 0, 7, 0, 0, 0),
+        '–' to intArrayOf(0, 0, 0, 7, 0, 0, 0),
+        '+' to intArrayOf(4, 4, 4, 7, 4, 4, 4),
+    )
+
+    /**
+     * The dot grid for [text]: [ROWS] rows of 0/1 cells, one glyph cell per character plus a
+     * blank gap column between glyphs, so `count` characters span `count * GLYPH_ADVANCE - 1`
+     * columns. Empty text yields [ROWS] empty rows; unknown characters render as blank blocks.
+     */
+    fun grid(text: String): List<List<Int>> {
+        var columns = 0
+        text.forEach { columns += GLYPH_ADVANCE }
+        if (columns > 0) columns -= 1
+        val out = List(ROWS) { IntArray(columns).toList().toMutableList() }
+        var cell = 0
+        for (ch in text) {
+            glyphs[ch]?.let { masks ->
+                for (row in 0 until ROWS) {
+                    val mask = masks[row]
+                    for (col in 0 until GLYPH_COLUMNS) {
+                        if (mask and (0b100 shr col) != 0) out[row][cell + col] = 1
+                    }
+                }
+            }
+            cell += GLYPH_ADVANCE
+        }
+        return out
+    }
+}
+
+/**
+ * A dot-matrix numeral for hero metrics, byte-identical to the SwiftUI `DotNumber` twin.
+ *
+ * @param text the numeral to display (digits plus `,` `.` `:` `-` `–` `+`).
+ * @param color the dot colour.
+ * @param dot the dot diameter; each grid cell is twice that wide and tall.
+ */
+@Composable
+fun DotNumber(
+    text: String,
+    color: Color = Color.White,
+    dot: Dp = 4.dp,
+    modifier: Modifier = Modifier,
+) {
+    val grid = remember(text) { DotMatrix.grid(text) }
+    val columns = grid.firstOrNull().orEmpty().size
+    val dotPx = with(LocalDensity.current) { dot.toPx() }
+    Canvas(
+        modifier = modifier
+            .width(dot * 2 * columns)
+            .height(dot * 2 * DotMatrix.ROWS)
+            .semantics { contentDescription = text },
+    ) {
+        val step = dotPx * 2
+        for (row in grid.indices) {
+            for (col in grid[row].indices) {
+                if (grid[row][col] == 1) {
+                    drawCircle(
+                        color = color,
+                        radius = dotPx / 2,
+                        center = Offset((col + 0.5f) * step, (row + 0.5f) * step),
+                    )
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Staggered appear

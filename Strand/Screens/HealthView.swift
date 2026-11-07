@@ -358,14 +358,11 @@ private struct HeartRateSection: View {
                 .accessibilityValue(hasLiveHR ? "\(displayHR ?? 0) beats per minute, zone \(zone)" : "no data")
             } else {
                 VStack(spacing: NoopMetrics.space2) {
-                    // The big fallback numeral ticks up to the live value (the hero number) — under
-                    // Reduce Motion it snaps. When there's no HR yet we show a crisp em-dash instead.
+                    // The big fallback numeral is a static dot-matrix hero number; the live chart
+                    // above it carries the motion. When there's no HR yet we show a crisp em-dash instead.
                     if let hr = displayHR {
-                        CountUpText(value: Double(hr),
-                                    format: { "\(Int($0.rounded()))" },
-                                    font: StrandFont.display(72),
-                                    color: hasLiveHR ? StrandPalette.hrZoneColor(zone) : StrandPalette.textTertiary)
-                            .tracking(StrandFont.displayTracking(72))
+                        DotNumber(text: "\(hr)",
+                                  color: hasLiveHR ? StrandPalette.hrZoneColor(zone) : StrandPalette.textTertiary)
                     } else {
                         Text("—")
                             .font(StrandFont.display(72))

@@ -8,26 +8,26 @@ import SwiftUI
 
 public enum NoopVisualStyle {
     // Neutral, low-chroma surfaces sampled from the supplied dark-mode reference.
-    public static let canvas = Color(light: "#F3F4F6", dark: "#08090B")
-    public static let surface = Color(light: "#FFFFFF", dark: "#0D0D0D")
+    public static let canvas = Color(light: "#F3F4F6", dark: "#000000")
+    public static let surface = Color(light: "#FFFFFF", dark: "#0D0D0F")
     public static let surfaceTop = Color(light: "#FFFFFF", dark: "#121212")
     public static let surfaceBottom = Color(light: "#F4F5F7", dark: "#0A0B0D")
     public static let inset = Color(light: "#E8E9ED", dark: "#0A0B0D")
 
-    public static let border = Color(light: "#D8DAE0", dark: "#212322")
+    public static let border = Color(light: "#D8DAE0", dark: "#26262A")
     public static let borderHighlight = Color(light: "#FFFFFF", dark: "#333333")
 
     public static let divider = Color(light: "#E4E5E9", dark: "#3A3A3A")
 
     public static let primaryText = Color(light: "#17181C", dark: "#FFFFFF")
-    public static let secondaryText = Color(light: "#555861", dark: "#A6A7A9")
+    public static let secondaryText = Color(light: "#555861", dark: "#9A9AA0")
     public static let tertiaryText = Color(light: "#7D808A", dark: "#5A5C5E")
 
     public static let mint = Color(light: "#149A78", dark: "#69DDB8")
     public static let mintDeep = Color(light: "#0D765C", dark: "#13A982")
     public static let mintGlow = Color(light: "#38C99E", dark: "#54E6BD")
 
-    public static let cardRadius: CGFloat = 22
+    public static let cardRadius: CGFloat = 28
     public static let compactRadius: CGFloat = 16
     public static let pillRadius: CGFloat = 999
     public static let pagePadding: CGFloat = 16

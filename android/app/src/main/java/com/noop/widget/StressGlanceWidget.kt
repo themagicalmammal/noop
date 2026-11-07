@@ -83,11 +83,11 @@ class StressGlanceWidget : GlanceAppWidget() {
 
 // Local widget colours, mirroring the siblings rather than reading Palette: Glance composes outside the
 // app theme, so every widget in this package carries its own copy on purpose.
-private fun stressSurfaceColor(dark: Boolean) = if (dark) Color(0xFF0A1322) else Color(0xFFF4F1EA)
+private fun stressSurfaceColor(dark: Boolean) = if (dark) Color(0xFF0D0D0F) else Color(0xFFF4F1EA)
 
 private fun stressSurface(dark: Boolean) = ColorProvider(stressSurfaceColor(dark))
-private fun stressTextPrimary(dark: Boolean) = ColorProvider(if (dark) Color(0xFFF4F6F8) else Color(0xFF1A2230))
-private fun stressTextSecondary(dark: Boolean) = ColorProvider(if (dark) Color(0xFF8A94A4) else Color(0xFF7C8696))
+private fun stressTextPrimary(dark: Boolean) = ColorProvider(if (dark) Color(0xFFFFFFFF) else Color(0xFF1A2230))
+private fun stressTextSecondary(dark: Boolean) = ColorProvider(if (dark) Color(0xFF9A9AA0) else Color(0xFF7C8696))
 
 /**
  * The screen's three-stop ramp, as raw colours the renderer can paint with.
