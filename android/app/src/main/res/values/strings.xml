@@ -214,8 +214,8 @@
     <string name="trends_charge">Charge</string>
     <string name="trends_effort">Effort</string>
     <string name="trends_rest">Rest</string>
-    <string name="trends_hrv_full">Heart rate variability</string>
-    <string name="trends_resting_hr_full">Resting heart rate</string>
+    <string name="trends_hrv_full">HRV</string>
+    <string name="trends_resting_hr_full">Resting HR</string>
     <string name="trends_no_readings_this_week">No readings this week</string>
     <string name="trends_no_readings_body">Step to another week with the arrows above to see its review.</string>
     <string name="trends_this_week">This week</string>

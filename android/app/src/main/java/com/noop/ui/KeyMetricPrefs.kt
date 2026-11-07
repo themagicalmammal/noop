@@ -43,7 +43,7 @@ enum class KeyMetric(val raw: String, @StringRes val titleRes: Int) {
 
         /** The original, hard-coded grid order — the default when the layout isn't customised. */
         val defaultOrder: List<KeyMetric> = listOf(
-            CHARGE, EFFORT, REST, HRV, RESTING_HR,
+            CHARGE, REST,
             BLOOD_OXYGEN, RESPIRATORY, STEPS, WEIGHT, CALORIES,
         )
     }

@@ -512,7 +512,7 @@ fun TodayScreen(
     // Editable Key-Metrics layout (#251), an ordered list of the enabled tiles, persisted display-only.
     // SharedPreferences isn't reactive, so it's mirrored into local state and re-read when the editor saves.
     var showMetricsEditor by remember { mutableStateOf(false) }
-    var enabledKeyMetrics by remember { mutableStateOf(KeyMetricPrefs.enabled(context)) }
+    var enabledKeyMetrics by remember { mutableStateOf(KeyMetricPrefs.enabled(context).filter { it in KeyMetric.defaultOrder }) }
     // Detailed Key-Metrics tiles (squarer + trend graph), set from the same editor, plus the chosen
     // trend window (1 week / 2 weeks / 1 month) the detailed graphs cover.
     var keyMetricsDetailed by remember { mutableStateOf(KeyMetricPrefs.detailed(context)) }
