@@ -95,13 +95,12 @@ fun PowerSavingScreen(vm: AppViewModel) {
                 }
                 Slider(
                     value = powerSavingBatteryPct.toFloat(),
-                    // 10–35% snapping to 5% steps (10/15/20/25/30/35). steps = the 4 stops BETWEEN ends.
-            // 35 buys one more step of strap life than the old 30 ceiling: the levers engage ~5%
-            // earlier in the discharge, at the cost of a slightly longer stretch of quieter syncing.
+                    // 10–100% snapping to 5% steps; steps = the 18 stops BETWEEN ends.
+            // 100% engages the levers whenever the strap is not charging.
                     onValueChange = { powerSavingBatteryPct = it.roundToInt() },
                     onValueChangeFinished = { vm.setPowerSavingBatteryPct(powerSavingBatteryPct) },
-                    valueRange = 10f..35f,
-                    steps = 4,
+                    valueRange = 10f..100f,
+                    steps = 18,
                     colors = SliderDefaults.colors(
                         thumbColor = Palette.accent,
                         activeTrackColor = Palette.accent,

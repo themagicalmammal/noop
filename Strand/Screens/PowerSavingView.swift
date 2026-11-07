@@ -57,12 +57,10 @@ struct PowerSavingView: View {
                                     .font(StrandFont.subhead)
                                     .foregroundStyle(StrandPalette.accent)
                             }
-                            // 10…35 in 5s. 35 buys one more step of strap life than the old 30 ceiling:
-                            // the levers engage ~5% earlier in the discharge, at the cost of a slightly
-                            // longer stretch of quieter syncing.
+                            // 10…100 in 5s; 100% engages the levers whenever the strap is not charging.
                             Slider(
                                 value: Binding(get: { Double(powerSavingPct) }, set: { powerSavingPct = Int($0) }),
-                                in: 10...35, step: 5,
+                                in: 10...100, step: 5,
                                 onEditingChanged: { editing in if !editing { model.applyPowerSaving() } }
                             )
                             .tint(StrandPalette.accent)
