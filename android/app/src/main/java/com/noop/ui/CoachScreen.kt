@@ -29,7 +29,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -104,6 +104,9 @@ fun CoachScreen(vm: CoachViewModel = viewModel(), onOpenSettings: () -> Unit = {
         // stay pinned while only the transcript scrolls (iOS parity — the transcript is the
         // screen's sole scroll region there too).
         scrollable = false,
+        // The composer is the screen's docked footer — let it sit just above the bar instead of a
+        // full screen-padding above it.
+        contentBottomPadding = 8.dp,
         // LIQUID SKY BACKDROP (the pilot pattern — LiquidScreenSky.kt): the liquid sky sits behind the
         // header and the cards float over the flat canvas below. Reuses the shared LiquidScreenSky() slot
         // verbatim; when the day-cycle background is off, the scaffold paints the plain surface instead.
@@ -946,7 +949,6 @@ private fun MicComposerRow(
             .border(1.dp, Palette.hairline, RoundedCornerShape(24.dp))
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         OutlinedTextField(
             value = input,
@@ -967,6 +969,8 @@ private fun MicComposerRow(
             shape = RoundedCornerShape(14.dp),
         )
 
+        Spacer(Modifier.width(8.dp))
+
         // Settings entry point, relocated from the provider strip so the transcript region
         // stays free of chrome.
         val settingsInteraction = remember { MutableInteractionSource() }
@@ -980,12 +984,14 @@ private fun MicComposerRow(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                Icons.Filled.Tune,
+                Icons.Filled.Settings,
                 contentDescription = null,
                 tint = Palette.textSecondary,
                 modifier = Modifier.size(20.dp),
             )
         }
+
+        Spacer(Modifier.width(4.dp))
 
         // K4: mic button — on-device voice input. Hidden entirely when on-device recognition
         // is not available (API < 31 or locale without an offline model), matching iOS which
@@ -1010,6 +1016,7 @@ private fun MicComposerRow(
                     }
                 },
             )
+            Spacer(Modifier.width(4.dp))
         }
 
         SendButton(

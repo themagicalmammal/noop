@@ -1148,12 +1148,11 @@ private fun GlassBottomBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            // Clear the gesture-nav bar (home indicator) first, then add breathing room so the capsule
-            // floats free of the bottom edge rather than jamming against it — iOS clears the home-indicator
-            // safe area + 4pt; here navigationBarsPadding + 4dp gives the same lift.
+            // Clear the gesture-nav bar (home indicator) and sit flush on it — the capsule rides
+            // as low as the safe area allows, with no extra lift above the inset.
             .navigationBarsPadding()
             .padding(horizontal = 22.dp)
-            .padding(top = 4.dp, bottom = Metrics.space4),
+            .padding(top = 4.dp),
         contentAlignment = Alignment.Center,
     ) {
         Surface(

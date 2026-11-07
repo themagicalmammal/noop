@@ -1307,6 +1307,10 @@ fun ScreenScaffold(
     // transcript) with a fixed header and footer around it. Mirrors the iOS ScreenScaffold
     // `scrollable` slot. Defaulted, so every existing caller keeps the scrolling layout.
     scrollable: Boolean = true,
+    // Bottom clearance for the CONTENT (above the measured bar). 28dp is the standard screen
+    // padding; a screen that docks a fixed footer (Coach's composer) can pass a tighter value so
+    // the footer hugs the bar instead of floating a screen-padding above it.
+    contentBottomPadding: Dp = 28.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     // The scrolling content column. Its OUTER modifier differs by path: with no topBackground it is the
@@ -1337,7 +1341,7 @@ fun ScreenScaffold(
                     start = 16.dp,
                     end = 16.dp,
                     top = topPadding,
-                    bottom = 28.dp + BottomBarStyleStore.barHeightForContent(),
+                    bottom = contentBottomPadding + BottomBarStyleStore.barHeightForContent(),
                 ),
             // #765: one shared inter-card spacing token (was a bare `20.dp`), so the eager + lazy scaffolds
             // and every screen through them keep the SAME uniform gap between top-level cards.
