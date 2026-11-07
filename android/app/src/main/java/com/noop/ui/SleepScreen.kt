@@ -606,6 +606,20 @@ fun SleepScreen(
         title = uiString(R.string.l10n_sleep_screen_sleep_3cac34e6),
         subtitle = "Last night, read in two seconds.",
         listState = sleepListState,   // #sleep-layout: the hold-to-drag frame loop drives this list state
+        // #sleep-layout: the "Arrange" affordance (the same Tune entry Today uses) opens the
+        // reorder / show-hide sheet, pinned top-right in the heading.
+        trailing = {
+            TextButton(
+                onClick = { showSleepArrange = true },
+                colors = ButtonDefaults.textButtonColors(contentColor = Palette.textTertiary),
+            ) {
+                Icon(Icons.Filled.Tune, contentDescription = stringResource(R.string.sleep_customize_title), modifier = Modifier.size(Metrics.iconSmall))
+                Spacer(Modifier.width(Metrics.space4))
+                // Concise verb on the affordance (the full "Customize Sleep" title is the icon's
+                // a11y label + the sheet header); reuses Today's generic "Customize" action string.
+                Text(stringResource(R.string.today_customize_action), style = NoopType.footnote)
+            }
+        },
         // LIQUID SKY BACKDROP (the pilot pattern — LiquidScreenSky.kt): the static time-of-day liquid sky
         // settles into the theme canvas behind the header + hero, bled full-width up behind the status bar
         // via the scaffold's topBackground plumbing. Gated on the day-cycle preference exactly like Today
@@ -724,23 +738,6 @@ fun SleepScreen(
                 )
             }
             item { SleepAlarmsEntry(onOpenAlarms) }
-            // #sleep-layout: a compact "Arrange" affordance (the same Tune entry Today uses) opens the
-            // reorder / show-hide sheet. Pinned just above the arrangeable cards.
-            item {
-                Row(Modifier.fillMaxWidth().padding(top = Metrics.selectorTopUp)) {
-                    Spacer(Modifier.weight(1f))
-                    TextButton(
-                        onClick = { showSleepArrange = true },
-                        colors = ButtonDefaults.textButtonColors(contentColor = Palette.textTertiary),
-                    ) {
-                        Icon(Icons.Filled.Tune, contentDescription = stringResource(R.string.sleep_customize_title), modifier = Modifier.size(Metrics.iconSmall))
-                        Spacer(Modifier.width(Metrics.space4))
-                        // Concise verb on the affordance (the full "Customize Sleep" title is the icon's a11y
-                        // label + the sheet header); reuses Today's generic "Customize" action string.
-                        Text(stringResource(R.string.today_customize_action), style = NoopType.footnote)
-                    }
-                }
-            }
             // Analytical cards render in the user's saved order (SleepLayoutPrefs), minus the hidden set.
             // Reordered via the Arrange sheet OR by long-press hold-to-drag on the card (#sleep-layout,
             // mirrors Today); each card's data guards (tilesModel/model) are preserved. Each section is ONE

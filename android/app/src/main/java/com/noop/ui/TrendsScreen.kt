@@ -17,16 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalView
-import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.HorizontalDivider
@@ -91,6 +83,11 @@ import kotlin.math.roundToInt
 // crisp line chart + the count-up vessel accent read clean over the sky. Radius 26 + a white@0.11 hairline
 // give it the frosted-glass edge. Mirrors the liquid Today heroCard (LiquidTodayView / TodayScreen).
 private val LIQUID_HERO_RADIUS: Dp = 26.dp
+
+// The Trends charts sit 60dp shorter than the shared chart token: the tab stacks hero + HRV +
+// Resting HR + Effort + history, so the reduced height keeps the tab compact without touching
+// the token the Health / Apple Health / Stress / Rhythm screens still share.
+private val TRENDS_CHART_HEIGHT: Dp = Metrics.chartHeight - 60.dp
 
 @Composable
 fun TrendsScreen(vm: AppViewModel) {
@@ -358,12 +355,6 @@ private fun WeeklyDigestNav(
     val digest = remember(days, anchorDay, factor) {
         buildWeeklyDigest(days, anchorDay, effortDisplayFactor = factor)
     }
-    // "Share recap" capture: track the card's on-screen bounds, then draw the Compose host view + crop
-    // (RecapShare.captureCropped) — the Compose-1.7 GraphicsLayer capture API isn't in this 1.6.8 build.
-    val scope = rememberCoroutineScope()
-    val hostView = LocalView.current
-    var cardBounds by remember { mutableStateOf<Rect?>(null) }
-
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         WeekNavBar(weekOffset = weekOffset, minWeekOffset = minWeekOffset, onStep = onStep)
         if (digest.isEmpty) {
@@ -372,19 +363,7 @@ private fun WeeklyDigestNav(
                 body = stringResource(R.string.trends_no_readings_body),
             )
         } else {
-            Box(modifier = Modifier.onGloballyPositioned { cardBounds = it.boundsInRoot() }) {
-                NoopCard { WeeklyDigestContent(digest = digest, compact = true) }
-            }
-            NoopButton(
-                text = "Share recap",
-                leadingIcon = Icons.Filled.IosShare,
-                kind = NoopButtonKind.Secondary,
-                onClick = {
-                    val bounds = cardBounds
-                    val bmp = bounds?.let { RecapShare.captureCropped(hostView, it) }
-                    if (bmp != null) scope.launch { RecapShare.share(context, bmp, anchorDay) }
-                },
-            )
+            NoopCard { WeeklyDigestContent(digest = digest, compact = true) }
         }
     }
 }
@@ -717,7 +696,7 @@ private fun ChartCard(
                     headroom = chartHeadroom,
                 )
             } else {
-                SparsePlaceholder()
+                SparsePlaceholder(TRENDS_CHART_HEIGHT)
             }
 
             // Footer stats + a window-change chip aligned to the trailing edge.
@@ -757,7 +736,7 @@ private fun ChartCard(
  */
 @Composable
 private fun HeadlineVessel(value: Double, tint: Color) {
-    val diameter = 44.dp
+    val diameter = 24.dp
     Box(modifier = Modifier.size(diameter), contentAlignment = Alignment.Center) {
         LiquidVessel(
             value = (value / 100.0).coerceIn(0.0, 1.0),
@@ -768,8 +747,8 @@ private fun HeadlineVessel(value: Double, tint: Color) {
         CountUpText(
             value = value,
             format = { "${it.roundToInt()}" },
-            style = NoopType.number(17f, weight = FontWeight.Bold)
-                .copy(shadow = Shadow(color = Color.Black.copy(alpha = 0.5f), offset = Offset(0f, 1f), blurRadius = 6f)),
+            style = NoopType.number(9f, weight = FontWeight.Bold)
+                .copy(shadow = Shadow(color = Color.Black.copy(alpha = 0.5f), offset = Offset(0f, 1f), blurRadius = 3f)),
             color = Color.White,
             modifier = Modifier.clearAndSetSemantics {},
         )
@@ -831,7 +810,7 @@ private fun ChartWithAxes(
     val chartStyle = UnitPrefs.trendChartStyle(LocalContext.current)
     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         Column(
-            modifier = Modifier.height(Metrics.chartHeight),
+            modifier = Modifier.height(TRENDS_CHART_HEIGHT),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(formatY(maxV), style = NoopType.footnote, color = Palette.textTertiary, maxLines = 1)
@@ -850,11 +829,11 @@ private fun ChartWithAxes(
             // bottom , the Android stand-in for the iOS hero's `valueRange: 0...106` (LineChart has
             // no value-domain hook, so we shrink its drawing box instead). Both LineChart and the
             // GlowEndCap fill this same Box, so the cap stays on the line.
-            val plotHeight = Metrics.chartHeight * (1f - headroom.coerceIn(0f, 0.5f))
+            val plotHeight = TRENDS_CHART_HEIGHT * (1f - headroom.coerceIn(0f, 0.5f))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(Metrics.chartHeight),
+                    .height(TRENDS_CHART_HEIGHT),
                 contentAlignment = Alignment.BottomCenter,
             ) {
                 Box(modifier = Modifier.fillMaxWidth().height(plotHeight)) {
@@ -999,7 +978,7 @@ private fun MetricTrendCard(
         modifier = modifier,
         title = title,
         subtitle = null,
-        trailing = avg?.let { fmt(it) },
+        trailing = avg?.let { "${fmt(it)} $unit" },
         color = color,
         tint = tint,
         tipColor = tipColor,
@@ -1010,9 +989,9 @@ private fun MetricTrendCard(
         higherIsBetter = higherIsBetter,
         changeFmt = fmt,
         footer = listOf(
-            // Plain "Mean" to match the bare Min/Max columns; the unit moves into the value
-            // (e.g. "58 ms") so uppercasing can't render a shouty "MEAN MS".
-            stringResource(R.string.trends_mean) to (avg?.let { "${fmt(it)} $unit" } ?: EM_DASH),
+            // Plain number to match the bare Min/Max columns; the unit rides the card's top-right
+            // readout (e.g. "58 ms") instead, keeping the footer a pure number grid.
+            stringResource(R.string.trends_mean) to (avg?.let { fmt(it) } ?: EM_DASH),
             stringResource(R.string.trends_min) to (resolved.values.minOrNull()?.let { fmt(it) } ?: EM_DASH),
             stringResource(R.string.trends_max) to (resolved.values.maxOrNull()?.let { fmt(it) } ?: EM_DASH),
         ),
