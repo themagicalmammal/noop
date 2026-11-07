@@ -426,6 +426,7 @@
     <string name="l10n_coach_screen_key_header_3f2a9b10">Заголовок ключа</string>
     <string name="l10n_coach_screen_let_the_coach_use_my_data_405d1188">Разрешить ИИ-тренеру использовать мои данные</string>
     <string name="l10n_coach_screen_model_selected_tap_to_change_043056c1">Модель: %1$s. Нажмите, чтобы изменить.</string>
+    <string name="l10n_coach_screen_privacy_cf01481f">Конфиденциальность</string>
     <string name="l10n_coach_screen_reset_to_default_39c90eb7">Сбросить к значению по умолчанию</string>
     <string name="l10n_coach_screen_save_key_f5216b3a">Сохранить ключ</string>
     <string name="l10n_coach_screen_send_message_c70a890d">Отправить сообщение</string>

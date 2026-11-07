@@ -371,6 +371,7 @@
     <string name="l10n_coach_screen_key_header_3f2a9b10">Schlüssel-Header</string>
     <string name="l10n_coach_screen_let_the_coach_use_my_data_405d1188">Dem Coach erlauben, meine Daten zu nutzen</string>
     <string name="l10n_coach_screen_model_selected_tap_to_change_043056c1">Modell: %1$s. Tap zum Ändern.</string>
+    <string name="l10n_coach_screen_privacy_cf01481f">Datenschutz</string>
     <string name="l10n_coach_screen_provider_displayname_model_8b39f761">%1$s · %2$s</string>
     <string name="l10n_coach_screen_reset_to_default_39c90eb7">Auf Standard zurücksetzen</string>
     <string name="l10n_coach_screen_save_key_f5216b3a">Schlüssel speichern</string>

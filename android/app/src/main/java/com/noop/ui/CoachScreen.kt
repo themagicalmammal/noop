@@ -27,6 +27,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Refresh
@@ -297,6 +299,9 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
     var input by remember { mutableStateOf(draftPrefs.getString("draft", "") ?: "") }
     // K2: confirmation gate for the destructive "Clear conversation" action.
     var showClearConfirm by remember { mutableStateOf(false) }
+    // The privacy note, which used to sit pinned under the composer, now lives behind the
+    // info button on the provider strip; this dialog shows the same one-liner.
+    var showPrivacyInfo by remember { mutableStateOf(false) }
     // The corrected key, typed into the editor the rejection message opens. Separate from `input` so a
     // half-typed question is not lost while fixing the key, and cleared on save so a secret does not
     // sit in composition state after it has been stored.
@@ -393,19 +398,30 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
                         .size(20.dp),
                 )
                 Spacer(Modifier.width(4.dp))
+                val privacyInteraction = remember { MutableInteractionSource() }
+                Icon(
+                    Icons.Filled.Info,
+                    contentDescription = uiString(R.string.l10n_coach_screen_privacy_cf01481f),
+                    tint = Palette.textSecondary,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .liquidPress(privacyInteraction)
+                        .clickable(interactionSource = privacyInteraction, indication = null) { showPrivacyInfo = true }
+                        .padding(6.dp)
+                        .size(20.dp),
+                )
+                Spacer(Modifier.width(4.dp))
                 val disconnectInteraction = remember { MutableInteractionSource() }
-                Text(
-                    uiString(R.string.l10n_coach_screen_disconnect_ed28e068),
-                    style = NoopType.caption,
-                    color = Palette.textSecondary,
-                    maxLines = 1,
-                    softWrap = false,
+                Icon(
+                    Icons.Filled.LinkOff,
+                    contentDescription = uiString(R.string.l10n_coach_screen_disconnect_provider_fa13625c),
+                    tint = Palette.textSecondary,
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
                         .liquidPress(disconnectInteraction)
                         .clickable(interactionSource = disconnectInteraction, indication = null) { vm.disconnect(context) }
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
-                        .semantics { contentDescription = uiString(R.string.l10n_coach_screen_disconnect_provider_fa13625c) },
+                        .padding(6.dp)
+                        .size(20.dp),
                 )
             }
         }
@@ -422,6 +438,17 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
                 },
                 dismissButton = {
                     TextButton(onClick = { showClearConfirm = false }) { Text(stringResource(R.string.l10n_coach_screen_cancel_77dfd213)) }
+                },
+            )
+        }
+
+        if (showPrivacyInfo) {
+            AlertDialog(
+                onDismissRequest = { showPrivacyInfo = false },
+                title = { Text(uiString(R.string.l10n_coach_screen_privacy_cf01481f)) },
+                text = { PrivacyNote(local = provider == AiProvider.CUSTOM) },
+                confirmButton = {
+                    TextButton(onClick = { showPrivacyInfo = false }) { Text("OK") }
                 },
             )
         }
@@ -568,8 +595,6 @@ private fun CoachChat(vm: CoachViewModel, onOpenSettings: () -> Unit) {
             }
         }
 
-        // Privacy note repeated under the input so it's always on screen.
-        PrivacyNote(local = provider == AiProvider.CUSTOM)
     }
 }
 

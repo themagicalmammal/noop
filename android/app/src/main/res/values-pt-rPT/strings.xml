@@ -336,6 +336,7 @@
     <string name="l10n_coach_screen_key_header_3f2a9b10">Cabeçalho da chave</string>
     <string name="l10n_coach_screen_let_the_coach_use_my_data_405d1188">Deixe o treinador usar os meus dados</string>
     <string name="l10n_coach_screen_model_selected_tap_to_change_043056c1">Modelo: %1$s. Toque em para alterar.</string>
+    <string name="l10n_coach_screen_privacy_cf01481f">Privacidade</string>
     <string name="l10n_coach_screen_provider_displayname_model_8b39f761">%1$s · %2$s</string>
     <string name="l10n_coach_screen_reset_to_default_39c90eb7">Repor para o padrão</string>
     <string name="l10n_coach_screen_save_key_f5216b3a">Guardar chave</string>

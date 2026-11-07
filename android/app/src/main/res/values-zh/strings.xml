@@ -333,6 +333,7 @@
     <string name="l10n_coach_screen_key_header_3f2a9b10">密钥请求头</string>
     <string name="l10n_coach_screen_let_the_coach_use_my_data_405d1188">允许 AI 教练访问我的数据</string>
     <string name="l10n_coach_screen_model_selected_tap_to_change_043056c1">当前模型：%1$s (点击更换)</string>
+    <string name="l10n_coach_screen_privacy_cf01481f">隐私</string>
     <string name="l10n_coach_screen_provider_displayname_model_8b39f761">%1$s · %2$s</string>
     <string name="l10n_coach_screen_reset_to_default_39c90eb7">恢复默认设置</string>
     <string name="l10n_coach_screen_save_key_f5216b3a">保存密钥 (Key)</string>

@@ -39,6 +39,9 @@ struct CoachView: View {
 
     /// K2: confirmation gate for the destructive "Clear conversation" toolbar action.
     @State private var showClearConfirm = false
+    /// The privacy note, which used to sit pinned under the composer, now lives behind the
+    /// info button on the connected header; this alert shows the same one-liner.
+    @State private var showPrivacyInfo = false
     /// #2243: the coach settings, presented as a sheet. See `CoachSettingsView` for why a sheet
     /// rather than a push.
     @State private var showSettings = false
@@ -88,7 +91,6 @@ struct CoachView: View {
                    let tokens = coach.estimatedTokens(forDraft: draft) {
                     tokenEstimateBar(tokens)
                 }
-                privacyFootnote
             } else {
                 setupCard
             }
@@ -149,6 +151,11 @@ struct CoachView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This deletes the saved conversation from this device. Coach history is your own notes, not medical advice.")
+        }
+        .alert("Privacy", isPresented: $showPrivacyInfo) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(privacyFootnoteText)
         }
         // K2 + K5 ordering matters and every step gates on an EMPTY transcript, so this is ONE `.task`
         // running sequentially (separate `.task`s can interleave at their await points on the same
@@ -420,6 +427,16 @@ struct CoachView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(String(localized: "Coach settings"))
+            // The privacy note lives behind this button; the alert shows the same one-liner.
+            Button {
+                showPrivacyInfo = true
+            } label: {
+                Image(systemName: "info.circle")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(StrandPalette.textSecondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "Privacy"))
             #if os(iOS)
             connectionMenu
             #endif
@@ -912,11 +929,17 @@ struct CoachView: View {
     }
     #endif
 
+    /// The one-line privacy note, shared by the setup card and the info alert so both
+    /// surfaces state the same thing.
+    private var privacyFootnoteText: String {
+        coach.provider == .custom
+            ? "Coach talks only to the server URL you set. Point it at a local model (Ollama, LM Studio, llama.cpp) to keep everything on your own machine. Nothing is sent until you ask."
+            : "This is the only feature that leaves \(Platform.deviceNounPhrase). It sends a summary of your metrics to \(coach.provider.displayName) using your own key. Nothing is sent until you ask."
+    }
+
     private var privacyFootnote: some View {
         Label {
-            Text(coach.provider == .custom
-                 ? "Coach talks only to the server URL you set. Point it at a local model (Ollama, LM Studio, llama.cpp) to keep everything on your own machine. Nothing is sent until you ask."
-                 : "This is the only feature that leaves \(Platform.deviceNounPhrase). It sends a summary of your metrics to \(coach.provider.displayName) using your own key. Nothing is sent until you ask.")
+            Text(privacyFootnoteText)
                 .font(StrandFont.footnote)
                 .foregroundStyle(StrandPalette.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
