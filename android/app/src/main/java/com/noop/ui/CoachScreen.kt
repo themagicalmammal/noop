@@ -976,7 +976,7 @@ private fun MicComposerRow(
         val settingsInteraction = remember { MutableInteractionSource() }
         Box(
             modifier = Modifier
-                .size(44.dp)
+                .size(40.dp)
                 .clip(RoundedCornerShape(50))
                 .liquidPress(settingsInteraction)
                 .clickable(interactionSource = settingsInteraction, indication = null) { onOpenSettings() }
@@ -990,8 +990,6 @@ private fun MicComposerRow(
                 modifier = Modifier.size(20.dp),
             )
         }
-
-        Spacer(Modifier.width(4.dp))
 
         // K4: mic button — on-device voice input. Hidden entirely when on-device recognition
         // is not available (API < 31 or locale without an offline model), matching iOS which
@@ -1016,7 +1014,6 @@ private fun MicComposerRow(
                     }
                 },
             )
-            Spacer(Modifier.width(4.dp))
         }
 
         SendButton(
@@ -1052,7 +1049,7 @@ private fun MicButton(
     val statusSuffix = statusMessage?.let { stringResource(R.string.coach_status_suffix, it) } ?: ""
     Box(
         modifier = Modifier
-            .size(44.dp)
+            .size(40.dp)
             .clip(shape)
             .background(bg)
             .border(1.dp, border, shape)
@@ -1084,7 +1081,7 @@ private fun SendButton(enabled: Boolean, sending: Boolean, onClick: () -> Unit) 
     val interaction = remember { MutableInteractionSource() }
     Box(
         modifier = Modifier
-            .size(44.dp)
+            .size(40.dp)
             .clip(shape)
             .background(bg)
             .border(1.dp, if (enabled) Color.Transparent else Palette.hairline, shape)
