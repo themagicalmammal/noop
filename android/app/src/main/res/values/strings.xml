@@ -1834,8 +1834,8 @@
         <item quantity="other">%1$d chunks</item>
     </plurals>
     <plurals name="sync_chip_pages_behind_count">
-        <item quantity="one">%1$d page behind at connect</item>
-        <item quantity="other">%1$d pages behind at connect</item>
+        <item quantity="one">%1$d loading</item>
+        <item quantity="other">%1$d loading</item>
     </plurals>
     <string name="l10n_today_screen_sync_chip_synced_desc_4d255944">Strap history synced %1$s ago</string>
     <string name="l10n_today_screen_sync_chip_experimental_desc_3de06a70">Connected; strap history sync is experimental on this strap</string>

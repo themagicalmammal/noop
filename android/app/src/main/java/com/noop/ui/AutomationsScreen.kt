@@ -535,20 +535,14 @@ private fun SettingsSection(
 ) {
     NoopCard(padding = 20.dp, tint = Palette.accent) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Overline("Automation")
-                    if (active) Overline("ON", color = Palette.accent)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        icon,
-                        contentDescription = null,
-                        tint = if (active) Palette.accent else Palette.textSecondary,
-                    )
-                    Spacer(Modifier.width(10.dp))
-                    Text(title, style = NoopType.title2, color = Palette.textPrimary)
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = if (active) Palette.accent else Palette.textSecondary,
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(title, style = NoopType.title2, color = Palette.textPrimary)
             }
             Text(blurb, style = NoopType.subhead, color = Palette.textSecondary)
             content()

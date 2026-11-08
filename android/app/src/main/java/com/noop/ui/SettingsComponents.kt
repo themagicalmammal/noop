@@ -99,8 +99,8 @@ internal fun SettingsDisclosureGroup(
 // MARK: - Section card (ports SettingsView's private SettingsSection)
 
 /**
- * A grouped settings card: a "Settings" overline + icon + title header, an explanatory blurb, then
- * content. A faint brand-green wash anchors the card to NOOP's neutral chrome (mirrors macOS).
+ * A grouped settings card: an icon + title header, an explanatory blurb, then content. A faint
+ * brand-green wash anchors the card to NOOP's neutral chrome (mirrors macOS).
  */
 @Composable
 internal fun SettingsCard(
@@ -111,15 +111,12 @@ internal fun SettingsCard(
 ) {
     NoopCard(padding = 20.dp, tint = Palette.accent) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Overline("Settings")
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    Icon(icon, contentDescription = null, tint = Palette.accent, modifier = Modifier.size(18.dp))
-                    Text(title, style = NoopType.title2, color = Palette.textPrimary)
-                }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Icon(icon, contentDescription = null, tint = Palette.accent, modifier = Modifier.size(18.dp))
+                Text(title, style = NoopType.title2, color = Palette.textPrimary)
             }
             Text(blurb, style = NoopType.subhead, color = Palette.textSecondary)
             content()
