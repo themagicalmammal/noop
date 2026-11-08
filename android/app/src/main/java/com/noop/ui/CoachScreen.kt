@@ -976,7 +976,7 @@ private fun MicComposerRow(
         val settingsInteraction = remember { MutableInteractionSource() }
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(32.dp)
                 .clip(RoundedCornerShape(50))
                 .liquidPress(settingsInteraction)
                 .clickable(interactionSource = settingsInteraction, indication = null) { onOpenSettings() }
