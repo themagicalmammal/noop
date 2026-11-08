@@ -167,10 +167,7 @@ fun WeeklyDigestContent(digest: WeeklyDigest, compact: Boolean = false) {
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Top,
         ) {
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Overline("Week in review")
-                Text(weekRangeLabel(digest), style = NoopType.title2, color = Palette.textPrimary)
-            }
+            Text(weekRangeLabel(digest), style = NoopType.title2, color = Palette.textPrimary, modifier = Modifier.weight(1f))
             Text(
                 uiString(R.string.l10n_weekly_digest_card_digest_dayswithdata_7_days_182e6a18, digest.daysWithData),
                 style = NoopType.footnote,

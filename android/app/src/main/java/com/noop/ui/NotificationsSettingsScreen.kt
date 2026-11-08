@@ -956,17 +956,13 @@ private fun AlertSection(
     icon: ImageVector,
     title: String,
     blurb: String? = null,
-    overline: String = "Alerts",
     content: @Composable () -> Unit,
 ) {
     NoopCard(padding = 20.dp, tint = Palette.accent) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Overline(overline)
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Icon(icon, contentDescription = null, tint = Palette.accent, modifier = Modifier.size(18.dp))
-                    Text(title, style = NoopType.title2, color = Palette.textPrimary)
-                }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Icon(icon, contentDescription = null, tint = Palette.accent, modifier = Modifier.size(18.dp))
+                Text(title, style = NoopType.title2, color = Palette.textPrimary)
             }
             if (blurb != null) {
                 Text(blurb, style = NoopType.subhead, color = Palette.textSecondary)

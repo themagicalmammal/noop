@@ -119,7 +119,6 @@ private fun Header(onClose: () -> Unit) {
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Overline("What's new", color = Palette.textTertiary)
             Text(uiString(R.string.l10n_whats_new_sheet_noop_appchangelog_current_version_05dae27c, AppChangelog.CURRENT_VERSION), style = NoopType.display(26f), color = Palette.textPrimary)
             Text(uiString(R.string.l10n_whats_new_sheet_release_notes_cd5af734), style = NoopType.caption, color = Palette.textSecondary)
         }

@@ -1312,18 +1312,15 @@ private fun SettingsSectionTC(
 ) {
     NoopCard(padding = 20.dp, tint = Palette.accent) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Overline("Test Centre")
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    androidx.compose.material3.Icon(
-                        icon, contentDescription = null, tint = Palette.accent,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Text(title, style = NoopType.title2, color = Palette.textPrimary)
-                }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                androidx.compose.material3.Icon(
+                    icon, contentDescription = null, tint = Palette.accent,
+                    modifier = Modifier.size(18.dp),
+                )
+                Text(title, style = NoopType.title2, color = Palette.textPrimary)
             }
             Text(blurb, style = NoopType.subhead, color = Palette.textSecondary)
             content()

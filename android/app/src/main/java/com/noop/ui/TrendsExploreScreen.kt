@@ -404,12 +404,11 @@ fun TrendsExploreScreen(vm: AppViewModel) {
         )
         }
 
-        // RANGE BAR , overline + title + the one segmented window control, with a caption
+        // RANGE BAR , title + the one segmented window control, with a caption
         // that flags a sparse auto-widen.
         item {
         Row(verticalAlignment = Alignment.Top) {
-            Column(modifier = Modifier.weight(1f)) {
-                Overline(selected.category)
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(selected.title, style = NoopType.title2, color = Palette.textPrimary)
                 // The plain-English one-liner for the three headline scores (Charge/Effort/Rest);
                 // null for every other metric, so only the scores show a subtitle here.
@@ -527,10 +526,7 @@ private fun MetricDropdown(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(selected.accent))
-            Column(modifier = Modifier.weight(1f)) {
-                Overline(selected.category, color = Palette.textTertiary)
-                Text(selected.title, style = NoopType.headline, color = Palette.textPrimary)
-            }
+            Text(selected.title, style = NoopType.headline, color = Palette.textPrimary, modifier = Modifier.weight(1f))
             Icon(
                 if (expanded) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
                 contentDescription = stringResource(R.string.explore_pick_metric),
