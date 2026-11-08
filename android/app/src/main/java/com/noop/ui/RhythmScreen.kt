@@ -429,6 +429,14 @@ private fun PoincarePlot(
     // night — 300…1500 ms covers ~40…200 bpm, the readable resting band.
     val lo = 300.0
     val hi = 1500.0
+    // A long night produces tens of thousands of successive pairs; thousands of dots
+    // already read as a solid cloud, so downsample before drawing to keep the Canvas
+    // pass bounded.
+    val drawnPoints = remember(points) {
+        val cap = 4000
+        if (points.size <= cap) points
+        else points.filterIndexed { i, _ -> i % ((points.size + cap - 1) / cap) == 0 }
+    }
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Canvas(
             modifier = Modifier
@@ -457,7 +465,7 @@ private fun PoincarePlot(
 
             // The point cloud — small, semi-transparent dots so density reads as a cloud.
             val r = 1.6f
-            points.forEach { p ->
+            drawnPoints.forEach { p ->
                 val x = map(p.x)
                 // Canvas y grows downward; invert so a higher NN[i+1] sits higher.
                 val y = s - map(p.y)

@@ -9,7 +9,10 @@ import androidx.compose.runtime.setValue
 import com.noop.analytics.RhythmEmptyState
 import com.noop.analytics.RhythmScreener
 import com.noop.data.GravitySample
+import com.noop.data.RrInterval
 import com.noop.protocol.RrInterval as ProtocolRrInterval
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.math.sqrt
 
@@ -70,85 +73,111 @@ private suspend fun loadRhythmData(
     val deviceId = viewModel.activeStrapId
     val repo = viewModel.repo
 
-    // Step 1: Load the most recent sleep session (last 14 days), imported UNION computed across every
-    // registered strap, matching Swift `allSleepSessions(days: 14)` exactly.
-    val sessions = runCatching {
-        repo.allSleepSessionsUnion(deviceId, days = 14)
-    }.getOrDefault(emptyList())
+    // Steps 1-5 run off the main thread: a night can carry tens of thousands of R-R and
+    // gravity rows, and the windowing pass must not block UI composition.
+    val outcome = withContext(Dispatchers.Default) {
+        // Step 1: Load the most recent sleep session (last 14 days), imported UNION computed across every
+        // registered strap, matching Swift `allSleepSessions(days: 14)` exactly.
+        val sessions = runCatching {
+            repo.allSleepSessionsUnion(deviceId, days = 14)
+        }.getOrDefault(emptyList())
 
-    // Sessions are sorted by effectiveStartTs ascending, so the last entry is the most recent night.
-    val lastSleep = sessions.lastOrNull() ?: run {
-        // No sleep session found — stay in GATHERING_DATA state
-        onLoaded(null, emptyList(), RhythmEmptyState.GATHERING_DATA)
-        return
-    }
+        // Sessions are sorted by effectiveStartTs ascending, so the last entry is the most recent night.
+        val lastSleep = sessions.lastOrNull() ?: run {
+            // No sleep session found — stay in GATHERING_DATA state
+            return@withContext RhythmLoadOutcome(null, emptyList(), RhythmEmptyState.GATHERING_DATA)
+        }
 
-    // Step 2: Extract time bounds
-    val lo = lastSleep.effectiveStartTs
-    val hi = lastSleep.endTs
-    if (hi <= lo) {
-        onLoaded(null, emptyList(), RhythmEmptyState.GATHERING_DATA)
-        return
-    }
+        // Step 2: Extract time bounds
+        val lo = lastSleep.effectiveStartTs
+        val hi = lastSleep.endTs
+        if (hi <= lo) {
+            return@withContext RhythmLoadOutcome(null, emptyList(), RhythmEmptyState.GATHERING_DATA)
+        }
 
-    // Step 3: Load R-R intervals and gravity samples for the night
-    val rrRows = runCatching {
-        repo.rrIntervalsUnion(deviceId, lo, hi, limit = 200_000)
-    }.getOrDefault(emptyList())
+        // Step 3: Load R-R intervals and gravity samples for the night
+        val rrRows = runCatching {
+            repo.rrIntervalsUnion(deviceId, lo, hi, limit = 200_000)
+        }.getOrDefault(emptyList())
 
-    if (rrRows.isEmpty()) {
-        // No R-R data — diagnose honestly
+        if (rrRows.isEmpty()) {
+            // No R-R data — diagnose honestly
+            val grav = runCatching {
+                repo.gravitySamplesUnion(deviceId, lo, hi, limit = 200_000)
+            }.getOrDefault(emptyList())
+
+            val emptyReason = RhythmScreener.classifyEmptyState(
+                windows = emptyList(),
+                hadMotionSignal = grav.isNotEmpty(),
+                beatsAreBanked = false
+            )
+            return@withContext RhythmLoadOutcome(null, emptyList(), emptyReason)
+        }
+
         val grav = runCatching {
             repo.gravitySamplesUnion(deviceId, lo, hi, limit = 200_000)
         }.getOrDefault(emptyList())
 
-        val emptyReason = RhythmScreener.classifyEmptyState(
-            windows = emptyList(),
-            hadMotionSignal = grav.isNotEmpty(),
-            beatsAreBanked = false
-        )
-        onLoaded(null, emptyList(), emptyReason)
-        return
-    }
+        // Step 4: Window the night into 5-minute slices. Single pass: each row is
+        // bucketed by its slice index instead of rescanning the full lists per
+        // window, so the pass is O(rows + windows) rather than O(rows * windows).
+        val windowSec = 5 * 60L
+        val windowCount = ((hi - lo + windowSec - 1) / windowSec).toInt()
 
-    val grav = runCatching {
-        repo.gravitySamplesUnion(deviceId, lo, hi, limit = 200_000)
-    }.getOrDefault(emptyList())
+        fun bucketIndex(ts: Long): Int = ((ts - lo) / windowSec).toInt()
 
-    // Step 4: Window the night into 5-minute slices
-    val windowSec = 5 * 60L
-    val results = mutableListOf<RhythmScreener.WindowResult>()
-    var t = lo
-
-    while (t < hi) {
-        val wEnd = minOf(t + windowSec, hi)
-        val wRR = rrRows.filter { it.ts >= t && it.ts < wEnd }
-
-        if (wRR.size >= RhythmScreener.WINDOW_MIN_BEATS) {
-            val wGrav = grav.filter { it.ts >= t && it.ts < wEnd }
-            val still = isStill(wGrav)
-            // Convert Room entities to protocol objects for the analytics engine
-            val protocolRR = wRR.map { ProtocolRrInterval(ts = it.ts.toInt(), rrMs = it.rrMs) }
-            val input = RhythmScreener.WindowInput.fromRr(protocolRR, motionStill = still)
-            results.add(RhythmScreener.screenWindow(input))
+        val rrByWindow = List(windowCount) { mutableListOf<RrInterval>() }
+        for (row in rrRows) {
+            val idx = bucketIndex(row.ts)
+            // The last slice may end before `hi`-rounded-up; keep only rows truly
+            // inside its actual span (mirrors the minOf(t + windowSec, hi) bound).
+            if (idx in 0 until windowCount && (idx < windowCount - 1 || row.ts < hi)) {
+                rrByWindow[idx].add(row)
+            }
         }
 
-        t = wEnd
-    }
+        val gravByWindow = List(windowCount) { mutableListOf<GravitySample>() }
+        for (row in grav) {
+            val idx = bucketIndex(row.ts)
+            if (idx in 0 until windowCount && (idx < windowCount - 1 || row.ts < hi)) {
+                gravByWindow[idx].add(row)
+            }
+        }
 
-    // Step 5: Compute night summary and empty state
-    val night = RhythmScreener.summarizeNight(results)
-    val emptyReason = RhythmScreener.classifyEmptyState(
-        windows = results,
-        hadMotionSignal = grav.isNotEmpty(),
-        beatsAreBanked = RhythmScreener.nightBeatsAreBanked(
-            rrMs = rrRows.map { it.rrMs.toDouble() },
-            tsSec = rrRows.map { it.ts.toInt() }
+        val results = mutableListOf<RhythmScreener.WindowResult>()
+        for (i in rrByWindow.indices) {
+            val wRR = rrByWindow[i]
+            if (wRR.size >= RhythmScreener.WINDOW_MIN_BEATS) {
+                val still = isStill(gravByWindow[i])
+                // Convert Room entities to protocol objects for the analytics engine
+                val protocolRR = wRR.map { ProtocolRrInterval(ts = it.ts.toInt(), rrMs = it.rrMs) }
+                val input = RhythmScreener.WindowInput.fromRr(protocolRR, motionStill = still)
+                results.add(RhythmScreener.screenWindow(input))
+            }
+        }
+
+        // Step 5: Compute night summary and empty state
+        val night = RhythmScreener.summarizeNight(results)
+        val emptyReason = RhythmScreener.classifyEmptyState(
+            windows = results,
+            hadMotionSignal = grav.isNotEmpty(),
+            beatsAreBanked = RhythmScreener.nightBeatsAreBanked(
+                rrMs = rrRows.map { it.rrMs.toDouble() },
+                tsSec = rrRows.map { it.ts.toInt() }
+            )
         )
-    )
 
-    onLoaded(night, results, emptyReason)
+        RhythmLoadOutcome(night, results, emptyReason)
+    }
+    onLoaded(outcome.night, outcome.windows, outcome.emptyReason)
 }
+
+/** The three outputs of [loadRhythmData], carried out of the background pass. */
+private data class RhythmLoadOutcome(
+    val night: RhythmScreener.NightRhythmSummary?,
+    val windows: List<RhythmScreener.WindowResult>,
+    val emptyReason: RhythmEmptyState,
+)
 
 /**
  * A window is "still" when its accelerometer magnitude varies little (a resting wrist).
