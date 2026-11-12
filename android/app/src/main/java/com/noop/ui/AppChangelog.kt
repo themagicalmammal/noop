@@ -26,7 +26,7 @@ object AppChangelog {
      * Bump this when you add a release below. The "What's New" sheet shows automatically when the
      * stored last-seen version is behind this. (Decoupled from the bundle version on purpose.)
      */
-    const val CURRENT_VERSION = "12.0.0"
+    const val CURRENT_VERSION = "12.1.1"
 
     data class Release(
         val version: String,
@@ -37,6 +37,26 @@ object AppChangelog {
 
     /** Newest first. */
     val releases: List<Release> = listOf(
+        Release(
+            version = "12.1.1",
+            title = uiString(R.string.changelog_title_12_1_1),
+            date = "November 2026",
+            items = listOf(
+                "**Backups that survive a reinstall.** Choose a folder synced by a provider you use, such as Google Drive or Dropbox, so your dated Android backups remain available after reinstalling the app.",
+            ),
+        ),
+        Release(
+            version = "12.1.0",
+            title = uiString(R.string.changelog_title_12_1_0),
+            date = "November 2026",
+            items = listOf(
+                "**A Fitness tab.** Training sessions, plans, and activity history in one place.",
+                "**Bring your history.** Import from more apps and devices, including smart scales.",
+                "**Better sleep and strain.** Improved on-device scoring and sleep analysis.",
+                "**Shortcuts and controls.** Quick actions for common tasks.",
+                "**Svea, Biscuit, and Goals.** Optional coaching, companion, and goal features.",
+            ),
+        ),
         Release(
             version = "12.0.0",
             title = uiString(R.string.l10n_app_changelog_today_your_way_heart_rate_any_5e1308b3),

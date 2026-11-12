@@ -1895,6 +1895,10 @@ class WhoopRepository(
     suspend fun workouts(deviceId: String, from: Long, to: Long, limit: Int = DEFAULT_LIMIT): List<WorkoutRow> =
         dao.workouts(deviceId, from, to, limit)
 
+    /** Workout history across imported, health-platform and paired-device sources. */
+    suspend fun workoutsAcrossSources(from: Long, to: Long, limit: Int = DEFAULT_LIMIT): List<WorkoutRow> =
+        dedupWorkoutsByKey(dao.workoutsAcrossSources(from, to, limit))
+
     /** Scalar COUNT twin of [workouts] (exact total, no row limit) for count badges. */
     suspend fun workoutsCount(deviceId: String, from: Long, to: Long): Int =
         dao.workoutsCount(deviceId, from, to)

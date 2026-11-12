@@ -1255,6 +1255,13 @@ interface WhoopDao : DeviceRegistryDao {
     )
     suspend fun workouts(deviceId: String, from: Long, to: Long, limit: Int): List<WorkoutRow>
 
+    /** Workouts from every imported or paired source for cross-source Fitness summaries. */
+    @Query(
+        "SELECT * FROM workout WHERE startTs >= :from AND startTs < :to " +
+            "AND deviceId NOT LIKE '%-noop' ORDER BY startTs ASC LIMIT :limit"
+    )
+    suspend fun workoutsAcrossSources(from: Long, to: Long, limit: Int): List<WorkoutRow>
+
     /** Scalar COUNT twin of [workouts] (no row limit — a count badge wants the exact total), for
      *  badges that were materializing the row list for `.size`. */
     @Query("SELECT COUNT(*) FROM workout WHERE deviceId = :deviceId AND startTs >= :from AND startTs <= :to")

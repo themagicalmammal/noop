@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">NOOP</string>
+    <string name="nav_goals">Цели</string>
     <!-- Russian (ru). App name stays untranslated (brand).
          Two provenances, deliberately kept in one file: strings joined from the EXISTING Apple
          Russian translations on their shared English source, and strings translated for Android
@@ -2777,4 +2779,47 @@
     <string name="raw_diag_ecg_probe_running">На этом ремешке запись может всё ещё идти. Результат попадёт в strap log.</string>
     <string name="today_customize_live_session_availability">Появляется сегодня, если сессии в реальном времени включены в Настройках или сеанс уже активен.</string>
     <string name="l10n_app_changelog_today_your_way_heart_rate_any_5e1308b3">«Сегодня» на ваш вкус, пульс для любого приложения и итальянский язык</string>
+    <string name="changelog_title_12_1_1">Noop Aura 12.1.1: резервные копии после переустановки</string>
+    <string name="changelog_title_12_1_0">Noop Aura 12.1: Fitness, весы и многое другое</string>
+    <string name="nav_fitness">Фитнес</string>
+    <string name="fitness_subtitle">Тренировки и активность в одном месте.</string>
+    <string name="fitness_this_week">На этой неделе</string>
+    <string name="fitness_week_summary">Активностей: %1$d · мин: %2$d</string>
+    <string name="fitness_workouts">Тренировки</string>
+    <string name="fitness_open_log">Открыть журнал тренировок</string>
+    <string name="fitness_training_targets">Цели тренировок</string>
+    <string name="fitness_recent">Недавняя активность</string>
+    <string name="fitness_all">Все</string>
+    <string name="fitness_empty">Здесь появятся занятия после записи тренировки или импорта истории.</string>
+    <string name="fitness_import_history">Импортировать историю</string>
+    <string name="fitness_bring_history">Импортировать историю</string>
+    <string name="fitness_import_detail">Импортируйте тренировки и данные о здоровье с устройства.</string>
+    <string name="fitness_duration_minutes">%1$d мин</string>
+    <string name="goals_subtitle">Ставьте регулярные цели для тренировок.</string>
+    <string name="goals_toggle_title">Цели и серии</string>
+    <string name="goals_toggle_detail">Дополнительные цели активности хранятся на устройстве.</string>
+    <string name="goals_streak_title">Серия активности</string>
+    <string name="goals_streak_detail">Учитывает тренировки, заслуженное восстановление и еженедельный отдых.</string>
+    <string name="goals_streak_summary">Дней подряд: %1$d · рекорд: %2$d</string>
+    <string name="goals_empty_title">Поставьте первую цель</string>
+    <string name="goals_empty_detail">Начните с малого. Цель можно изменить в любой момент.</string>
+    <string name="goals_add">Добавить цель</string>
+    <string name="goals_section_title">Ваши цели</string>
+    <string name="goals_choose_title">Выберите начальную цель</string>
+    <string name="goals_custom">Создать свою цель</string>
+    <string name="goals_sport_optional">Вид спорта (необязательно)</string>
+    <string name="goals_metric_distance">Расстояние</string>
+    <string name="goals_metric_time">Время</string>
+    <string name="goals_metric_climb">Подъём</string>
+    <string name="goals_metric_sessions">Тренировки</string>
+    <string name="goals_remove">Удалить цель</string>
+    <string name="goals_edit_progress">Выполнено: %1$s из %2$s</string>
+    <string name="goals_week">За неделю</string>
+    <string name="goals_month">За месяц</string>
+    <string name="goals_year">За год</string>
+    <string name="goals_target_label">Цель</string>
+    <string name="goals_format_distance">%1$s км%2$s · %3$s</string>
+    <string name="goals_format_time">%1$s ч%2$s · %3$s</string>
+    <string name="goals_format_climb">Подъём %1$s м%2$s · %3$s</string>
+    <string name="goals_format_sessions">Тренировки: %1$s%2$s · %3$s</string>
 </resources>
