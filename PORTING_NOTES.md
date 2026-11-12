@@ -27,6 +27,8 @@ shared workout sources without adding a database migration.
 
 ## Verification limits
 
-Android builds and JVM tests run in this Linux environment. Apple targets and the Swift oracle are
-not available here, so any newly mirrored pure logic must be compared against Aura source and has a
-recorded limitation until checked with Swift on macOS.
+Android builds and JVM tests run in this Linux environment. A standalone Swift toolchain is
+available on this machine (via a library shim), so pure logic mirrored from Aura can be compiled as
+a Swift oracle and compared bit-for-bit; `BiscuitTimelineTest` does exactly that for the Biscuit
+animation timeline. The Apple app targets still need Xcode on macOS, so app-level Swift changes
+must be checked there before shipping.
