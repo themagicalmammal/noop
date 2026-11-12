@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NOOP</string>
+    <string name="more_group_companion">Компаньон</string>
+    <string name="nav_biscuit">Biscuit</string>
+    <string name="biscuit_subtitle">Твой компаньон</string>
+    <string name="biscuit_prompt">Нажми на Biscuit, чтобы увидеть другое выражение. Наряды открываются в сундуках с наградами.</string>
+    <string name="biscuit_next_mood">Следующее настроение</string>
+    <string name="biscuit_outfits">Наряды</string>
+    <string name="biscuit_outfit_coach">Тренер</string>
+    <string name="biscuit_outfit_glasses">Очки</string>
+    <string name="biscuit_outfit_nightcap">Ночной колпак</string>
+    <string name="biscuit_outfit_crown">Корона</string>
     <string name="nav_goals">Цели</string>
     <!-- Russian (ru). App name stays untranslated (brand).
          Two provenances, deliberately kept in one file: strings joined from the EXISTING Apple
@@ -2801,6 +2811,35 @@
     <string name="goals_streak_title">Серия активности</string>
     <string name="goals_streak_detail">Учитывает тренировки, заслуженное восстановление и еженедельный отдых.</string>
     <string name="goals_streak_summary">Дней подряд: %1$d · рекорд: %2$d</string>
+    <string name="goals_streak_milestone">Этап серии: день %1$d</string>
+    <string name="goals_streak_milestone_progress">%1$d из %2$d дней</string>
+    <string name="goals_streak_choose_milestone">Выберите следующую цель</string>
+    <string name="goals_streak_reached">Этап достигнут: день %1$d</string>
+    <string name="goals_streak_broken">Испытание завершилось после прерывания серии активности. Следом будет короткое испытание на возвращение.</string>
+    <string name="goals_reward_unopened">Нераспакованные сундуки: %1$d</string>
+    <string name="goals_reward_open">Открыть сундук</string>
+    <string name="goals_reward_title">Награды</string>
+    <string name="goals_reward_freeze">Получено замораживаний серии: %1$d.</string>
+    <string name="goals_reward_item">Предмет добавлен в коллекцию.</string>
+    <string name="goals_reward_owned">Коллекционных предметов: %1$d</string>
+    <string name="goals_reward_collection">Коллекция наград</string>
+    <string name="goals_reward_equipped">Используется</string>
+    <string name="goals_reward_use">Использовать</string>
+    <string name="goals_reward_locked">Закрыто</string>
+    <string name="goals_reward_other_item">Другой предмет: %1$s</string>
+    <string name="goals_flame_ember">Эмбер</string>
+    <string name="goals_flame_sunset">Закат</string>
+    <string name="goals_flame_citrus">Цитрус</string>
+    <string name="goals_flame_ocean">Океан</string>
+    <string name="goals_flame_jade">Нефрит</string>
+    <string name="goals_flame_rose">Роза</string>
+    <string name="goals_flame_ice">Лёд</string>
+    <string name="goals_flame_gold">Золото</string>
+    <string name="goals_flame_aurora">Аврора</string>
+    <string name="goals_flame_void">Пустота</string>
+
+
+
     <string name="goals_rest_days_week">Дней отдыха в неделю: %1$d</string>
     <string name="goals_rest_days_decrease">Уменьшить число дней отдыха в неделю</string>
     <string name="goals_rest_days_increase">Увеличить число дней отдыха в неделю</string>
@@ -2829,4 +2868,49 @@
     <string name="goals_format_time">%1$s ч%2$s · %3$s</string>
     <string name="goals_format_climb">Подъём %1$s м%2$s · %3$s</string>
     <string name="goals_format_sessions">Тренировки: %1$s%2$s · %3$s</string>
+    <string name="smart_scale_title">Умные весы</string>
+    <string name="smart_scale_subtitle">Сохраните показания совместимых Bluetooth-весов</string>
+    <string name="smart_scale_intro">Включите весы и встаньте на них. Не закрывайте этот экран до получения показаний.</string>
+    <string name="smart_scale_receive_only">NOOP только принимает объявления весов. Приложение не подключается к ним и не отправляет команды.</string>
+    <string name="smart_scale_start">Найти весы</string>
+    <string name="smart_scale_scanning">Поиск…</string>
+    <string name="smart_scale_status_idle">Готово</string>
+    <string name="smart_scale_status_scanning">Поиск весов поблизости</string>
+    <string name="smart_scale_status_stepped_on">Весы обнаружены · ожидание стабильных показаний</string>
+    <string name="smart_scale_status_complete">Показания сохранены</string>
+    <string name="smart_scale_status_timeout">Показания не получены. Поднесите весы ближе и повторите попытку.</string>
+    <string name="smart_scale_status_unavailable">Сканирование Bluetooth недоступно. Проверьте Bluetooth и разрешения.</string>
+    <string name="smart_scale_status_failed">Не удалось найти весы. Повторите попытку.</string>
+    <string name="smart_scale_weight">%1$.2f кг</string>
+    <string name="smart_scale_saved_metrics">Вес сохранён в сегодняшних показателях здоровья</string>
+    <string name="smart_scale_body_fat">Жировая масса · %1$.1f%%</string>
+    <string name="smart_scale_history">Последние измерения</string>
+    <string name="smart_scale_no_history">Здесь будут отображаться сохранённые показания весов.</string>
+    <string name="goals_last_week">Прошлая неделя</string>
+    <string name="goals_perfect_week">Идеальная неделя. Засчитаны все семь дней.</string>
+    <string name="goals_kept_days">Засчитано дней: %1$d из 7.</string>
+    <string name="goals_days_trained">Дней тренировок: %1$d.</string>
+    <string name="goals_recap_done">Готово</string>
+    <string name="goals_recap_percent">%1$d%%</string>
+    <string name="goals_recap_adjust">Изменить цель на эту неделю</string>
+    <string name="goals_quests_title">Задания на эту неделю</string>
+    <string name="goals_quests_detail">Три еженедельных задания на основе истории тренировок.</string>
+    <string name="goals_quest_bronze">Бронза</string>
+    <string name="goals_quest_silver">Серебро</string>
+    <string name="goals_quest_gold">Золото</string>
+    <string name="goals_quest_sessions">Тренировки</string>
+    <string name="goals_quest_minutes">Время тренировок</string>
+    <string name="goals_quest_distance">Дистанция: %1$s</string>
+    <string name="goals_quest_lifts">Силовые тренировки</string>
+    <string name="goals_quest_early">Ранний отход ко сну</string>
+    <string name="goals_quest_long">Ночи со сном не менее %1$d минут</string>
+    <string name="goals_quest_steps">Дни с количеством шагов не менее %1$s</string>
+    <string name="goals_quest_easy">Лёгкие дни после тяжёлых</string>
+    <string name="goals_quest_value">%1$s / %2$s</string>
+    <string name="goals_quest_minutes_value">%1$s мин</string>
+    <string name="goals_quest_distance_value">%1$s км</string>
+    <string name="goals_quest_option">%1$s · %2$s</string>
+    <string name="goals_quest_swap">Заменить задание</string>
+    <string name="goals_quest_swap_used">Еженедельная замена уже использована.</string>
+    <string name="goals_quest_swap_title">Выберите задание для замены</string>
 </resources>

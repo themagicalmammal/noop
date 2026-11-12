@@ -153,7 +153,9 @@ internal enum class Destination(
     // Group: Activity
     Workouts("workouts", R.string.nav_workouts, Icons.Filled.FitnessCenter),
     Fitness("fitness", R.string.nav_fitness, Icons.Filled.FitnessCenter),
+    SmartScales("smart_scales", R.string.smart_scale_title, Icons.Filled.FitnessCenter),
     Goals("goals", R.string.nav_goals, Icons.Filled.EmojiEvents),
+    Biscuit("biscuit", R.string.nav_biscuit, Icons.Filled.FavoriteBorder),
     Trends("trends", R.string.nav_trends, Icons.AutoMirrored.Filled.TrendingUp),
 
     // Group: Insight
@@ -245,10 +247,11 @@ internal val drawerGroups: List<DrawerGroup> = listOf(
         Destination.Insights, Destination.Explore, Destination.Compare,
     ), defaultExpanded = true),
     DrawerGroup("Body", R.string.more_group_body, listOf(
-        Destination.Live, Destination.Workouts, Destination.Goals, Destination.Health, Destination.VitalSigns,
+        Destination.Live, Destination.Workouts, Destination.Goals, Destination.SmartScales, Destination.Health, Destination.VitalSigns,
         Destination.LabBook, Destination.Stress, Destination.Breathe, Destination.Intervals,
         Destination.Rhythm,
     ), defaultExpanded = true),
+    DrawerGroup("Companion", R.string.more_group_companion, listOf(Destination.Biscuit), defaultExpanded = true),
     DrawerGroup("Data", R.string.more_group_data, listOf(
         Destination.FusedRecord, Destination.AppleHealth, Destination.DataSources,
         Destination.BackupSync, Destination.Devices, Destination.NoopLimitations,
@@ -724,9 +727,12 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
                         onOpenWorkouts = { nav.navigate(Destination.Workouts.route) },
                         onOpenGoals = { nav.navigate(Destination.Goals.route) },
                         onOpenImports = { nav.navigate(Destination.DataSources.route) },
+                        onOpenSmartScales = { nav.navigate(Destination.SmartScales.route) },
                     )
                 }
+                composable(Destination.SmartScales.route) { SmartScaleScreen(viewModel) }
                 composable(Destination.Goals.route) { GoalsScreen(viewModel) }
+                composable(Destination.Biscuit.route) { BiscuitScreen() }
                 composable(Destination.Intelligence.route) { IntelligenceScreen(viewModel) }
 
                 // --- Placeholder routes (later waves fill these in) ---

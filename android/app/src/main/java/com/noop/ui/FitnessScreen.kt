@@ -34,6 +34,7 @@ fun FitnessScreen(
     onOpenWorkouts: () -> Unit,
     onOpenGoals: () -> Unit,
     onOpenImports: () -> Unit,
+    onOpenSmartScales: () -> Unit,
 ) {
     val workouts by viewModel.workouts.collectAsStateWithLifecycle()
     LaunchedEffect(viewModel.activeStrapId) { viewModel.loadWorkouts() }
@@ -75,6 +76,13 @@ fun FitnessScreen(
                     onClick = onOpenGoals,
                 )
             }
+        }
+        item {
+            FitnessActionCard(
+                modifier = Modifier.fillMaxWidth(), icon = Icons.Filled.FitnessCenter,
+                title = uiString(R.string.smart_scale_title), detail = uiString(R.string.smart_scale_subtitle),
+                onClick = onOpenSmartScales,
+            )
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
