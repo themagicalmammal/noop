@@ -2903,6 +2903,13 @@
     <string name="goals_streak_title">Racha de actividad</string>
     <string name="goals_streak_detail">Cuenta los días de entrenamiento, recuperación ganada y descanso semanal.</string>
     <string name="goals_streak_summary">%1$d días seguidos · mejor %2$d</string>
+    <string name="goals_rest_days_week">Días de descanso por semana: %1$d</string>
+    <string name="goals_rest_days_decrease">Reducir los días de descanso semanales</string>
+    <string name="goals_rest_days_increase">Aumentar los días de descanso semanales</string>
+    <string name="goals_pause_detail">Pausa hasta 90 días. Los días pausados no alargan ni interrumpen la racha.</string>
+    <string name="goals_pause_active">En pausa hasta %1$s</string>
+    <string name="goals_pause_streak">Pausar racha</string>
+    <string name="goals_resume_streak">Reanudar racha</string>
     <string name="goals_empty_title">Define tu primer objetivo</string>
     <string name="goals_empty_detail">Empieza poco a poco. Puedes cambiar un objetivo cuando quieras.</string>
     <string name="goals_add">Añadir objetivo</string>

@@ -12,8 +12,11 @@ data class GoalsSnapshot(
     val streaksEnabled: Boolean = false,
     val streakStartEpochDay: Long? = null,
     val restPerWeek: Int = 2,
+    val pauses: List<GoalPause> = emptyList(),
     val goals: List<PeriodGoal> = emptyList(),
 )
+
+data class GoalPause(val startEpochDay: Long, val endEpochDay: Long)
 
 /** On-device goal settings, matching Aura's single `noop.goals.v1` stored value. */
 object GoalsStore {
@@ -26,12 +29,17 @@ object GoalsStore {
         return runCatching {
             val root = JSONObject(raw)
             val goals = root.optJSONArray("goals") ?: JSONArray()
+            val pauses = root.optJSONArray("pauses") ?: JSONArray()
             GoalsSnapshot(
                 enabled = root.optBoolean("goalsOn", false),
                 streaksEnabled = root.optBoolean("streaksOn", false),
                 streakStartEpochDay = root.takeIf { it.has("startDay") && !it.isNull("startDay") }
                     ?.optLong("startDay"),
-                restPerWeek = root.optInt("restPerWeek", 2).coerceIn(0, 7),
+                restPerWeek = root.optInt("restPerWeek", 2).coerceIn(0, 3),
+                pauses = List(pauses.length()) { index ->
+                    val item = pauses.getJSONObject(index)
+                    GoalPause(item.getLong("startDay"), item.getLong("endDay"))
+                },
                 goals = List(goals.length()) { index ->
                     val item = goals.getJSONObject(index)
                     PeriodGoal(
@@ -49,6 +57,10 @@ object GoalsStore {
 
     fun save(context: Context, snapshot: GoalsSnapshot) {
         val goals = JSONArray()
+        val pauses = JSONArray()
+        snapshot.pauses.forEach { pause ->
+            pauses.put(JSONObject().put("startDay", pause.startEpochDay).put("endDay", pause.endEpochDay))
+        }
         snapshot.goals.forEach { goal ->
             goals.put(
                 JSONObject()
@@ -64,7 +76,8 @@ object GoalsStore {
             .put("goalsOn", snapshot.enabled)
             .put("streaksOn", snapshot.streaksEnabled)
             .put("startDay", snapshot.streakStartEpochDay)
-            .put("restPerWeek", snapshot.restPerWeek.coerceIn(0, 7))
+            .put("restPerWeek", snapshot.restPerWeek.coerceIn(0, 3))
+            .put("pauses", pauses)
             .put("goals", goals)
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .edit().putString(KEY, json.toString()).apply()

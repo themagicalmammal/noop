@@ -2921,6 +2921,13 @@
     <string name="goals_streak_title">Seria aktywności</string>
     <string name="goals_streak_detail">Zlicza treningi, zasłużoną regenerację i cotygodniowy odpoczynek.</string>
     <string name="goals_streak_summary">%1$d dni z rzędu · rekord %2$d</string>
+    <string name="goals_rest_days_week">Dni odpoczynku w tygodniu: %1$d</string>
+    <string name="goals_rest_days_decrease">Zmniejsz liczbę dni odpoczynku w tygodniu</string>
+    <string name="goals_rest_days_increase">Zwiększ liczbę dni odpoczynku w tygodniu</string>
+    <string name="goals_pause_detail">Wstrzymaj serię na maksymalnie 90 dni. Dni przerwy jej nie wydłużają ani nie przerywają.</string>
+    <string name="goals_pause_active">Przerwa do %1$s</string>
+    <string name="goals_pause_streak">Wstrzymaj serię</string>
+    <string name="goals_resume_streak">Wznów serię</string>
     <string name="goals_empty_title">Wyznacz pierwszy cel</string>
     <string name="goals_empty_detail">Zacznij od małego celu. Możesz go zmienić w dowolnym momencie.</string>
     <string name="goals_add">Dodaj cel</string>

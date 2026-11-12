@@ -2895,6 +2895,13 @@
     <string name="goals_streak_title">Série de atividade</string>
     <string name="goals_streak_detail">Conta dias de treino, recuperação conquistada e descanso semanal.</string>
     <string name="goals_streak_summary">%1$d dias seguidos · melhor %2$d</string>
+    <string name="goals_rest_days_week">Dias de descanso por semana: %1$d</string>
+    <string name="goals_rest_days_decrease">Reduzir os dias de descanso semanais</string>
+    <string name="goals_rest_days_increase">Aumentar os dias de descanso semanais</string>
+    <string name="goals_pause_detail">Pause até 90 dias. Os dias em pausa não prolongam nem interrompem a série.</string>
+    <string name="goals_pause_active">Em pausa até %1$s</string>
+    <string name="goals_pause_streak">Pausar série</string>
+    <string name="goals_resume_streak">Retomar série</string>
     <string name="goals_empty_title">Defina o seu primeiro objetivo</string>
     <string name="goals_empty_detail">Comece devagar. Pode alterar um objetivo a qualquer momento.</string>
     <string name="goals_add">Adicionar objetivo</string>

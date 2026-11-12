@@ -2916,6 +2916,13 @@
     <string name="goals_streak_title">Aktivitätsserie</string>
     <string name="goals_streak_detail">Zählt Trainingstage, verdiente Erholungstage und wöchentliche Ruhetage.</string>
     <string name="goals_streak_summary">%1$d Tage in Folge · Bestwert %2$d</string>
+    <string name="goals_rest_days_week">Ruhetage pro Woche: %1$d</string>
+    <string name="goals_rest_days_decrease">Wöchentliche Ruhetage verringern</string>
+    <string name="goals_rest_days_increase">Wöchentliche Ruhetage erhöhen</string>
+    <string name="goals_pause_detail">Pausiere bis zu 90 Tage. Pausentage verlängern deine Serie nicht und beenden sie nicht.</string>
+    <string name="goals_pause_active">Pausiert bis %1$s</string>
+    <string name="goals_pause_streak">Serie pausieren</string>
+    <string name="goals_resume_streak">Serie fortsetzen</string>
     <string name="goals_empty_title">Setze dein erstes Ziel</string>
     <string name="goals_empty_detail">Beginne klein. Du kannst ein Ziel jederzeit ändern.</string>
     <string name="goals_add">Ziel hinzufügen</string>

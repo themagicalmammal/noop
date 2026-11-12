@@ -2902,6 +2902,13 @@
     <string name="goals_streak_title">Série d’activité</string>
     <string name="goals_streak_detail">Compte les jours d’entraînement, de récupération méritée et de repos hebdomadaire.</string>
     <string name="goals_streak_summary">%1$d jours d’affilée · record %2$d</string>
+    <string name="goals_rest_days_week">Jours de repos par semaine : %1$d</string>
+    <string name="goals_rest_days_decrease">Réduire les jours de repos hebdomadaires</string>
+    <string name="goals_rest_days_increase">Augmenter les jours de repos hebdomadaires</string>
+    <string name="goals_pause_detail">Mettez la série en pause jusqu’à 90 jours. Les jours de pause ne la prolongent pas et ne l’interrompent pas.</string>
+    <string name="goals_pause_active">En pause jusqu’au %1$s</string>
+    <string name="goals_pause_streak">Mettre la série en pause</string>
+    <string name="goals_resume_streak">Reprendre la série</string>
     <string name="goals_empty_title">Définissez votre premier objectif</string>
     <string name="goals_empty_detail">Commencez doucement. Vous pouvez modifier un objectif à tout moment.</string>
     <string name="goals_add">Ajouter un objectif</string>

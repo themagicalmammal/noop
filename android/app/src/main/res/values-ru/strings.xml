@@ -2801,6 +2801,13 @@
     <string name="goals_streak_title">Серия активности</string>
     <string name="goals_streak_detail">Учитывает тренировки, заслуженное восстановление и еженедельный отдых.</string>
     <string name="goals_streak_summary">Дней подряд: %1$d · рекорд: %2$d</string>
+    <string name="goals_rest_days_week">Дней отдыха в неделю: %1$d</string>
+    <string name="goals_rest_days_decrease">Уменьшить число дней отдыха в неделю</string>
+    <string name="goals_rest_days_increase">Увеличить число дней отдыха в неделю</string>
+    <string name="goals_pause_detail">Приостановите серию на срок до 90 дней. Пауза не продлевает и не прерывает серию.</string>
+    <string name="goals_pause_active">Пауза до %1$s</string>
+    <string name="goals_pause_streak">Приостановить серию</string>
+    <string name="goals_resume_streak">Продолжить серию</string>
     <string name="goals_empty_title">Поставьте первую цель</string>
     <string name="goals_empty_detail">Начните с малого. Цель можно изменить в любой момент.</string>
     <string name="goals_add">Добавить цель</string>

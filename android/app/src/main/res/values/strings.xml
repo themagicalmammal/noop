@@ -54,6 +54,13 @@
     <string name="goals_streak_title">Activity streak</string>
     <string name="goals_streak_detail">Count training days, earned recovery days, and your weekly rest days.</string>
     <string name="goals_streak_summary">%1$d days in a row · best %2$d</string>
+    <string name="goals_rest_days_week">Rest days each week: %1$d</string>
+    <string name="goals_rest_days_decrease">Decrease weekly rest days</string>
+    <string name="goals_rest_days_increase">Increase weekly rest days</string>
+    <string name="goals_pause_detail">Pause through a date for up to 90 days. Paused days neither extend nor break your streak.</string>
+    <string name="goals_pause_active">Paused through %1$s</string>
+    <string name="goals_pause_streak">Pause streak</string>
+    <string name="goals_resume_streak">Resume streak</string>
     <string name="goals_empty_title">Set your first goal</string>
     <string name="goals_empty_detail">Start small. You can change a goal at any time.</string>
     <string name="goals_add">Add a goal</string>

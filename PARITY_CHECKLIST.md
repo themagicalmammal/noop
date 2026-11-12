@@ -6,8 +6,8 @@ Apple target.
 | Aura area | Android status | Evidence / next work |
 |---|---|---|
 | 12.1.1 reinstall-resilient backups | Existing equivalent | Android already writes dated `.noopbak` files to a user-selected SAF folder that can be synced by a provider; verify onboarding and recovery affordances against Aura. |
-| Fitness hub and training dashboards | Partial | Added the integrated Fitness hub with weekly activity, recent workouts, and links to tracking, goals, and imports; Aura's deeper training dashboards remain. |
-| Goals | In progress | Added local goal model/store, starter and custom goals, editing, progress, removal, and an opt-in activity streak with recovery/rest coverage; remaining Aura pause management, weekly quests, recap, milestone challenges, and rewards. |
+| Fitness hub and training dashboards | Partial | Added Fitness as a top-level Android tab with weekly activity, recent workouts, and links to tracking, goals, and imports; Aura's deeper training dashboards remain. |
+| Goals | In progress | Added local goal model/store, starter and custom goals, editing, progress, removal, and opt-in streaks with low-recovery/rest/freeze coverage, pause dates, and adjustable weekly rest days; remaining Aura weekly quests, recap, milestone challenges, and rewards. |
 | Activity and history import | Partial | Several importers exist; compare Aura's added formats/providers and implement gaps. |
 | Smart scales | Missing | Research protocol clean-room facts, then add experimental receive-only support with tests. |
 | Sleep and strain improvements | Audit required | Compare each Aura analytics delta with Kotlin twin; preserve byte-identical stored/results contract. |

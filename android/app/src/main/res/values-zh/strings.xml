@@ -2875,6 +2875,13 @@
     <string name="goals_streak_title">活动连续记录</string>
     <string name="goals_streak_detail">统计训练日、获得的恢复日和每周休息日。</string>
     <string name="goals_streak_summary">连续 %1$d 天 · 最佳 %2$d 天</string>
+    <string name="goals_rest_days_week">每周休息日：%1$d</string>
+    <string name="goals_rest_days_decrease">减少每周休息日</string>
+    <string name="goals_rest_days_increase">增加每周休息日</string>
+    <string name="goals_pause_detail">最多可暂停 90 天。暂停日不会延长或中断连续记录。</string>
+    <string name="goals_pause_active">暂停至 %1$s</string>
+    <string name="goals_pause_streak">暂停连续记录</string>
+    <string name="goals_resume_streak">恢复连续记录</string>
     <string name="goals_empty_title">设定你的第一个目标</string>
     <string name="goals_empty_detail">从小目标开始，之后可随时修改。</string>
     <string name="goals_add">添加目标</string>

@@ -1,5 +1,6 @@
 package com.noop.ui
 
+import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -41,6 +43,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @Composable
 fun GoalsScreen(viewModel: AppViewModel) {
@@ -135,12 +138,20 @@ fun GoalsScreen(viewModel: AppViewModel) {
                         if (snapshot.streaksEnabled) {
                             val today = LocalDate.now(zone)
                             val start = snapshot.streakStartEpochDay?.let(LocalDate::ofEpochDay) ?: today
+                            val pausedDays = snapshot.pauses.flatMap { pause ->
+                                val pauseStart = LocalDate.ofEpochDay(pause.startEpochDay)
+                                val pauseEnd = LocalDate.ofEpochDay(pause.endEpochDay).coerceAtMost(today)
+                                if (pauseEnd.isBefore(pauseStart)) emptyList()
+                                else generateSequence(pauseStart) { day -> if (day < pauseEnd) day.plusDays(1) else null }
+                                    .take(90).toList()
+                            }.filter { !it.isBefore(start) && !it.isAfter(today) }.toSet()
                             val streakInput = ActivityStreak.Input(
                                 trained = sessions.asSequence()
                                     .filter { !it.start.atZone(zone).toLocalDate().isBefore(start) }
                                     .map { it.start.atZone(zone).toLocalDate() }
                                     .toSet(),
                                 lowRecovery = lowRecoveryDays,
+                                paused = pausedDays,
                                 restPerWeek = snapshot.restPerWeek,
                                 freezesPerMonth = 1,
                             )
@@ -149,6 +160,57 @@ fun GoalsScreen(viewModel: AppViewModel) {
                                 uiString(com.noop.R.string.goals_streak_summary, reading.current, reading.longest),
                                 style = NoopType.body,
                                 color = Palette.accent,
+                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    uiString(com.noop.R.string.goals_rest_days_week, snapshot.restPerWeek),
+                                    style = NoopType.footnote,
+                                    color = Palette.textSecondary,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                IconButton(
+                                    onClick = { persist(snapshot.copy(restPerWeek = (snapshot.restPerWeek - 1).coerceAtLeast(0))) },
+                                    enabled = snapshot.restPerWeek > 0,
+                                ) { Icon(Icons.Filled.Remove, contentDescription = uiString(com.noop.R.string.goals_rest_days_decrease), tint = Palette.textSecondary) }
+                                IconButton(
+                                    onClick = { persist(snapshot.copy(restPerWeek = (snapshot.restPerWeek + 1).coerceAtMost(3))) },
+                                    enabled = snapshot.restPerWeek < 3,
+                                ) { Icon(Icons.Filled.Add, contentDescription = uiString(com.noop.R.string.goals_rest_days_increase), tint = Palette.textSecondary) }
+                            }
+                            val activePause = snapshot.pauses.firstOrNull {
+                                it.startEpochDay <= today.toEpochDay() && it.endEpochDay >= today.toEpochDay()
+                            }
+                            if (activePause != null) {
+                                val through = LocalDate.ofEpochDay(activePause.endEpochDay)
+                                    .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                                Text(uiString(com.noop.R.string.goals_pause_active, through), style = NoopType.footnote, color = Palette.textSecondary)
+                            } else {
+                                Text(uiString(com.noop.R.string.goals_pause_detail), style = NoopType.footnote, color = Palette.textSecondary)
+                            }
+                            NoopButton(
+                                text = uiString(if (activePause == null) com.noop.R.string.goals_pause_streak else com.noop.R.string.goals_resume_streak),
+                                kind = NoopButtonKind.Secondary,
+                                onClick = {
+                                    if (activePause != null) {
+                                        persist(snapshot.copy(pauses = snapshot.pauses.filterNot { it == activePause }))
+                                    } else {
+                                        val latest = today.plusDays(7)
+                                        DatePickerDialog(
+                                            context,
+                                            { _, year, month, dayOfMonth ->
+                                                val end = LocalDate.of(year, month + 1, dayOfMonth).coerceAtMost(today.plusDays(89))
+                                                val kept = snapshot.pauses.filter { it.endEpochDay < today.toEpochDay() }
+                                                persist(snapshot.copy(pauses = kept + GoalPause(today.toEpochDay(), end.toEpochDay())))
+                                            },
+                                            latest.year,
+                                            latest.monthValue - 1,
+                                            latest.dayOfMonth,
+                                        ).apply {
+                                            datePicker.minDate = today.atStartOfDay(zone).toInstant().toEpochMilli()
+                                            datePicker.maxDate = today.plusDays(89).atStartOfDay(zone).toInstant().toEpochMilli()
+                                        }.show()
+                                    }
+                                },
                             )
                         }
                     }
