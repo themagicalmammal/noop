@@ -16,6 +16,9 @@ enum class BiscuitMood {
 
     val rawValue: String
         get() = name.lowercase()
+
+    val title: String
+        get() = rawValue.replaceFirstChar { it.uppercase() }
 }
 
 /** One behavior frame (parity twin of [BiscuitBehaviorScheduler.Sample]). */

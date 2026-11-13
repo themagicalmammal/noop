@@ -9,24 +9,33 @@ import android.graphics.Path
 import android.graphics.RadialGradient
 import android.graphics.RectF
 import android.graphics.Shader
+import android.provider.Settings
 import androidx.compose.foundation.Canvas as ComposeCanvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.noop.analytics.BiscuitAnimation
 import com.noop.analytics.BiscuitAnimationKey
 import com.noop.analytics.BiscuitAnimationTrack
-import com.noop.analytics.BiscuitTimeline
+import com.noop.analytics.BiscuitArtboard
+import com.noop.analytics.BiscuitBindings
+import com.noop.analytics.BiscuitController
+import com.noop.analytics.BiscuitFraming
+import com.noop.analytics.BiscuitMood
+import com.noop.analytics.BiscuitOutfit
+import com.noop.analytics.BiscuitScene
 import com.noop.analytics.BiscuitVectorObject
 import org.json.JSONArray
 import org.json.JSONObject
@@ -37,39 +46,34 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sin
 
-/** Small Android Canvas renderer for Aura's bundled Biscuit vector artboard. */
-internal class BiscuitVectorArt private constructor(private val artboard: Board) {
-    private data class Board(
-        val width: Double,
-        val height: Double,
-        val objects: List<BiscuitVectorObject>,
-        val animations: List<BiscuitAnimation>,
+/**
+ * Small Android Canvas renderer for Aura's bundled Biscuit artboard.
+ *
+ * Owns the parsed [BiscuitScene] (artboard + bindings) shared with the live
+ * [BiscuitController]; all pose computation happens in the controller (or
+ * [BiscuitScene.still] for static art) and this class only draws the resulting
+ * object list, mirroring the reference `BiscuitDrawing`.
+ */
+internal class BiscuitVectorArt private constructor(val scene: BiscuitScene) {
+    /**
+     * Draws a pose object list, centered and fitted to the canvas. Mirrors the reference
+     * `BiscuitDrawing`: `scale = min(width, height) / bleed / 320 * framing.zoom`,
+     * translated so 160 artboard units land on the center.
+     */
+    fun drawObjects(
+        target: Canvas,
+        width: Float,
+        height: Float,
+        objects: List<BiscuitVectorObject>,
+        framing: BiscuitFraming = BiscuitFraming.BODY,
     ) {
-        /** Mirrors Swift `PersonalityArtboard.animation(named:)`: the last match that has tracks. */
-        fun animation(named: String): BiscuitAnimation? = animations.lastOrNull { it.name == named && it.tracks.isNotEmpty() }
-    }
-
-    fun draw(target: Canvas, width: Float, height: Float, mood: String, outfit: String?, elapsed: Double) {
-        val objects = artboard.objects.map { BiscuitVectorObject(it.type, it.values.toMutableMap()) }.toMutableList()
-        apply("aura_eye_base", objects)
-        apply("aura_visible", objects)
-        apply("aura_mood_$mood", objects)
-        apply("aura_veil_off", objects, seconds = elapsed)
-        apply("aura_outfit_coach_${if (outfit == "coach") "on" else "off"}", objects)
-        apply("aura_outfit_glasses_${if (outfit == "glasses") "on" else "off"}", objects)
-        apply("aura_outfit_nightcap_${if (outfit == "nightcap") "on" else "off"}", objects)
-        apply("aura_outfit_crown_${if (outfit == "crown") "on" else "off"}", objects)
-
-        val scale = min(width / artboard.width.toFloat(), height / artboard.height.toFloat())
+        val bleed = if (framing == BiscuitFraming.HEAD) 1.25f else 1.0f
+        val scale = min(width, height) / bleed / 320f * framing.zoom.toFloat()
         target.save()
-        target.translate((width - artboard.width.toFloat() * scale) / 2f, (height - artboard.height.toFloat() * scale) / 2f)
+        target.translate(width / 2f - 160f * scale, height / 2f - 160f * scale)
         target.scale(scale, scale)
         drawShapes(target, objects)
         target.restore()
-    }
-
-    private fun apply(name: String, objects: MutableList<BiscuitVectorObject>, seconds: Double = 0.0, looping: Boolean = false) {
-        BiscuitTimeline.apply(artboard.animation(name), seconds, looping, 1.0, objects)
     }
 
     private fun drawShapes(canvas: Canvas, objects: List<BiscuitVectorObject>) {
@@ -212,9 +216,24 @@ internal class BiscuitVectorArt private constructor(private val artboard: Board)
                     tracks,
                 )
             }
-            val result = BiscuitVectorArt(Board(boardJson.getDouble("width"), boardJson.getDouble("height"), objects, animations))
+            val result = BiscuitVectorArt(BiscuitScene(BiscuitArtboard(boardJson.getDouble("width"), boardJson.getDouble("height"), objects, animations), loadBindings(context)))
             cached = result
             return result
+        }
+
+        private fun loadBindings(context: Context): BiscuitBindings? {
+            val json = context.assets.open("biscuit/noop-aura.bindings.json").bufferedReader().use { it.readText() }
+            val root = JSONObject(json)
+            val boards = root.optJSONObject("nameToObject") ?: return null
+            val nameToObject = buildMap {
+                boards.keys().forEach { board ->
+                    val inner = boards.getJSONObject(board)
+                    put(board, buildMap { inner.keys().forEach { name -> put(name, inner.getInt(name)) } })
+                }
+            }
+            val targets = root.optJSONArray("bodyColorTargets")
+            val bodyColorTargets = if (targets != null) List(targets.length()) { targets.getInt(it) } else emptyList()
+            return BiscuitBindings(nameToObject, bodyColorTargets)
         }
 
         private fun JSONObject.toDoubleMap(): MutableMap<String, Double> = buildMap {
@@ -226,7 +245,23 @@ internal class BiscuitVectorArt private constructor(private val artboard: Board)
 @Composable
 internal fun BiscuitArt(mood: String, outfit: String?, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val art = remember(context) { BiscuitVectorArt.load(context) }
+    val renderer = remember(context) { BiscuitVectorArt.load(context) }
+    val reducedMotion = remember(context) {
+        Settings.Global.getInt(context.contentResolver, "animator_enabled", 1) == 0
+    }
+    val controller = remember(renderer) {
+        BiscuitController(
+            renderer.scene,
+            mood = BiscuitMood.entries.firstOrNull { it.rawValue == mood } ?: BiscuitMood.NEUTRAL,
+            outfits = outfit?.let { name -> BiscuitOutfit.entries.firstOrNull { o -> o.rawValue == name }?.let(::setOf) } ?: emptySet(),
+        )
+    }
+    LaunchedEffect(mood) {
+        controller.mood = BiscuitMood.entries.firstOrNull { it.rawValue == mood } ?: BiscuitMood.NEUTRAL
+    }
+    LaunchedEffect(outfit) {
+        controller.outfits = outfit?.let { name -> BiscuitOutfit.entries.firstOrNull { o -> o.rawValue == name }?.let(::setOf) } ?: emptySet()
+    }
     var elapsed by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(Unit) {
         val started = android.os.SystemClock.elapsedRealtime()
@@ -235,7 +270,33 @@ internal fun BiscuitArt(mood: String, outfit: String?, modifier: Modifier = Modi
             delay(33)
         }
     }
-    ComposeCanvas(modifier.fillMaxWidth().height(260.dp)) {
-        drawIntoCanvas { native -> art.draw(native.nativeCanvas, size.width, size.height, mood, outfit, elapsed.toDouble()) }
+    ComposeCanvas(
+        modifier
+            .fillMaxWidth()
+            .height(260.dp)
+            .pointerInput(controller) {
+                awaitPointerEventScope {
+                    var down: PointerInputChange? = null
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        val change = down ?: event.changes.firstOrNull() ?: continue
+                        if (down == null) {
+                            down = change
+                            controller.touchBegan(change.position.x.toDouble(), change.position.y.toDouble(), size.width.toDouble(), size.height.toDouble())
+                        } else if (!change.pressed) {
+                            controller.touchEnded()
+                            down = null
+                        } else {
+                            controller.touchMoved(change.position.x.toDouble(), change.position.y.toDouble(), size.width.toDouble(), size.height.toDouble())
+                        }
+                        change.consume()
+                    }
+                }
+            }
+    ) {
+        drawIntoCanvas { native ->
+            val objects = controller.pose(System.currentTimeMillis(), reducedMotion)
+            renderer.drawObjects(native.nativeCanvas, size.width, size.height, objects, controller.framing)
+        }
     }
 }

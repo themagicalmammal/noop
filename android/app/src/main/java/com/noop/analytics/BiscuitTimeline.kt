@@ -167,7 +167,7 @@ object BiscuitTimeline {
         return t
     }
 
-    /** Swift's `rounded(.towardZero)`: nearest neighbor, halves toward zero. */
+    /** Swift's `rounded(.towardZero)`: truncation toward zero. */
     private fun roundTowardZero(x: Double): Long {
         val whole = floor(abs(x)).toLong()
         return if (x < 0) -whole else whole

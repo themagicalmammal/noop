@@ -194,6 +194,13 @@ class BiscuitTimelineTest {
 
         assertEquals(0.0, BiscuitTimeline.colorLerp(0.0, 1.0, 0.5), 0.0)
         assertEquals(1.0, BiscuitTimeline.colorLerp(1.0, 2.0, 0.5), 0.0)
+
+        // Fractional products pin the truncation semantics (Swift `rounded(.towardZero)`).
+        assertEquals(28.0, BiscuitTimeline.colorLerp(0.0, 115.0, 0.25), 0.0)
+        assertEquals(28.0, BiscuitTimeline.colorLerp(0.0, 100.0, 0.29), 0.0)
+        assertEquals(126.0, BiscuitTimeline.colorLerp(0.0, 253.0, 0.5), 0.0)
+        assertEquals(252.0, BiscuitTimeline.colorLerp(0.0, 255.0, 0.99), 0.0)
+        assertEquals(0.0, BiscuitTimeline.colorLerp(0.0, 1.0, 0.6), 0.0)
     }
 
     @Test
