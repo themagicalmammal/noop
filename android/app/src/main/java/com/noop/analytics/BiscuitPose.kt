@@ -111,6 +111,12 @@ data class BiscuitColor(val red: Double, val green: Double, val blue: Double) {
     companion object {
         private fun max(a: Double, b: Double) = if (a > b) a else b
 
+        /** Map a recovery ring score to a body color (parity twin of `BiscuitColor.recovery`). */
+        fun recovery(score: Double?): BiscuitColor {
+            if (score == null) return resting
+            return if (score >= 67) goodRecovery else if (score < 34) lowRecovery else resting
+        }
+
         val goodRecovery = BiscuitColor(0x4DB872L)
         val resting = BiscuitColor(0x26A68FL)
         val lowRecovery = BiscuitColor(0xE39A3BL)
