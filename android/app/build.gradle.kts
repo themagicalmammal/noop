@@ -59,7 +59,7 @@ android {
         debug {
             isMinifyEnabled = false
             applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
+            versionNameSuffix = "-debug2"
         }
         release {
             // Shipped UNMINIFIED for reliability. R8 minification crashes this app at runtime: full-mode
