@@ -11,6 +11,31 @@
     <string name="biscuit_outfit_glasses">Очки</string>
     <string name="biscuit_outfit_nightcap">Ночной колпак</string>
     <string name="biscuit_outfit_crown">Корона</string>
+    <string name="biscuit_poke_10">Десять тычков. Я считаю, между прочим.</string>
+    <string name="biscuit_poke_25">Двадцать пять. Я печенье, а не кнопка.</string>
+    <string name="biscuit_poke_50">Пятьдесят. Эта сторона официально крошится.</string>
+    <string name="biscuit_poke_100">Сотня тычков. Это попадёт в мой дневник.</string>
+    <string name="biscuit_poke_250">Двести пятьдесят. Ты тоже тыкаешь в тостер?</string>
+    <string name="biscuit_poke_500">Пятьсот. Ладно. Ты заслужил мой поджаренный плащ — он в настройках Коуча.</string>
+    <string name="biscuit_poke_1000">Тысяча. Сдаюсь. Теперь мы друзья.</string>
+    <string name="biscuit_beta">Biscuit (бета)</string>
+    <string name="biscuit_beta_detail">Лицо Коуча в панели вкладок. Ещё доделывается.</string>
+    <string name="biscuit_coat_title">Плащ Biscuit</string>
+    <string name="biscuit_coat_detail">сегодняшнее восстановление или поджаренный, который ты заслужил</string>
+    <string name="biscuit_coat_poked">Ткнули %1$d раз. Поджаренный плащ теперь твой.</string>
+    <string name="biscuit_coat_recovery">Восстановление сегодня</string>
+    <string name="biscuit_coat_toasted">Поджаренный</string>
+    <string name="biscuit_play_day">Проиграть день</string>
+    <string name="biscuit_stop_day">Стоп</string>
+    <string name="biscuit_moods">Настроения</string>
+    <string name="biscuit_actions">Действия</string>
+    <string name="biscuit_day_step_1">07:10 · восстановление зелёное</string>
+    <string name="biscuit_day_step_2">08:30 · «почему я плохо спал?»</string>
+    <string name="biscuit_day_step_3">18:05 · середина тренировки</string>
+    <string name="biscuit_day_step_4">18:50 · тренировка пройдена, серия в безопасности</string>
+    <string name="biscuit_day_step_5">22:40 · пора спать</string>
+    <string name="biscuit_day_step_6">01:00 · ночь</string>
+    <string name="biscuit_day_step_7">День 30 · веха</string>
     <string name="nav_goals">Цели</string>
     <!-- Russian (ru). App name stays untranslated (brand).
          Two provenances, deliberately kept in one file: strings joined from the EXISTING Apple
