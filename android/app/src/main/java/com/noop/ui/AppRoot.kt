@@ -732,7 +732,7 @@ fun AppRoot(viewModel: AppViewModel = viewModel()) {
                 }
                 composable(Destination.SmartScales.route) { SmartScaleScreen(viewModel) }
                 composable(Destination.Goals.route) { GoalsScreen(viewModel) }
-                composable(Destination.Biscuit.route) { BiscuitScreen() }
+                composable(Destination.Biscuit.route) { BiscuitScreen(viewModel) }
                 composable(Destination.Intelligence.route) { IntelligenceScreen(viewModel) }
 
                 // --- Placeholder routes (later waves fill these in) ---

@@ -243,24 +243,31 @@ internal class BiscuitVectorArt private constructor(val scene: BiscuitScene) {
 }
 
 @Composable
-internal fun BiscuitArt(mood: String, outfit: String?, modifier: Modifier = Modifier) {
+internal fun BiscuitArt(
+    controller: BiscuitController? = null,
+    mood: String = BiscuitMood.HAPPY.rawValue,
+    outfit: String? = null,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     val renderer = remember(context) { BiscuitVectorArt.load(context) }
     val reducedMotion = remember(context) {
         Settings.Global.getInt(context.contentResolver, "animator_enabled", 1) == 0
     }
-    val controller = remember(renderer) {
+    val active = if (controller != null) controller else remember(renderer) {
         BiscuitController(
             renderer.scene,
             mood = BiscuitMood.entries.firstOrNull { it.rawValue == mood } ?: BiscuitMood.NEUTRAL,
             outfits = outfit?.let { name -> BiscuitOutfit.entries.firstOrNull { o -> o.rawValue == name }?.let(::setOf) } ?: emptySet(),
         )
     }
-    LaunchedEffect(mood) {
-        controller.mood = BiscuitMood.entries.firstOrNull { it.rawValue == mood } ?: BiscuitMood.NEUTRAL
-    }
-    LaunchedEffect(outfit) {
-        controller.outfits = outfit?.let { name -> BiscuitOutfit.entries.firstOrNull { o -> o.rawValue == name }?.let(::setOf) } ?: emptySet()
+    if (controller == null) {
+        LaunchedEffect(mood) {
+            active.mood = BiscuitMood.entries.firstOrNull { it.rawValue == mood } ?: BiscuitMood.NEUTRAL
+        }
+        LaunchedEffect(outfit) {
+            active.outfits = outfit?.let { name -> BiscuitOutfit.entries.firstOrNull { o -> o.rawValue == name }?.let(::setOf) } ?: emptySet()
+        }
     }
     var elapsed by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(Unit) {
@@ -274,7 +281,7 @@ internal fun BiscuitArt(mood: String, outfit: String?, modifier: Modifier = Modi
         modifier
             .fillMaxWidth()
             .height(260.dp)
-            .pointerInput(controller) {
+            .pointerInput(active) {
                 awaitPointerEventScope {
                     var down: PointerInputChange? = null
                     while (true) {
@@ -282,12 +289,12 @@ internal fun BiscuitArt(mood: String, outfit: String?, modifier: Modifier = Modi
                         val change = down ?: event.changes.firstOrNull() ?: continue
                         if (down == null) {
                             down = change
-                            controller.touchBegan(change.position.x.toDouble(), change.position.y.toDouble(), size.width.toDouble(), size.height.toDouble())
+                            active.touchBegan(change.position.x.toDouble(), change.position.y.toDouble(), size.width.toDouble(), size.height.toDouble())
                         } else if (!change.pressed) {
-                            controller.touchEnded()
+                            active.touchEnded()
                             down = null
                         } else {
-                            controller.touchMoved(change.position.x.toDouble(), change.position.y.toDouble(), size.width.toDouble(), size.height.toDouble())
+                            active.touchMoved(change.position.x.toDouble(), change.position.y.toDouble(), size.width.toDouble(), size.height.toDouble())
                         }
                         change.consume()
                     }
@@ -295,8 +302,8 @@ internal fun BiscuitArt(mood: String, outfit: String?, modifier: Modifier = Modi
             }
     ) {
         drawIntoCanvas { native ->
-            val objects = controller.pose(System.currentTimeMillis(), reducedMotion)
-            renderer.drawObjects(native.nativeCanvas, size.width, size.height, objects, controller.framing)
+            val objects = active.pose(System.currentTimeMillis(), reducedMotion)
+            renderer.drawObjects(native.nativeCanvas, size.width, size.height, objects, active.framing)
         }
     }
 }
