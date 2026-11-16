@@ -2157,11 +2157,15 @@ private fun WorkoutInProgressCard(
 ) {
     // Live clock: re-read wall-clock every second and recompute elapsed off the workout's start. Keyed on
     // startMs so a fresh session restarts the loop. Mirrors the iOS TimelineView(.periodic(by: 1)).
+    // Lifecycle-gated: a hidden screen shouldn't be ticking the clock while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
     var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
-    LaunchedEffect(workout.startMs) {
-        while (true) {
-            nowMs = System.currentTimeMillis()
-            kotlinx.coroutines.delay(1000)
+    LaunchedEffect(lifecycleOwner, workout.startMs) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                nowMs = System.currentTimeMillis()
+                kotlinx.coroutines.delay(1000)
+            }
         }
     }
     val elapsedS = ActiveWorkoutClock.activeElapsedSeconds(

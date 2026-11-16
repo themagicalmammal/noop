@@ -22,6 +22,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -51,9 +55,6 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.compose.ui.platform.LocalLifecycleOwner
 
 /**
  * Fork (DX23876), Android parity plan 2.3: the running rest after a completed set, as iOS's native logger draws it
@@ -137,13 +138,17 @@ internal fun RestDock(rest: RunningRest, onChange: (RunningRest?) -> Unit, onStr
             if (restDisposeCancels(recreating, paused, System.currentTimeMillis(), rest.endsAtMs)) RestNotification.cancel(context)
         }
     }
-    LaunchedEffect(rest) {
-        while (!paused) {
-            now = System.currentTimeMillis()
-            val left = rest.endsAtMs - now
-            if (!buzzed && left in 1..5_000 && RestTimerPrefs.strapBuzz(context)) { buzzed = true; onStrapBuzz() }
-            if (left <= 0) { restEnded(context); onChange(null); break }
-            delay(250)
+    // Lifecycle-gated: a hidden timer shouldn't be ticking while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner, rest) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (!paused) {
+                now = System.currentTimeMillis()
+                val left = rest.endsAtMs - now
+                if (!buzzed && left in 1..5_000 && RestTimerPrefs.strapBuzz(context)) { buzzed = true; onStrapBuzz() }
+                if (left <= 0) { restEnded(context); onChange(null); break }
+                delay(250)
+            }
         }
     }
     val leftMs = rest.pausedLeftMs ?: (rest.endsAtMs - now)

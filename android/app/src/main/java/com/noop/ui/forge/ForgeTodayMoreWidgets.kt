@@ -40,6 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -85,7 +88,13 @@ internal fun TodayTonightForge(viewModel: AppViewModel, onOpen: () -> Unit) {
     val wakeBase by viewModel.phoneAlarmTargetMinutes.collectAsState()
     val overrides by viewModel.phoneAlarmDayOverrides.collectAsState()
     var now by remember { androidx.compose.runtime.mutableLongStateOf(System.currentTimeMillis() / 1000) }
-    LaunchedEffect(Unit) { while (true) { delay(60_000); now = System.currentTimeMillis() / 1000 } }
+    // Lifecycle-gated: a hidden card shouldn't be ticking the clock while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) { delay(60_000); now = System.currentTimeMillis() / 1000 }
+        }
+    }
     val need = remember(now) { WindDownStore.from(context).sleepNeedMinutes }
     val zone = ZoneId.systemDefault()
     val tomorrow = java.time.Instant.ofEpochSecond(now).atZone(zone).toLocalDate().plusDays(1)

@@ -29,6 +29,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -62,15 +65,19 @@ internal fun ForgeCoachButton(viewModel: AppViewModel) {
     var unseen by remember { mutableStateOf(false) }
     var label by remember { mutableStateOf<String?>(null) }
     // A brief or a nudge can arrive while the app is open, so the dot is read again every minute.
-    LaunchedEffect(open) {
+    // Lifecycle-gated: a hidden button shouldn't be polling the coach while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner, open) {
         if (open) return@LaunchedEffect
-        while (true) {
-            withContext(Dispatchers.IO) {
-                CoreRead.open(context)
-                unseen = CoreCoach.unseen()
-                if (label == null) label = CoreCoach.settings()?.labels?.get("askCoach")
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                withContext(Dispatchers.IO) {
+                    CoreRead.open(context)
+                    unseen = CoreCoach.unseen()
+                    if (label == null) label = CoreCoach.settings()?.labels?.get("askCoach")
+                }
+                delay(60_000)
             }
-            delay(60_000)
         }
     }
 

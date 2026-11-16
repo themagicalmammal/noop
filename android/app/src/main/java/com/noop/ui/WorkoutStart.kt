@@ -33,6 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -232,8 +235,12 @@ fun WorkoutStartSection(vm: AppViewModel, onAdd: () -> Unit) {
     val w = activeWorkout
     if (w != null) {
         var nowMs by remember { mutableStateOf(w.startMs) }
-        LaunchedEffect(w.startMs) {
-            while (true) { nowMs = System.currentTimeMillis(); delay(1000) }
+        // Lifecycle-gated: a hidden screen shouldn't be ticking the clock while its tab is away.
+        val lifecycleOwner = LocalLifecycleOwner.current
+        LaunchedEffect(lifecycleOwner, w.startMs) {
+            lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) { nowMs = System.currentTimeMillis(); delay(1000) }
+            }
         }
         val elapsedS = ActiveWorkoutClock.activeElapsedSeconds(
             startMs = w.startMs, pausedAtMs = w.pausedAtMs,

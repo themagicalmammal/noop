@@ -16,6 +16,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
@@ -41,12 +44,16 @@ fun ForgeExerciseMediaSettings(onClose: () -> Unit) {
     var failed by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var presentation by remember { mutableStateOf(NoopPrefs.of(context).getString("training.mediaPresentation", "large") ?: "large") }
-    LaunchedEffect(revision) {
-        do {
-            info = withContext(Dispatchers.IO) { CoreExerciseMedia.info(context) }
-            val running = info?.state in listOf("downloading", "installing")
-            if (running) delay(1_000)
-        } while (running)
+    // Lifecycle-gated: a hidden panel shouldn't be polling media state while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner, revision) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            do {
+                info = withContext(Dispatchers.IO) { CoreExerciseMedia.info(context) }
+                val running = info?.state in listOf("downloading", "installing")
+                if (running) delay(1_000)
+            } while (running)
+        }
     }
     fun change(block: () -> Boolean) = scope.launch {
         busy = true; failed = false

@@ -80,6 +80,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -1042,7 +1045,13 @@ private fun ChatCard(card: ChatMsg.Card) {
 @Composable
 private fun RetryButton(waitSeconds: Int?, enabled: Boolean, onRetry: () -> Unit) {
     var left by remember(waitSeconds) { mutableStateOf(waitSeconds ?: 0) }
-    LaunchedEffect(waitSeconds) { while (left > 0) { kotlinx.coroutines.delay(1000); left -= 1 } }
+    // Lifecycle-gated: a hidden screen shouldn't be counting down while its tab is away.
+    val retryLifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(retryLifecycleOwner, waitSeconds) {
+        retryLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (left > 0) { kotlinx.coroutines.delay(1000); left -= 1 }
+        }
+    }
     val ready = left <= 0
     Row(
         Modifier.clip(RoundedCornerShape(50)).clickable(enabled = enabled && ready, onClick = onRetry).padding(vertical = 4.dp)

@@ -43,6 +43,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -177,8 +180,13 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
     var naps by remember { mutableStateOf<List<CoreRead.Nap>>(emptyList()) }
     // "Now" moves on by the minute and the rail reads again when the core has new data (a night synced while
     // Today stays open), as the Sleep tab does; read once, both stayed where the page was opened.
-    val now by androidx.compose.runtime.produceState(System.currentTimeMillis() / 1000) {
-        while (true) { kotlinx.coroutines.delay(60_000); value = System.currentTimeMillis() / 1000 }
+    // Lifecycle-gated: a hidden timeline shouldn't be ticking the clock while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var now by remember { androidx.compose.runtime.mutableLongStateOf(System.currentTimeMillis() / 1000) }
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) { kotlinx.coroutines.delay(60_000); now = System.currentTimeMillis() / 1000 }
+        }
     }
     var meals by remember { mutableStateOf<List<com.noop.core.CoreFood.Meal>>(emptyList()) }
     var ecgs by remember { mutableStateOf<List<com.noop.core.CoreEcg.Reading>>(emptyList()) }

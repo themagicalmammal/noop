@@ -58,6 +58,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -399,27 +402,35 @@ fun BreatheScreen(viewModel: AppViewModel) {
     }
 
     // Session clock — ticks only while running; auto-stops at session length target.
-    LaunchedEffect(running, sessionLength) {
-        if (!running) return@LaunchedEffect
-        while (running) {
-            delay(1000)
-            sessionSeconds += 1
-            sessionLength.targetSeconds?.let { target ->
-                if (sessionSeconds >= target) {
-                    stopSession()
-                    return@LaunchedEffect
+    // Lifecycle-gated: a hidden screen shouldn't be ticking the session clock while its tab is away.
+    val sessionClockLifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(sessionClockLifecycleOwner, running, sessionLength) {
+        sessionClockLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            if (!running) return@repeatOnLifecycle
+            while (running) {
+                delay(1000)
+                sessionSeconds += 1
+                sessionLength.targetSeconds?.let { target ->
+                    if (sessionSeconds >= target) {
+                        stopSession()
+                        return@repeatOnLifecycle
+                    }
                 }
             }
         }
     }
 
     // Stage advance clock — 50 ms tick mirrors BreathingView phaseTimer.
-    LaunchedEffect(running, pace, guided) {
-        if (!running || guided) return@LaunchedEffect
-        while (running) {
-            delay(50)
-            val now = System.currentTimeMillis()
-            if (now >= phaseDeadlineMs) advanceStage(now)
+    // Lifecycle-gated: a hidden screen shouldn't be ticking the stage advance clock while its tab is away.
+    val stageClockLifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(stageClockLifecycleOwner, running, pace, guided) {
+        stageClockLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            if (!running || guided) return@repeatOnLifecycle
+            while (running) {
+                delay(50)
+                val now = System.currentTimeMillis()
+                if (now >= phaseDeadlineMs) advanceStage(now)
+            }
         }
     }
 

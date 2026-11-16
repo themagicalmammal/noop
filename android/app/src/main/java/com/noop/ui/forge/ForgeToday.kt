@@ -62,6 +62,9 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -872,11 +875,15 @@ internal fun ForgeDayHeartRatePage(date: LocalDate, onBack: () -> Unit) {
     var points by remember(date) { mutableStateOf<List<CoreRead.HeartPoint>?>(null) }
     val zone = java.time.ZoneId.systemDefault()
     val from = date.atStartOfDay(zone).toEpochSecond()
-    LaunchedEffect(date) {
-        // Refreshed every five minutes, so a day still in progress keeps growing while the page is open.
-        while (true) {
-            points = withContext(Dispatchers.IO) { CoreRead.open(context); CoreRead.heartRate(from, from + 86_400 - 1) }
-            kotlinx.coroutines.delay(300_000)
+    // Lifecycle-gated: a hidden page shouldn't be polling heart rate while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner, date) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            // Refreshed every five minutes, so a day still in progress keeps growing while the page is open.
+            while (true) {
+                points = withContext(Dispatchers.IO) { CoreRead.open(context); CoreRead.heartRate(from, from + 86_400 - 1) }
+                kotlinx.coroutines.delay(300_000)
+            }
         }
     }
     SettingsColumn {

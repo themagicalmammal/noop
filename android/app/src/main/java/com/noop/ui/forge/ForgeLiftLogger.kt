@@ -53,6 +53,9 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -122,7 +125,13 @@ internal fun LoggerTopBar(title: String, onMinimize: () -> Unit, onFinish: () ->
 @Composable
 internal fun LoggerHeaderCard(figures: CoreTraining.Figures?, units: UnitSystem, onPause: () -> Unit) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    LaunchedEffect(figures) { while (true) { now = System.currentTimeMillis(); delay(1_000) } }
+    // Lifecycle-gated: a hidden logger shouldn't be ticking the clock while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner, figures) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) { now = System.currentTimeMillis(); delay(1_000) }
+        }
+    }
     val f = figures
     val paused = f?.paused == true
     val seconds = (f?.activeSeconds ?: 0) + if (f != null && !paused) ((now - f.fetchedAtMs) / 1000).coerceAtLeast(0) else 0

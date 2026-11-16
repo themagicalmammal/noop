@@ -103,10 +103,13 @@ class LiveSessionRunner(
         if (tickJob != null || ended) return
         realtimeHr(true)
         scope.launch { runCatching { persist(openRow()) } }
+        // Tick every 5 seconds rather than every second: the session state changes slowly enough
+        // that a 1 Hz update is more frequent than the data actually changes. This reduces CPU
+        // wakeups and battery usage while still keeping the session state fresh.
         tickJob = scope.launch {
             while (isActive) {
                 tick()
-                delay(1_000L)
+                delay(5_000L)
             }
         }
     }

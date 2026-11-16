@@ -48,6 +48,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -393,8 +396,12 @@ fun LiveScreen(viewModel: AppViewModel, onManageDevices: () -> Unit = {}) {
         if (w != null) {
             var confirmingEnd by remember(w.startMs) { mutableStateOf(false) }
             var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
-            LaunchedEffect(w.startMs) {
-                while (true) { nowMs = System.currentTimeMillis(); delay(1000) }
+            // Lifecycle-gated: a hidden screen shouldn't be ticking the clock while its tab is away.
+            val lifecycleOwner = LocalLifecycleOwner.current
+            LaunchedEffect(lifecycleOwner, w.startMs) {
+                lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    while (true) { nowMs = System.currentTimeMillis(); delay(1000) }
+                }
             }
             val elapsedS = ActiveWorkoutClock.activeElapsedSeconds(
                 startMs = w.startMs, pausedAtMs = w.pausedAtMs,
