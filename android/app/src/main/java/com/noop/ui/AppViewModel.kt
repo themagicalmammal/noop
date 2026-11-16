@@ -1731,7 +1731,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     // annotation, not a double-count. Mirrors macOS AppModel.
 
     /** A manual workout in progress. [samples] accumulate from the smoothed live bpm; [liveStrain] is
-     *  recomputed as the window grows so the active card shows strain building in real time. */
+     *  a running estimate re-scored at most every [LIVE_STRAIN_INTERVAL_MS] so the active card shows
+     *  strain building in real time without a full-window score on every sample. */
     data class ActiveWorkout(
         val startMs: Long,
         val sport: Sport,
@@ -1782,6 +1783,17 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
      *  and rehydrate on launch so an interrupted session can still be ended and saved. */
     private val activeWorkoutStore = ActiveWorkoutStore.from(appContext)
 
+    /** Wall-clock of the last durable non-GPS snapshot and of the last live-strain re-score. Both start at
+     *  zero on a fresh session (the first sample scores and the start snapshot land immediately) and are
+     *  set to "now" when a snapshot is rehydrated, so the throttles never double-count the restored state. */
+    private var lastNonGpsSnapshotMs: Long = 0L
+    private var lastLiveStrainAtMs: Long = 0L
+
+    /** Re-snapshot the in-flight non-GPS session at most this often; the end path saves the final row. */
+    private val NON_GPS_SNAPSHOT_INTERVAL_MS = 30_000L
+    /** Re-score the live strain at most this often; the saved workout's score is computed once at end. */
+    private val LIVE_STRAIN_INTERVAL_MS = 10_000L
+
     /** Mirrors the process-level [GpsSession] route into [_activeWorkout] for live display. The route
      *  itself is collected by [WhoopConnectionService], not here, so it survives the screen turning off
      *  (#215) — this observer just republishes it to the UI while the ViewModel is alive. */
@@ -1806,6 +1818,10 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val startMs = System.currentTimeMillis()
         _activeWorkout.value = ActiveWorkout(startMs = startMs, sport = sport, gpsEnabled = gpsEnabled,
                                              targetZone = targetZone?.takeIf { it in 1..5 })
+        // A fresh session starts both throttles at zero, so the first sample scores and the start
+        // snapshot land immediately, not after a full interval.
+        lastLiveStrainAtMs = 0L
+        lastNonGpsSnapshotMs = 0L
         runCatching { activeWorkoutStore.saveTargetZone(targetZone) }
         // Raw-motion donation, if the wearer ticked THIS sport. The core answers null otherwise.
         runCatching { RawDonationRecorder.begin(sport.name) }
@@ -1826,8 +1842,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             observeGpsSession()
         } else {
             // A non-GPS session has no process-level GpsSession backing it, so make it durable: snapshot
-            // it now (and on every captured sample) so an OS kill mid-session can be rehydrated + ended
-            // on relaunch (#529). GPS sessions are already covered by GpsSession's process durability.
+            // it now (and again as samples are captured, throttled to [NON_GPS_SNAPSHOT_INTERVAL_MS]) so
+            // an OS kill mid-session can be rehydrated + ended on relaunch (#529). GPS sessions are
+            // already covered by GpsSession's process durability.
             persistNonGpsWorkout(_activeWorkout.value)
         }
     }
@@ -1849,33 +1866,55 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                                      w.sport.name, w.gpsEnabled, zone, w.targetZone)
     }
 
-    /** Runs the voice each second while a workout is active; it primes first so nothing old is spoken. */
+    /** Whether the core's decider can produce anything this workout: an announcement needs the voice on,
+     *  a warning needs the heart-rate or motion alert on. Without either the per-second tick is pure
+     *  overhead — two native bridge calls and ~10 preference reads deciding nothing. */
+    private fun workoutVoiceCanFire(): Boolean =
+        WorkoutVoicePrefs.enabled(appContext) || WorkoutVoicePrefs.heartRateAlert(appContext) || WorkoutVoicePrefs.motionAlert(appContext)
+
+    /** Runs the voice each second while a workout is active; it primes first so nothing old is spoken.
+     *  Skipped entirely (and with it the native calls and preference reads) while the decider cannot
+     *  decide anything for this workout's settings. */
     private fun startWorkoutVoice() {
         voiceJob?.cancel()
         val first = _activeWorkout.value ?: return
         voiceJob = viewModelScope.launch(kotlinx.coroutines.Dispatchers.Default) {
-            workoutVoice.begin(workoutVoiceSnapshot(first, System.currentTimeMillis()))
+            if (workoutVoiceCanFire()) {
+                workoutVoice.begin(workoutVoiceSnapshot(first, System.currentTimeMillis()))
+            }
             while (true) {
                 kotlinx.coroutines.delay(1_000)
                 val w = _activeWorkout.value ?: break
-                workoutVoice.tick(workoutVoiceSnapshot(w, System.currentTimeMillis()))
+                if (workoutVoiceCanFire()) {
+                    workoutVoice.tick(workoutVoiceSnapshot(w, System.currentTimeMillis()))
+                }
                 runCatching {
                     RawDonationRecorder.tick((System.currentTimeMillis() - w.startMs) / 1000.0,
                                              ble, live.value.connected)
                 }
                 // GPS auto-pause, decided in the core as on iOS; a manual pause never resumes by itself.
-                when (workoutVoice.autoPauseAction(w.sport.name, w.gpsEnabled, w.pausedAtMs != null, w.autoPaused)) {
-                    "pause" -> kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { setWorkoutPaused(true, automatically = true) }
-                    "resume" -> kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { setWorkoutPaused(false, automatically = true) }
+                // Without GPS or the wearer's auto-pause choice the engine can decide nothing, so skip
+                // the native call and its preference read entirely.
+                if (w.gpsEnabled && WorkoutVoicePrefs.autoPause(appContext)) {
+                    when (workoutVoice.autoPauseAction(w.sport.name, w.gpsEnabled, w.pausedAtMs != null, w.autoPaused)) {
+                        "pause" -> kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { setWorkoutPaused(true, automatically = true) }
+                        "resume" -> kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { setWorkoutPaused(false, automatically = true) }
+                    }
                 }
             }
         }
     }
 
     /** Snapshot the in-flight NON-GPS workout to durable storage (#529). No-op for a GPS session (the
-     *  process-level [GpsSession] already makes that durable) or when nothing is running. */
-    private fun persistNonGpsWorkout(w: ActiveWorkout?) {
+     *  process-level [GpsSession] already makes that durable) or when nothing is running. The per-sample
+     *  snapshot is throttled to [NON_GPS_SNAPSHOT_INTERVAL_MS] so a long session stops rewriting the whole
+     *  sample list to SharedPreferences every second; [force] bypasses the clock for the points that must
+     *  always land — the start snapshot and the pause/resume transitions. */
+    private fun persistNonGpsWorkout(w: ActiveWorkout?, force: Boolean = false) {
         if (w == null || w.gpsEnabled) return
+        val now = System.currentTimeMillis()
+        if (!force && now - lastNonGpsSnapshotMs < NON_GPS_SNAPSHOT_INTERVAL_MS) return
+        lastNonGpsSnapshotMs = now
         runCatching {
             activeWorkoutStore.save(
                 ActiveWorkoutPersistence.Snapshot(
@@ -1943,6 +1982,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             pausedAtMs = snap.pausedAtMs, pausedDurationMs = snap.pausedDurationMs,
             targetZone = runCatching { activeWorkoutStore.targetZone() }.getOrNull(),
         )
+        // The rehydrated state IS the last durable snapshot and carries its strain as scored then, so
+        // both throttles start their clocks at "now": the next snapshot/re-score comes after a full
+        // interval, not immediately on the first fresh sample.
+        lastNonGpsSnapshotMs = System.currentTimeMillis()
+        lastLiveStrainAtMs = System.currentTimeMillis()
         startWorkoutVoice()
     }
 
@@ -1963,7 +2007,9 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             w.copy(pausedAtMs = null, pausedDurationMs = w.pausedDurationMs + (now - (w.pausedAtMs ?: now)), autoPaused = false)
         }
         _activeWorkout.value = updated
-        persistNonGpsWorkout(updated)
+        // Pause/resume must always land in the durable snapshot — a kill right after the transition is
+        // exactly what #529 rehydrates — so this bypasses the per-sample clock.
+        persistNonGpsWorkout(updated, force = true)
     }
 
     /** Abort the active workout and discard all in-flight data. */
@@ -2114,8 +2160,11 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** Append the current smoothed bpm to the active workout and recompute its running strain. Called
-     *  from ingestHr on every fresh sample; a no-op when no workout is running. */
+    /** Append the current smoothed bpm to the active workout and refresh its running strain. Called
+     *  from ingestHr on every fresh sample; a no-op when no workout is running. The full-window strain
+     *  re-score (a JNI pass over every sample) and the durable snapshot are throttled to
+     *  [LIVE_STRAIN_INTERVAL_MS] / [NON_GPS_SNAPSHOT_INTERVAL_MS]: the saved workout's score is computed
+     *  once at end from the whole window, so only the live card's cadence changes. */
     private fun captureWorkoutSample(bpm: Int) {
         // `_activeWorkout` (declared further down) can still be null HERE: the HR collector in the first
         // init block can fire ingestHr -> captureWorkoutSample INLINE during construction (a StateFlow
@@ -2137,9 +2186,16 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
         val s = w.samples + HrSample(deviceId = deviceId, ts = ts, bpm = bpm)
-        val strain = StrainScorer.strain(
-            s, maxHR = profileStore.hrMax.toDouble(),
-            method = NoopPrefs.effortMethod(appContext), sex = profileStore.sex) ?: 0.0
+        // The full-window score is a JNI pass over every sample — the workout's biggest per-second cost —
+        // so it runs at most once per [LIVE_STRAIN_INTERVAL_MS]; between re-scores the card keeps the
+        // last value. The saved workout is scored once at end from the whole window and is unaffected.
+        val nowMs = System.currentTimeMillis()
+        val strain = if (nowMs - lastLiveStrainAtMs >= LIVE_STRAIN_INTERVAL_MS) {
+            lastLiveStrainAtMs = nowMs
+            StrainScorer.strain(
+                s, maxHR = profileStore.hrMax.toDouble(),
+                method = NoopPrefs.effortMethod(appContext), sex = profileStore.sex) ?: 0.0
+        } else w.liveStrain
         val updated = w.copy(
             // Grown by comparison, not recomputed from `s`, so a peak folded in from a repeated second is kept.
             samples = s, avgHr = s.sumOf { it.bpm } / s.size, peakHr = maxOf(w.peakHr, bpm), liveStrain = strain,
