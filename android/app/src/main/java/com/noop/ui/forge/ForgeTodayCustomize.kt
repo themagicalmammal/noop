@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,8 +36,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -168,7 +168,7 @@ private fun KeyMetricsDisplay(detailed: Boolean, onDetailed: (Boolean) -> Unit, 
                     Text(stringResource(R.string.forge_lay_detailed), style = Forge.type.body, color = colors.text)
                     Text(stringResource(R.string.forge_lay_detailed_detail), style = Forge.type.caption, color = colors.textSecondary)
                 }
-                Switch(detailed, onDetailed, colors = forgeSwitchColors())
+                ToggleCheckbox(detailed, onDetailed)
             }
             if (detailed) {
                 Text(stringResource(R.string.forge_lay_trend_window), style = Forge.type.body, color = colors.text)

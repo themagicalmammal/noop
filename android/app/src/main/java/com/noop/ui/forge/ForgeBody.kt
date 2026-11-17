@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,7 +18,6 @@ import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
@@ -612,11 +613,11 @@ private fun BodyRemindersCard() {
                     Text(stringResource(R.string.body_weekly), style = Forge.type.body, color = colors.text)
                     Text(stringResource(R.string.body_weekly_note), style = Forge.type.caption, color = colors.textSecondary)
                 }
-                Switch(checked = weekly, onCheckedChange = { set(it, false) }, colors = forgeSwitchColors())
+                ToggleCheckbox(checked = weekly, onCheckedChange = { set(it, false) })
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.body_daily), style = Forge.type.body, color = colors.text, modifier = Modifier.weight(1f))
-                Switch(checked = daily, onCheckedChange = { set(it, true) }, colors = forgeSwitchColors())
+                ToggleCheckbox(checked = daily, onCheckedChange = { set(it, true) })
             }
             if (denied) Text(stringResource(R.string.body_reminder_denied), style = Forge.type.caption,
                              color = ForgeTokens.Color.systemOrange.resolve())

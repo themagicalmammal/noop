@@ -40,8 +40,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
@@ -1012,17 +1010,10 @@ private fun NoopSwitch(
     enabled: Boolean = true,
     label: String,
 ) {
-    Switch(
+    ToggleCheckbox(
         checked = checked,
         onCheckedChange = onChange,
         enabled = enabled,
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = Palette.surfaceBase,
-            checkedTrackColor = Palette.accent,
-            uncheckedThumbColor = Palette.textSecondary,
-            uncheckedTrackColor = Palette.surfaceInset,
-            uncheckedBorderColor = Palette.hairline,
-        ),
         modifier = Modifier.semantics { contentDescription = label },
     )
 }

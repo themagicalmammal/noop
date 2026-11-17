@@ -8,8 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BatteryStd
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,19 +65,12 @@ fun PowerSavingScreen(vm: AppViewModel) {
                     color = Palette.textTertiary,
                 )
             }
-            Switch(
+            ToggleCheckbox(
                 checked = powerSaving,
                 onCheckedChange = {
                     powerSaving = it
                     vm.setPowerSaving(it)
                 },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = Palette.surfaceBase,
-                    checkedTrackColor = Palette.accent,
-                    uncheckedThumbColor = Palette.textSecondary,
-                    uncheckedTrackColor = Palette.surfaceInset,
-                    uncheckedBorderColor = Palette.hairline,
-                ),
             )
         }
         if (powerSaving) {
@@ -124,19 +115,12 @@ fun PowerSavingScreen(vm: AppViewModel) {
                         color = Palette.textTertiary,
                     )
                 }
-                Switch(
+                ToggleCheckbox(
                     checked = pauseHrvOnPowerSave,
                     onCheckedChange = {
                         pauseHrvOnPowerSave = it
                         vm.setPauseHrvOnPowerSave(it)
                     },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Palette.surfaceBase,
-                        checkedTrackColor = Palette.accent,
-                        uncheckedThumbColor = Palette.textSecondary,
-                        uncheckedTrackColor = Palette.surfaceInset,
-                        uncheckedBorderColor = Palette.hairline,
-                    ),
                 )
             }
             SettingsRowDivider()
@@ -154,19 +138,12 @@ fun PowerSavingScreen(vm: AppViewModel) {
                         color = Palette.textTertiary,
                     )
                 }
-                Switch(
+                ToggleCheckbox(
                     checked = lowRefresh,
                     onCheckedChange = {
                         lowRefresh = it
                         vm.setLowRefresh(it)
                     },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Palette.surfaceBase,
-                        checkedTrackColor = Palette.accent,
-                        uncheckedThumbColor = Palette.textSecondary,
-                        uncheckedTrackColor = Palette.surfaceInset,
-                        uncheckedBorderColor = Palette.hairline,
-                    ),
                 )
             }
         }

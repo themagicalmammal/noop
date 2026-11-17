@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import com.noop.ingest.WhoopCsvExporter
@@ -84,8 +86,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -1543,8 +1545,8 @@ private fun AboutSection(onOpen: (ForgeSettingsSub) -> Unit) {
                 Text(stringResource(R.string.l10n_settings_screen_once_a_day_noop_asks_github_5683aad3),
                      style = Forge.type.caption, color = Forge.colors.textTertiary)
             }
-            Switch(checked = automatic, onCheckedChange = { automatic = it; UpdateWatch.setEnabled(context, it) },
-                   colors = forgeSwitchColors())
+            ToggleCheckbox(checked = automatic, onCheckedChange = { automatic = it; UpdateWatch.setEnabled(context, it) },
+)
         }
         RowDivider()
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1639,7 +1641,7 @@ internal fun ToggleRow(title: String, detail: String?, checked: Boolean, enabled
             Text(title, style = Forge.type.body, color = Forge.colors.text)
             if (detail != null) Text(detail, style = Forge.type.caption, color = Forge.colors.textTertiary)
         }
-        Switch(checked = checked, onCheckedChange = null, enabled = enabled, colors = forgeSwitchColors())
+        ToggleCheckbox(checked = checked, onCheckedChange = {}, enabled = enabled, interactive = false)
     }
 }
 
@@ -1666,13 +1668,12 @@ internal fun forgeFieldColors(container: androidx.compose.ui.graphics.Color = Fo
     disabledContainerColor = container,
 )
 
-/** The switch as iOS draws it: green when on, a quiet grey track when off, a white thumb and no outline. */
+/** The toggle as iOS draws it: green when on, a quiet grey track when off, a white checkmark. */
 @Composable
-internal fun forgeSwitchColors() = SwitchDefaults.colors(
-    checkedTrackColor = ForgeTokens.Color.systemGreen.resolve(), checkedThumbColor = androidx.compose.ui.graphics.Color.White,
-    checkedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-    uncheckedTrackColor = Forge.colors.textTertiary.copy(alpha = 0.35f), uncheckedThumbColor = androidx.compose.ui.graphics.Color.White,
-    uncheckedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+internal fun forgeToggleColors(): androidx.compose.material3.CheckboxColors = androidx.compose.material3.CheckboxDefaults.colors(
+    checkedColor = ForgeTokens.Color.systemGreen.resolve(),
+    uncheckedColor = Forge.colors.textTertiary.copy(alpha = 0.35f),
+    checkmarkColor = androidx.compose.ui.graphics.Color.White,
 )
 
 @Composable

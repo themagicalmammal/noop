@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,7 +26,6 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -298,7 +299,7 @@ internal fun SwitchRow(title: String, note: String, on: Boolean, enabled: Boolea
             Text(note, style = Forge.type.footnote, color = Forge.colors.textTertiary)
         }
         Spacer(Modifier.width(8.dp))
-        Switch(checked = on, onCheckedChange = onChange, enabled = enabled, colors = forgeSwitchColors())
+        ToggleCheckbox(checked = on, onCheckedChange = onChange, enabled = enabled)
     }
 }
 

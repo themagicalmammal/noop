@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -613,7 +615,7 @@ private fun CustomExercisePage(catalog: CoreTrainingLibrary.Catalog, onClose: ()
             }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.forge_library_unilateral), style = Forge.type.subhead, color = Forge.colors.text, modifier = Modifier.weight(1f))
-                Switch(unilateral, { unilateral = it }, colors = forgeSwitchColors(), enabled = !saving && mode != "duration" && mode != "distance_duration")
+                ToggleCheckbox(unilateral, { unilateral = it }, enabled = !saving && mode != "duration" && mode != "distance_duration")
             }
         }
         ForgeCard(Modifier.fillMaxWidth()) {

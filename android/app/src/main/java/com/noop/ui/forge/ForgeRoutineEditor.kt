@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,7 +26,6 @@ import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -232,7 +233,7 @@ internal fun ForgeRoutineEditorPage(routineId: String?, planId: String?, onClose
                 Row(Modifier.fillMaxWidth().heightIn(min = 44.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.forge_routine_exclude), style = Forge.type.subhead,
                          color = Forge.colors.text, modifier = Modifier.weight(1f))
-                    Switch(checked = current.excludeFromProgression, onCheckedChange = {
+                    ToggleCheckbox(checked = current.excludeFromProgression, onCheckedChange = {
                         edit("excludeFromProgression", JSONObject().put("value", it))
                     })
                 }

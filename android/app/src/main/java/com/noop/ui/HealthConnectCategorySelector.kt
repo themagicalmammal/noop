@@ -12,8 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -158,16 +156,9 @@ internal fun HealthConnectCategorySelector(
 
 @Composable
 private fun SelectorSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Switch(
+    ToggleCheckbox(
         checked = checked,
         onCheckedChange = onCheckedChange,
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = Palette.surfaceBase,
-            checkedTrackColor = Palette.accent,
-            uncheckedThumbColor = Palette.textSecondary,
-            uncheckedTrackColor = Palette.surfaceInset,
-            uncheckedBorderColor = Palette.hairline,
-        ),
     )
 }
 

@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -41,7 +43,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -1119,7 +1120,7 @@ internal fun FoodProductDataCards() {
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.food_unknown_online), style = Forge.type.body, color = Forge.colors.text, modifier = Modifier.weight(1f))
-                Switch(unknownOnline, { unknownOnline = it; prefs.unknownBarcodesOnline = it })
+                ToggleCheckbox(unknownOnline, { unknownOnline = it; prefs.unknownBarcodesOnline = it })
             }
         }
     }
@@ -1142,14 +1143,14 @@ internal fun FoodExtrasCards() {
                     Text(stringResource(R.string.food_estimate_toggle), style = Forge.type.body, color = Forge.colors.text)
                     Text(stringResource(R.string.food_recommended), style = Forge.type.caption, color = Forge.colors.accent)
                 }
-                Switch(estimateMissing, { estimateMissing = it; prefs.estimateMissing = it })
+                ToggleCheckbox(estimateMissing, { estimateMissing = it; prefs.estimateMissing = it })
             }
         }
     }
     SettingsCard(stringResource(R.string.food_health_connect), stringResource(R.string.food_health_connect_note)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.food_write_health), style = Forge.type.body, color = Forge.colors.text, modifier = Modifier.weight(1f))
-            Switch(writeHealth, { writeHealth = it; prefs.writeHealth = it })
+            ToggleCheckbox(writeHealth, { writeHealth = it; prefs.writeHealth = it })
         }
         LinkRow(stringResource(R.string.food_allow_health), null) { permissions.launch(FoodHealthConnect.READ + FoodHealthConnect.WRITE) }
     }
@@ -1157,7 +1158,7 @@ internal fun FoodExtrasCards() {
     SettingsCard(stringResource(R.string.food_lab), stringResource(R.string.food_score_note)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.food_score_title), style = Forge.type.body, color = Forge.colors.text, modifier = Modifier.weight(1f))
-            Switch(showScore, { showScore = it; com.noop.ui.NoopPrefs.of(context).edit().putBoolean(FOOD_SCORE_KEY, it).apply() })
+            ToggleCheckbox(showScore, { showScore = it; com.noop.ui.NoopPrefs.of(context).edit().putBoolean(FOOD_SCORE_KEY, it).apply() })
         }
     }
 }
@@ -1213,7 +1214,7 @@ private fun FoodGoalsCard() {
         if (total != 100) " " + stringResource(R.string.food_goal_scaled, total) else "") {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.food_goal_fixed), style = Forge.type.body, color = Forge.colors.text, modifier = Modifier.weight(1f))
-            Switch(fixed > 0, { on -> fixed = if (on) maxOf(fixed, 2_000.0) else 0.0; save() })
+            ToggleCheckbox(fixed > 0, { on -> fixed = if (on) maxOf(fixed, 2_000.0) else 0.0; save() })
         }
         if (fixed > 0) GoalStepper(stringResource(R.string.food_goal_kcal), "${kcalText(fixed)} kcal",
                                    { fixed = maxOf(1_200.0, fixed - 50); save() }, { fixed = minOf(6_000.0, fixed + 50); save() })

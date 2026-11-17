@@ -24,7 +24,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -132,7 +131,7 @@ fun StartWorkoutSheet(vm: AppViewModel, onDismiss: () -> Unit) {
                 ) {
                     Text(uiString(R.string.l10n_workout_start_track_gps_route_133861c5), style = NoopType.body, color = Palette.textPrimary)
                     Spacer(Modifier.weight(1f))
-                    Switch(checked = gpsOn, onCheckedChange = { gpsOn = it })
+                    ToggleCheckbox(checked = gpsOn, onCheckedChange = { gpsOn = it })
                 }
                 // The target zone, as iOS's zone picker on the start screen; remembered for the next workout.
                 var target by remember { mutableStateOf(WorkoutVoicePrefs.targetZone(context)) }

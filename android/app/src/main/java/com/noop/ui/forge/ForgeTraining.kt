@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -60,7 +62,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -542,7 +543,7 @@ fun ForgeTrainingScreen(padding: PaddingValues, viewModel: AppViewModel) {
                 if (sport.isDistanceSport) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.forge_th_route), style = Forge.type.body, modifier = Modifier.weight(1f))
-                        Switch(checked = route, onCheckedChange = { route = it }, colors = forgeSwitchColors())
+                        ToggleCheckbox(checked = route, onCheckedChange = { route = it })
                     }
                 }
             },

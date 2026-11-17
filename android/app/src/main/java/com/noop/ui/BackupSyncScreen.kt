@@ -27,8 +27,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -221,7 +219,7 @@ fun BackupSyncScreen() {
                             )
                         }
                         Spacer(Modifier.width(16.dp))
-                        Switch(
+                        ToggleCheckbox(
                             checked = auto,
                             enabled = treeUri != null && !busy,
                             onCheckedChange = {
@@ -229,13 +227,6 @@ fun BackupSyncScreen() {
                                 BackupSyncPrefs.setAutoEnabled(context, it)
                                 runCatching { BackupSync.reschedule(context) }
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Palette.surfaceBase,
-                                checkedTrackColor = Palette.accent,
-                                uncheckedThumbColor = Palette.textSecondary,
-                                uncheckedTrackColor = Palette.surfaceInset,
-                                uncheckedBorderColor = Palette.hairline,
-                            ),
                         )
                     }
                     // Retention: how many dated snapshots to keep. Wired to the existing setKeepCount; the

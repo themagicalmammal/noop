@@ -81,8 +81,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -1202,16 +1200,9 @@ fun SettingsScreen(
                 // Custom HR zones (#531, @kavemang): five personalized inclusive BPM lower bounds that
                 // replace the conventional %HRmax bands. Off -> the effective set stays conventional.
                 SettingsFormRow(label = uiString(R.string.l10n_settings_screen_custom_hr_zones_84736ca5)) {
-                    Switch(
+                    ToggleCheckbox(
                         checked = profile.hasCustomHrZones,
                         onCheckedChange = { mutate { profile.setCustomHrZonesEnabled(it) } },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
                 if (profile.hasCustomHrZones) {
@@ -1451,19 +1442,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = banisterEffort,
                         onCheckedChange = {
                             banisterEffort = it
                             vm.setBanisterEffort(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
                 Text(
@@ -1738,19 +1722,12 @@ fun SettingsScreen(
                         color = Palette.textTertiary,
                     )
                 }
-                Switch(
+                ToggleCheckbox(
                     checked = showDayCycleBackground,
                     onCheckedChange = {
                         showDayCycleBackground = it
                         NoopPrefs.setShowDayCycleBackground(context, it)
                     },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Palette.surfaceBase,
-                        checkedTrackColor = Palette.accent,
-                        uncheckedThumbColor = Palette.textSecondary,
-                        uncheckedTrackColor = Palette.surfaceInset,
-                        uncheckedBorderColor = Palette.hairline,
-                    ),
                 )
             }
 
@@ -1774,20 +1751,13 @@ fun SettingsScreen(
                         color = Palette.textTertiary,
                     )
                 }
-                Switch(
+                ToggleCheckbox(
                     enabled = showDayCycleBackground,
                     checked = skyBehindCards && showDayCycleBackground,
                     onCheckedChange = {
                         skyBehindCards = it
                         NoopPrefs.setSkyBehindCards(context, it)
                     },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Palette.surfaceBase,
-                        checkedTrackColor = Palette.accent,
-                        uncheckedThumbColor = Palette.textSecondary,
-                        uncheckedTrackColor = Palette.surfaceInset,
-                        uncheckedBorderColor = Palette.hairline,
-                    ),
                 )
             }
 
@@ -1809,20 +1779,13 @@ fun SettingsScreen(
                         color = Palette.textTertiary,
                     )
                 }
-                Switch(
+                ToggleCheckbox(
                     checked = cardOpacity < 1f,
                     onCheckedChange = { on ->
                         cardOpacity = if (on) { if (cardOpacity >= 1f) 0.7f else cardOpacity } else 1f
                         CardAppearance.opacity = cardOpacity
                         NoopPrefs.setCardOpacityPercent(context, (cardOpacity * 100).toInt())
                     },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Palette.surfaceBase,
-                        checkedTrackColor = Palette.accent,
-                        uncheckedThumbColor = Palette.textSecondary,
-                        uncheckedTrackColor = Palette.surfaceInset,
-                        uncheckedBorderColor = Palette.hairline,
-                    ),
                 )
             }
 
@@ -1886,7 +1849,7 @@ fun SettingsScreen(
             // a provider from the background and posting notifications, with no UI attached to reveal that
             // it is still running). The saved provider key is kept, so this is a flip and not a re-setup.
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_ai_coach_130c3eab)) {
-                Switch(
+                ToggleCheckbox(
                     checked = BottomBarStyleStore.coachEnabled,
                     onCheckedChange = { BottomBarStyleStore.setCoachEnabled(context, it) },
                 )
@@ -1896,7 +1859,7 @@ fun SettingsScreen(
             // overlay lets a screen's own backdrop show through the bar's glass, which is what it was
             // built for, but it is app-shell layout no test can judge, so it ships switchable.
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_bottom_bar_overlay_f257c96f)) {
-                Switch(
+                ToggleCheckbox(
                     checked = BottomBarStyleStore.overlay,
                     onCheckedChange = { BottomBarStyleStore.set(context, it) },
                 )
@@ -1911,7 +1874,7 @@ fun SettingsScreen(
             // reason it does without the overlay.
             val autoHideAvailable = BottomBarStyleStore.overlay && !rememberReduceMotion()
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_hide_bar_when_scrolling_b077d9f3)) {
-                Switch(
+                ToggleCheckbox(
                     checked = BottomBarStyleStore.autoHide,
                     enabled = autoHideAvailable,
                     onCheckedChange = { BottomBarStyleStore.setAutoHide(context, it) },
@@ -2289,19 +2252,12 @@ fun SettingsScreen(
                             color = Palette.textTertiary,
                         )
                     }
-                    Switch(
+                    ToggleCheckbox(
                         checked = backgroundConnection,
                         onCheckedChange = {
                             backgroundConnection = it
                             vm.setBackgroundConnection(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
 
@@ -2326,19 +2282,12 @@ fun SettingsScreen(
                             color = Palette.textTertiary,
                         )
                     }
-                    Switch(
+                    ToggleCheckbox(
                         checked = fastHistorySync,
                         onCheckedChange = {
                             fastHistorySync = it
                             vm.setFastHistorySync(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
 
@@ -2365,19 +2314,12 @@ fun SettingsScreen(
                             color = Palette.textTertiary,
                         )
                     }
-                    Switch(
+                    ToggleCheckbox(
                         checked = fastLinkPhy,
                         onCheckedChange = {
                             fastLinkPhy = it
                             vm.setFastLinkPhy(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
 
@@ -2523,19 +2465,12 @@ fun SettingsScreen(
                             color = Palette.textTertiary,
                         )
                     }
-                    Switch(
+                    ToggleCheckbox(
                         checked = continuousHrv,
                         onCheckedChange = {
                             continuousHrv = it
                             vm.setContinuousHrv(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
 
@@ -2560,19 +2495,12 @@ fun SettingsScreen(
                                 color = Palette.textTertiary,
                             )
                         }
-                        Switch(
+                        ToggleCheckbox(
                             checked = continuousHrvOvernight,
                             onCheckedChange = {
                                 continuousHrvOvernight = it
                                 vm.setContinuousHrvOvernight(it)
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Palette.surfaceBase,
-                                checkedTrackColor = Palette.accent,
-                                uncheckedThumbColor = Palette.textSecondary,
-                                uncheckedTrackColor = Palette.surfaceInset,
-                                uncheckedBorderColor = Palette.hairline,
-                            ),
                         )
                     }
                 }
@@ -2731,19 +2659,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = puffinExperiments,
                         onCheckedChange = {
                             puffinExperiments = it
                             puffinExperiment.isEnabled = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_try_whoop_5_mg_protocol_probes_1d584653)
                         },
@@ -2767,20 +2688,13 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = broadcastHr,
                         onCheckedChange = {
                             broadcastHr = it
                             puffinExperiment.broadcastHr = it
                             vm.ble.setBroadcastHr(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_broadcast_heart_rate_d1af1c79)
                         },
@@ -2804,19 +2718,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = explicitBond,
                         onCheckedChange = {
                             explicitBond = it
                             puffinExperiment.explicitBond = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_ask_android_to_pair_323fccbe)
                         },
@@ -2838,19 +2745,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = unbondedOffload,
                         onCheckedChange = {
                             unbondedOffload = it
                             puffinExperiment.unbondedOffload = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription =
                                 uiString(R.string.l10n_settings_screen_try_history_sync_without_pairing_33ae8594)
@@ -2873,19 +2773,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = helloDespiteRefusal,
                         onCheckedChange = {
                             helloDespiteRefusal = it
                             puffinExperiment.helloDespiteBondRefusal = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_send_hello_despite_bond_refusal_65c9d9fd)
                         },
@@ -2909,19 +2802,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = ecgRawData,
                         onCheckedChange = {
                             ecgRawData = it
                             puffinExperiment.ecgRawData = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription =
                                 uiString(R.string.l10n_settings_screen_ecg_raw_data_gate_whoop_mg_only)
@@ -2978,7 +2864,7 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = deepData,
                         onCheckedChange = {
                             deepData = it
@@ -2989,13 +2875,6 @@ fun SettingsScreen(
                             // nothing until the button is tapped.
                             if (!it) confirmingDeepDataDisable = true
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_unlock_whoop_5_mg_deep_data_70036ca8)
                         },
@@ -3141,19 +3020,12 @@ fun SettingsScreen(
                             color = Palette.textPrimary,
                             modifier = Modifier.weight(1f),
                         )
-                        Switch(
+                        ToggleCheckbox(
                             checked = sleepStagerMethod != "v1",
                             onCheckedChange = {
                                 sleepStagerMethod = if (it) "v2" else "v1"
                                 vm.setSleepStagerMethod(sleepStagerMethod)
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Palette.surfaceBase,
-                                checkedTrackColor = Palette.accent,
-                                uncheckedThumbColor = Palette.textSecondary,
-                                uncheckedTrackColor = Palette.surfaceInset,
-                                uncheckedBorderColor = Palette.hairline,
-                            ),
                             modifier = Modifier.semantics {
                                 contentDescription = uiString(R.string.l10n_settings_screen_sleep_staging_v2_3a007e4a)
                             },
@@ -3178,19 +3050,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = motionAwareWake,
                         onCheckedChange = {
                             motionAwareWake = it
                             puffinExperiment.motionAwareWake = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_motion_aware_wake_refinement_67a91e47)
                         },
@@ -3225,19 +3090,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = spo2CandidateDisplay,
                         onCheckedChange = {
                             spo2CandidateDisplay = it
                             vm.setSpo2CandidateDisplay(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
                 Text(
@@ -3271,19 +3129,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = stressPersonalBaseline,
                         onCheckedChange = {
                             stressPersonalBaseline = it
                             NoopPrefs.setStressPersonalBaseline(context, it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
 
@@ -3943,19 +3794,12 @@ fun SettingsScreen(
                                 color = Palette.textTertiary,
                             )
                         }
-                        Switch(
+                        ToggleCheckbox(
                             checked = autoCheck,
                             onCheckedChange = {
                                 autoCheck = it
                                 com.noop.update.UpdateWatch.setEnabled(context, it)
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Palette.surfaceBase,
-                                checkedTrackColor = Palette.accent,
-                                uncheckedThumbColor = Palette.textSecondary,
-                                uncheckedTrackColor = Palette.surfaceInset,
-                                uncheckedBorderColor = Palette.hairline,
-                            ),
                         )
                     }
 

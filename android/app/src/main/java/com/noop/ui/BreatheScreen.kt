@@ -39,8 +39,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -801,16 +799,9 @@ private fun AudioCueToggle(checked: Boolean, onChange: (Boolean) -> Unit) {
                 style = NoopType.caption, color = Palette.textTertiary, maxLines = 1,
             )
         }
-        Switch(
+        ToggleCheckbox(
             checked = checked,
             onCheckedChange = onChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Palette.surfaceBase,
-                checkedTrackColor = Palette.accent,
-                uncheckedThumbColor = Palette.textSecondary,
-                uncheckedTrackColor = Palette.surfaceInset,
-                uncheckedBorderColor = Palette.hairline,
-            ),
             modifier = Modifier.semantics { contentDescription = uiString(R.string.l10n_breathe_screen_audio_cues_74430aec) },
         )
     }

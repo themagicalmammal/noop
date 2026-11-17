@@ -1,7 +1,8 @@
 package com.noop.ui
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -12,13 +13,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,11 +36,88 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.noop.R
+
+// MARK: - Toggle checkbox (replaces Switch)
+
+/**
+ * A checkbox toggle that mirrors the Switch API so every call site can swap the control without
+ * touching its own nullable-handling or colour plumbing. The checkbox carries the same states as the
+ * switch it replaced (checked/checkedChange/enabled) and accepts a [CheckboxColors] for per-screen
+ * tinting.
+ */
+@Composable
+internal fun ToggleCheckbox(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    interactive: Boolean = true,
+) {
+    // Checkbox fill animation only.
+    val fillColor by animateColorAsState(
+        targetValue = if (checked) Palette.accent else Color.Transparent,
+        animationSpec = tween(150),
+        label = "toggle_checkbox_fill",
+    )
+    val borderColor = if (checked) Color.Transparent else Palette.hairline
+
+    // When [interactive] is false the circle is visual only: an enclosing row owns
+    // the tap target and the accessibility state, and taps on the circle pass to it.
+    Box(
+        modifier = modifier.size(48.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(16.dp)
+                .clip(CircleShape)
+                .then(
+                    if (interactive) Modifier.toggleable(
+                        value = checked,
+                        enabled = enabled,
+                        role = Role.Checkbox,
+                        onValueChange = onCheckedChange,
+                    ) else Modifier
+                )
+                .border(
+                    width = 1.5.dp,
+                    color = borderColor,
+                    shape = CircleShape,
+                )
+                .background(fillColor),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (checked) {
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = Palette.surfaceBase,
+                    modifier = Modifier.size(12.dp),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * NOOP's default checkbox tinting, mapped from the switch palette: accent fill when checked, a hairline
+ * border when off, and the surface base as the checkmark — so the control reads like the switch it
+ * replaced rather than a stock Material component.
+ */
+@Composable
+internal fun noopCheckboxColors(): CheckboxColors {
+    return CheckboxDefaults.colors(
+        checkedColor = Palette.accent,
+        uncheckedColor = Palette.surfaceInset,
+        checkmarkColor = Palette.surfaceBase,
+    )
+}
 
 // MARK: - Advanced disclosure (S3, ports SettingsView's SettingsDisclosureGroup)
 
@@ -151,16 +235,9 @@ internal fun SettingsToggleRow(
             Text(title, style = NoopType.subhead, color = Palette.textPrimary)
             Text(detail, style = NoopType.footnote, color = Palette.textTertiary)
         }
-        Switch(
+        ToggleCheckbox(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Palette.surfaceBase,
-                checkedTrackColor = Palette.accent,
-                uncheckedThumbColor = Palette.textSecondary,
-                uncheckedTrackColor = Palette.surfaceInset,
-                uncheckedBorderColor = Palette.hairline,
-            ),
         )
     }
 }

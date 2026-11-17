@@ -193,7 +193,7 @@ private fun CoachConsentCard(vm: CoachViewModel) {
                     style = NoopType.footnote, color = Palette.textTertiary,
                 )
             }
-            androidx.compose.material3.Switch(
+            ToggleCheckbox(
                 checked = consent,
                 onCheckedChange = { vm.setConsent(context, it) },
             )
@@ -221,7 +221,7 @@ private fun MorningSuggestionSwitch() {
                 Text(c.labels["setting"].orEmpty(), style = NoopType.subhead, color = Palette.textPrimary)
                 Text(c.labels["note"].orEmpty(), style = NoopType.footnote, color = Palette.textTertiary)
             }
-            androidx.compose.material3.Switch(
+            ToggleCheckbox(
                 checked = c.on,
                 onCheckedChange = { on ->
                     scope.launch {
@@ -260,7 +260,7 @@ private fun MorningBriefCard(vm: CoachViewModel) {
                         style = NoopType.footnote, color = Palette.textTertiary,
                     )
                 }
-                androidx.compose.material3.Switch(
+                ToggleCheckbox(
                     checked = enabled,
                     onCheckedChange = { vm.setBriefEnabled(context, it) },
                 )
@@ -448,7 +448,7 @@ private fun CoachRemindersCard() {
                     Text(l["title"].orEmpty(), style = NoopType.subhead, color = Palette.textPrimary)
                     Text(l[if (checkIn.enabled) "on" else "off"].orEmpty(), style = NoopType.footnote, color = Palette.textTertiary)
                 }
-                androidx.compose.material3.Switch(checked = checkIn.enabled, onCheckedChange = {
+                ToggleCheckbox(checked = checkIn.enabled, onCheckedChange = {
                     if (it) askPermission()
                     save(checkIn.copy(enabled = it))
                 })
@@ -485,7 +485,7 @@ private fun CoachRemindersCard() {
                     Text(l["planTitle"].orEmpty(), style = NoopType.subhead, color = Palette.textPrimary)
                     Text((if (planOn) l["planOn"] else l["planOff"]).orEmpty(), style = NoopType.footnote, color = Palette.textTertiary)
                 }
-                androidx.compose.material3.Switch(checked = planOn, onCheckedChange = { on ->
+                ToggleCheckbox(checked = planOn, onCheckedChange = { on ->
                     if (on) askPermission()
                     planOn = on
                     val scale = UnitPrefs.effortScale(context).raw
