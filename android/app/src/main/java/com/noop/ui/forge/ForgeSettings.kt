@@ -188,6 +188,9 @@ enum class ForgeSettingsPage(val titleRes: Int, val subtitleRes: Int, val icon: 
     Strap(R.string.l10n_settings_screen_strap_02b88eeb, R.string.forge_settings_strap_subtitle, Icons.Rounded.SettingsInputAntenna, hosted = true),
     BatteryRecording(R.string.forge_settings_battery, R.string.forge_settings_battery_subtitle, Icons.Rounded.Battery5Bar, hosted = true),
     StrapActions(R.string.forge_settings_actions, R.string.forge_settings_actions_subtitle, Icons.Rounded.TouchApp, hosted = true),
+    StrapHub(R.string.l10n_settings_screen_strap_02b88eeb, R.string.forge_strap_hub_detail, Icons.Rounded.SettingsInputAntenna),
+    DevicesSources(R.string.forge_set_devices_sources, R.string.forge_set_devices_sources_detail, Icons.Rounded.DeviceHub),
+    HowScores(R.string.forge_set_how_scores, R.string.forge_set_how_scores_detail, Icons.Rounded.Science),
     Training(R.string.forge_training, R.string.forge_st_subtitle, Icons.Rounded.FitnessCenter),
     TodayTrends(R.string.forge_settings_today_trends, R.string.forge_settings_today_cards, Icons.Rounded.Dashboard),
     Notifications(R.string.forge_settings_notifications, R.string.forge_settings_notifications_subtitle, Icons.Rounded.NotificationsActive, hosted = true),
@@ -242,7 +245,8 @@ internal val HUB_GROUPS = listOf(
     0 to listOf(ForgeSettingsPage.Roadmap),
     R.string.forge_settings_group_you to listOf(ForgeSettingsPage.Profile, ForgeSettingsPage.Goals),
     R.string.forge_settings_group_strap to listOf(ForgeSettingsPage.Strap, ForgeSettingsPage.BatteryRecording,
-                                                  ForgeSettingsPage.StrapActions),
+                                                  ForgeSettingsPage.StrapActions, ForgeSettingsPage.StrapHub,
+                                                  ForgeSettingsPage.DevicesSources, ForgeSettingsPage.HowScores),
     R.string.forge_settings_group_training to listOf(ForgeSettingsPage.Training, ForgeSettingsPage.TodayTrends, ForgeSettingsPage.Notifications,
                                                      ForgeSettingsPage.Coach),
     R.string.forge_settings_group_display to listOf(ForgeSettingsPage.LanguageUnits, ForgeSettingsPage.Appearance),
@@ -306,7 +310,9 @@ internal fun ForgeSettingsPage.tint(): Color {
     val token = when (this) {
         ForgeSettingsPage.Profile, ForgeSettingsPage.DataBackup -> ForgeTokens.Color.systemBlue
         ForgeSettingsPage.Goals, ForgeSettingsPage.Training -> ForgeTokens.Color.systemOrange
-        ForgeSettingsPage.Strap -> ForgeTokens.Color.systemGreen
+        ForgeSettingsPage.Strap, ForgeSettingsPage.StrapHub -> ForgeTokens.Color.systemGreen
+        ForgeSettingsPage.DevicesSources -> ForgeTokens.Color.systemIndigo
+        ForgeSettingsPage.HowScores -> ForgeTokens.Color.systemGreen
         ForgeSettingsPage.BatteryRecording -> ForgeTokens.Color.systemYellow
         ForgeSettingsPage.StrapActions, ForgeSettingsPage.Notifications, ForgeSettingsPage.Coach,
         ForgeSettingsPage.Appearance -> ForgeTokens.Color.systemPurple
@@ -362,7 +368,7 @@ fun ForgeSettings(viewModel: AppViewModel, onClose: () -> Unit, initialPage: For
                         else Hub(onClose, onOpen = { push(Route.Page(it)) }, onAll = { push(Route.Sub(ForgeSettingsSub.AllSettings)) })
                 is Route.Page ->
                     if (top.page.hosted) HostedPage(top.page, viewModel, onBack = ::pop)
-                    else Page(top.page, viewModel, onBack = ::pop, onOpen = { push(Route.Sub(it)) })
+                    else Page(top.page, viewModel, onBack = ::pop, onOpen = { push(Route.Sub(it)) }, onOpenPage = { push(Route.Page(it)) })
                 is Route.Sub -> SubScreen(top.sub, viewModel, onBack = ::pop, onOpen = { push(Route.Sub(it)) })
             }
             }
@@ -452,9 +458,7 @@ private fun NewDesignHub(onClose: () -> Unit, onOpen: (ForgeSettingsPage) -> Uni
         group(null, listOf(page(ForgeSettingsPage.Roadmap)))
         group(R.string.forge_settings_group_you, listOf(page(ForgeSettingsPage.Goals)))
         group(R.string.forge_set_strap_devices, listOf(
-            page(ForgeSettingsPage.Strap), page(ForgeSettingsPage.BatteryRecording), page(ForgeSettingsPage.StrapActions),
-            { HubRow(Icons.Rounded.DeviceHub, ForgeTokens.Color.systemIndigo.resolve(), stringResource(R.string.forge_set_devices_sources),
-                     stringResource(R.string.forge_set_devices_sources_detail)) { onSub(ForgeSettingsSub.DataSources) } },
+            page(ForgeSettingsPage.StrapHub), page(ForgeSettingsPage.DevicesSources),
         ))
         group(R.string.forge_set_alerts, listOf(page(ForgeSettingsPage.Notifications)))
         group(R.string.forge_set_app, listOf(page(ForgeSettingsPage.Appearance), page(ForgeSettingsPage.LanguageUnits),
@@ -462,8 +466,7 @@ private fun NewDesignHub(onClose: () -> Unit, onOpen: (ForgeSettingsPage) -> Uni
                                              page(ForgeSettingsPage.Coach)))
         group(R.string.forge_set_data_help, listOf(
             page(ForgeSettingsPage.DataBackup), page(ForgeSettingsPage.Calculations),
-            { HubRow(Icons.Rounded.Speed, ForgeTokens.Color.systemGreen.resolve(), stringResource(R.string.forge_set_how_scores),
-                     stringResource(R.string.forge_set_how_scores_detail)) { onSub(ForgeSettingsSub.ScoringGuide) } },
+            page(ForgeSettingsPage.HowScores),
             page(ForgeSettingsPage.Help),
         ))
         group(null, listOf(page(ForgeSettingsPage.Lab), page(ForgeSettingsPage.About),
@@ -491,7 +494,7 @@ internal fun PageTitle(title: String?, onBack: () -> Unit, trailing: (@Composabl
 }
 
 @Composable
-private fun Page(page: ForgeSettingsPage, viewModel: AppViewModel, onBack: () -> Unit, onOpen: (ForgeSettingsSub) -> Unit) {
+private fun Page(page: ForgeSettingsPage, viewModel: AppViewModel, onBack: () -> Unit, onOpen: (ForgeSettingsSub) -> Unit, onOpenPage: (ForgeSettingsPage) -> Unit) {
     val context = LocalContext.current
     val profile = remember { ProfileStore.from(context) }
     // The stores are plain preferences; one counter re-reads them after a change, as the classic screen does.
@@ -529,6 +532,20 @@ private fun Page(page: ForgeSettingsPage, viewModel: AppViewModel, onBack: () ->
                 ForgeSettingsPage.Help -> HelpSection(viewModel, onOpen)
                 ForgeSettingsPage.Lab -> LabSection(viewModel, onOpen)
                 ForgeSettingsPage.About -> AboutSection(onOpen)
+                ForgeSettingsPage.StrapHub -> ForgeStrapHubPage(
+                    onBack = onBack,
+                    onOpenPage = onOpenPage,
+                    onOpenSub = onOpen
+                )
+                ForgeSettingsPage.DevicesSources -> ForgeDevicesSourcesPage(
+                    onBack = onBack,
+                    onOpenPage = onOpenPage,
+                    onOpenSub = onOpen
+                )
+                ForgeSettingsPage.HowScores -> ForgeHowScoresPage(
+                    viewModel = viewModel,
+                    onBack = onBack
+                )
                 else -> Unit
             }
         }

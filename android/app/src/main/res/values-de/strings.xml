@@ -6308,6 +6308,12 @@
     <string name="forge_set_done">Fertig</string>
     <string name="forge_set_devices_sources_detail">Health Connect, Importe, andere Geräte</string>
     <string name="forge_search_metrics">Metriken</string>
+    <string name="forge_strap_hub_detail">Verbindung, Schritte und Freigaben, Aufzeichnung und Akku, Doppeltippen und Vibration</string>
+    <string name="forge_device_row_title">Dein Armband</string>
+    <string name="forge_device_connect_hint">Verbinde das Armband, um seinen Status zu sehen</string>
+    <string name="forge_how_scores_explained">Erklärung</string>
+    <string name="forge_how_scores_your_model">Dein Modell</string>
+    <string name="forge_steps_phone">Telefon</string>
     <string name="forge_search_recent">Kürzlich</string>
     <string name="forge_search_clear">Löschen</string>
     <string name="forge_search_screens">Seiten</string>

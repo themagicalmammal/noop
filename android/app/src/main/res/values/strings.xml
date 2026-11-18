@@ -6331,6 +6331,12 @@
     <string name="forge_set_done">Done</string>
     <string name="forge_set_devices_sources_detail">Health Connect, imports, other devices</string>
     <string name="forge_search_metrics">Metrics</string>
+    <string name="forge_strap_hub_detail">Connection, steps and sharing, recording and battery, double-tap and buzz</string>
+    <string name="forge_device_row_title">Your strap</string>
+    <string name="forge_device_connect_hint">Connect the strap to see its status</string>
+    <string name="forge_how_scores_explained">Explained</string>
+    <string name="forge_how_scores_your_model">Your model</string>
+    <string name="forge_steps_phone">Phone</string>
     <string name="forge_search_recent">Recent</string>
     <string name="forge_search_clear">Clear</string>
     <string name="forge_search_screens">Screens</string>
