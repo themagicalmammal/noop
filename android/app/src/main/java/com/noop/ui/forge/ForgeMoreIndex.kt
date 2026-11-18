@@ -450,7 +450,7 @@ private fun SearchField(query: String, modifier: Modifier = Modifier, onChange: 
 }
 
 @Composable
-private fun categoryTint(c: MoreCategory): Color = when (c) {
+internal fun categoryTint(c: MoreCategory): Color = when (c) {
     MoreCategory.Analysis -> ForgeTokens.Color.systemPurple.resolve()
     MoreCategory.HealthBody -> ForgeTokens.Color.systemRed.resolve()
     MoreCategory.Tools -> ForgeTokens.Color.systemCyan.resolve()

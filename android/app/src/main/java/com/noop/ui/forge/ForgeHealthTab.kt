@@ -382,12 +382,11 @@ internal fun TabHeader(title: String, onProfile: () -> Unit, onSearch: (() -> Un
                       modifier = Modifier.clickable(role = Role.Button, onClick = onProfile))
     }
 }
-
-/** The magnifier's action in the new design: the More page, its search focused. Null in the shipped design. */
+/** The magnifier action in the new design: opens the dedicated search overlay, as iOS pushes `ForgeRoute.search`. Null in the shipped design. */
 @Composable
 internal fun rememberOpenSearch(): (() -> Unit)? {
-    val openMore = LocalForgeOpenMore.current ?: return null
-    return { ForgeDesign.focusSearch = true; openMore() }
+    val openSearch = LocalForgeOpenSearch.current ?: return null
+    return openSearch
 }
 
 /** A section's title above its card, as iOS's `ForgeSectionHeading`: bold, sentence case. */

@@ -56,10 +56,34 @@ fun ForgeRoot(viewModel: AppViewModel) {
     // Settings and pairing open over the tabs in the same window (`ForgeOverlayHost`).
     var moreOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     var settingsOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var searchOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var settingsPageStack by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf<ForgeSettingsPage?>(null) }
+    var moreNavStack by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf("") }
+
+    // Opening a destination from the search overlay: close the search and open the More page with the destination pushed.
+    fun openFromSearch(dest: MoreDest) {
+        searchOpen = false
+        if (dest == MoreDest.Settings) {
+            settingsOpen = true
+        } else {
+            // Push the destination onto the More nav stack before opening More.
+            val routes = if (moreNavStack.isEmpty()) "" else moreNavStack + ","
+            moreNavStack = "$routes d:${dest.name}"
+            moreOpen = true
+        }
+    }
+
+    fun openSettingsPageFromSearch(page: ForgeSettingsPage) {
+        searchOpen = false
+        settingsOpen = true
+        settingsPageStack = page
+    }
+
     ForgeOverlayHost {
         androidx.compose.runtime.CompositionLocalProvider(
             LocalForgeOpenMore provides (if (ForgeDesign.preview) ({ moreOpen = true }) else null),
             LocalForgeOpenSettings provides (if (ForgeDesign.preview) ({ settingsOpen = true }) else null),
+            LocalForgeOpenSearch provides (if (ForgeDesign.preview) ({ searchOpen = true }) else null),
             // The tabs lie under the More page while it is open.
             LocalForgeCovered provides (LocalForgeCovered.current || (moreOpen && ForgeDesign.preview))) {
         ForgeShell { tab, padding, width ->
@@ -93,12 +117,24 @@ fun ForgeRoot(viewModel: AppViewModel) {
             exit = androidx.compose.animation.slideOutHorizontally { it } + androidx.compose.animation.fadeOut()) {
             ForgeMoreOverlay(viewModel, onDismiss = { moreOpen = false })
         }
-        // The profile photo's Settings; its search field opens the one search on the More page, as iOS's does.
+        // The profile photo's Settings; its search field opens the one search, as iOS's does.
         if (settingsOpen && ForgeDesign.preview) {
             ForgeOverlayPage(onDismiss = { settingsOpen = false }) {
                 ForgeSettings(viewModel, onClose = { settingsOpen = false },
-                              onSearch = { settingsOpen = false; ForgeDesign.focusSearch = true; moreOpen = true })
+                              initialPage = settingsPageStack,
+                              onSearch = { settingsOpen = false; ForgeDesign.focusSearch = true; searchOpen = true })
             }
+        }
+        // The dedicated search overlay, opened from a tab header's magnifier.
+        androidx.compose.animation.AnimatedVisibility(searchOpen && ForgeDesign.preview,
+            enter = androidx.compose.animation.fadeIn(),
+            exit = androidx.compose.animation.fadeOut()) {
+            ForgeSearchOverlay(
+                viewModel = viewModel,
+                onDismiss = { searchOpen = false },
+                onOpenDest = { openFromSearch(it) },
+                onOpenSettingsPage = { openSettingsPageFromSearch(it) },
+            )
         }
         // In the new design the coach has its own place while it is on (`ForgeTab.Coach`: a button beside the bar, a
         // rail entry on wide windows), as on iOS; the floating button is for the shipped tabs and a coach that is off.

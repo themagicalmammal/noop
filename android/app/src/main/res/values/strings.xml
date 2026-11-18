@@ -6339,6 +6339,9 @@
     <string name="forge_search_recent">Recent</string>
     <string name="forge_search_clear">Clear</string>
     <string name="forge_search_screens">Screens</string>
+    <string name="forge_search_title">Search</string>
+    <string name="forge_search_hint">Search for a metric like HRV, a screen like Workouts, or a setting like the alarm.</string>
+    <string name="forge_search_nothing_found">Nothing found for "%s"</string>
     <string name="forge_so_strength">Strength</string>
     <string name="forge_so_recent">Recent</string>
     <string name="forge_so_sets">sets</string>
