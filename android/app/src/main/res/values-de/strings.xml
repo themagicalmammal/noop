@@ -3668,6 +3668,9 @@
     <string name="forge_session_hr_note">Im Zeitfenster dieser Sitzung aufgezeichnet. Fehlende Messungen bleiben als Lücken sichtbar.</string>
     <string name="forge_session_log">Aus deinem Log</string>
     <string name="forge_session_minutes_seconds">%1$d min %2$02d s</string>
+    <string name="forge_session_muscle_counts">Sätze pro Muskel</string>
+    <string name="forge_session_muscle_counts_note">Jeder Satz zählt für den primären Muskel voll und für jeden sekundären Muskel mit der Hälfte — die Fraktionalmethode, die die Dosis-Wirkungsforschung verwendet.</string>
+    <string name="forge_session_muscle_counts_subtitle">Diese Einheit · geschätzt</string>
     <string name="forge_session_no_hr">Für diese Sitzung sind keine Herzfrequenzmessungen vorhanden.</string>
     <string name="forge_session_notes">Notiz zur Einheit</string>
     <string name="forge_session_perception">Deine Wahrnehmung</string>
