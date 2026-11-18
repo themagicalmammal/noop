@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
     <string name="app_name">NOOP Forge</string>
     <string name="widget_description">Today\'s Rest, Charge and Effort, with live heart rate and strap battery at a glance.</string>
@@ -11,9 +11,7 @@
     <string name="widget_compact_description">Compact Rest, Charge and Effort widget, with live heart rate and strap battery.</string>
     <string name="widget_error">NOOP widget couldn\'t draw — it will recover on the next update.</string>
 
-    <!-- Navigation: bottom-bar tabs, the More page rows, and the top-bar screen titles. These are the
-         localized display labels for the Destination enum; the underlying route ids stay English and
-         are never translated. -->
+    
     <string name="nav_today">Today</string>
     <string name="nav_intelligence">Intelligence</string>
     <string name="nav_coupled_view">Coupled view</string>
@@ -140,21 +138,19 @@
     <string name="push_endpoint_error_http_requires_local">Plain HTTP requires a numeric local or private IP address.</string>
     <string name="push_error_enqueue_failed">Push could not be queued.</string>
 
-    <!-- More-page section headers (DISPLAY only; the stored expand/collapse key stays the English
-         literal in MoreSectionPrefs so persistence and iOS parity are unaffected). -->
+    
     <string name="more_group_insights">Insights</string>
     <string name="more_group_body">Body</string>
     <string name="more_group_data">Data</string>
     <string name="more_group_app">App</string>
 
-    <!-- Quick actions on the centre action button. -->
+    
     <string name="action_live_hr">Live HR</string>
     <string name="action_start_workout">Start workout</string>
     <string name="action_log_journal">Log journal</string>
     <string name="action_breathe">Breathe</string>
 
-    <!-- Today screen: header of the workouts feed. Renamed from "Last Workouts" ("Last" read as
-         "final", #34/#53 follow-up); wording mirrored on iOS in Localizable.xcstrings. -->
+    
     <string name="today_latest_workouts">Latest Workouts</string>
     <string name="today_customize_title">Customize Today</string>
     <string name="today_customize_action">Customize</string>
@@ -172,9 +168,7 @@
     <string name="today_customize_hide">Hide %1$s</string>
     <string name="today_customize_show">Show %1$s</string>
 
-    <!-- First-run Terms gate (clickwrap). Moved out of TermsGate.kt string literals so the gate is
-         localizable (PR #984); English wording kept byte-identical to the macOS/iOS `Terms.points` /
-         `TermsGateView`. The binding text is TERMS.md — bump Terms.CURRENT_VERSION on material change. -->
+    
     <string name="terms_title">Before you use NOOP</string>
     <string name="terms_subtitle">Please read the points below, then confirm each statement.</string>
     <string name="terms_point_independent_head">Independent: not affiliated with WHOOP</string>
@@ -188,8 +182,7 @@
     <string name="terms_point_warranty_head">No warranty; liability limited</string>
     <string name="terms_point_warranty_body">NOOP is free and provided \"as is\", with no warranty. Liability is limited to the maximum extent the law that applies to you allows, and nothing here removes protections your local law won\'t let us remove.</string>
     <string name="terms_footer">The full terms are in TERMS.md, shipped with NOOP. This is not legal advice.</string>
-    <!-- Affirmative attestations: each is a SEPARATE tick, all required before Accept enables. English is
-         the binding wording (mirrors macOS `Terms.attestations`); TERMS.md is the full text. -->
+    
     <string name="terms_attest_head">Please confirm each of these:</string>
     <string name="terms_attest_not_affiliated">I am not a WHOOP employee, contractor, or affiliate, and I am not using NOOP on WHOOP\'s behalf.</string>
     <string name="terms_attest_own_device">I own the WHOOP device I will use with NOOP and will only use it to access my own data. Doing so is my decision and my risk, including any effect on my WHOOP account, subscription, device, or warranty, and it may breach WHOOP\'s Terms of Service.</string>
@@ -198,9 +191,7 @@
     <string name="terms_checkbox">I have read and accept these terms, and I\'m using NOOP with my own device and my own data, at my own risk.</string>
     <string name="terms_accept">Accept &amp; Continue</string>
 
-    <!-- Trends / Explore / Deep Timeline (#448, completed by #453): these screens originally used
-         hardcoded English throughout. Direct Compose copy and data-driven MetricSpec/TimelineMetric
-         labels now live in resources; German wording follows the Apple catalogs where available. -->
+    
     <string name="trends_subtitle">The thread of you over time.</string>
     <string name="trends_trailing">Trailing</string>
     <string name="trends_trailing_days">Trailing %1$d days</string>
@@ -275,7 +266,7 @@
     <string name="timeline_nothing_offloaded">Nothing offloaded for this window yet.</string>
     <string name="timeline_other_sources_no_offload">Other sources don\'t offload raw per-second data on-device.</string>
 
-    <!-- Power saving (#477) -->
+    
     <string name="fast_link_phy">Faster Bluetooth link (experimental)</string>
     <string name="fast_link_phy_desc">Ask for a faster Bluetooth radio mode while your strap hands over its stored history. Sends the same data in less airtime, so it may sync sooner and use a little less strap battery — but your strap has to support it, and it trades some range for speed. New and unproven: if syncing gets flaky when your phone is further away, turn it back off.</string>
     <string name="fast_history_sync">Faster history sync (experimental)</string>
@@ -290,7 +281,7 @@
     <string name="power_saving_hrv_pause">Pause HRV capture</string>
     <string name="power_saving_hrv_pause_desc">While your strap\'s battery is low, stop the always-on background HRV stream — the biggest continuous drain on the strap. A Live screen still shows heart rate, and it re-arms automatically once the strap is charged.</string>
 
-    <!-- #453 generated Compose literal migration -->
+    
     <string name="l10n_add_device_wizard_0123456789abcdef0123456789abcdef_b1775a78">0123456789abcdef0123456789abcdef</string>
     <string name="l10n_add_device_wizard_a_whoop_strap_bonds_to_a_d39bdf4a">A WHOOP strap bonds to a single device. While it\'s connected to NOOP it won\'t stream to the official WHOOP app, and the other way round. It\'s reversible: pair it in the other app whenever you want it back.</string>
     <string name="l10n_add_device_wizard_add_61cc55aa">Add</string>
@@ -1218,7 +1209,7 @@
     <string name="l10n_workouts_screen_workout_actions_88be5c37">Workout actions</string>
     <string name="l10n_workouts_screen_workouts_ccb58b22">Workouts</string>
 
-    <!-- #453 generated Compose literal migration -->
+    
     <string name="l10n_add_device_wizard_back_b52b36b7">Back</string>
     <string name="l10n_add_device_wizard_cancel_77dfd213">Cancel</string>
     <string name="l10n_add_device_wizard_close_bbfa773e">Close</string>
@@ -1901,14 +1892,14 @@
     <string name="l10n_weekly_digest_card_sleep_steadiness_rest_varied_fmt1_sd_44997f21">Sleep steadiness: Rest varied ±%1$s pts night to night.</string>
     <string name="l10n_wheel_picker_accessibility_tap_to_choose_1314c4ed">%1$s. Tap to choose.</string>
     <string name="l10n_workouts_screen_minutes_total_100_roundtoint_5bb7c6d8">%1$s%%</string>
-    <!-- #453 manually migrated complex Kotlin templates. -->
+    
     <string name="intervals_range_step">%1$s – %2$s%3$s · step %4$d</string>
     <string name="live_workout_saved_summary">✓ %1$s saved · %2$s</string>
     <string name="skin_temp_reason_summary">%1$s: %2$s</string>
     <string name="stress_score_accessibility">Stress %1$s of 3, %2$s</string>
     <string name="stress_peak_summary">peak %1$s · %2$s</string>
     <string name="today_load_ratio">load %1$s</string>
-    <!-- #453 data-driven metric labels that do not appear directly in Compose calls. -->
+    
     <string name="timeline_metric_heart_rate">Heart Rate</string>
     <string name="timeline_metric_rmssd">rMSSD (5 min)</string>
     <string name="timeline_metric_spo2">SpO₂</string>
@@ -1988,17 +1979,13 @@
         <item quantity="other">Longest: %1$d days</item>
     </plurals>
 
-    <!-- Escalation battery alerts (critical SoC crossing + bedtime night-guard). The strap stops
-         recording near 10% SoC, so the 15% low alert on its own leaves no second warning before the
-         data stops. Twin of the Swift BatteryNotifier copy. -->
+    
     <string name="battery_critical_title">Charge your WHOOP now</string>
     <string name="battery_critical_body">%1$d%% left. The strap stops recording near 10%% — it won\'t capture tonight unless you charge it.</string>
     <string name="battery_bedtime_title">Won\'t last the night</string>
     <string name="battery_bedtime_body">%1$s of recording left, but tonight needs about %2$s. Charge before bed.</string>
 
-    <!-- #867: the three older battery notifications, previously raw Kotlin literals in
-         BatteryAlertNotifier and therefore English in every locale. Wording and translations are the
-         Apple catalog's, moved across unchanged. -->
+    
     <string name="battery_runtime_title">Strap battery low</string>
     <string name="battery_runtime_body">%1$s left on your WHOOP — recharge tonight.</string>
     <string name="battery_stale_title">WHOOP last seen low</string>
@@ -2008,11 +1995,7 @@
     <string name="battery_full_title">Strap fully charged</string>
     <string name="battery_full_body">Your WHOOP is at 100%.</string>
 
-    <!-- Foreground-service notification (WhoopConnectionService). Always on screen while the strap is
-         connected, and hardcoded English until now: com/noop/ble is outside i18n_audit.py's scan roots,
-         and a NotificationCompat builder chain matches none of its Compose patterns, so the gate could
-         not see it. postNotification's dedupe key now includes the locale — without that, these would
-         keep the previous language until the connection or battery state happened to change. -->
+    
     <string name="fgs_title_reconnecting">Reconnecting to your WHOOP…</string>
     <string name="fgs_title_syncing">Syncing strap history…</string>
     <string name="fgs_title_connected">Connected to your WHOOP</string>
@@ -2024,8 +2007,7 @@
     <string name="fgs_channel_name">Strap connection</string>
     <string name="fgs_channel_desc">Shown while NOOP keeps your WHOOP connected in the background.</string>
 
-    <!-- The remaining notifier titles/bodies, surfaced by extending i18n_audit.py to the
-         notification builders. Same defect as the block above: user-visible, never localised. -->
+    
     <string name="illness_alert_title">Early warning: take it easy</string>
     <string name="illness_alert_window">Nights: %1$s, %2$s</string>
     <string name="inactivity_title">Move reminder</string>
@@ -2033,7 +2015,7 @@
     <string name="smart_alarm_body">Your smart alarm just went off.</string>
     <string name="battery_channel_name">Battery alerts</string>
     <string name="battery_channel_desc">Alerts when the strap battery is low or fully charged.</string>
-    <!-- K5: scheduled Coach morning-brief notification. -->
+    
     <string name="coach_brief_channel_name">Coach morning brief</string>
     <string name="coach_brief_channel_desc">Today\'s coaching brief, generated on-device at your chosen time.</string>
     <string name="coach_brief_title">Today\'s coaching brief</string>
@@ -2054,7 +2036,7 @@
     <string name="l10n_settings_screen_r22_accepted_all">✓ Strap accepted all %1$d R22 flags</string>
     <string name="l10n_settings_screen_r22_accepted_partial">Strap accepted %1$d/%2$d R22 flags…</string>
     <string name="l10n_app_changelog_water_and_caffeine_from_apple_health_5123b6b0">Water and caffeine from Apple Health, a sharper Effort score, and an Oura resting-heart-rate fix</string>
-    <!-- First-run onboarding copy. Kept in resources so every visible setup string is localizable. -->
+    
     <string name="onboarding_cta_begin">Begin</string>
     <string name="onboarding_cta_continue">Continue</string>
     <string name="onboarding_cta_save_continue">Save &amp; continue</string>
@@ -2169,7 +2151,7 @@
     <string name="settings_chart_classic">Classic</string>
     <string name="settings_trend_line">Line</string>
     <string name="settings_trend_bars">Bars</string>
-    <!-- #103/queue-11a: Blood Oxygen tile captions for the experimental strap estimate (WHOOP @82 or Oura ceiling@100). -->
+    
     <string name="spo2_strap_estimate_caption">strap estimate (unverified)</string>
     <string name="spo2_toggle_on_no_data">toggle ON · no estimate yet</string>
     <string name="l10n_devices_screen_forget_device_d6eb6209">Forget device…</string>
@@ -2222,7 +2204,7 @@
     <string name="l10n_health_screen_fix_in_settings_d7472915">Fix in Settings</string>
     <string name="l10n_app_changelog_personalized_heart_rate_zones_compare_and_8d89ee2a">Personalized heart-rate zones, compare and switch between straps, and more honest HRV, sleep and Oura reads</string>
     <string name="l10n_breathe_screen_elapsed_target_b1c2d3e4">%1$s / %2$s</string>
-    <!-- breath protocol catalog (generated) -->
+    
     <string name="breath_presence_intro_title">The Presence Process</string>
     <string name="breath_presence_intro_body">Consciously Connected Breathing (CCB): inhale and exhale in one continuous loop with no hold at the top or bottom. Find a comfortable rhythm — connectedness matters more than intensity. Typical practice is about 15 minutes, twice daily. Regular is the sustainable starter tempo; Mid is a quicker start for later rounds; Punching Through is only when you need to push through drowsiness or stuckness (not a beginner default).</string>
     <string name="breath_stage_belly_in">Belly in</string>
@@ -2332,9 +2314,9 @@
     <string name="breath_proto_presence_punching_edu">Punching Through (~1.9s / 1.9s) is for sleepiness or feeling stuck — not the beginner default. After you are “in it”, you may return to a slower, deeper connected breath.</string>
     <string name="breath_proto_presence_punching_session_hint">Up to 15 minutes; ease off if strained.</string>
     <string name="breath_proto_presence_punching_caution">Not recommended as a beginner default unless the goal is to overcome drowsiness.</string>
-    <!-- /breath protocol catalog -->
+    
     <string name="l10n_breathe_screen_calm_me_a1b2c3d4">Calm me</string>
-    <!-- Home/Today localization boundary: semantic helpers resolve these at the Compose edge. -->
+    
     <string name="today_section_hero">Charge / Effort / Rest</string>
     <string name="today_section_live_session">Start session</string>
     <string name="today_section_synthesis">Synthesis</string>
@@ -2802,8 +2784,7 @@
     <string name="l10n_settings_screen_bar_transparency_3f648fbb">Bar transparency</string>
     <string name="l10n_settings_screen_how_see_through_the_bar_is_ddb0c208">How see-through the bar is. The faintest step still shows its rim, so it can always be found.</string>
 
-    <!-- Coach screen: clear-conversation dialog, morning-brief settings, message actions, and
-         voice input. Externalized from CoachScreen.kt / CoachViewModel.kt hardcoded literals. -->
+    
     <string name="coach_clear_conversation_confirm">Clear conversation?</string>
     <string name="coach_clear_conversation_message">This deletes the saved conversation from this device. Coach history is your own notes, not medical advice.</string>
     <string name="coach_clear_action">Clear</string>
@@ -2834,7 +2815,7 @@
     <string name="coach_brief_widget_empty">No brief yet</string>
     <string name="coach_brief_widget_enable">Enable Morning Brief in Coach settings to see today\'s readiness here.</string>
 
-    <!-- K4: voice input error messages (CoachVoiceInput.mapError). -->
+    
     <string name="coach_voice_error_no_speech">No speech was heard.</string>
     <string name="coach_voice_error_audio">Audio recording failed.</string>
     <string name="coach_voice_error_busy">Speech recognizer is busy. Try again.</string>
@@ -2900,7 +2881,7 @@
     <string name="l10n_settings_screen_bold_19e07430">Bold</string>
     <string name="l10n_settings_screen_softer_9edfeba1">Softer</string>
     <string name="oura_notify_mask_full_title">Oura notification mask ff (experimental)</string>
-    <string name="oura_notify_mask_full_desc">Sends the official app’s SetNotification mask (1c 01 ff) instead of NOOP’s 3f at the next connect. The ring packs ~10 packets per notification for the official app and one for NOOP (9× slower drains); this is the first candidate switch. Off by default; the next connect after turning it off is back on 3f. Watch the strap log for “-> notify_all(ff)” and compare notification sizes in the raw capture.</string>
+    <string name="oura_notify_mask_full_desc">Sends the official app’s SetNotification mask (1c 01 ff) instead of NOOP’s 3f at the next connect. The ring packs ~10 packets per notification for the official app and one for NOOP (9× slower drains); this is the first candidate switch. Off by default; the next connect after turning it off is back on 3f. Watch the strap log for “-&gt; notify_all(ff)” and compare notification sizes in the raw capture.</string>
     <string name="data_sources_whoop_live_subtitle">Pairs directly with your strap over Bluetooth: no WHOOP app, no cloud. The strap can also advertise its heart rate as a standard Bluetooth sensor.</string>
     <string name="data_sources_band_broadcast_description">Broadcasts the strap\'s own live heart rate over Bluetooth for Garmin, Zwift or gym equipment.</string>
     <string name="whoop4_direct_broadcast_explainer">Your WHOOP 4.0 can broadcast heart rate directly. Open Data Sources and use “Broadcast heart rate from the strap” for Zwift, Peloton, Garmin or gym equipment. You can alternatively use “Broadcast HR from this phone” when needed.</string>
@@ -3054,11 +3035,19 @@
     <string name="forge_settings_group_strap">Strap &amp; Devices</string>
     <string name="forge_settings_group_training">Training &amp; Everyday</string>
     <string name="forge_settings_group_data">Data</string>
-    <string name="forge_settings_strap_subtitle">Connection, background and strap log</string>
-    <string name="forge_settings_battery">Battery &amp; Recording</string>
-    <string name="forge_settings_battery_subtitle">Power saving when the battery runs low</string>
-    <string name="forge_settings_actions">Strap Actions</string>
-    <string name="forge_settings_actions_subtitle">Double-tap, buzzes and reminders</string>
+    <string name="forge_settings_strap_subtitle">Name, reconnecting, step estimate, heart-rate sharing</string>
+    <string name="forge_settings_battery">Recording and battery</string>
+    <string name="forge_settings_battery_subtitle">Continuous HRV and power saving</string>
+    <string name="forge_settings_actions">Double-tap and buzz</string>
+    <string name="forge_settings_actions_subtitle">What a double-tap does, vibration and heart-rate alerts</string>
+    <string name="forge_strap_hub_row_title">Connection, steps and sharing</string>
+    <string name="forge_strap_hub_row_subtitle">Name, reconnecting, step estimate, heart-rate sharing</string>
+    <string name="forge_battery_row_title">Recording and battery</string>
+    <string name="forge_battery_row_subtitle">Continuous HRV and power saving</string>
+    <string name="forge_actions_row_title">Double-tap and buzz</string>
+    <string name="forge_actions_row_subtitle">What a double-tap does, vibration and heart-rate alerts</string>
+    <string name="forge_devices_row_title">Devices</string>
+    <string name="forge_devices_row_subtitle">Pair, find or restart the strap, other devices</string>
     <string name="forge_settings_notifications">Notifications</string>
     <string name="forge_settings_notifications_subtitle">Wrist alerts, calls and daily reports</string>
     <string name="forge_settings_coach">AI Coach</string>
@@ -5210,7 +5199,7 @@
         <item quantity="other">%1$d exercises</item>
     </plurals>
     <string name="forge_lw_when">%1$s %2$s · %3$s</string>
-    <!-- Fork (DX23876), decision 2026-11-08: the food log (ForgeFood.kt, ForgeFoodScan.kt). -->
+    
     <string name="food_title">Nutrition</string>
     <string name="food_log_food">Log food</string>
     <string name="food_add">Add food</string>
@@ -5457,7 +5446,7 @@
     <string name="food_kcal_eaten_short">kcal eaten</string>
     <string name="food_eaten_label">Eaten</string>
     <string name="food_meals">Meals</string>
-    <!-- Food week, score, as usual, evening sentence (2026-11-08) -->
+    
     <string name="food_lab">Lab</string>
     <string name="food_score_title">Nutrition score</string>
     <string name="food_score_note">A score for the last seven days from a widely used healthy eating index: vegetables, fruit, whole grains, nuts and pulses, fish, fats, salt, sweet drinks, red meat and alcohol. It needs five logged days of seven. It describes habits, not a single day.</string>
@@ -5511,7 +5500,7 @@
     <string name="food_score_adds">Adds points</string>
     <string name="food_score_costs">Costs points</string>
     <string name="food_score_costs_note">These start at full points and lose them as the amount rises.</string>
-    <!-- Diet planner (2026-11-09) -->
+    
     <string name="diet_plan_your_diet">Plan your diet</string>
     <string name="diet_plan">Plan</string>
     <string name="diet_plan_line_empty">Goal, pace, way of eating and a forecast</string>
@@ -6329,8 +6318,18 @@
     <string name="forge_set_how_scores">How NOOP scores</string>
     <string name="forge_set_how_scores_detail">The three scores explained, and your own model</string>
     <string name="forge_set_done">Done</string>
-    <string name="forge_set_devices_sources_detail">Health Connect, imports, other devices</string>
+    <string name="forge_set_devices_sources_detail">Pair, find or restart the strap, other devices</string>
     <string name="forge_search_metrics">Metrics</string>
+    <string name="forge_ds_devices_title">Devices</string>
+    <string name="forge_ds_devices_subtitle">Strap, chest strap, ring, Apple Watch</string>
+    <string name="forge_ds_data_sources_title">Data sources</string>
+    <string name="forge_ds_data_sources_subtitle">Imports, exports and connected apps</string>
+    <string name="forge_ds_apple_health_title">Apple Health</string>
+    <string name="forge_ds_apple_health_subtitle">Sync, history and permissions</string>
+    <string name="forge_ds_mi_band_title">Mi Band</string>
+    <string name="forge_ds_mi_band_subtitle">Imported history</string>
+    <string name="forge_ds_values_by_source_title">Values by source</string>
+    <string name="forge_ds_values_by_source_subtitle">Which device each of today\'s values comes from</string>
     <string name="forge_strap_hub_detail">Connection, steps and sharing, recording and battery, double-tap and buzz</string>
     <string name="forge_device_row_title">Your strap</string>
     <string name="forge_device_connect_hint">Connect the strap to see its status</string>
@@ -6860,7 +6859,7 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="cx_pair_replaces_on">Your WHOOP entry and its history carry over to this strap.</string>
     <string name="cx_pair_replaces_off">This strap gets its own entry, for example a second person\'s strap.</string>
 
-    <!-- Training plans: the plan list, a plan's page, the builder and the ready-made plans. -->
+    
     <string name="forge_plan_rows_sub">Several plans, one at a time</string>
     <string name="forge_plan_plans">Plans</string>
     <string name="forge_plan_unnamed">My plan</string>
@@ -6947,7 +6946,7 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="forge_plan_block_weight_step">A weight step each week</string>
     <string name="forge_plan_block_one_more_set">A set more each week</string>
 
-    <!-- The routine editor: sets, rests, progression and supersets. -->
+    
     <string name="forge_routine_edit">Edit routine</string>
     <string name="forge_routine_goes_into">Goes into %1$s.</string>
     <string name="forge_routine_rest_short">%1$d s rest</string>

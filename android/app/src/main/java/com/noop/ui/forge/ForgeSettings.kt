@@ -130,6 +130,9 @@ import com.noop.core.CoreShadow
 import com.noop.push.SelfHostedPushScreen
 import com.noop.ui.AppViewModel
 import com.noop.ui.AutomationsScreen
+import com.noop.ui.AppleHealthScreen
+import com.noop.ui.DevicesScreen
+import com.noop.ui.FusedRecordRoute
 import com.noop.ui.CardAppearance
 import com.noop.ui.BackupSyncScreen
 import com.noop.ui.ClassicSettingsCard
@@ -279,6 +282,10 @@ enum class ForgeSettingsSub(val titleRes: Int, val cards: Set<ClassicSettingsCar
     ProjectWishes(R.string.project_card_wishes_title),
     RawDonation(R.string.donation_title, closes = false),
     AllSettings(R.string.forge_settings_all),
+    Devices(R.string.forge_ds_devices_title),
+    AppleHealth(R.string.forge_ds_apple_health_title),
+    MiBand(R.string.forge_ds_mi_band_title),
+    ValuesBySource(R.string.forge_ds_values_by_source_title),
 }
 
 /** One step of the Settings stack: a hub page or a screen below it. */
@@ -720,6 +727,10 @@ private fun SubScreen(sub: ForgeSettingsSub, viewModel: AppViewModel, onBack: ()
         ForgeSettingsSub.WhatsNew -> Hosted(stringResource(sub.titleRes), onBack) { WhatsNewSheet(onClose = onBack) }
         ForgeSettingsSub.BackupSync -> Hosted(stringResource(sub.titleRes), onBack) { BackupSyncScreen() }
         ForgeSettingsSub.DataSources -> Hosted(stringResource(sub.titleRes), onBack) { DataSourcesScreen(viewModel) }
+        ForgeSettingsSub.Devices -> Hosted(stringResource(sub.titleRes), onBack) { DevicesScreen(viewModel) }
+        ForgeSettingsSub.AppleHealth -> Hosted(stringResource(sub.titleRes), onBack) { AppleHealthScreen(viewModel) }
+        ForgeSettingsSub.MiBand -> Hosted(stringResource(sub.titleRes), onBack) { DataSourcesScreen(viewModel) }
+        ForgeSettingsSub.ValuesBySource -> Hosted(stringResource(sub.titleRes), onBack) { FusedRecordRoute(viewModel) }
         ForgeSettingsSub.SelfHostedPush -> Hosted(stringResource(sub.titleRes), onBack) { SelfHostedPushScreen() }
         ForgeSettingsSub.Limitations -> Hosted(stringResource(sub.titleRes), onBack) { NoopLimitationsScreen() }
         ForgeSettingsSub.TestCentre -> Hosted(stringResource(sub.titleRes), onBack) { TestCentreScreen(viewModel) }

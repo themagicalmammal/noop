@@ -15,6 +15,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Battery5Bar
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Watch
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.rounded.DeviceHub
 import androidx.compose.material.icons.rounded.SettingsInputAntenna
 import androidx.compose.material.icons.rounded.Sensors
@@ -92,24 +95,24 @@ internal fun ForgeStrapHubPage(
         HubRow(
             Icons.Rounded.SettingsInputAntenna,
             ForgeTokens.Color.systemGreen.resolve(),
-            stringResource(R.string.l10n_settings_screen_strap_02b88eeb),
-            stringResource(R.string.forge_settings_strap_subtitle),
+            stringResource(R.string.forge_strap_hub_row_title),
+            stringResource(R.string.forge_strap_hub_row_subtitle),
             onClick = { onOpenPage(ForgeSettingsPage.Strap) }
         )
         HubDivider()
         HubRow(
             Icons.Rounded.Battery5Bar,
             ForgeTokens.Color.systemGreen.resolve(),
-            stringResource(R.string.forge_settings_battery),
-            stringResource(R.string.forge_settings_battery_subtitle),
+            stringResource(R.string.forge_battery_row_title),
+            stringResource(R.string.forge_battery_row_subtitle),
             onClick = { onOpenPage(ForgeSettingsPage.BatteryRecording) }
         )
         HubDivider()
         HubRow(
             Icons.Rounded.TouchApp,
             ForgeTokens.Color.systemOrange.resolve(),
-            stringResource(R.string.forge_settings_actions),
-            stringResource(R.string.forge_settings_actions_subtitle),
+            stringResource(R.string.forge_actions_row_title),
+            stringResource(R.string.forge_actions_row_subtitle),
             onClick = { onOpenPage(ForgeSettingsPage.StrapActions) }
         )
     }
@@ -118,8 +121,8 @@ internal fun ForgeStrapHubPage(
         HubRow(
             Icons.Rounded.DeviceHub,
             ForgeTokens.Color.systemIndigo.resolve(),
-            stringResource(R.string.forge_set_devices_sources),
-            stringResource(R.string.forge_set_devices_sources_detail),
+            stringResource(R.string.forge_devices_row_title),
+            stringResource(R.string.forge_devices_row_subtitle),
             onClick = { onOpenSub(ForgeSettingsSub.DataSources) }
         )
     }
@@ -127,7 +130,7 @@ internal fun ForgeStrapHubPage(
 
 /**
  * The grouped Devices and data sources page: everything that feeds NOOP, and which source each of
- * today's values uses.
+ * today's values uses. Matches iOS `ForgeDevicesSourcesView`.
  */
 @Composable
 internal fun ForgeDevicesSourcesPage(
@@ -152,9 +155,43 @@ internal fun ForgeDevicesSourcesPage(
         HubRow(
             Icons.Rounded.DeviceHub,
             ForgeTokens.Color.systemIndigo.resolve(),
-            stringResource(R.string.nav_data_sources),
-            stringResource(R.string.forge_settings_data_sources_detail),
+            stringResource(R.string.forge_ds_devices_title),
+            stringResource(R.string.forge_ds_devices_subtitle),
+            onClick = { onOpenSub(ForgeSettingsSub.Devices) }
+        )
+        HubDivider()
+        HubRow(
+            Icons.Rounded.DeviceHub,
+            ForgeTokens.Color.systemIndigo.resolve(),
+            stringResource(R.string.forge_ds_data_sources_title),
+            stringResource(R.string.forge_ds_data_sources_subtitle),
             onClick = { onOpenSub(ForgeSettingsSub.DataSources) }
+        )
+        HubDivider()
+        HubRow(
+            Icons.Rounded.Favorite,
+            ForgeTokens.Color.systemRed.resolve(),
+            stringResource(R.string.forge_ds_apple_health_title),
+            stringResource(R.string.forge_ds_apple_health_subtitle),
+            onClick = { onOpenSub(ForgeSettingsSub.AppleHealth) }
+        )
+        HubDivider()
+        HubRow(
+            Icons.Rounded.Watch,
+            ForgeTokens.Color.systemBlue.resolve(),
+            stringResource(R.string.forge_ds_mi_band_title),
+            stringResource(R.string.forge_ds_mi_band_subtitle),
+            onClick = { onOpenSub(ForgeSettingsSub.MiBand) }
+        )
+    }
+
+    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
+        HubRow(
+            Icons.Rounded.Layers,
+            ForgeTokens.Color.systemPurple.resolve(),
+            stringResource(R.string.forge_ds_values_by_source_title),
+            stringResource(R.string.forge_ds_values_by_source_subtitle),
+            onClick = { onOpenSub(ForgeSettingsSub.ValuesBySource) }
         )
     }
 
@@ -269,4 +306,10 @@ internal fun StepsSourcePicker(initial: String, onChange: (String) -> Unit) {
             }
         }
     }
+    Text(
+        stringResource(R.string.forge_steps_auto_note),
+        style = Forge.type.caption,
+        color = colors.textSecondary,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+    )
 }
