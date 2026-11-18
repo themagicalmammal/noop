@@ -199,8 +199,8 @@ fun ScoringGuideScreen(
         FooterNote()
     }
     HostedSheet(scroll, body) {
-        Surface(modifier = Modifier.fillMaxSize(), color = Palette.surfaceBase) {
-            Column(modifier = Modifier.fillMaxSize()) {
+        Surface(modifier = Modifier.fillMaxWidth(), color = Palette.surfaceBase) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 // Design Reset: a FLAT opaque WHOOP-grey title surface — no scenic hero, no bloom, no
                 // domain tint. The header reads as a clean raised card edge, matching the Today look.
                 Box(modifier = Modifier.background(Palette.surfaceRaised)) {
@@ -210,12 +210,10 @@ fun ScoringGuideScreen(
 
                 Column(
                     modifier = Modifier
-                        .weight(1f)
                         .fillMaxWidth()
                         .onGloballyPositioned {
                             if (viewportTop == null) viewportTop = it.positionInRoot().y.toInt()
                         }
-                        .verticalScroll(scroll)
                         .padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(Metrics.sectionGap),
                 ) {
