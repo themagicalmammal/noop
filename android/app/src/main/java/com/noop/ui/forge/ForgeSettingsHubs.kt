@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Battery5Bar
 import androidx.compose.material.icons.rounded.Check
@@ -54,85 +52,74 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 internal fun ForgeStrapHubPage(
-    onBack: () -> Unit,
     onOpenPage: (ForgeSettingsPage) -> Unit,
     onOpenSub: (ForgeSettingsSub) -> Unit,
 ) {
     val colors = Forge.colors
 
-    Column(
-        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 32.dp),
+    // Device row: shows the active strap's connection state, opens Data Sources
+    Row(
+        Modifier.fillMaxWidth()
+            .clickable(role = Role.Button, onClick = { onOpenSub(ForgeSettingsSub.DataSources) })
+            .background(colors.surface, RoundedCornerShape(ForgeMetrics.groupedRadius))
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        PageTitle(stringResource(R.string.l10n_settings_screen_strap_02b88eeb), onBack)
-
-        // Device row: shows the active strap's connection state, opens Data Sources
-        Row(
-            Modifier.fillMaxWidth()
-                .clickable(role = Role.Button, onClick = { onOpenSub(ForgeSettingsSub.DataSources) })
-                .background(colors.surface, RoundedCornerShape(ForgeMetrics.groupedRadius))
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                Icons.Rounded.Sensors,
-                contentDescription = null,
-                tint = colors.textSecondary,
-                modifier = Modifier.size(36.dp)
+        Icon(
+            Icons.Rounded.Sensors,
+            contentDescription = null,
+            tint = colors.textSecondary,
+            modifier = Modifier.size(36.dp)
+        )
+        Column(Modifier.weight(1f)) {
+            Text(
+                stringResource(R.string.forge_device_row_title),
+                style = Forge.type.title2,
+                color = colors.text
             )
-            Column(Modifier.weight(1f)) {
-                Text(
-                    stringResource(R.string.forge_device_row_title),
-                    style = Forge.type.title2,
-                    color = colors.text
-                )
-                Text(
-                    stringResource(R.string.forge_device_connect_hint),
-                    style = Forge.type.caption,
-                    color = colors.textSecondary
-                )
-            }
-        }
-
-        Column(Modifier.padding(top = 14.dp)) {
-            ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
-                HubRow(
-                    Icons.Rounded.SettingsInputAntenna,
-                    ForgeTokens.Color.systemGreen.resolve(),
-                    stringResource(R.string.l10n_settings_screen_strap_02b88eeb),
-                    stringResource(R.string.forge_settings_strap_subtitle),
-                    onClick = { onOpenPage(ForgeSettingsPage.Strap) }
-                )
-                HubDivider()
-                HubRow(
-                    Icons.Rounded.Battery5Bar,
-                    ForgeTokens.Color.systemGreen.resolve(),
-                    stringResource(R.string.forge_settings_battery),
-                    stringResource(R.string.forge_settings_battery_subtitle),
-                    onClick = { onOpenPage(ForgeSettingsPage.BatteryRecording) }
-                )
-                HubDivider()
-                HubRow(
-                    Icons.Rounded.TouchApp,
-                    ForgeTokens.Color.systemOrange.resolve(),
-                    stringResource(R.string.forge_settings_actions),
-                    stringResource(R.string.forge_settings_actions_subtitle),
-                    onClick = { onOpenPage(ForgeSettingsPage.StrapActions) }
-                )
-            }
-        }
-
-        Spacer(Modifier.height(14.dp))
-
-        ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
-            HubRow(
-                Icons.Rounded.DeviceHub,
-                ForgeTokens.Color.systemIndigo.resolve(),
-                stringResource(R.string.forge_set_devices_sources),
-                stringResource(R.string.forge_set_devices_sources_detail),
-                onClick = { onOpenSub(ForgeSettingsSub.DataSources) }
+            Text(
+                stringResource(R.string.forge_device_connect_hint),
+                style = Forge.type.caption,
+                color = colors.textSecondary
             )
         }
+    }
+
+    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
+        HubRow(
+            Icons.Rounded.SettingsInputAntenna,
+            ForgeTokens.Color.systemGreen.resolve(),
+            stringResource(R.string.l10n_settings_screen_strap_02b88eeb),
+            stringResource(R.string.forge_settings_strap_subtitle),
+            onClick = { onOpenPage(ForgeSettingsPage.Strap) }
+        )
+        HubDivider()
+        HubRow(
+            Icons.Rounded.Battery5Bar,
+            ForgeTokens.Color.systemGreen.resolve(),
+            stringResource(R.string.forge_settings_battery),
+            stringResource(R.string.forge_settings_battery_subtitle),
+            onClick = { onOpenPage(ForgeSettingsPage.BatteryRecording) }
+        )
+        HubDivider()
+        HubRow(
+            Icons.Rounded.TouchApp,
+            ForgeTokens.Color.systemOrange.resolve(),
+            stringResource(R.string.forge_settings_actions),
+            stringResource(R.string.forge_settings_actions_subtitle),
+            onClick = { onOpenPage(ForgeSettingsPage.StrapActions) }
+        )
+    }
+
+    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
+        HubRow(
+            Icons.Rounded.DeviceHub,
+            ForgeTokens.Color.systemIndigo.resolve(),
+            stringResource(R.string.forge_set_devices_sources),
+            stringResource(R.string.forge_set_devices_sources_detail),
+            onClick = { onOpenSub(ForgeSettingsSub.DataSources) }
+        )
     }
 }
 
@@ -142,13 +129,10 @@ internal fun ForgeStrapHubPage(
  */
 @Composable
 internal fun ForgeDevicesSourcesPage(
-    onBack: () -> Unit,
-    onOpenPage: (ForgeSettingsPage) -> Unit,
     onOpenSub: (ForgeSettingsSub) -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val colors = Forge.colors
     var stepsSource: String by remember { mutableStateOf("automatic") }
 
     LaunchedEffect(Unit) {
@@ -162,37 +146,29 @@ internal fun ForgeDevicesSourcesPage(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 32.dp),
-    ) {
-        PageTitle(stringResource(R.string.forge_set_devices_sources), onBack)
+    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
+        HubRow(
+            Icons.Rounded.DeviceHub,
+            ForgeTokens.Color.systemIndigo.resolve(),
+            stringResource(R.string.nav_data_sources),
+            stringResource(R.string.forge_settings_data_sources_detail),
+            onClick = { onOpenSub(ForgeSettingsSub.DataSources) }
+        )
+    }
 
-        ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
-            HubRow(
-                Icons.Rounded.DeviceHub,
-                ForgeTokens.Color.systemIndigo.resolve(),
-                stringResource(R.string.nav_data_sources),
-                stringResource(R.string.forge_settings_data_sources_detail),
-                onClick = { onOpenSub(ForgeSettingsSub.DataSources) }
-            )
-        }
-
-        Spacer(Modifier.height(14.dp))
-
-        // Steps source picker: where daily steps come from
-        StepsSourcePicker(initial = stepsSource, onChange = { key ->
-            scope.launch {
-                withContext(Dispatchers.IO) {
-                    try {
-                        CoreRead.open(context)
-                        CorePrefs.setStepsSource(context, key)
-                    } catch (e: Exception) {
-                        // Ignore
-                    }
+    // Steps source picker: where daily steps come from
+    StepsSourcePicker(initial = stepsSource, onChange = { key ->
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    CoreRead.open(context)
+                    CorePrefs.setStepsSource(context, key)
+                } catch (e: Exception) {
+                    // Ignore
                 }
             }
-        })
-    }
+        }
+    })
 }
 
 /**
@@ -206,44 +182,38 @@ internal fun ForgeHowScoresPage(
     val colors = Forge.colors
     var part: Int by remember { mutableStateOf(0) }
 
-    Column(
-        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+    // Segmented tabs: Explained / Your model
+    Row(
+        Modifier.background(colors.inset, RoundedCornerShape(10.dp)).padding(2.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        PageTitle(stringResource(R.string.forge_set_how_scores), onBack)
-
-        // Segmented tabs: Explained / Your model
-        Row(
-            Modifier.background(colors.inset, RoundedCornerShape(10.dp)).padding(2.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            val labels = listOf(
-                stringResource(R.string.forge_how_scores_explained),
-                stringResource(R.string.forge_how_scores_your_model),
+        val labels = listOf(
+            stringResource(R.string.forge_how_scores_explained),
+            stringResource(R.string.forge_how_scores_your_model),
+        )
+        labels.forEachIndexed { index, label ->
+            val chosen = index == part
+            Text(
+                label,
+                style = Forge.type.footnote,
+                color = if (chosen) colors.text else colors.textSecondary,
+                maxLines = 1,
+                modifier = Modifier
+                    .background(if (chosen) colors.surface else colors.inset, RoundedCornerShape(8.dp))
+                    .clickable(role = Role.RadioButton) { part = index }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             )
-            labels.forEachIndexed { index, label ->
-                val chosen = index == part
-                Text(
-                    label,
-                    style = Forge.type.footnote,
-                    color = if (chosen) colors.text else colors.textSecondary,
-                    maxLines = 1,
-                    modifier = Modifier
-                        .background(if (chosen) colors.surface else colors.inset, RoundedCornerShape(8.dp))
-                        .clickable(role = Role.RadioButton) { part = index }
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-            }
         }
+    }
 
-        Spacer(Modifier.height(16.dp))
+    Spacer(Modifier.height(ForgeMetrics.space2))
 
-        if (part == 0) {
-            // Explained: the Scoring Guide
-            com.noop.ui.ScoringGuideScreen(onClose = onBack)
-        } else {
-            // Your model: the Intelligence screen
-            com.noop.ui.IntelligenceScreen(viewModel)
-        }
+    if (part == 0) {
+        // Explained: the Scoring Guide
+        com.noop.ui.ScoringGuideScreen(onClose = onBack)
+    } else {
+        // Your model: the Intelligence screen
+        com.noop.ui.IntelligenceScreen(viewModel)
     }
 }
 

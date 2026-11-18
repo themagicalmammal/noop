@@ -533,13 +533,10 @@ private fun Page(page: ForgeSettingsPage, viewModel: AppViewModel, onBack: () ->
                 ForgeSettingsPage.Lab -> LabSection(viewModel, onOpen)
                 ForgeSettingsPage.About -> AboutSection(onOpen)
                 ForgeSettingsPage.StrapHub -> ForgeStrapHubPage(
-                    onBack = onBack,
                     onOpenPage = onOpenPage,
                     onOpenSub = onOpen
                 )
                 ForgeSettingsPage.DevicesSources -> ForgeDevicesSourcesPage(
-                    onBack = onBack,
-                    onOpenPage = onOpenPage,
                     onOpenSub = onOpen
                 )
                 ForgeSettingsPage.HowScores -> ForgeHowScoresPage(
