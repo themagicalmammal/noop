@@ -3705,6 +3705,9 @@
     <string name="forge_session_set_rpe">Set RPE %1$s</string>
     <string name="forge_session_superset">Superset</string>
     <string name="forge_session_title">Session details</string>
+    <string name="forge_session_muscle_counts">Sets per muscle</string>
+    <string name="forge_session_muscle_counts_subtitle">This session · estimated</string>
+    <string name="forge_session_muscle_counts_note">Each set credits its primary muscle in full and each secondary at half, the fractional method the dose-response research uses.</string>
     <string name="forge_session_unmapped">Not in the exercise catalogue — its sets count, its muscles cannot</string>
     <string name="forge_session_what">What you did</string>
     <string name="forge_session_whole_rpe">Whole-session RPE</string>
