@@ -3,6 +3,7 @@ package com.noop.ui.forge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -212,8 +213,15 @@ internal fun ForgeHowScoresPage(
         // Explained: the Scoring Guide
         com.noop.ui.ScoringGuideScreen(onClose = onBack)
     } else {
-        // Your model: the Intelligence screen
-        com.noop.ui.IntelligenceScreen(viewModel)
+        // Your model: the Intelligence screen, wrapped in a bounded box so its LazyColumn
+        // does not receive infinite height constraints from the scrollable SettingsColumn.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(800.dp)
+        ) {
+            com.noop.ui.IntelligenceScreen(viewModel)
+        }
     }
 }
 
