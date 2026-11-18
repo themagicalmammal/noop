@@ -204,7 +204,7 @@ fun ScoringGuideScreen(
     // Embedded mode: the Forge HowScores page embeds this directly under its own tabs (as iOS does).
     // No beige canvas of its own, no "Got it" footer — the host draws nothing behind it.
     if (embedded) {
-        Column(Modifier.fillMaxSize().verticalScroll(scroll)) {
+        Column(Modifier.fillMaxWidth()) {
             Header(onClose = onClose)
             Hairline()
             Column(
