@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.noop.R
 import com.noop.core.CorePrefs
 import com.noop.core.CoreRead
+import com.noop.ui.HostedPalette
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -182,7 +183,9 @@ internal fun ForgeHowScoresPage(
 ) {
     val colors = Forge.colors
     var part: Int by remember { mutableStateOf(0) }
+    val tokens = remember(colors) { hostedTokens(colors) }
 
+    HostedPalette(tokens, colors.dark) {
     // Segmented tabs: Explained / Your model
     Row(
         Modifier.background(colors.inset, RoundedCornerShape(10.dp)).padding(2.dp),
@@ -211,7 +214,7 @@ internal fun ForgeHowScoresPage(
 
     if (part == 0) {
         // Explained: the Scoring Guide
-        com.noop.ui.ScoringGuideScreen(onClose = onBack)
+        com.noop.ui.ScoringGuideScreen(onClose = onBack, embedded = true)
     } else {
         // Your model: the Intelligence screen, wrapped in a bounded box so its LazyColumn
         // does not receive infinite height constraints from the scrollable SettingsColumn.
@@ -222,6 +225,7 @@ internal fun ForgeHowScoresPage(
         ) {
             com.noop.ui.IntelligenceScreen(viewModel)
         }
+    }
     }
 }
 
