@@ -161,7 +161,14 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
             }
         }
         // The first vital outside the range, told in a card of its own under the chips, as iOS's `offRangeCard`.
-        scored.firstOrNull { it.banding.band == VitalBands.Band.OUT_OF_RANGE }?.let { OffRangeCard(it) }
+        // Coach chips inside the off-range card, as iOS's  draws them when the coach is on.
+        val coachOn = NoopPrefs.coachEnabled(context) && com.noop.ai.AiKeyStore.readConsent(context)
+        scored.firstOrNull { it.banding.band == VitalBands.Band.OUT_OF_RANGE }?.let { v ->
+            OffRangeCard(v, coachOn) { prompt ->
+                com.noop.ui.CoachHandoff.pendingPrompt = prompt
+                selectTab(ForgeTab.Coach)
+            }
+        }
 
         // Vitals with "Edit", as iOS: the tiles the wearer keeps, in their order, two or three to a row.
         Row(verticalAlignment = Alignment.Bottom) {
@@ -416,7 +423,7 @@ private fun RangeChip(v: Vital) {
 
 /** A vital outside the wearer's range: which, last night's figure with the yardstick's word, and its course. */
 @Composable
-private fun OffRangeCard(v: Vital) {
+private fun OffRangeCard(v: Vital, coachOn: Boolean, onAsk: (String) -> Unit) {
     val colors = Forge.colors
     val state = stringResource(if (v.banding.basis == VitalBands.Basis.PERSONAL) R.string.forge_h_off_baseline
                                else R.string.forge_h_off_typical)
@@ -445,6 +452,18 @@ private fun OffRangeCard(v: Vital) {
         if (v.sparkline.size > 1) {
             Spacer(Modifier.height(ForgeMetrics.space3))
             Sparkline(v.sparkline, color = colors.effort)
+        }
+        // The coach's quick questions, as iOS's offRangeCard chips: cause, then whether to rest.
+        if (coachOn) {
+            Spacer(Modifier.height(ForgeMetrics.space3))
+            val causeTitle = stringResource(R.string.forge_h_off_cause)
+            val restTitle = stringResource(R.string.forge_h_off_rest)
+            val causePrompt = stringResource(R.string.forge_h_off_cause_prompt, v.label)
+            val restPrompt = stringResource(R.string.forge_h_off_rest_prompt, v.label)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ForgeChip(causeTitle) { onAsk(causePrompt) }
+                ForgeChip(restTitle) { onAsk(restPrompt) }
+            }
         }
     }
 }

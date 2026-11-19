@@ -396,3 +396,20 @@ internal fun ForgeDirection(delta: Int) {
         Text(stringResource(word), style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = tint, maxLines = 1)
     }
 }
+
+/** iOS `ForgeChip`: a capsule button with optional icon and prominence, as the coach chips and prompts draw them. */
+@Composable
+internal fun ForgeChip(title: String, onClick: () -> Unit) {
+    val colors = Forge.colors
+    Box(
+        Modifier.clickable(role = Role.Button, onClick = onClick)
+            .background(colors.inset, androidx.compose.foundation.shape.RoundedCornerShape(50))
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+
+            Text(title, style = Forge.type.subhead.copy(fontWeight = FontWeight.Medium), color = colors.text, maxLines = 1)
+        }
+    }
+}
