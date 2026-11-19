@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -90,7 +92,11 @@ internal fun ForgeWeekPlanPage(viewModel: AppViewModel, onBack: () -> Unit, onSc
         return coach + routines
     }
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_tr_week_plan), onBack)
+        PageTitle(stringResource(R.string.forge_tr_week_plan), onBack, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.CalendarMonth, accentAIcon = Icons.Rounded.Check,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.Color.systemBlue.resolve(), size = 56,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         // Effort per day: filled for what was done, dashed for a day still to come with a target.
         ForgeCard(Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.Bottom) {
