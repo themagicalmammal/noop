@@ -22,6 +22,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.automirrored.rounded.DirectionsRun
+import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -94,7 +97,11 @@ internal fun ForgeWorkoutsPage(viewModel: AppViewModel, onBack: () -> Unit) {
     var detail by remember { mutableStateOf<WorkoutRow?>(null) }
     BackHandler(onBack = onBack)
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_wk_title), onBack)
+        PageTitle(stringResource(R.string.forge_wk_title), onBack, trailing = {
+            CoachPicture(mainIcon = Icons.AutoMirrored.Rounded.DirectionsRun, accentAIcon = Icons.Rounded.LocalFireDepartment,
+                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.effort, size = 56,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         Row(horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
             ActionChip(Icons.Rounded.Add, stringResource(R.string.forge_wk_add), prominent = true) { editing = null to false }
             ActionChip(Icons.Rounded.FilterList, stringResource(R.string.forge_wk_manage), prominent = false, onClick = onManage)
