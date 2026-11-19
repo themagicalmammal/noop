@@ -6518,6 +6518,8 @@
     <string name="forge_ex_in_how_regular">How regular</string>
     <string name="forge_ex_in_deep_rem">Deep and REM</string>
     <string name="forge_ch_calibrating">Calibrating</string>
+    <string name="forge_ch_night_to_go">1 night to go</string>
+    <string name="forge_ch_nights_to_go">%1$d nights to go</string>
     <string name="forge_ch_building">Still building</string>
     <string name="forge_ch_reliable">Reliable</string>
     <string name="forge_ch_target">Today\'s Effort target: %1$s to %2$s.</string>

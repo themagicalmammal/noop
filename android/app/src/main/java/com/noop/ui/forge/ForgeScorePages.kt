@@ -44,6 +44,8 @@ import com.noop.ui.AppViewModel
 import com.noop.ui.EffortScale
 import com.noop.ui.UnitFormatter
 import com.noop.ui.UnitPrefs
+import com.noop.ui.NoopPrefs
+import com.noop.analytics.Baselines
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -373,6 +375,18 @@ internal fun ForgeChargePage(viewModel: AppViewModel, onBack: () -> Unit, onHist
     val baselines = remember(inputs, row) { row?.let { inputs?.resolve(it.day) } }
     val drivers = remember(baselines, row, traits) { com.noop.ui.recoveryChargeDrivers(baselines, row, traits) }
     val tier = remember(baselines, row) { com.noop.ui.chargeConfidenceTier(baselines, row) }
+    // The nights remaining while the baseline is still learning, from the same fold the Charge ring rides.
+    val calibNights = remember(recent, row) {
+        if (tier == com.noop.analytics.ScoreConfidence.CALIBRATING) {
+            val hrvEpoch = NoopPrefs.of(context).getLong(Baselines.hrvBaselineEpochKey, 0L).toDouble()
+            com.noop.ui.recoveryCalibrationNights(
+                recent.map { it.avgHrv }, recent.map { it.day },
+                row?.recovery != null, hrvEpoch
+            )
+        } else {
+            null
+        }
+    }
     // Each driver's usual range from the 30 nights before the shown one, placed by the shared core.
     val ranges by produceState(emptyMap<com.noop.analytics.ChargeDriverLabel, com.noop.core.CoreChargeRange.Range>(), row, recent) {
         value = withContext(Dispatchers.IO) {
@@ -463,6 +477,15 @@ internal fun ForgeChargePage(viewModel: AppViewModel, onBack: () -> Unit, onHist
                     WhyRow(driverLabel(d.label), value, d.deltaPoints.coerceIn(-1, 1), usual,
                            range?.let { it.position to null }, range?.let { it.bandLow..it.bandHigh })
                 }
+            }
+        } else if (tier == com.noop.analytics.ScoreConfidence.CALIBRATING && calibNights != null) {
+            Column(Modifier.padding(horizontal = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(R.string.forge_ch_calibrating),
+                     style = Forge.type.subhead.copy(fontWeight = FontWeight.Medium), color = Forge.sceneInk.secondary)
+                val nights = calibNights.coerceAtLeast(0)
+                Text(if (nights == 1) stringResource(R.string.forge_ch_night_to_go)
+                     else stringResource(R.string.forge_ch_nights_to_go, nights),
+                     style = Forge.type.title2.copy(fontWeight = FontWeight.Bold), color = Forge.sceneInk.text)
             }
         }
         // While the coach is on, the one question iOS offers here.
