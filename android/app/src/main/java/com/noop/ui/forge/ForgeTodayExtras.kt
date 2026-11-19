@@ -259,21 +259,27 @@ private fun LatestWorkoutCard(workouts: List<com.noop.data.WorkoutRow>) {
             val locale = java.util.Locale.getDefault()
             val day = start.format(java.time.format.DateTimeFormatter.ofPattern(
                 android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMM"), locale))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(40.dp).background(forgeSportTint(row.sport), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
-                    Icon(com.noop.ui.sportIcon(row.sport), contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-                }
-                Spacer(Modifier.width(ForgeMetrics.space3))
-                Column(Modifier.weight(1f)) {
-                    Text(com.noop.ui.WorkoutEditing.displaySport(row.sport), style = Forge.type.headline, color = colors.text, maxLines = 1)
-                    Text(stringResource(R.string.forge_lw_when, day, clockText(row.startTs), stringResource(R.string.forge_tw_min, minutes)),
-                         style = Forge.type.caption, color = colors.textSecondary, maxLines = 1)
-                }
-                row.strain?.let { e ->
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(effortFormat(e), style = Forge.type.title2, color = colors.text)
-                        Text(stringResource(R.string.forge_effort), style = Forge.type.caption, color = colors.textSecondary)
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(40.dp).background(forgeSportTint(row.sport), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                        Icon(com.noop.ui.sportIcon(row.sport), contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
                     }
+                    Spacer(Modifier.width(ForgeMetrics.space3))
+                    Column(Modifier.weight(1f)) {
+                        Text(com.noop.ui.WorkoutEditing.displaySport(row.sport), style = Forge.type.headline, color = colors.text, maxLines = 1)
+                        Text(stringResource(R.string.forge_lw_when, day, clockText(row.startTs), stringResource(R.string.forge_tw_min, minutes)),
+                             style = Forge.type.caption, color = colors.textSecondary, maxLines = 1)
+                    }
+                    row.strain?.let { e ->
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(effortFormat(e), style = Forge.type.title2, color = colors.text)
+                            Text(stringResource(R.string.forge_effort), style = Forge.type.caption, color = colors.textSecondary)
+                        }
+                    }
+                }
+                // Where the effort went: the heart-rate zones of the session, when it stored them.
+                com.noop.ui.parseZonePercents(row.zonesJSON)?.let { zones ->
+                    ForgeZoneBar(zones, (row.durationS ?: (row.endTs - row.startTs).coerceAtLeast(0).toDouble()) / 60.0)
                 }
             }
         }

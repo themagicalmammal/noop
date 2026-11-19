@@ -70,6 +70,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.noop.ui.CardAppearance
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.fillMaxHeight
 
 /**
  * A card as the iOS screens draw it (`NoopCardChrome` with iOS's quiet edges and quiet rims): an opaque raised
@@ -412,4 +414,38 @@ internal fun ForgeChip(title: String, onClick: () -> Unit) {
             Text(title, style = Forge.type.subhead.copy(fontWeight = FontWeight.Medium), color = colors.text, maxLines = 1)
         }
     }
+}
+
+
+
+/** iOS `ForgeZoneBar`: heart-rate zones of a session as one bar with each zone's name and minutes underneath. */
+@Composable
+internal fun ForgeZoneBar(percents: List<Double>, minutes: Double) {
+    val colors = Forge.colors
+    val total = maxOf(percents.sum(), 1.0)
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(Modifier.fillMaxWidth().height(7.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            percents.forEachIndexed { i, p ->
+                Box(Modifier.weight(((p / total)).toFloat().coerceAtLeast(0.01f)).fillMaxHeight()
+                    .background(com.noop.ui.Palette.hrZoneColor(i + 1), RoundedCornerShape(50)))
+            }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            percents.forEachIndexed { i, p ->
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                    Text(ctx.getString(zoneStringRes(i + 1)), style = Forge.type.caption.copy(fontSize = 9.sp), color = colors.textSecondary, maxLines = 1)
+                    Text(((minutes * p / total)).toInt().toString(), style = Forge.type.caption.copy(fontWeight = FontWeight.Medium), color = colors.textSecondary)
+                }
+            }
+        }
+    }
+}
+
+private fun zoneStringRes(zone: Int): Int = when (zone) {
+    1 -> R.string.lw_zn_recovery
+    2 -> R.string.lw_zn_fatburn
+    3 -> R.string.lw_zn_aerobic
+    4 -> R.string.lw_zn_threshold
+    else -> R.string.lw_zn_max
 }

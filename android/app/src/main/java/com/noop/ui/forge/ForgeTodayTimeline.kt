@@ -415,9 +415,16 @@ private fun WorkoutEntry(row: WorkoutRow) {
         add(stringResource(R.string.forge_timeline_minutes, minutes))
         row.distanceM?.takeIf { it > 0 }?.let { add(UnitFormatter.distanceFromMeters(it, system)) }
     }.joinToString(" · ")
-    // Its sport's own symbol and colour, as iOS's `workoutCard`.
-    FactRow(com.noop.ui.sportIcon(row.sport), forgeSportTint(row.sport), WorkoutEditing.displaySport(row.sport), detail,
-            row.strain?.let { UnitFormatter.effortDisplay(it, scale).removeSuffix(".0") }, stringResource(R.string.forge_effort))
+    val minutesDouble = row.durationS ?: (row.endTs - row.startTs).toDouble()
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        // Its sport's own symbol and colour, as iOS's `workoutCard`.
+        FactRow(com.noop.ui.sportIcon(row.sport), forgeSportTint(row.sport), WorkoutEditing.displaySport(row.sport), detail,
+                row.strain?.let { UnitFormatter.effortDisplay(it, scale).removeSuffix(".0") }, stringResource(R.string.forge_effort))
+        // Where the effort went: the heart-rate zones of the session, when it stored them.
+        com.noop.ui.parseZonePercents(row.zonesJSON)?.let { zones ->
+            ForgeZoneBar(zones, minutesDouble / 60.0)
+        }
+    }
 }
 
 @Composable
