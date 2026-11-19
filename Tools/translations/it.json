@@ -4748,5 +4748,20 @@
   "Being worked on.": "In lavorazione.",
   "Fixed.": "Risolto.",
   "Not planned.": "Non in programma.",
-  "The plan could not be read, or there is none right now.": "Il piano non è stato letto, oppure al momento non ce n'è uno."
+  "The plan could not be read, or there is none right now.": "Il piano non è stato letto, oppure al momento non ce n'è uno.",
+  "The report arrived. The log did not: it was too large, or the service refused it.": "La segnalazione è arrivata, il registro no: era troppo grande, oppure il servizio l'ha rifiutato.",
+  "Answers to my reports": "Risposte alle mie segnalazioni",
+  "A notice when a problem you reported is answered or fixed.": "Un avviso quando un problema che hai segnalato riceve risposta o viene risolto.",
+  "The developer answered you.": "Lo sviluppatore ti ha risposto.",
+  "It is fixed.": "È risolto.",
+  "Somebody is working on it.": "Ci sta lavorando qualcuno.",
+  "It will not be changed.": "Non verrà cambiato.",
+  "It has been read.": "È stato letto.",
+  "A picture, if it helps": "Un'immagine, se aiuta",
+  "Add a picture": "Aggiungi un'immagine",
+  "A screenshot of what went wrong says more than a log": "Una schermata di ciò che non ha funzionato dice più di un registro",
+  "Remove the picture": "Rimuovi l'immagine",
+  "Those weeks met your plan for %@, or came close.": "Quelle settimane hanno rispettato il tuo piano per %@, o ci sono andate vicino.",
+  "4.0, unconfirmed on real hardware": "4.0, non confermato su hardware reale",
+  "The strap keeps reporting a different time than NOOP sends, so its firmware alarm won't fire at your wake time — usually a strap whose clock or alarm has reset. Restart the strap from Devices, or fully charge it and reconnect; keep your phone's Clock alarm as your wake until it takes.": "La fascia continua a segnalare un orario diverso da quello inviato da NOOP, quindi la sveglia del firmware non suonerà al tuo orario di sveglia, di solito si tratta di una fascia il cui orologio o la cui sveglia si sono reimpostati. Riavvia la fascia da Dispositivi, oppure caricala completamente e ricollegala; usa la sveglia dell'app Orologio del telefono finché non funziona."
 }

@@ -32,6 +32,9 @@ struct LiftSessionDetailSheet: View {
     @State private var loaded = false
     @State private var confirmingDelete = false
     @State private var deleting = false
+    /// The store refused the deletion. The sheet stays open, because closing on it would say the
+    /// session is gone while the list it came from still has it.
+    @State private var deleteRefused = false
     @State private var editing = false
     /// Session RPE as stored now. The edit sheet can correct it, and the session load must follow.
     @State private var sessionRpe: Double?
@@ -92,17 +95,28 @@ struct LiftSessionDetailSheet: View {
     /// session the user just said did not happen — which is worse than not being able to delete at
     /// all, because it would look like the delete worked.
     private var deleteSection: some View {
-        Button(role: .destructive) {
-            confirmingDelete = true
-        } label: {
-            Label("Delete session", systemImage: "trash")
-                .frame(maxWidth: .infinity)
+        VStack(spacing: NoopMetrics.space2) {
+            Button(role: .destructive) {
+                confirmingDelete = true
+            } label: {
+                Label("Delete session", systemImage: "trash")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.plain)
+            .font(StrandFont.body)
+            .foregroundStyle(StrandPalette.statusCritical)
+            .padding(.top, NoopMetrics.gap)
+            .disabled(deleting)
+            // In the stack rather than floating under the button: an overlay drew it over whatever
+            // came next, and a line nobody can read is the same as no line.
+            if deleteRefused {
+                Text("That was not deleted. The session is still here; try again.")
+                    .font(StrandFont.footnote)
+                    .foregroundStyle(StrandPalette.statusWarningForeground)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
-        .buttonStyle(.plain)
-        .font(StrandFont.body)
-        .foregroundStyle(StrandPalette.statusCritical)
-        .padding(.top, NoopMetrics.gap)
-        .disabled(deleting)
         .confirmationDialog("Delete this session?",
                             isPresented: $confirmingDelete, titleVisibility: .visible) {
             Button("Delete", role: .destructive) { Task { await deleteSession() } }
@@ -117,7 +131,10 @@ struct LiftSessionDetailSheet: View {
         deleting = true
         defer { deleting = false }
 
-        _ = try? await store.deleteLiftSession(id: session.id)   // cascades to its sets
+        guard (try? await store.deleteLiftSession(id: session.id)) != nil else {   // cascades to its sets
+            deleteRefused = true
+            return
+        }
         if let workout { await repo.deleteWorkout(workout) }
 
         await onChanged()

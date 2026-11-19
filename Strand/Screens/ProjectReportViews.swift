@@ -1,6 +1,9 @@
 import SwiftUI
 import StrandCore
 import StrandDesign
+#if os(iOS)
+import PhotosUI
+#endif
 
 // ProjectReportViews.swift — reporting a problem from inside the app, and following what became of it.
 //
@@ -25,7 +28,19 @@ final class ProjectReportModel: ObservableObject {
     @Published var sentCode: String?
     @Published var sentWithoutThread = false
     @Published var failed = false
+    /// The report went, the log did not. Said out loud rather than left to be noticed: the wearer saw
+    /// the whole bundle and pressed send with it, so silence here would be the screen quietly dropping
+    /// the half they looked hardest at.
+    @Published var logFailed = false
     @Published var mine: [ProjectReportStore.Entry] = []
+    /// The assembled bundle, waiting for the wearer to confirm or refuse it. Here rather than in the
+    /// view: a pushed screen's `@State` does not survive its parent re-rendering, and this one has to
+    /// outlive exactly that.
+    @Published var staged: ReportReviewGate?
+    @Published var isPreparing = false
+    /// A picture the wearer chose, already scaled and compressed. Most of what gets reported is seen
+    /// rather than described, and a log says nothing about a wrong label or a chart drawn badly.
+    @Published var picture: Data?
 
     private let store = ProjectReportStore.standard
     private var service: ProjectService?
@@ -53,12 +68,18 @@ final class ProjectReportModel: ObservableObject {
         guard let service else { return }
         isSending = true
         failed = false
-        let result = await service.report(text: draft, wantsThread: wantsThread)
+        logFailed = false
+        let result = await service.report(text: draft, wantsThread: wantsThread,
+                                          language: ProjectReportModel.language())
         switch result {
         case .sent(let code):
             if let code {
                 store.add(.init(code: code, title: ProjectReportModel.firstLine(draft), sent: Date()))
-                if let log { _ = await service.sendLog(code: code, data: log) }
+                if let log {
+                    if case .sent = await service.sendLog(code: code, data: log) {} else {
+                        logFailed = true
+                    }
+                }
                 sentCode = code
             } else {
                 sentWithoutThread = true
@@ -71,15 +92,36 @@ final class ProjectReportModel: ObservableObject {
         isSending = false
     }
 
+    /// Everything that belongs to ONE report, cleared. The model outlives the screen on purpose, which
+    /// is what kept the review sheet alive, but it means the last report's confirmation, its code and
+    /// its picture would otherwise greet whoever opens the form again, and the picture would ride out
+    /// on the next one.
+    func startFresh() {
+        sentCode = nil
+        sentWithoutThread = false
+        failed = false
+        logFailed = false
+        picture = nil
+        staged = nil
+        isPreparing = false
+    }
+
     func forget(code: String) {
         store.remove(code: code)
         mine = store.all()
     }
 
     /// Taking a report back: the log is deleted on the service, then it leaves this device's list.
-    func withdraw(code: String) async {
-        guard let service else { return }
-        if case .sent = await service.withdraw(code: code) { forget(code: code) }
+    /// Returns whether the service agreed. It has to: the row is only gone if the log is gone, and a
+    /// screen that closes on a refusal tells somebody their report was withdrawn when it was not.
+    @discardableResult
+    func withdraw(code: String) async -> Bool {
+        guard let service else { return false }
+        if case .sent = await service.withdraw(code: code) {
+            forget(code: code)
+            return true
+        }
+        return false
     }
 
     func thread(code: String) async -> ProjectThread? {
@@ -109,6 +151,18 @@ final class ProjectReportModel: ObservableObject {
         mine = store.all()
     }
 
+    /// The language the app talks to this person in. `AppLanguage` is what they chose in Settings; only
+    /// when they left it on System does the phone's own language decide. Taking the phone's language
+    /// outright is how an answer comes back in a language somebody does not read: the owner's own first
+    /// report arrived marked `en` from a phone set to English, written in German.
+    static func language() -> String {
+        let chosen = UserDefaults.standard.string(forKey: AppLanguage.storageKey)
+        if let chosen, let language = AppLanguage(rawValue: chosen), language != .system {
+            return language.rawValue
+        }
+        return ProjectService.currentLanguage
+    }
+
     static func firstLine(_ text: String) -> String {
         let line = text.split(separator: "\n").first.map(String.init) ?? text
         return String(line.trimmingCharacters(in: .whitespaces).prefix(80))
@@ -118,12 +172,16 @@ final class ProjectReportModel: ObservableObject {
 /// The form: what happened, whether questions may come back, and whether the log rides along.
 struct ReportProblemView: View {
     @ObservedObject var model: ProjectReportModel
+    #if os(iOS)
+    @State private var picked: PhotosPickerItem?
+    #endif
+    /// This screen's own first appearance. A new push gets a new one, which is exactly when the last
+    /// report's leftovers have to go; after sending, the same instance keeps showing its card.
+    @State private var opened = false
     @EnvironmentObject private var app: AppModel
     @EnvironmentObject private var live: LiveState
     @Environment(\.dismiss) private var dismiss
 
-    @State private var gate: ReportReviewGate?
-    @State private var showingReview = false
 
     var body: some View {
         ScreenScaffold(title: "Report a problem",
@@ -143,11 +201,28 @@ struct ReportProblemView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingReview) {
-            if let gate {
+        // Driven off the model, so the sheet cannot be lost when this screen is rebuilt.
+        .task {
+            guard !opened else { return }
+            opened = true
+            model.startFresh()
+        }
+        .onChangeCompat(of: model.wantsThread) { wants in
+            // Switching questions off takes the log and the picture with it, visibly, rather than
+            // leaving them on the screen to be dropped at the end.
+            model.attachLog = wants
+            if !wants { model.picture = nil }
+        }
+        .sheet(isPresented: Binding(get: { model.staged != nil },
+                                    set: { if !$0 { model.staged = nil } })) {
+            if let gate = model.staged {
                 ReportLogReviewSheet(gate: gate) { confirmed in
-                    showingReview = false
-                    Task { await model.send(log: confirmed ? ReportProblemView.zip(gate.entries) : nil) }
+                    let entries = gate.entries
+                    model.staged = nil
+                    Task {
+                        let log = confirmed ? await ReportProblemView.zipOffMain(entries) : nil
+                        await model.send(log: log)
+                    }
                 }
             }
         }
@@ -165,19 +240,26 @@ struct ReportProblemView: View {
                     .foregroundStyle(StrandPalette.textTertiary)
             }
 
+            // A log and a picture are both filed under the code, and without questions back there is
+            // no code. So they are not offered then: the earlier screen took them, showed the whole
+            // bundle, and dropped it on send, which is the one thing this file promises not to do.
+            if model.wantsThread { pictureCard }
+
             ForgeListGroup("How it is sent") {
                 ForgeToggleRow(title: "Allow questions back",
                                subtitle: "You get a code, and a notification when there is an answer",
                                isOn: $model.wantsThread)
-                Divider().overlay(StrandPalette.hairline)
-                ForgeToggleRow(title: "Attach my log",
-                               subtitle: "You see exactly what it contains before anything is sent",
-                               isOn: $model.attachLog)
+                if model.wantsThread {
+                    Divider().overlay(StrandPalette.hairline)
+                    ForgeToggleRow(title: "Attach my log",
+                                   subtitle: "You see exactly what it contains before anything is sent",
+                                   isOn: $model.attachLog)
+                }
             }
 
             if !model.wantsThread {
                 ForgeListGroup {
-                    Text("Without questions back nothing is stored about this report, and nobody can ask you for the detail that would have made it fixable. Say as much as you can in the text.")
+                    Text("Without questions back nothing is stored about this report, so no log and no picture can travel with it, and nobody can ask you for the detail that would have made it fixable. Say as much as you can in the text.")
                         .font(StrandFont.subhead)
                         .foregroundStyle(StrandPalette.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -185,8 +267,8 @@ struct ReportProblemView: View {
             }
 
             ForgeListGroup {
-                ForgeActionRow(title: model.isSending ? "Sending…" : "Send") { startSending() }
-                    .disabled(!model.canSend)
+                ForgeActionRow(title: sendTitle) { startSending() }
+                    .disabled(!model.canSend || model.isPreparing)
                 if model.failed {
                     Text("That did not go out. Try again later.")
                         .font(StrandFont.caption)
@@ -196,12 +278,82 @@ struct ReportProblemView: View {
         }
     }
 
+    /// Says which of the three things is happening, never the wrong one: preparing the log is not
+    /// sending, and saying "Sending…" while nothing has left would be a line that claims more than
+    /// it observes.
+    private var sendTitle: LocalizedStringKey {
+        if model.isPreparing { return "Preparing…" }
+        return model.isSending ? "Sending…" : "Send"
+    }
+
+    /// Choosing a picture. The system's own picker, so the app needs no access to the photo library
+    /// and sees nothing but the one image that was handed to it.
+    @ViewBuilder
+    private var pictureCard: some View {
+        #if os(iOS)
+        ForgeListGroup("A picture, if it helps") {
+            if let data = model.picture, let image = UIImage(data: data) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 180)
+                    .clipShape(RoundedRectangle(cornerRadius: NoopMetrics.cardRadius,
+                                                style: .continuous))
+                ForgeActionRow(title: "Remove the picture", role: .destructive) {
+                    model.picture = nil
+                    picked = nil
+                }
+            } else {
+                PhotosPicker(selection: $picked, matching: .images, photoLibrary: .shared()) {
+                    ForgeActionLabel(title: "Add a picture",
+                                     subtitle: "A screenshot of what went wrong says more than a log")
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .onChange(of: picked) { _, item in
+            guard let item else { return }
+            Task { @MainActor in
+                guard let raw = try? await item.loadTransferable(type: Data.self) else { return }
+                model.picture = ReportProblemView.scaled(raw)
+            }
+        }
+        #endif
+    }
+
+    /// Scaled to something a report can carry: the long edge at 1600 points and JPEG, which turns a
+    /// twelve-megapixel screenshot into a couple of hundred kilobytes. The ceiling for the whole
+    /// bundle is 4 MiB and the log already fills most of it.
+    static func scaled(_ raw: Data, longEdge: CGFloat = 1600, quality: CGFloat = 0.7) -> Data? {
+        #if os(iOS)
+        guard let image = UIImage(data: raw) else { return nil }
+        let side = max(image.size.width, image.size.height)
+        guard side > longEdge else { return image.jpegData(compressionQuality: quality) ?? raw }
+        let scale = longEdge / side
+        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        let smaller = UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+        return smaller.jpegData(compressionQuality: quality)
+        #else
+        return raw
+        #endif
+    }
+
     private func sentCard(code: String) -> some View {
         ForgeListGroup("Sent") {
             Text("Keep this code. It is the only way back to this report, and it works on any device.")
                 .font(StrandFont.subhead)
                 .foregroundStyle(StrandPalette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
+            if model.logFailed {
+                Text("The report arrived. The log did not: it was too large, or the service refused it.")
+                    .font(StrandFont.subhead)
+                    .foregroundStyle(StrandPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             Text(verbatim: code)
                 .font(StrandFont.title2.monospaced())
                 .foregroundStyle(StrandPalette.textPrimary)
@@ -214,16 +366,74 @@ struct ReportProblemView: View {
     /// With a log: build it, show it, and send only on an explicit press. Without: straight out.
     private func startSending() {
         guard model.attachLog else {
-            Task { await model.send(log: nil) }
+            // A picture without a log is still worth sending, and it needs no probe and no assembler.
+            let picture = model.picture.map {
+                [FileExport.BundleEntry(name: "picture.jpg", data: $0)]
+            }
+            Task {
+                let log = picture == nil ? nil : await ReportProblemView.zipOffMain(picture!)
+                await model.send(log: log)
+            }
             return
         }
+        model.isPreparing = true
         Task { @MainActor in
-            let storage = await TestCentreReport.storageProbe(repo: app.repo, live: live)
-            let model = UserDefaults.standard.string(forKey: "selectedWhoopModel")
-            gate = ReportReviewGate(entries: TestBundleAssembler.assemble(
-                profile: .master, live: live, storage: storage, strapModel: model))
-            showingReview = true
+            let storage = await ReportProblemView.storageWithinReach(repo: app.repo, live: live)
+            let strap = UserDefaults.standard.string(forKey: "selectedWhoopModel")
+            var entries = TestBundleAssembler.assemble(profile: .master, live: live,
+                                                       storage: storage, strapModel: strap)
+            if let picture = model.picture {
+                entries.append(FileExport.BundleEntry(name: "picture.jpg", data: picture))
+            }
+            model.isPreparing = false
+            // Nothing to show means nothing to attach. The report still goes, rather than opening an
+            // empty sheet and asking somebody to confirm a bundle that is not there.
+            guard !entries.isEmpty else {
+                await model.send(log: nil)
+                return
+            }
+            model.staged = ReportReviewGate(entries: entries)
         }
+    }
+
+    /// The storage block: the part that is free always, the part that is expensive only if it is quick.
+    ///
+    /// `storageProbe` does two different things under one name. Reading file sizes is a stat call and
+    /// costs nothing. Counting rows walks every accumulating table, waveform blobs included, which on a
+    /// store with years of history is minutes on the phone. Both hung on the same deadline, so missing
+    /// the deadline threw away the database size too, and that is the number somebody usually wants.
+    ///
+    /// So the sizes are read here and kept whatever happens, and the full probe is raced against a
+    /// deadline on top. Its answer is a superset, so when it arrives it wins. What is not read stays
+    /// zero, which is what meta.json already means by zero: not measured, never a claim that it is
+    /// empty.
+    static func storageWithinReach(repo: Repository?, live: LiveState,
+                                   seconds: Double = 6) async -> TestBundleMeta.Storage? {
+        let quick = ReportProblemView.fileSizesOnly()
+        let full = await withTaskGroup(of: TestBundleMeta.Storage?.self) { group in
+            group.addTask { await TestCentreReport.storageProbe(repo: repo, live: live) }
+            group.addTask {
+                try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                return nil
+            }
+            let first = await group.next() ?? nil
+            group.cancelAll()
+            return first
+        }
+        return full ?? quick
+    }
+
+    /// Database and raw-capture sizes off the filesystem. No query, no scan, no store handle.
+    static func fileSizesOnly() -> TestBundleMeta.Storage? {
+        let fm = FileManager.default
+        var dbBytes = 0
+        if let path = try? StorePaths.defaultDatabasePath() {
+            for suffix in ["", "-wal", "-shm"] {
+                dbBytes += (try? fm.attributesOfItem(atPath: path + suffix))?[.size] as? Int ?? 0
+            }
+        }
+        guard dbBytes > 0 else { return nil }
+        return TestBundleMeta.Storage(dbBytes: dbBytes, rows: [:], rawCaptureBytes: 0, rowBytes: [:])
     }
 
     /// The staged bundle as bytes. Nil when it cannot be written, and then the report goes without it
@@ -233,36 +443,104 @@ struct ReportProblemView: View {
         defer { try? FileManager.default.removeItem(at: url) }
         return try? Data(contentsOf: url)
     }
+
+    /// The same work, off the main actor. Deflating a two-megabyte log and reading it back is long
+    /// enough to be felt on the press, and both callers were `Task { }` inside a view, which inherits
+    /// the main actor. The Android twin wraps the same call in `Dispatchers.IO`.
+    static func zipOffMain(_ entries: [FileExport.BundleEntry]) async -> Data? {
+        await Task.detached(priority: .userInitiated) { ReportProblemView.zip(entries) }.value
+    }
 }
 
-/// The exact bundle, before anything leaves. The same gate the Test Centre share has always used.
+/// The exact bundle, before anything leaves, and this time all of it.
+///
+/// `ReportReviewGate.previewText` stops inlining a file at 1 MiB and names it instead, which is right
+/// for its own sheet: a SwiftUI `Text` of megabytes pins the main thread in glyph layout, and a 12 MB
+/// one once allocated over a gigabyte. But a strap log is two megabytes, so the file the wearer most
+/// needs to see was the one they never saw, under a screen that said they saw everything.
+///
+/// So the text is whole, and it is handed to the platform's own text view, which was built for
+/// exactly this and lays out long documents lazily. Binary entries are still named: there is nothing
+/// to read in a PNG, and the name is the honest statement about it.
 private struct ReportLogReviewSheet: View {
     let gate: ReportReviewGate
     let finish: (Bool) -> Void
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                Text(gate.previewText)
-                    .font(StrandFont.caption.monospaced())
-                    .foregroundStyle(StrandPalette.textSecondary)
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(NoopMetrics.space4)
-            }
-            .background(StrandPalette.surfaceBase.ignoresSafeArea())
-            .navigationTitle("What you are about to send")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Without the log") { finish(false) }
+            ReportBundleText(text: ReportLogReviewSheet.wholeBundle(gate.entries))
+                .background(StrandPalette.surfaceBase.ignoresSafeArea())
+                .navigationTitle("What you are about to send")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Without the log") { finish(false) }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Send with the log") { finish(true) }
+                    }
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Send with the log") { finish(true) }
-                }
-            }
         }
     }
+
+    /// Every text file in full, each under its own header, and the binary ones named. No cap: the cap
+    /// is what hid the log.
+    static func wholeBundle(_ entries: [FileExport.BundleEntry]) -> String {
+        var parts: [String] = []
+        var named: [String] = []
+        for entry in entries {
+            if let text = String(data: entry.data, encoding: .utf8) {
+                parts.append("=== \(entry.name) (\(entry.data.count) bytes) ===\n\(text)")
+            } else {
+                named.append("\(entry.name) (\(entry.data.count) bytes)")
+            }
+        }
+        if !named.isEmpty {
+            parts.append("=== attached, nothing to read in it ===\n" + named.joined(separator: "\n"))
+        }
+        return parts.joined(separator: "\n\n")
+    }
 }
+
+/// The platform's own text view. SwiftUI's `Text` lays a whole string out at once, which is why the
+/// gate caps what it inlines; this one lays out what is on screen.
+private struct ReportBundleText: View {
+    let text: String
+
+    var body: some View {
+        #if os(iOS)
+        ReportBundleTextView(text: text)
+        #else
+        ScrollView {
+            Text(text)
+                .font(StrandFont.caption.monospaced())
+                .foregroundStyle(StrandPalette.textSecondary)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(NoopMetrics.space4)
+        }
+        #endif
+    }
+}
+
+#if os(iOS)
+private struct ReportBundleTextView: UIViewRepresentable {
+    let text: String
+
+    func makeUIView(context: Context) -> UITextView {
+        let view = UITextView()
+        view.isEditable = false
+        view.isSelectable = true
+        view.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
+        view.backgroundColor = .clear
+        view.textContainerInset = UIEdgeInsets(top: 16, left: 12, bottom: 16, right: 12)
+        return view
+    }
+
+    func updateUIView(_ view: UITextView, context: Context) {
+        if view.text != text { view.text = text }
+    }
+}
+#endif
 
 /// What this device has reported, with where each one stands.
 struct MyReportsSection: View {
@@ -292,14 +570,23 @@ struct MyReportsSection: View {
                     NavigationLink {
                         ProjectThreadView(model: model, entry: entry)
                     } label: {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(entry.title)
-                                .font(StrandFont.subhead)
-                                .foregroundStyle(StrandPalette.textPrimary)
-                                .fixedSize(horizontal: false, vertical: true)
-                            Text(ProjectThreadView.statusText(entry.seenStatus))
-                                .font(StrandFont.caption)
+                        // The chevron every other row on these pages has. Without it this one was the
+                        // only thing on the screen that opened something and did not say so.
+                        HStack(spacing: NoopMetrics.space2) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(entry.title)
+                                    .font(StrandFont.subhead)
+                                    .foregroundStyle(StrandPalette.textPrimary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                Text(ProjectThreadView.statusText(entry.seenStatus))
+                                    .font(StrandFont.caption)
+                                    .foregroundStyle(StrandPalette.textTertiary)
+                            }
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right")
+                                .font(StrandFont.caption.weight(.semibold))
                                 .foregroundStyle(StrandPalette.textTertiary)
+                                .accessibilityHidden(true)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .contentShape(Rectangle())
@@ -315,7 +602,11 @@ struct MyReportsSection: View {
         }
         .alert("Your code", isPresented: $showingCodeEntry) {
             codeField
+            // Disabled rather than silent: a mistyped code used to be dropped on the floor, and a
+            // button that does nothing is indistinguishable from an app that is broken.
             Button("Add") { model.adopt(code: typed); typed = "" }
+                .disabled(!ProjectService.isReportCode(typed.uppercased()
+                    .trimmingCharacters(in: .whitespaces)))
             Button("Cancel", role: .cancel) { typed = "" }
         } message: {
             Text("Four groups of four, from the report you sent.")
@@ -330,8 +621,13 @@ struct ProjectThreadView: View {
 
     @State private var thread: ProjectThread?
     @State private var loaded = false
+    /// Whether the last look actually reached the service. Without it the status card states the
+    /// remembered word in the same voice as a fresh one, which is more than it can attribute.
+    @State private var reached = true
     @State private var draft = ""
     @State private var sending = false
+    @State private var replyFailed = false
+    @State private var withdrawFailed = false
     @State private var showingWithdraw = false
     @Environment(\.dismiss) private var dismiss
 
@@ -352,7 +648,9 @@ struct ProjectThreadView: View {
         .confirmationDialog("Withdraw this report?", isPresented: $showingWithdraw,
                             titleVisibility: .visible) {
             Button("Withdraw", role: .destructive) {
-                Task { await model.withdraw(code: entry.code); dismiss() }
+                Task {
+                    if await model.withdraw(code: entry.code) { dismiss() } else { withdrawFailed = true }
+                }
             }
             Button("Keep it", role: .cancel) { }
         } message: {
@@ -380,6 +678,18 @@ struct ProjectThreadView: View {
                 Text("Checking…")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
+            } else if !ProjectSharing.standard.isOn {
+                // Not the same as unreachable, and saying so would blame the network for a switch
+                // the wearer threw themselves.
+                Text("Sending from this device is switched off, so this cannot be checked. It is what was last known.")
+                    .font(StrandFont.caption)
+                    .foregroundStyle(StrandPalette.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else if !reached {
+                Text("This could not be checked just now. It is what was last known.")
+                    .font(StrandFont.caption)
+                    .foregroundStyle(StrandPalette.textTertiary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -411,7 +721,14 @@ struct ProjectThreadView: View {
         }
     }
 
+    @ViewBuilder
     private var replyCard: some View {
+        if ProjectSharing.standard.isOn {
+            answerBox
+        }
+    }
+
+    private var answerBox: some View {
         ForgeListGroup("Answer") {
             TextField("Anything you can add", text: $draft, axis: .vertical)
                 .lineLimit(1...6)
@@ -420,14 +737,24 @@ struct ProjectThreadView: View {
             ForgeActionRow(title: sending ? "Sending…" : "Send") {
                 Task {
                     sending = true
+                    replyFailed = false
                     if await model.reply(code: entry.code, text: draft) {
                         draft = ""
                         await reload()
+                    } else {
+                        // The text stays in the field: it is the only copy of it.
+                        replyFailed = true
                     }
                     sending = false
                 }
             }
             .disabled(sending || draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            if replyFailed {
+                Text("That did not go out. Your text is still here; try again later.")
+                    .font(StrandFont.caption)
+                    .foregroundStyle(StrandPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 
@@ -442,11 +769,22 @@ struct ProjectThreadView: View {
             ForgeActionRow(title: "Withdraw this report", role: .destructive) {
                 showingWithdraw = true
             }
+            if withdrawFailed {
+                Text("That did not go out. The report is still there, and so is its log.")
+                    .font(StrandFont.caption)
+                    .foregroundStyle(StrandPalette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 
     private func reload() async {
-        thread = await model.thread(code: entry.code)
+        if let fresh = await model.thread(code: entry.code) {
+            thread = fresh
+            reached = true
+        } else {
+            reached = false
+        }
         loaded = true
     }
 

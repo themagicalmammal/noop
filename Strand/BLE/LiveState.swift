@@ -1020,11 +1020,16 @@ public final class LiveState: ObservableObject {
     /// The bundle id matters because the `.ipa` ships unsigned and a re-signer can rewrite it, which changes
     /// how Apple Health identifies this app as a source and which background-task identifiers iOS accepts.
     ///
-    /// The version and build identify nobody. The bundle id is the app's own identifier and normally does
-    /// not either, but `Config/BundleId.xcconfig` exists so someone building from source can set their own
-    /// `BUNDLE_ID_PREFIX`, and that string is whatever they chose. It is printed anyway, and NOT routed
-    /// through `redactPii`, because seeing the real id IS the diagnostic and masking it would defeat the
-    /// point on exactly the builds most likely to need it.
+    /// The version and build identify nobody. The bundle id did, and that is why only its LAST component
+    /// is printed now: `Config/BundleId.xcconfig` lets whoever builds from source set `BUNDLE_ID_PREFIX`,
+    /// and people put their own name there. The owner's did, so his real name rode out in every strap
+    /// log, every scheduled export and every bug report, and the one place it could never be taken back
+    /// from is somebody else's copy of the file (2026-11-16, at his request).
+    ///
+    /// The diagnostic survives the masking, which is why this is not the loss the earlier note feared:
+    /// what it has to answer is whether a re-signer rewrote the id, and a rewrite changes the last
+    /// component too, or replaces it with something that is plainly not this app's. `…noopai` says as
+    /// much about that as the whole string did, without saying who built it.
     ///
     /// Shared by both header builders on purpose: the two used to construct the same `App:` line
     /// independently, which is how a field goes into one export and not the other.
@@ -1032,13 +1037,26 @@ public final class LiveState: ObservableObject {
         let info = Bundle.main.infoDictionary
         let version = info?["CFBundleShortVersionString"] as? String ?? "?"
         let build = info?["CFBundleVersion"] as? String ?? "?"
-        let bundleID = Bundle.main.bundleIdentifier ?? "?"
-        return "\(version) (\(build)) · \(buildStamp ?? "no build stamp") · \(bundleID)"
+        return "\(version) (\(build)) · \(buildStamp ?? "no build stamp") · \(Self.maskedBundleID)"
     }
 
-    /// WHICH BUILD this is, not just which version — the commit and the date, as the builder supplied
-    /// them (`NOOP_BUILD_STAMP` → the `NOOPBuildStamp` Info.plist key; every CI build passes it, testing
-    /// builds and releases alike).
+    /// The bundle id with everything before its last component dropped: `com.someone.noopai` prints as
+    /// `…noopai`. An id with no dot in it is masked whole, because then the single component IS whatever
+    /// the builder chose to call it.
+    nonisolated static var maskedBundleID: String {
+        guard let full = Bundle.main.bundleIdentifier, !full.isEmpty else { return "?" }
+        guard let last = full.split(separator: ".").last, full.contains(".") else { return "…" }
+        return "…\(last)"
+    }
+
+    /// WHICH BUILD this is, not just which version — the channel, the commit and the date, as the builder
+    /// supplied them (`NOOP_BUILD_STAMP` → the `NOOPBuildStamp` Info.plist key; every CI build passes it,
+    /// testing builds and releases alike).
+    ///
+    /// Since 2026-11-18 the string LEADS with its channel, `testing` or `release`, so About and the log
+    /// header say which kind of build this is. Nothing else could: a testing build and the release of the
+    /// same train both read "13.0.0" here, and every workflow stamped the bare commit and date. The word
+    /// is the builder's to supply and this property's only to print, as with the rest of the stamp.
     ///
     /// Neither number above identifies a build: `MARKETING_VERSION` is the release train, the iOS
     /// `CURRENT_PROJECT_VERSION` moves once per release and the macOS app's `CFBundleVersion` is a

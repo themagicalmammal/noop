@@ -9,11 +9,14 @@ Run: python3 -m unittest Tools.test_i18n_audit -v   (from the repo root)
 """
 
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
 
 import i18n_audit as ia
+
+ROOT = Path(__file__).resolve().parent.parent
 
 
 def literals(text: str) -> list[str]:
@@ -625,3 +628,159 @@ class SwiftLocalizedStringScanning(unittest.TestCase):
     def test_localized_alongside_a_view_literal(self):
         src = 'Text("Shown")\nlet x = String(localized: "Also shown")'
         self.assertEqual(self.found(src), ["Shown", "Also shown"])
+
+
+class ForkComponentScanning(unittest.TestCase):
+    """The call shapes this fork actually writes its screens in.
+
+    `SWIFT_CALL_START_PATTERN` listed SwiftUI's own constructors. Every screen here is built from
+    `ForgeListGroup`, `ForgeLinkRow`, `ForgeActionRow` and their siblings, which take
+    `LocalizedStringKey` exactly like `Text` does and which the scanner could not see at all. The four
+    project pages shipped 55 literals with no catalog entry while this gate printed OK, which is the
+    repository's own "a gate must be able to fail on the change that caused it" rule, moved from CI
+    down into the scanner.
+    """
+
+    def found(self, text: str) -> list[str]:
+        return [lit for _, lit in ia.swift_string_literals(text)]
+
+    def test_a_forge_group_title_is_copy(self):
+        self.assertEqual(self.found('ForgeListGroup("Something broken?") { }'), ["Something broken?"])
+
+    def test_a_forge_row_title_is_copy(self):
+        self.assertEqual(self.found('ForgeActionRow(title: "Copy the code") { }'), ["Copy the code"])
+
+    def test_a_screen_title_is_copy(self):
+        self.assertEqual(self.found('ScreenScaffold(title: "Problems") { }'), ["Problems"])
+
+    # MARK: PRODUCT source — the list has to keep up with the components
+
+    def test_every_localized_component_is_in_the_pattern(self):
+        """A new row component that takes `LocalizedStringKey` and is not listed re-opens the hole.
+
+        Read off the product source rather than restated here: a hand-kept list is the thing that
+        went stale in the first place.
+        """
+        pattern = re.compile(
+            r"^(?:private |internal |public )?struct\s+(\w+)[^\n{]*\{", re.M)
+        missing = []
+        for rel in ["Strand/Forge/ForgeSharedKit.swift", "Strand/Screens/ScreenScaffold.swift"]:
+            text = (ROOT / rel).read_text(encoding="utf-8")
+            for match in pattern.finditer(text):
+                nxt = text.find("\nstruct ", match.end())
+                head = text[match.end(): nxt if nxt > 0 else len(text)][:1200]
+                takes_copy = re.search(
+                    r"(?:let|var|_)\s+(?:title|label)\s*:\s*LocalizedStringKey", head)
+                if takes_copy and not ia.SWIFT_CALL_START_PATTERN.search(match.group(1) + "("):
+                    missing.append(f"{rel}: {match.group(1)}")
+        self.assertEqual(missing, [], "components whose copy the audit cannot see")
+
+
+class CommentsAndPreviewsAreNotCopy(unittest.TestCase):
+    """What the widened patterns must NOT report.
+
+    Both of these were real findings the first time the patterns ran: a doc comment quoting the
+    caption it explains, and a `StressPreviewHarness: View` whose sample tiles read "54 bpm". A
+    baseline full of comment text and canvas samples is a baseline nobody reads.
+    """
+
+    def found(self, text: str) -> list[str]:
+        masked = ia.mask_swift_previews(ia._mask_comments(text))
+        return ([lit for _, lit in ia.swift_string_literals(masked)]
+                + [lit for _, lit in ia.swift_copy_argument_literals(masked)])
+
+    def test_a_caption_quoted_in_a_comment_is_not_copy(self):
+        src = '// The unit is the caption: "Herzfrequenz" would not fit beside three figures.\n'
+        self.assertEqual(self.found(src), [])
+
+    def test_a_preview_block_is_not_copy(self):
+        src = '#Preview("Stress") {\n    Text("54 bpm")\n}\n'
+        self.assertEqual(self.found(src), [])
+
+    def test_a_preview_harness_struct_is_not_copy(self):
+        src = ('private struct StressPreviewHarness: View {\n'
+               '    var body: some View { Text("low-stress days") }\n}\n')
+        self.assertEqual(self.found(src), [])
+
+    def test_a_shipped_view_named_for_a_preview_is_still_copy(self):
+        """`TrainingRoutineImportPreviewView`, `GoalSessionPreviewNote` and `OnboardingPreview` are
+        screens, not canvas scaffolding. Masking every `View` whose name contains "Preview" would
+        have hidden six of them."""
+        src = ('struct TrainingRoutineImportPreviewView: View {\n'
+               '    var body: some View { Text("Import this routine?") }\n}\n')
+        self.assertEqual(self.found(src), ["Import this routine?"])
+
+    def test_a_shipped_view_right_after_a_preview_is_still_copy(self):
+        src = ('#Preview {\n    Text("sample")\n}\n'
+               'struct Real: View {\n    var body: some View { Text("Shown") }\n}\n')
+        self.assertEqual(self.found(src), ["Shown"])
+
+    def test_a_subtitle_is_copy_and_a_diagnostic_detail_is_not(self):
+        self.assertEqual(self.found('Row(title: t, subtitle: "You get a code")'), ["You get a code"])
+        self.assertEqual(self.found('trace(rejected(detail: "buckets=\\(n) need=24"))'), [])
+
+
+class AndroidForkComponentScanning(unittest.TestCase):
+    """The Compose call shapes this fork writes its screens in.
+
+    The mirror of `ForkComponentScanning` above, and it was the same hole: `ANDROID_CALL_PATTERN`
+    knew `Text(` and Compose's own slots, while every Forge screen writes its headings as
+    `SectionHeader("Night detail", …)`. Thirty-two headings on Health, Sleep, Stress, Insights,
+    Compare and Workouts were therefore hardcoded English on every device, with the gate green.
+    """
+
+    def found(self, text: str) -> list[str]:
+        masked = ia._mask_comments(text)
+        out = []
+        for match in ia.ANDROID_CALL_PATTERN.finditer(masked):
+            open_paren = match.end() - 1
+            end = ia._argument_span_end(masked, open_paren + 1)
+            out += [lit for _, lit in ia._extract_literals(masked, open_paren + 1, end)]
+        return out
+
+    def test_a_section_heading_is_copy(self):
+        self.assertEqual(self.found('SectionHeader("Night detail", overline = "Metrics")'),
+                         ["Night detail"])
+
+    def test_a_toggle_row_title_is_copy(self):
+        self.assertEqual(self.found('ToggleRow("Allow questions back", null, on) { }'),
+                         ["Allow questions back"])
+
+    def test_a_resource_lookup_is_not_a_literal(self):
+        self.assertEqual(self.found('SectionHeader(stringResource(R.string.forge_st_today))'), [])
+
+    # MARK: PRODUCT source — the list has to keep up with the components
+
+    def test_every_copy_first_composable_is_in_the_pattern(self):
+        """A new row component whose first argument is a `String` and that is not listed re-opens it."""
+        settings = ROOT / "android/app/src/main/java/com/noop/ui/forge/ForgeSettings.kt"
+        if not settings.exists():
+            self.skipTest("no android tree here")
+        pattern = re.compile(r"^internal fun (\w+)\(\s*(?:\w+:\s*)?(?:title|label)\s*:\s*String", re.M)
+        missing = [name for name in pattern.findall(settings.read_text(encoding="utf-8"))
+                   if not ia.ANDROID_CALL_PATTERN.search(name + "(")]
+        self.assertEqual(missing, [], "components whose copy the audit cannot see")
+
+
+class LocalizedStringResourceScanning(unittest.TestCase):
+    """Copy returned as `LocalizedStringResource`.
+
+    The sanctioned type, and still invisible: the catalog entry behind it only appears when somebody
+    builds in Xcode, so a case added between builds ships English. `SettingsSearchCatalog` returns
+    every page subtitle this way, and the Project page's one stood in English under a German heading
+    on the Settings screen while this gate was green.
+    """
+
+    def found(self, text: str) -> list[str]:
+        return [lit for _, lit in ia.swift_returned_copy_literals(text)]
+
+    def test_a_returned_resource_is_copy(self):
+        src = ('var subtitle: LocalizedStringResource {\n'
+               '    switch self {\n'
+               '    case .roadmap: return "The plan and what is broken"\n'
+               '    }\n}')
+        self.assertEqual(self.found(src), ["The plan and what is broken"])
+
+    def test_a_returned_string_is_still_copy(self):
+        src = 'var title: String {\n    return "Project"\n}'
+        self.assertEqual(self.found(src), ["Project"])

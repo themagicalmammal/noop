@@ -631,7 +631,7 @@ internal fun computeActivityCosts(
 @Composable
 private fun ActivityCostSection(costs: List<com.noop.analytics.ActivityCost>) {
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-        SectionHeader("Activity Cost", overline = "What each activity costs your recovery")
+        SectionHeader(stringResource(R.string.forge_in_activity_cost), overline = stringResource(R.string.forge_in_cost_overline))
         if (costs.isEmpty()) {
             NoopCard {
                 Text(
@@ -741,8 +741,9 @@ private fun BehaviourSection(
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 SectionHeader(
-                    "Behaviour Effects",
-                    overline = "What moves your ${outcome.outcomeName.lowercase(Locale.US)}",
+                    stringResource(R.string.forge_in_behaviour_effects),
+                    overline = stringResource(R.string.forge_ih_what_moves,
+                                              outcome.outcomeName.lowercase(Locale.US)),
                 )
             }
             SegmentedPillControl(
@@ -941,9 +942,9 @@ private fun ExperimentSection(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
         SectionHeader(
-            "Personal Experiment",
-            overline = "N-of-1 protocol",
-            trailing = snapshot?.phaseLabel ?: "Setup",
+            stringResource(R.string.forge_in_personal_experiment),
+            overline = stringResource(R.string.forge_in_protocol),
+            trailing = snapshot?.phaseLabel ?: stringResource(R.string.forge_in_setup),
         )
         NoopCard {
             if (snapshot != null) {
@@ -1448,7 +1449,7 @@ private fun saveExperimentInt(context: Context, key: String, value: Int) {
 @Composable
 private fun RelationshipsSection(rels: List<Relationship>) {
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-        SectionHeader("Metric Relationships", overline = "Pearson r")
+        SectionHeader(stringResource(R.string.forge_in_metric_relationships), overline = stringResource(R.string.forge_in_pearson))
 
         if (rels.isEmpty()) {
             NoopCard {

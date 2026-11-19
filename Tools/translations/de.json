@@ -4655,5 +4655,20 @@
   "Being worked on.": "Wird bearbeitet.",
   "Fixed.": "Behoben.",
   "Not planned.": "Nicht geplant.",
-  "The plan could not be read, or there is none right now.": "Der Plan konnte nicht gelesen werden, oder es gibt gerade keinen."
+  "The plan could not be read, or there is none right now.": "Der Plan konnte nicht gelesen werden, oder es gibt gerade keinen.",
+  "The report arrived. The log did not: it was too large, or the service refused it.": "Die Meldung ist angekommen, das Protokoll nicht: es war zu groß, oder der Dienst hat es abgelehnt.",
+  "Answers to my reports": "Antworten auf meine Meldungen",
+  "A notice when a problem you reported is answered or fixed.": "Eine Mitteilung, wenn ein von dir gemeldetes Problem beantwortet oder behoben ist.",
+  "The developer answered you.": "Der Entwickler hat dir geantwortet.",
+  "It is fixed.": "Es ist behoben.",
+  "Somebody is working on it.": "Es wird daran gearbeitet.",
+  "It will not be changed.": "Daran wird nichts geändert.",
+  "It has been read.": "Es wurde gelesen.",
+  "A picture, if it helps": "Ein Bild, wenn es hilft",
+  "Add a picture": "Bild hinzufügen",
+  "A screenshot of what went wrong says more than a log": "Ein Bildschirmfoto von dem, was schiefging, sagt mehr als ein Protokoll",
+  "Remove the picture": "Bild entfernen",
+  "Those weeks met your plan for %@, or came close.": "Diese Wochen haben deinen Plan für %@ erfüllt oder waren knapp dran.",
+  "4.0, unconfirmed on real hardware": "4.0, an echter Hardware nicht bestätigt",
+  "The strap keeps reporting a different time than NOOP sends, so its firmware alarm won't fire at your wake time — usually a strap whose clock or alarm has reset. Restart the strap from Devices, or fully charge it and reconnect; keep your phone's Clock alarm as your wake until it takes.": "Der Strap meldet weiter eine andere Zeit als die, die NOOP sendet. Sein Wecker in der Firmware geht deshalb nicht zu deiner Weckzeit los, meist weil seine Uhr oder sein Wecker zurückgesetzt wurde. Starte den Strap unter Geräte neu oder lade ihn ganz auf und verbinde ihn neu. Nimm bis dahin den Wecker deines Telefons."
 }

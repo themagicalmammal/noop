@@ -4653,5 +4653,20 @@
   "Being worked on.": "Em curso.",
   "Fixed.": "Corrigido.",
   "Not planned.": "Não planeado.",
-  "The plan could not be read, or there is none right now.": "Não foi possível ler o plano, ou não existe nenhum neste momento."
+  "The plan could not be read, or there is none right now.": "Não foi possível ler o plano, ou não existe nenhum neste momento.",
+  "The report arrived. The log did not: it was too large, or the service refused it.": "A comunicação chegou, o registo não: era demasiado grande ou o serviço recusou-o.",
+  "Answers to my reports": "Respostas às minhas comunicações",
+  "A notice when a problem you reported is answered or fixed.": "Um aviso quando um problema que comunicou recebe resposta ou é corrigido.",
+  "The developer answered you.": "O programador respondeu-lhe.",
+  "It is fixed.": "Está corrigido.",
+  "Somebody is working on it.": "Alguém está a trabalhar nisso.",
+  "It will not be changed.": "Não vai ser alterado.",
+  "It has been read.": "Foi lido.",
+  "A picture, if it helps": "Uma imagem, se ajudar",
+  "Add a picture": "Adicionar uma imagem",
+  "A screenshot of what went wrong says more than a log": "Uma captura do que correu mal diz mais do que um registo",
+  "Remove the picture": "Remover a imagem",
+  "Those weeks met your plan for %@, or came close.": "Essas semanas cumpriram o teu plano de %@, ou ficaram perto.",
+  "4.0, unconfirmed on real hardware": "4.0, por confirmar em hardware real",
+  "The strap keeps reporting a different time than NOOP sends, so its firmware alarm won't fire at your wake time — usually a strap whose clock or alarm has reset. Restart the strap from Devices, or fully charge it and reconnect; keep your phone's Clock alarm as your wake until it takes.": "A bracelete continua a indicar uma hora diferente da que o NOOP envia, pelo que o alarme do firmware não toca à tua hora de despertar, normalmente uma bracelete cujo relógio ou alarme foi reposto. Reinicia a bracelete em Dispositivos, ou carrega-a totalmente e volta a ligá-la; mantém o alarme do Relógio do teu telemóvel até que funcione."
 }

@@ -147,8 +147,8 @@ private fun MoversSection(
         // Header then the outcome selector on its own row below it — on a ~360dp phone the pill
         // control can't share a row with the weighted header without compressing (matches macOS).
         SectionHeader(
-            "What moves your ${outcome.outcomeName.lowercase(Locale.US)}",
-            overline = "Ranked · your data",
+            stringResource(R.string.forge_ih_what_moves, outcome.outcomeName.lowercase(Locale.US)),
+            overline = stringResource(R.string.forge_ih_ranked),
         )
         SegmentedPillControl(
             items = InsightsOutcome.entries.toList(),
@@ -262,7 +262,7 @@ private fun MoverCard(r: RankedEffect, outcome: InsightsOutcome) {
 @Composable
 private fun DoseSection(cards: List<DoseCardData>) {
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-        SectionHeader("Dose-response", overline = "Personal curve · prior-shrunk")
+        SectionHeader(stringResource(R.string.forge_ih_dose_response), overline = stringResource(R.string.forge_ih_curve))
         if (cards.isEmpty()) {
             NoopCard {
                 Text(

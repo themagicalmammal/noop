@@ -36,6 +36,51 @@ final class TimelineFeedTests: XCTestCase {
         XCTAssertEqual(next.admitted.count, 2)
     }
 
+    /// An event skips the topic's cooldown, so nothing else holds it back: without a rule of its own the
+    /// SAME event would be admitted again every day it stays true. A streak reading "8 weeks in a row" is
+    /// news on the day it starts, not every morning of that week.
+    func testTheSameEventIsNewsOnlyOnce() {
+        let streak = TimelineFeed.Candidate(key: "streak|8 weeks in a row", topic: .goals, severity: 1, isEvent: true)
+        let first = TimelineFeed.admit([streak], log: [], day: "D1", now: t0)
+        XCTAssertEqual(first.admitted.count, 1)
+        // Still the same day: the entry stays where it first appeared.
+        XCTAssertEqual(TimelineFeed.admit([streak], log: first.log, day: "D1", now: days(0.3)).admitted.first?.at, t0)
+        // The following days say nothing new.
+        XCTAssertTrue(TimelineFeed.admit([streak], log: first.log, day: "D2", now: days(1)).admitted.isEmpty)
+        XCTAssertTrue(TimelineFeed.admit([streak], log: first.log, day: "D5", now: days(4)).admitted.isEmpty)
+        // The next week IS a new fact, and says so.
+        let grown = TimelineFeed.Candidate(key: "streak|9 weeks in a row", topic: .goals, severity: 1, isEvent: true)
+        XCTAssertEqual(TimelineFeed.admit([grown], log: first.log, day: "D8", now: days(7)).admitted.count, 1)
+    }
+
+    /// The night-pending notice's shape: an event, so the device topic's cooldown cannot hold it back, and
+    /// a FIXED key, because it reports a state rather than a change. Once-per-key would retire it after the
+    /// first such morning for as long as the log remembers, and it is the only notice carrying the
+    /// confirm-wake action, which the wearer can only use on a morning it is shown.
+    func testAStandingConditionIsSaidEveryDayItHolds() {
+        let night = TimelineFeed.Candidate(key: "nightPending", topic: .device, severity: 3,
+                                           isEvent: true, repeats: true)
+        let first = TimelineFeed.admit([night], log: [], day: "D1", now: t0)
+        XCTAssertEqual(first.admitted.count, 1)
+        let second = TimelineFeed.admit([night], log: first.log, day: "D2", now: days(1))
+        XCTAssertEqual(second.admitted.count, 1, "the night is pending again, and so is the question")
+        XCTAssertEqual(TimelineFeed.admit([night], log: second.log, day: "D3", now: days(2)).admitted.count, 1)
+        // Still once per DAY: a second pass the same morning finds the entry it already placed.
+        let again = TimelineFeed.admit([night], log: second.log, day: "D2", now: days(1.4))
+        XCTAssertEqual(again.admitted.first?.at, days(1))
+        XCTAssertEqual(again.log.filter { $0.key == "nightPending" && $0.day == "D2" }.count, 1)
+    }
+
+    /// The cooldown bypass is what `isEvent` buys, and `repeats` must not cost it: a louder notice on the
+    /// same topic the day before cannot silence the standing one.
+    func testAStandingConditionStillSkipsTheTopicsCooldown() {
+        let battery = TimelineFeed.Candidate(key: "strapBattery", topic: .device, severity: 4)
+        let night = TimelineFeed.Candidate(key: "nightPending", topic: .device, severity: 3,
+                                           isEvent: true, repeats: true)
+        let log = TimelineFeed.admit([battery], log: [], day: "D1", now: t0).log
+        XCTAssertEqual(TimelineFeed.admit([night], log: log, day: "D2", now: days(1)).admitted.count, 1)
+    }
+
     func testTheLogForgetsAfterThirtyDays() {
         let log = TimelineFeed.admit([.init(key: "k", topic: .load, severity: 2)], log: [], day: "D1", now: t0).log
         XCTAssertTrue(TimelineFeed.admit([], log: log, day: "D40", now: days(31)).log.isEmpty)
