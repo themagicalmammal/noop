@@ -20,6 +20,8 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Accessibility
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -270,6 +272,9 @@ fun MuscleAnalyticsPage(muscles: CoreTraining.MuscleAnalytics, onClose: () -> Un
     }
     SettingsColumn {
         PageTitle(stringResource(R.string.forge_th_muscle_analytics), onClose, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.FitnessCenter, accentAIcon = Icons.Rounded.Bolt,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 56,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
             androidx.compose.material3.TextButton(onClick = onClose) {
                 Text(stringResource(R.string.forge_th_done), color = Forge.colors.charge,
                      style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold))
