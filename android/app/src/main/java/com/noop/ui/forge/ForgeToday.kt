@@ -405,12 +405,13 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                 // As iOS's rings: Charge carried from the latest scored day and Rest from the latest night while today has
                 // none yet (the small hours, a morning before the sync); Effort stays today's.
                 val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-                val carried by produceState<Pair<Double?, Double?>>(null to null, shown, coreRevision) {
+                val carried by produceState<Triple<Double?, Double?, String?>>(Triple(null, null, null), shown, coreRevision) {
                     value = withContext(Dispatchers.IO) {
                         CoreRead.open(context)
                         val from = shown.minusDays(14).toString(); val to = shown.toString()
-                        CoreRead.series(CoreRead.Metric.Charge, from, to).lastOrNull()?.value to
-                            CoreRead.series(CoreRead.Metric.Rest, from, to).lastOrNull()?.value
+                        val chargePoint = CoreRead.series(CoreRead.Metric.Charge, from, to).lastOrNull()
+                        val restPoint = CoreRead.series(CoreRead.Metric.Rest, from, to).lastOrNull()
+                        Triple(chargePoint?.value, restPoint?.value, chargePoint?.day)
                     }
                 }
                 // Today's Effort as the classic dashboard has always shown it: the live score over today's raw
@@ -428,12 +429,31 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                     d.copy(charge = d.charge ?: carried.first, rest = d.rest ?: carried.second,
                            effort = liveEffort ?: d.effort)
                 }
+                // The caption under the rings when Charge is carried from a prior scored day, as iOS's .
+                val carriedChargeDay = if (model?.day?.charge == null && carried.third != null) carried.third else null
                 SideEffect {
                     heroChargeScore = heroDay.charge
                     heroEffortScore = heroDay.effort
                     heroRestScore = heroDay.rest
                 }
                 Hero(heroDay, width, onHold = { editingWidgets = true }, viewModel = viewModel)
+                // The caption under the rings when Charge is carried from a prior scored day, as iOS's .
+                if (carriedChargeDay != null) {
+                    val dateLabel = com.noop.ui.lastChargeDateLabel(carriedChargeDay)
+                    val caption = stringResource(
+                        if (com.noop.ui.isCarryStale(carriedChargeDay, today.toString()))
+                            R.string.score_state_title_latest_sleep
+                        else R.string.score_state_title_last_night,
+                        dateLabel
+                    )
+                    Text(
+                        text = stringResource(R.string.forge_charge) + " · " + caption,
+                        style = Forge.type.caption,
+                        color = Forge.colors.textSecondary,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
+                    )
+                }
                 if (shown == today) ForgeActivityPrompt()
                 // The day's one hint under the rings, as iOS's `hintCard`.
                 if (shown == today) {
