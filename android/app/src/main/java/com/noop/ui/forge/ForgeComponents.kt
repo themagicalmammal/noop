@@ -449,3 +449,75 @@ private fun zoneStringRes(zone: Int): Int = when (zone) {
     4 -> R.string.lw_zn_threshold
     else -> R.string.lw_zn_max
 }
+
+/**
+ * The coach picture, as iOS's `CoachPicture`: a symbol large on a glowing disc in a given colour, with two
+ * small motifs around it. Drawn, not a file, so it follows light and dark and every size. The three sizes
+ * match iOS's `CoachPictureSize`: small (56), medium (72), large (96).
+ */
+@Composable
+internal fun CoachPicture(
+    mainIcon: ImageVector,
+    accentAIcon: ImageVector,
+    accentBIcon: ImageVector,
+    tint: androidx.compose.ui.graphics.Color,
+    size: Int = 56,
+    modifier: Modifier = Modifier,
+) {
+    val s = size.dp
+    Box(
+        modifier = modifier.size(s),
+    ) {
+        // A faint halo behind the disc, not a glow.
+        Canvas(Modifier.size(s)) {
+            drawCircle(color = tint.copy(alpha = 0.14f), radius = size * 0.55f)
+        }
+        // The disc itself, 78% of the size, with a soft shadow below.
+        Canvas(Modifier.size(s)) {
+            val r = size * 0.39f
+            val c = size / 2f
+            drawCircle(color = tint.copy(alpha = 0.22f), radius = r,
+                center = androidx.compose.ui.geometry.Offset(c, c + size * 0.03f))
+            drawCircle(color = tint, radius = r, center = androidx.compose.ui.geometry.Offset(c, c))
+        }
+        // Main symbol, large and white, centred.
+        Icon(
+            imageVector = mainIcon,
+            contentDescription = null,
+            tint = androidx.compose.ui.graphics.Color.White,
+            modifier = Modifier.size((size * 0.34).dp),
+        )
+        // Accent A: a small filled motif on a light circle, top-right of the disc.
+        Box(
+            modifier = Modifier
+                .size((size * 0.30).dp)
+                .align(Alignment.TopEnd)
+                .clip(CircleShape)
+                .background(androidx.compose.ui.graphics.Color(0xFFFAFAFA)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = accentAIcon,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size((size * 0.14).dp),
+            )
+        }
+        // Accent B: a second small motif, bottom-left.
+        Box(
+            modifier = Modifier
+                .size((size * 0.26).dp)
+                .align(Alignment.BottomStart)
+                .clip(CircleShape)
+                .background(androidx.compose.ui.graphics.Color(0xFFFAFAFA)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = accentBIcon,
+                contentDescription = null,
+                tint = tint.copy(alpha = 0.75f),
+                modifier = Modifier.size((size * 0.12).dp),
+            )
+        }
+    }
+}

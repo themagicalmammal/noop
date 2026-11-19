@@ -38,6 +38,8 @@ import androidx.compose.material.icons.rounded.DirectionsRun
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.Psychology
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Accessibility
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -112,9 +114,13 @@ internal fun HealthFocusGrid(onOpen: (FocusArea) -> Unit) {
                 pair.forEach { area ->
                     val tint = area.tint()
                     ForgeCard(Modifier.weight(1f).heightIn(min = 112.dp).clickable(role = Role.Button) { onOpen(area) }) {
-                        Box(Modifier.size(36.dp).background(tint.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
-                            Icon(area.icon, contentDescription = null, tint = tint, modifier = Modifier.size(19.dp))
-                        }
+                        CoachPicture(
+                            mainIcon = area.icon,
+                            accentAIcon = Icons.Rounded.AutoAwesome,
+                            accentBIcon = Icons.Rounded.Star,
+                            tint = tint,
+                            size = 56,
+                        )
                         Spacer(Modifier.height(ForgeMetrics.space3))
                         Text(stringResource(area.titleRes), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
                              color = colors.text, maxLines = 2)

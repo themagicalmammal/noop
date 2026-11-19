@@ -23,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.ShowChart
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -148,7 +150,13 @@ internal fun ForgeSearchOverlay(
                         }
                     } else {
                         Column(Modifier.fillMaxWidth().padding(top = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Rounded.Search, null, tint = Forge.colors.accent, modifier = Modifier.size(48.dp))
+                            CoachPicture(
+                                mainIcon = Icons.Rounded.Search,
+                                accentAIcon = Icons.Rounded.AutoAwesome,
+                                accentBIcon = Icons.Rounded.Star,
+                                tint = Forge.colors.accent,
+                                size = 96,
+                            )
                             Spacer(Modifier.height(14.dp))
                             Text(
                                 stringResource(R.string.forge_search_hint),
