@@ -30,6 +30,7 @@ import androidx.compose.material.icons.rounded.Terrain
 import androidx.compose.material.icons.automirrored.rounded.ShowChart
 import androidx.compose.material.icons.rounded.Lightbulb
 import androidx.compose.material.icons.rounded.ChatBubble
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Air
 import androidx.compose.material.icons.rounded.BarChart
@@ -44,6 +45,7 @@ import androidx.compose.material.icons.rounded.Flag
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.LocalFireDepartment
 import androidx.compose.material.icons.rounded.OpenInFull
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.Icon
@@ -811,9 +813,8 @@ private fun CoachNoteCard() {
     }
     ForgeCard(Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).background(colors.accent.copy(alpha = 0.14f), CircleShape), contentAlignment = Alignment.Center) {
-                Icon(Icons.Rounded.Bolt, contentDescription = null, tint = colors.accent, modifier = Modifier.size(20.dp))
-            }
+            CoachPicture(mainIcon = Icons.Rounded.AutoAwesome, accentAIcon = Icons.Rounded.ChatBubble,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.metricPurple.resolve(), size = 56)
             Spacer(Modifier.width(ForgeMetrics.space3))
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.forge_w_coach_note), style = Forge.type.caption, color = colors.textSecondary)
