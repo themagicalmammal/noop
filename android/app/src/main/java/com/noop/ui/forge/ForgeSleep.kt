@@ -770,6 +770,14 @@ private fun NewDesignSleep(viewModel: com.noop.ui.AppViewModel, night: CoreRead.
     var editing by remember { mutableStateOf<CoreRead.Night?>(null) }
     var undo by remember { mutableStateOf<List<com.noop.data.SleepSession>>(emptyList()) }
     SleepTonightCard(viewModel, need, onAlarms)
+    // As iOS's `ForgeTabHero`: when no night is recorded yet, the navigator's overline stands alone
+    // with its headline below, before tonight's card.
+    if (night == null) {
+        Column(Modifier.padding(top = ForgeMetrics.space3), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(stringResource(R.string.forge_sl_no_night_recorded), style = Forge.type.title2.copy(fontWeight = FontWeight.Bold),
+                 color = Forge.sceneInk.text)
+        }
+    }
     if (undo.isNotEmpty()) SleepUndoStrip {
         val restore = undo; undo = emptyList()
         scope.launch { viewModel.undoDeleteSleepSessions(restore) }

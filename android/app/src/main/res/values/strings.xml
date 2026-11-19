@@ -5695,6 +5695,7 @@
     <string name="forge_sl_bed_counts">Bedtime counts %1$s h, as set in Alarms.</string>
     <string name="forge_sl_this_night">This night</string>
     <string name="forge_sl_no_stages">No sleep stages for this night.</string>
+    <string name="forge_sl_no_night_recorded">No night recorded yet</string>
     <string name="forge_sl_edit_times">Edit sleep times</string>
     <string name="forge_sl_highlights">Highlights</string>
     <string name="forge_sl_time_asleep">Time asleep</string>
