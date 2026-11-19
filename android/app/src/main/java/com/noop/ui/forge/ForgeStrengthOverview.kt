@@ -22,6 +22,9 @@ import androidx.compose.material.icons.rounded.EventAvailable
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Accessibility
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -90,7 +93,11 @@ private fun ForgeStrengthOverview(snapshot: CoreTraining.Snapshot?, onClose: () 
                                   onOpenPlan: () -> Unit, onOpenMuscles: () -> Unit, onOpenDetails: () -> Unit) {
     val colors = Forge.colors
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_so_strength), onClose)
+        PageTitle(stringResource(R.string.forge_so_strength), onClose, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.FitnessCenter, accentAIcon = Icons.Rounded.LocalFireDepartment,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 56,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         val s = snapshot ?: return@SettingsColumn
         NextUp(s, onStart, onOpenPlan)
         Volume(s.weeklyTonnes, s.fourWeekChange)
