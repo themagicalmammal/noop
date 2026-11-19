@@ -46,6 +46,8 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.automirrored.rounded.DirectionsWalk
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
@@ -100,9 +102,12 @@ internal fun ForgeEnergyDetailPage(onBack: () -> Unit) {
     }
     SettingsColumn {
         // The explaining picture in the title row, as iOS's Energy page carries it in its toolbar.
-        PageTitle(stringResource(R.string.forge_en_title), onBack) {
+        PageTitle(stringResource(R.string.forge_en_title), onBack, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.LocalFireDepartment, accentAIcon = Icons.Rounded.Bolt,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.forgeEnergyActive.resolve(), size = 56,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
             ExplainerInfoButton(R.string.forge_ex_energy_title, R.string.forge_ex_energy_text) { ExplainerEnergyBars() }
-        }
+        })
         val d = detail
         if (d == null) {
             if (!loaded) Text(stringResource(R.string.forge_goals_loading), style = Forge.type.body, color = Forge.sceneInk.secondary)
