@@ -521,3 +521,24 @@ internal fun CoachPicture(
         }
     }
 }
+
+/** iOS's `ForgeDetailHeader`: a page's title with an optional overline and a CoachPicture beside it. */
+@Composable
+internal fun ForgeDetailHeader(title: String, overline: String? = null,
+                                pictureMain: ImageVector? = null, pictureAccentA: ImageVector? = null,
+                                pictureAccentB: ImageVector? = null, pictureTint: Color? = null) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text(title, style = Forge.type.title1, color = Forge.sceneInk.text)
+            if (overline != null) {
+                Spacer(Modifier.height(2.dp))
+                Text(overline, style = Forge.type.subhead, color = Forge.sceneInk.secondary)
+            }
+        }
+        Spacer(Modifier.width(ForgeMetrics.space3))
+        if (pictureMain != null && pictureAccentA != null && pictureAccentB != null && pictureTint != null) {
+            CoachPicture(mainIcon = pictureMain, accentAIcon = pictureAccentA, accentBIcon = pictureAccentB,
+                         tint = pictureTint, size = 72)
+        }
+    }
+}

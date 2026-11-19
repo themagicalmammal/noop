@@ -9,6 +9,7 @@ import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.HourglassBottom
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
@@ -99,6 +100,9 @@ internal fun ForgeAgeLessPage(onBack: () -> Unit, onOpenRhythm: () -> Unit = {})
             stringResource(R.string.forge_ageless_title),
             onBack,
             trailing = {
+                CoachPicture(mainIcon = Icons.Rounded.HourglassBottom, accentAIcon = Icons.Rounded.Favorite,
+                             accentBIcon = Icons.Rounded.Star, tint = Forge.colors.charge, size = 56,
+                             modifier = Modifier.padding(end = ForgeMetrics.space2))
                 IconButton(onClick = { showAbout = true }) {
                     Icon(Icons.Rounded.Info, stringResource(R.string.forge_ageless_about), tint = Forge.colors.textSecondary)
                 }
