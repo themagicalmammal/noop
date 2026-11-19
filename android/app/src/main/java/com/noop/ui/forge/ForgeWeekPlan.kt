@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.ChatBubble
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -176,10 +177,8 @@ internal fun ForgeWeekPlanPage(viewModel: AppViewModel, onBack: () -> Unit, onSc
         }
         if (onAsk != null) {
             val prompt = stringResource(R.string.forge_wp_coach_prompt)
-            Text(stringResource(R.string.forge_wp_coach), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.onAccent,
-                 textAlign = TextAlign.Center,
-                 modifier = Modifier.fillMaxWidth().background(colors.accent, CircleShape).clickable(role = Role.Button) { onAsk(prompt) }
-                     .padding(vertical = 12.dp))
+            ForgeChip(stringResource(R.string.forge_wp_coach), icon = Icons.Rounded.ChatBubble, prominent = true,
+                      onClick = { onAsk(prompt) })
         }
         Spacer(Modifier.height(ForgeMetrics.space6))
     }
