@@ -32,6 +32,8 @@ import androidx.compose.material.icons.rounded.MonitorWeight
 import androidx.compose.material.icons.rounded.MonitorHeart
 import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material.icons.rounded.DirectionsWalk
+import androidx.compose.material.icons.rounded.Book
+import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -109,6 +111,9 @@ internal object TodayTimeline {
 
         /** A weigh-in that records its time (only those reach the rail, as on iOS), with the 30-day change. */
         data class Weight(override val endTs: Long, val kg: Double, val change30: Double?) : Entry
+
+        /** A day's log of one kind (iOS .dayLog): water drunk, food eaten, or journal written. */
+        data class DayLog(override val endTs: Long, val kind: String, val value: Double) : Entry
     }
 
     /** A walk that bundles: a walk from the strap, Health or detection, not one the wearer started or imported (iOS `bundlesAsWalk`). */
@@ -128,7 +133,8 @@ internal object TodayTimeline {
                 ecgs: List<com.noop.core.CoreEcg.Reading> = emptyList(),
                 notices: List<TodayNotices.Notice> = emptyList(),
                 weighIns: List<Pair<Long, Double>> = emptyList(), weightChange30: Double? = null,
-                dayEnd: Entry.DayEnd? = null, coachNotes: List<com.noop.core.CoreCoach.Note> = emptyList()): List<Entry> {
+                dayEnd: Entry.DayEnd? = null, coachNotes: List<com.noop.core.CoreCoach.Note> = emptyList(),
+                dayLogs: List<Entry.DayLog> = emptyList()): List<Entry> {
         val today = Instant.ofEpochSecond(now).atZone(zone).toLocalDate()
         fun inRange(ts: Long): Boolean {
             val day = Instant.ofEpochSecond(ts).atZone(zone).toLocalDate()
@@ -162,6 +168,7 @@ internal object TodayTimeline {
         naps.filter { inRange(it.endTs) && it.asleepMinutes > 0 }.forEach { n ->
             out += Entry.Wake(n.endTs, n.startTs, n.asleepMinutes, 0.0, 0.0, 0.0, 0.0, nap = true)
         }
+        dayLogs.filter { inRange(it.endTs) }.forEach { out += it }
         return out.sortedByDescending { it.endTs }
     }
 
@@ -197,6 +204,7 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
     var todayRow by remember { mutableStateOf<CoreRead.Day?>(null) }
     var catchUp by remember { mutableStateOf(false) }
     var coachNotes by remember { mutableStateOf<List<com.noop.core.CoreCoach.Note>>(emptyList()) }
+    var dayLogs by remember { mutableStateOf<List<TodayTimeline.Entry.DayLog>>(emptyList()) }
     var why by remember { mutableStateOf<com.noop.core.CoreCoach.Note?>(null) }
     // The evening report from the evening on (iOS `ForgeToday.eveningStart`): 19:00, or two hours before the planned
     // bedtime when that is later; not in quiet hours (22:00 to 07:00), when the coach keeps quiet too.
@@ -236,6 +244,33 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
             val hintId = TodayHints.candidates(all, weighIn, weighTitle, weighDetail, dismissed, TodayHints.lastProposal, "",
                                                TodayHints.lastCoachNote).firstOrNull()?.id
             notices = all.filter { it.key != hintId }
+            // Day logs: hydration, food (only days without logged meals), journal (iOS `dayLogs`).
+            val twoDays = listOf(java.time.LocalDate.now().minusDays(1), java.time.LocalDate.now())
+            val mealDays = meals.mapNotNull { forgeMealDay(it) }.toSet()
+            val dayLogsOut = mutableListOf<TodayTimeline.Entry.DayLog>()
+            for (d in twoDays) {
+                val dayKey = d.toString()
+                val endTs = forgeEndOfTimelineDay(d).toLong()
+                // Hydration: the day's total water, as one row at the day's start.
+                val dayStartTs = forgeEndOfTimelineDay(d)
+                val totalMl = runCatching { com.noop.analytics.HydrationStore.total(viewModel.repo, dayStartTs) }.getOrDefault(0.0)
+                if (totalMl > 0) {
+                    dayLogsOut.add(TodayTimeline.Entry.DayLog(endTs, "drink", totalMl))
+                }
+                // Food: a day's kcal only when that day has no logged meals to show instead.
+                if (dayKey !in mealDays) {
+                    val kcal = runCatching { com.noop.core.CoreFood.day(dayKey)?.totals?.get("energy_kcal") ?: 0.0 }.getOrDefault(0.0)
+                    if (kcal > 0) dayLogsOut.add(TodayTimeline.Entry.DayLog(endTs, "food", kcal))
+                }
+                // Journal: how many entries that day.
+                val journalCount = runCatching {
+                    val native = viewModel.repo.journal("noop-journal", dayKey, dayKey)
+                    val imported = viewModel.repo.journal("my-whoop", dayKey, dayKey)
+                    (native + imported).size
+                }.getOrDefault(0)
+                if (journalCount > 0) dayLogsOut.add(TodayTimeline.Entry.DayLog(endTs, "journal", journalCount.toDouble()))
+            }
+            dayLogs = dayLogsOut
         }
     }
     val zone = ZoneId.systemDefault()
@@ -252,9 +287,9 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
         }, if (catchUp) bedtime else null)
     } else null
     val hintNoteId = TodayHints.lastCoachHintId
-    val all = remember(workouts, nights, naps, now, meals, ecgs, notices, weighIns, weightChange, dayEnd, coachNotes, hintNoteId) {
+    val all = remember(workouts, nights, naps, now, meals, ecgs, notices, weighIns, weightChange, dayEnd, coachNotes, hintNoteId, dayLogs) {
         TodayTimeline.entries(workouts, nights, naps, now, zone, meals, ecgs, notices, weighIns, weightChange, dayEnd,
-                              coachNotes.filter { it.id != hintNoteId })
+                              coachNotes.filter { it.id != hintNoteId }, dayLogs)
     }
     // "Yesterday" by the logical day, as iOS's rail (`logicalDayKey`): an evening workout seen after midnight
     // still belongs to today.
@@ -309,6 +344,22 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
                             e.change30?.let { c -> stringResource(R.string.forge_tl_weight_30,
                                 (if (c >= 0) "+" else "−") + "%.1f kg".format(java.util.Locale.getDefault(), kotlin.math.abs(c))) } ?: "",
                             "%.1f".format(java.util.Locale.getDefault(), e.kg), "kg")
+                }
+                is TodayTimeline.Entry.DayLog -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
+                    when (e.kind) {
+                        "drink" -> FactRow(Icons.Rounded.WaterDrop, ForgeTokens.StrandPalette.metricCyan.resolve(),
+                            stringResource(R.string.forge_tl_drink), "",
+                            "%.1f".format(java.util.Locale.getDefault(), e.value / 1000), "L")
+                        "food" -> FactRow(Icons.Rounded.Restaurant, Forge.colors.effort,
+                            stringResource(R.string.forge_tl_food), "",
+                            e.value.toInt().toString(), "kcal")
+                        "journal" -> FactRow(Icons.Rounded.Book, Forge.colors.accent,
+                            stringResource(R.string.forge_tl_journal), "",
+                            e.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
+                        else -> FactRow(Icons.Rounded.Book, Forge.colors.accent,
+                            stringResource(R.string.forge_tl_journal), "",
+                            e.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
+                    }
                 }
                 is TodayTimeline.Entry.Coach -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
                     CoachNoteCard(e.note, onWhy = { why = e.note })
@@ -525,4 +576,16 @@ private fun coachOriginLabel(origin: String): Int = when (origin) {
 private fun coachOriginWhy(origin: String): Int = when (origin) {
     "brief" -> R.string.forge_cn_t_brief; "checkIn" -> R.string.forge_cn_t_checkin; "weeklyReview" -> R.string.forge_cn_t_weekly
     "afterWorkout" -> R.string.forge_cn_t_workout; "evening" -> R.string.forge_cn_t_evening; else -> R.string.forge_cn_t_nudge
+}
+
+/** The local day key for a meal (which day it belongs to on the rail). */
+internal fun forgeMealDay(meal: com.noop.core.CoreFood.Meal): String? {
+    val ts = meal.start
+    if (ts <= 0) return null
+    return Instant.ofEpochSecond(ts).atZone(ZoneId.systemDefault()).toLocalDate().toString()
+}
+
+/** Where a figure that only knows its day sits: start of that logical day plus 4 hours (iOS `endOfTimelineDay`). */
+internal fun forgeEndOfTimelineDay(day: java.time.LocalDate): Long {
+    return day.atTime(4, 0).atZone(ZoneId.systemDefault()).toInstant().epochSecond
 }

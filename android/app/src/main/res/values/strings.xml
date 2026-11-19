@@ -5949,6 +5949,10 @@
     <string name="forge_vt_high">High</string>
     <string name="forge_tl_weight">Weight logged</string>
     <string name="forge_tl_weight_30">%1$s in 30 days</string>
+    <string name="forge_tl_drink">Drank</string>
+    <string name="forge_tl_food">Food</string>
+    <string name="forge_tl_journal">Journal</string>
+    <string name="forge_tl_entries">entries</string>
     <string name="forge_de_title">Your day</string>
     <string name="forge_de_none">No session recorded today.</string>
     <string name="forge_de_one">One session today.</string>
