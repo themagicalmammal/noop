@@ -773,7 +773,9 @@ private fun NewDesignSleep(viewModel: com.noop.ui.AppViewModel, night: CoreRead.
     // As iOS's `ForgeTabHero`: when no night is recorded yet, the navigator's overline stands alone
     // with its headline below, before tonight's card.
     if (night == null) {
-        Column(Modifier.padding(top = ForgeMetrics.space3), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(Modifier.padding(top = ForgeMetrics.space3).padding(horizontal = ForgeMetrics.space1), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(stringResource(R.string.forge_sl_last_night), style = Forge.type.subhead.copy(fontWeight = FontWeight.Medium),
+                 color = Forge.sceneInk.secondary)
             Text(stringResource(R.string.forge_sl_no_night_recorded), style = Forge.type.title2.copy(fontWeight = FontWeight.Bold),
                  color = Forge.sceneInk.text)
         }
