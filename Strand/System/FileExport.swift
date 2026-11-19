@@ -159,7 +159,9 @@ enum FileExport {
     /// meta.json) are produced by the assembler; existing on-disk files (raw-capture, screenshot) are
     /// read into Data by the assembler. EVERY entry must already be redacted by the caller (section 5.3).
     /// Equatable so the assembler cap can assert an undersized bundle is returned untouched (section 5.4).
-    struct BundleEntry: Equatable { let name: String; let data: Data }
+    /// Sendable so a bundle can be zipped off the main actor: deflating a two-megabyte strap log is
+    /// long enough to be felt, and the Android twin has always done it on its IO dispatcher.
+    struct BundleEntry: Equatable, Sendable { let name: String; let data: Data }
 
     /// Zip `entries` into a single staged `.zip` under the temporary directory and return its URL, or nil
     /// if there are no entries. Pure file IO, no UI, so it is unit-testable. Uses ZIPFoundation's `Archive`
@@ -171,7 +173,13 @@ enum FileExport {
         try? FileManager.default.removeItem(at: url)
         guard let archive = try? Archive(url: url, accessMode: .create, pathEncoding: nil) else { return nil }
         for entry in entries {
-            try? archive.addEntry(with: entry.name, type: .file, uncompressedSize: Int64(entry.data.count)) { position, size in
+            // `.deflate`, not ZIPFoundation's `.none` default: these bundles are almost entirely log
+            // text, and a measured strap log of 2,229,782 bytes stores as 287,177 compressed, an
+            // eighth. It decides whether a report fits under the service's 4 MiB ceiling at all, and
+            // the share sheet hands over a smaller file for the same reason.
+            try? archive.addEntry(with: entry.name, type: .file,
+                                  uncompressedSize: Int64(entry.data.count),
+                                  compressionMethod: .deflate) { position, size in
                 let start = Int(position)
                 let end = min(start + size, entry.data.count)
                 return entry.data.subdata(in: start..<end)

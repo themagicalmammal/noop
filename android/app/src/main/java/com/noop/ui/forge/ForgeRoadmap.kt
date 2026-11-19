@@ -13,6 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.Forum
+import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.rounded.TextFields
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.AutoAwesome
@@ -269,15 +274,22 @@ internal fun ProjectHubSection(
     val (page, loaded) = rememberProjectPage()
     val planned = page.items("now").size + page.items("next").size + page.items("later").size
 
+    // The same words the Apple hub uses. A bare "7" under a card is the count that reads as an
+    // alarm, which is the one thing these pages are not for, and it sat beside a card that says
+    // "8 reported, 1 being worked on" in a sentence.
     ProjectHubCard(R.drawable.scene_roadmap, stringResource(R.string.forge_roadmap_title),
                    stringResource(R.string.project_card_roadmap_line),
-                   if (planned > 0) planned.toString() else null, onRoadmap)
+                   if (planned > 0) stringResource(R.string.project_card_planned, planned) else null,
+                   onRoadmap)
     ProjectHubCard(R.drawable.scene_problems, stringResource(R.string.project_card_problems_title),
                    stringResource(R.string.project_card_problems_line),
                    reportedSummary(page), onProblems)
     ProjectHubCard(R.drawable.scene_wishes, stringResource(R.string.project_card_wishes_title),
                    stringResource(R.string.project_card_wishes_line),
-                   if (page.suggestions.isNotEmpty()) page.suggestions.size.toString() else null, onWishes)
+                   if (page.suggestions.isNotEmpty())
+                       stringResource(R.string.project_card_published, page.suggestions.size)
+                   else null,
+                   onWishes)
     ProjectHubCard(R.drawable.scene_helping, stringResource(R.string.donation_title),
                    stringResource(R.string.donation_subtitle), null, onDonation)
 
@@ -335,6 +347,10 @@ private fun ProjectSharingCard() {
 @Composable
 private fun reportedSummary(page: RoadmapPage): String? = when {
     page.reported.isEmpty() -> null
+    // "0 reported, 3 being worked on" is true and reads as a fault. Everything open being worked on
+    // is the good case, so it says that and nothing else. The Apple twin is `summary(_:)`.
+    page.workingCount > 0 && page.reportedCount == 0 ->
+        stringResource(R.string.forge_roadmap_summary_only_working, page.workingCount)
     page.workingCount > 0 ->
         stringResource(R.string.forge_roadmap_summary_working, page.reportedCount, page.workingCount)
     else -> stringResource(R.string.forge_roadmap_summary, page.reportedCount)
@@ -407,9 +423,14 @@ internal fun ProblemsSection(onOpenTestCentre: () -> Unit, onOpenTracker: () -> 
     IssueGroup(R.string.forge_roadmap_decided, page.decided, R.string.forge_roadmap_decided_note)
 
     ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
+        // Named for what it is, as on Apple: the in-app reporter above carries the title "Report a
+        // problem", and two rows with that title on one page is the page saying one thing twice. The
+        // line under it depends on whether the short way exists at all, because "the long way" only
+        // means something beside a short one.
         HubRow(Icons.Rounded.BugReport, ForgeTokens.Color.systemTeal.resolve(),
-               stringResource(R.string.forge_roadmap_report),
-               stringResource(R.string.forge_roadmap_report_detail), onOpenTestCentre)
+               stringResource(R.string.project_log_myself),
+               stringResource(if (page.canWrite) R.string.project_log_long_way
+                              else R.string.project_log_only_way), onOpenTestCentre)
         HubDivider()
         HubRow(Icons.Rounded.OpenInNew, ForgeTokens.Color.systemGray.resolve(),
                stringResource(R.string.forge_roadmap_tracker),
@@ -427,6 +448,9 @@ internal fun WishesSection() {
     var sending by remember { mutableStateOf(false) }
     // 0 nothing said yet, 1 arrived, 2 did not go out.
     var sentState by remember { mutableIntStateOf(0) }
+    // The wish whose thumb did not go out. Without it a refused vote was a thumb that simply did not
+    // move, which is what a tap the screen never received looks like.
+    var voteFailed by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(page.canWrite, page.voted) {
@@ -439,6 +463,17 @@ internal fun WishesSection() {
     }
 
     ProjectScene(R.drawable.scene_wishes)
+
+    // The five questions somebody asks themselves while typing, as on Apple (`ProjectWishesView`).
+    // Android had one line of it, which answered the first question and left the other four.
+    SectionHeader(stringResource(R.string.project_wish_how))
+    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
+        WishFact(Icons.Rounded.Lock, R.string.project_wish_fact_private)
+        WishFact(Icons.Rounded.TextFields, R.string.project_wish_fact_text)
+        WishFact(Icons.Rounded.FilterList, R.string.project_wish_fact_filter)
+        WishFact(Icons.Rounded.Forum, R.string.project_wish_fact_published)
+        WishFact(Icons.Rounded.History, R.string.project_wish_fact_odds)
+    }
 
     if (page.canWrite) {
         SectionHeader(stringResource(R.string.forge_roadmap_suggest))
@@ -487,8 +522,9 @@ internal fun WishesSection() {
         SectionHeader(stringResource(R.string.forge_roadmap_suggestions))
         page.suggestions.forEach { suggestion ->
             SuggestionCard(suggestion, page.voted.contains(suggestion.id), counts[suggestion.id],
-                           page.canWrite) { wants ->
+                           page.canWrite, voteFailed == suggestion.id) { wants ->
                 scope.launch {
+                    voteFailed = null
                     val answer = withContext(Dispatchers.IO) {
                         SwiftCore.call("project.vote",
                                        JSONObject().put("id", suggestion.id).put("on", wants).toString())
@@ -501,6 +537,8 @@ internal fun WishesSection() {
                         if (root.has("count") && !root.isNull("count")) {
                             counts = counts + (suggestion.id to root.optInt("count"))
                         }
+                    } else {
+                        voteFailed = suggestion.id
                     }
                 }
             }
@@ -510,7 +548,8 @@ internal fun WishesSection() {
 
 @Composable
 private fun SuggestionCard(suggestion: RoadmapSuggestion, voted: Boolean, count: Int?,
-                           canVote: Boolean, onVote: (Boolean) -> Unit) {
+                           canVote: Boolean, failed: Boolean = false,
+                           onVote: (Boolean) -> Unit) {
     ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
         Text(suggestion.title, style = Forge.type.headline.copy(fontWeight = FontWeight.SemiBold),
              color = Forge.colors.text)
@@ -543,6 +582,20 @@ private fun SuggestionCard(suggestion: RoadmapSuggestion, voted: Boolean, count:
                 }
             }
         }
+        if (failed) {
+            Text(stringResource(R.string.forge_roadmap_send_failed), style = Forge.type.caption,
+                 color = Forge.colors.textSecondary)
+        }
+    }
+}
+
+/** One fact about the way a wish travels, as a symbol and a sentence. The Apple twin is `WishFact`. */
+@Composable
+private fun WishFact(icon: ImageVector, textRes: Int) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space3)) {
+        Icon(icon, contentDescription = null, tint = Forge.colors.accent,
+             modifier = Modifier.size(20.dp).padding(top = 2.dp))
+        Text(stringResource(textRes), style = Forge.type.body, color = Forge.colors.textSecondary)
     }
 }
 

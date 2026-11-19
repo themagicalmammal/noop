@@ -451,4 +451,49 @@ final class MomentumBuilderTests: XCTestCase {
         XCTAssertNil(MomentumCopy.baselineDeltaPct(row: today, hrvBaseline: nil))
         XCTAssertEqual(MomentumCopy.headline(row: today, hrvBaseline: fresh), MomentumCopy.stateWord(77))
     }
+
+    // MARK: - The streak card
+
+    /// The streak number counts goal WEEKS (`GoalTrackingEngine` evaluates one calendar week at a
+    /// time). The card printed it as days until 2026-11-18, which stated a span nothing measured and
+    /// read as a running goal in several languages. It must say weeks, and it must name the goal: the
+    /// number alone belongs to whichever long-term goal happens to be first.
+    func testTheStreakCardCountsWeeksAndNamesTheGoal() {
+        var i = MomentumBuilder.Inputs()
+        i.goalStreak = (weeks: 8, goal: "Walk more")
+        guard let card = MomentumBuilder.candidates(i).first(where: { $0.kind == .streak }) else {
+            return XCTFail("a streak of eight kept weeks is worth saying")
+        }
+        XCTAssertTrue(card.headline.contains("8"), "the count belongs in the headline: \(card.headline)")
+        XCTAssertTrue(card.headline.lowercased().contains("week"), "weeks, not days: \(card.headline)")
+        XCTAssertFalse(card.headline.lowercased().contains("day"), "the number is not days: \(card.headline)")
+        XCTAssertTrue(card.detail.contains("Walk more"), "the line under it must name the goal: \(card.detail)")
+        XCTAssertFalse(card.detail.contains("8"),
+                       "the count is already in the headline; twice is twice: \(card.detail)")
+        XCTAssertFalse(card.detail.lowercased().contains("day"),
+                       "nothing here is measured per day: \(card.detail)")
+    }
+
+    /// The line may not claim the plan was met in full. `PeriodGoalPace.streak` counts a week as kept on
+    /// `.achieved` OR `.almost`, so three sessions of four keeps the run going; "you kept every planned
+    /// step" (what this said until the review of 2026-11-18) is then a claim about weeks that missed one.
+    func testTheStreakLineDoesNotClaimEveryStepWasDone() {
+        var i = MomentumBuilder.Inputs()
+        i.goalStreak = (weeks: 8, goal: "Walk more")
+        guard let card = MomentumBuilder.candidates(i).first(where: { $0.kind == .streak }) else {
+            return XCTFail("a streak of eight kept weeks is worth saying")
+        }
+        for claim in ["every", "all of", "each"] {
+            XCTAssertFalse(card.detail.lowercased().contains(claim),
+                           "an almost-week keeps the streak, so \"\(claim)\" overstates it: \(card.detail)")
+        }
+    }
+
+    /// Under three kept weeks there is no streak to celebrate, and a goal with none says nothing.
+    func testAShortOrAbsentStreakSaysNothing() {
+        var i = MomentumBuilder.Inputs()
+        i.goalStreak = (weeks: 2, goal: "Walk more")
+        XCTAssertFalse(kinds(i).contains(.streak))
+        XCTAssertFalse(kinds(MomentumBuilder.Inputs()).contains(.streak))
+    }
 }

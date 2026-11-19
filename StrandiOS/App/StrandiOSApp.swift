@@ -444,6 +444,16 @@ struct StrandiOSApp: App {
                 model.traceAppState("foreground")
                 model.session.publishActivity()
                 model.drainPendingIntents(router: router)
+                // A reported problem that moved. Looks at most every six hours and only at this
+                // device's own reports; with none stored it reads nothing and builds no client.
+                Task { @MainActor in
+                    let changes = await ProjectReportWatcher.checkIfDue(service: {
+                        let page = await ProjectPageStore(directory: RoadmapModel.cacheDirectory)
+                            .cached()
+                        return ProjectService(service: page.service)
+                    })
+                    await ProjectReportWatcher.announce(changes)
+                }
                 // iOS grants a background refresh when it feels like it, and often not at all. Catch up
                 // on foreground so an enabled brief still lands on the day it was due instead of
                 // silently skipping whenever the system declined the wake. `catchUpIfDue` owns the

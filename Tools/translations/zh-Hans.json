@@ -4755,5 +4755,20 @@
   "Being worked on.": "正在处理。",
   "Fixed.": "已修复。",
   "Not planned.": "不计划处理。",
-  "The plan could not be read, or there is none right now.": "无法读取计划，或者目前没有计划。"
+  "The plan could not be read, or there is none right now.": "无法读取计划，或者目前没有计划。",
+  "The report arrived. The log did not: it was too large, or the service refused it.": "报告已送达，日志没有：它太大，或者服务拒绝了它。",
+  "Answers to my reports": "对我的报告的回复",
+  "A notice when a problem you reported is answered or fixed.": "当你报告的问题收到回复或被修复时通知你。",
+  "The developer answered you.": "开发者回复了你。",
+  "It is fixed.": "已经修复了。",
+  "Somebody is working on it.": "有人正在处理。",
+  "It will not be changed.": "不会更改。",
+  "It has been read.": "已被阅读。",
+  "A picture, if it helps": "一张图，如果有帮助",
+  "Add a picture": "添加图片",
+  "A screenshot of what went wrong says more than a log": "一张出错时的截图胜过一份日志",
+  "Remove the picture": "移除图片",
+  "Those weeks met your plan for %@, or came close.": "这些周达成了「%@」的计划，或接近达成。",
+  "4.0, unconfirmed on real hardware": "4.0，未在真实设备上确认",
+  "The strap keeps reporting a different time than NOOP sends, so its firmware alarm won't fire at your wake time — usually a strap whose clock or alarm has reset. Restart the strap from Devices, or fully charge it and reconnect; keep your phone's Clock alarm as your wake until it takes.": "手环报告的时间与 NOOP 发送的时间不一致，因此其固件闹钟不会在你的起床时间响起，通常是手环的时钟或闹钟被重置了。请在「设备」中重启手环，或将其充满电后重新连接；在生效之前，请继续使用手机的时钟闹钟。"
 }

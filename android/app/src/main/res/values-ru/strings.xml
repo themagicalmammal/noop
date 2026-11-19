@@ -234,9 +234,13 @@
     <string name="timeline_owned">Во владении</string>
     <string name="timeline_all">Все</string>
     <string name="timeline_loading_day">Загружаем день…</string>
-    <string name="timeline_pinch_to_zoom">Сведите пальцы для масштабирования · перетащите для перемещения</string>
-    <string name="timeline_zoomed_in">Увеличено · перетащите для панорамирования</string>
+    <string name="timeline_pinch_to_zoom">Сведите пальцы для масштабирования · перетащите для перемещения · удерживайте, чтобы считать</string>
+    <string name="timeline_zoomed_in">Увеличено · перетащите для панорамирования · удерживайте, чтобы считать</string>
     <string name="timeline_reset">Сбросить</string>
+    <string name="timeline_whole_day">Весь день</string>
+    <string name="timeline_lane_sleep">Сон</string>
+    <string name="timeline_lane_heart">Пульс</string>
+    <string name="timeline_lane_workouts">Тренировки</string>
     <string name="timeline_min">Мин.</string>
     <string name="timeline_avg">СРЕД</string>
     <string name="timeline_max">Макс.</string>
@@ -2227,7 +2231,7 @@
     <string name="today_hr_empty_window">Нет пульса за последние %1$s. Попробуйте более широкое окно или «Сегодня».</string>
     <string name="today_hr_none_today">За сегодня пульс ещё не сохранён. Кривая появится, когда браслет выгрузит данные или их принесёт импорт.</string>
     <string name="today_hr_one_block">За сегодня сохранён только один пятиминутный блок пульса. Чтобы провести линию, нужно два.</string>
-    <string name="today_hr_average_last_window">5-минутное среднее | последние %1$s</string>
+    <string name="today_hr_average_last_window">5-минутное среднее · последние %1$s</string>
     <string name="today_hr_zoomed_hint">Увеличено · перетащите для панорамирования</string>
     <string name="today_not_connected">Не подключено</string>
     <string name="today_should_you_push">Стоит ли сегодня выкладываться?</string>
@@ -2388,8 +2392,8 @@
     <string name="today_confidence_solid">Стабильный</string>
     <string name="today_confidence_building">Накопление данных</string>
     <string name="today_confidence_calibrating">КАЛИБРОВКА</string>
-    <string name="today_hr_average_selected_day">5-минутное среднее | выбранный день</string>
-    <string name="today_hr_average_since_midnight">5-минутное среднее | с полуночи</string>
+    <string name="today_hr_average_selected_day">5-минутное среднее · выбранный день</string>
+    <string name="today_hr_average_since_midnight">5-минутное среднее · с полуночи</string>
     <string name="today_hr_a11y_24_hour">Пульс за 24 часа</string>
     <string name="today_hr_a11y_sleep_band">полоса сна %1$s</string>
     <string name="today_hr_a11y_charge_at_wake">%1$d процентов Заряда при пробуждении</string>
@@ -2415,7 +2419,7 @@
     <string name="today_driver_value_ms">%1$d мс</string>
     <string name="today_driver_value_bpm">%1$d уд/мин</string>
     <string name="today_driver_value_br_min">%1$s вд/мин</string>
-    <string name="today_driver_value_temp_deviation">%1$s °C относительно нормы</string>
+    <string name="today_driver_value_temp_deviation">%1$s относительно нормы</string>
     <string name="today_driver_baseline_ms">норма %1$d мс</string>
     <string name="today_driver_baseline_bpm">норма %1$d уд/мин</string>
     <string name="today_driver_baseline_br_min">норма %1$s вд/мин</string>
@@ -2996,6 +3000,7 @@
     <string name="forge_training_finish">Завершить</string>
     <string name="forge_training_discard">Отменить тренировку</string>
     <string name="forge_training_finish_empty">Отметьте хотя бы один подход, чтобы сохранить тренировку.</string>
+    <string name="forge_training_not_saved">Это изменение не сохранилось. Попробуйте ещё раз.</string>
     <string name="forge_training_finish_clock">Часы устройства идут раньше начала этой тренировки, поэтому у неё пока нет длительности. Проверьте дату и время и сохраните снова.</string>
     <string name="forge_training_finish_gone">Эта тренировка больше не открыта. Она уже сохранена или завершена в другом месте.</string>
     <string name="forge_training_finish_failed">Не удалось сохранить тренировку. Ничего не потеряно: попробуйте ещё раз, а если не выходит, пришлите журнал браслета.</string>
@@ -3495,7 +3500,12 @@
     <string name="forge_library_region_shoulders">Плечи</string>
     <string name="forge_library_save_failed">Не удалось сохранить упражнение. Повторите попытку.</string>
     <string name="forge_library_search">Упражнения, мышцы или оборудование</string>
-    <string name="forge_library_sets">%1$d sets</string>
+    <plurals name="forge_library_sets">
+        <item quantity="one">%1$d подход</item>
+        <item quantity="few">%1$d подхода</item>
+        <item quantity="many">%1$d подходов</item>
+        <item quantity="other">%1$d подхода</item>
+    </plurals>
     <string name="forge_library_subtitle">Упражнения, инструкции и ваши рекорды</string>
     <string name="forge_library_this_exercise">Это упражнение</string>
     <string name="forge_library_title">Библиотека упражнений</string>
@@ -3535,7 +3545,9 @@
     <string name="forge_history_rated">Оценено: %1$d из %2$d тренировок за этот период</string>
     <string name="forge_history_gaps">%1$d из %2$d периодов содержат дни, которые не удалось измерить (заштрихованы).</string>
     <string name="forge_history_estimate_note">Светлые верхушки оценены по среднему пульсу тренировки, если запись пульса не сохранилась. Они не учитываются ни в уровне, ни в диапазоне.</string>
-    <string name="forge_history_unknown_days">%1$d дн. без измерений</string>
+    <plurals name="forge_history_unknown_days">
+        <item quantity="other">%1$d дн. без измерений</item>
+    </plurals>
     <string name="forge_history_all">Все</string>
     <string name="forge_history_unavailable">Не удалось загрузить историю тренировок.</string>
     <string name="forge_session_body_response">Что сделало твое тело</string>
@@ -3610,7 +3622,9 @@
     <string name="forge_hevy_credentials_failed">Не удалось безопасно сохранить ключ API.</string>
     <string name="forge_hevy_routines_note">Выберите программы для добавления. Повторный импорт обновляет ранее импортированные из Hevy копии.</string>
     <string name="forge_hevy_counts">Сохранено: %1$d · обновлено: %2$d · удалено: %3$d · пропущено: %4$d</string>
-    <string name="forge_hevy_stored">Сохранено тренировок: %1$d</string>
+    <plurals name="forge_hevy_stored">
+        <item quantity="other">Сохранено тренировок: %1$d</item>
+    </plurals>
     <string name="forge_hevy_last_sync">Последняя синхронизация: %1$s</string>
     <string name="forge_hevy_pages">Страница %1$d из %2$d</string>
     <string name="forge_hevy_skipped_exercises">Пропущено упражнений: %1$d</string>
@@ -3794,12 +3808,36 @@
     <string name="forge_goals_to_go">Осталось %1$s · ещё %2$d дн.</string>
     <string name="forge_goals_first_week_prorated">Первая неделя, пропорционально: осталось %1$s</string>
     <string name="forge_goals_first_month_prorated">Первый месяц, пропорционально: осталось %1$s</string>
-    <string name="forge_goals_streak_weeks">%1$d недель подряд</string>
-    <string name="forge_goals_streak_months">%1$d месяцев подряд</string>
-    <string name="forge_goals_streak_weeks_best">%1$d недель подряд · лучшее %2$d</string>
-    <string name="forge_goals_streak_months_best">%1$d месяцев подряд · лучшее %2$d</string>
-    <string name="forge_goals_best_weeks">Лучшая серия: %1$d нед.</string>
-    <string name="forge_goals_best_months">Лучшая серия: %1$d мес.</string>
+    <plurals name="forge_goals_streak_weeks">
+        <item quantity="one">%1$d неделя подряд</item>
+        <item quantity="few">%1$d недели подряд</item>
+        <item quantity="many">%1$d недель подряд</item>
+        <item quantity="other">%1$d недели подряд</item>
+    </plurals>
+    <plurals name="forge_goals_streak_months">
+        <item quantity="one">%1$d месяц подряд</item>
+        <item quantity="few">%1$d месяца подряд</item>
+        <item quantity="many">%1$d месяцев подряд</item>
+        <item quantity="other">%1$d месяца подряд</item>
+    </plurals>
+    <plurals name="forge_goals_streak_weeks_best">
+        <item quantity="one">%1$d неделя подряд · лучшее %2$d</item>
+        <item quantity="few">%1$d недели подряд · лучшее %2$d</item>
+        <item quantity="many">%1$d недель подряд · лучшее %2$d</item>
+        <item quantity="other">%1$d недели подряд · лучшее %2$d</item>
+    </plurals>
+    <plurals name="forge_goals_streak_months_best">
+        <item quantity="one">%1$d месяц подряд · лучшее %2$d</item>
+        <item quantity="few">%1$d месяца подряд · лучшее %2$d</item>
+        <item quantity="many">%1$d месяцев подряд · лучшее %2$d</item>
+        <item quantity="other">%1$d месяца подряд · лучшее %2$d</item>
+    </plurals>
+    <plurals name="forge_goals_best_weeks">
+        <item quantity="other">Лучшая серия: %1$d нед.</item>
+    </plurals>
+    <plurals name="forge_goals_best_months">
+        <item quantity="other">Лучшая серия: %1$d мес.</item>
+    </plurals>
     <string name="forge_goals_s_achieved">Достигнуто</string>
     <string name="forge_goals_s_ahead">Впереди</string>
     <string name="forge_goals_s_on_track">На ходу</string>
@@ -4773,7 +4811,7 @@
     <string name="forge_cb_pt">%1$d балл</string>
     <string name="forge_cb_zero">0 баллов</string>
     <string name="forge_cb_skin">Температура кожи</string>
-    <string name="forge_cb_vs_normal">%1$s%2$s °C от вашей нормы</string>
+    <string name="forge_cb_vs_normal">%1$s от вашей нормы</string>
     <string name="forge_cb_warmer">Теплее вашей нормы</string>
     <string name="forge_cb_cooler">Холоднее вашей нормы</string>
     <string name="forge_cb_typical">Типично для вас</string>
@@ -6038,7 +6076,7 @@
     <string name="forge_cy_topic_exercise">Тренировки</string>
     <string name="forge_cy_topic_mind">Психика</string>
     <string name="forge_cy_day_n_of_n">день %1$d из %2$d</string>
-    <string name="forge_cy_nights_x_c">ночи %1$s °C</string>
+    <string name="forge_cy_nights_x_c">ночи %1$s</string>
     <string name="forge_cy_resting_heart_rate_x_bpm">пульс покоя %1$s уд/мин</string>
     <string name="forge_cy_rise_on_day_n">подъём на день %1$d</string>
     <string name="forge_cy_skin_temperature_against_your_usual">температура кожи относительно обычной</string>
@@ -6224,7 +6262,9 @@
     <string name="forge_wk_min">%1$d мин.</string>
     <string name="forge_wk_h_min">%1$d ч %2$s мин</string>
     <string name="forge_wk_cal_label">Дни тренировок за последние 13 недель</string>
-    <string name="forge_wk_cal_value">Дней с тренировкой: %1$d</string>
+    <plurals name="forge_wk_cal_value">
+        <item quantity="other">Дней с тренировкой: %1$d</item>
+    </plurals>
     <string name="forge_steps_from">Шаги из</string>
     <string name="forge_steps_auto">Автоматически</string>
     <string name="forge_steps_strap">Браслет</string>
@@ -6414,7 +6454,7 @@
     <string name="forge_cband_moderate">Умеренный</string>
     <string name="forge_cband_primed">Заряжен</string>
     <string name="forge_cband_peak">Пик</string>
-    <string name="forge_ch_temp_vs_usual">%1$s °C к обычному</string>
+    <string name="forge_ch_temp_vs_usual">%1$s к обычному</string>
     <string name="forge_tr_coach_shorter">Покороче, пожалуйста</string>
     <string name="forge_tr_coach_other">Другая программа</string>
     <string name="forge_tr_coach_plan_today">Спланировать день с коучем</string>
@@ -6569,7 +6609,12 @@ NOOP не задаёт фиксированный порог, а берёт ег
     <string name="diet_train_all">Если каждый день тренировочный, нет дня отдыха, откуда переносить калории; все дни остаются одинаковыми.</string>
     <string name="diet_train_moved">Перенесено на тренировочные дни</string>
     <string name="diet_train_fasting">У поста свои дни, поэтому ничего не переносится между тренировочными днями и днями отдыха.</string>
-    <string name="body_site_over">по %1$d измерениям</string>
+    <plurals name="body_site_over">
+        <item quantity="one">по %1$d измерению</item>
+        <item quantity="few">по %1$d измерениям</item>
+        <item quantity="many">по %1$d измерениям</item>
+        <item quantity="other">по %1$d измерениям</item>
+    </plurals>
     <string name="body_site_history">История</string>
     <string name="body_site_one">Пока одно измерение. Второе даст этой точке тренд.</string>
     <string name="body_site_how">Как измерять</string>
@@ -6790,7 +6835,12 @@ NOOP не задаёт фиксированный порог, а берёт ег
     <string name="forge_plan_unnamed">Мой план</string>
     <string name="forge_plan_following">Активен</string>
     <string name="forge_plan_resting">Отдыхает</string>
-    <string name="forge_plan_days_a_week">%1$d дней в неделю</string>
+    <plurals name="forge_plan_days_a_week">
+        <item quantity="one">%1$d день в неделю</item>
+        <item quantity="few">%1$d дня в неделю</item>
+        <item quantity="many">%1$d дней в неделю</item>
+        <item quantity="other">%1$d дня в неделю</item>
+    </plurals>
     <string name="forge_plan_block_week">Неделя %1$d из %2$d</string>
     <string name="forge_plan_block_weeks">Блок на %1$d недель</string>
     <string name="forge_plan_block_finished">Блок завершён</string>
@@ -6813,13 +6863,23 @@ NOOP не задаёт фиксированный порог, а берёт ег
     <string name="forge_plan_block_running">Предписания идут за блоком неделя за неделей.</string>
     <string name="forge_plan_this_block">Этот блок на данный момент</string>
     <string name="forge_plan_sessions_of">%1$d из %2$d занятий</string>
-    <string name="forge_plan_sessions">%1$d занятий</string>
+    <plurals name="forge_plan_sessions">
+        <item quantity="one">%1$d занятие</item>
+        <item quantity="few">%1$d занятия</item>
+        <item quantity="many">%1$d занятий</item>
+        <item quantity="other">%1$d занятия</item>
+    </plurals>
     <string name="forge_plan_work_sets">%1$d рабочих подходов</string>
     <string name="forge_plan_load_moved">%1$d кг поднято</string>
     <string name="forge_plan_unpriced">В %1$d подходах не было веса для подсчёта.</string>
     <string name="forge_plan_more_sets_than_before">На %1$d рабочих подходов больше, чем в прошлом блоке</string>
     <string name="forge_plan_fewer_sets_than_before">На %1$d рабочих подходов меньше, чем в прошлом блоке</string>
-    <string name="forge_plan_target_sessions">%1$d занятий в неделю</string>
+    <plurals name="forge_plan_target_sessions">
+        <item quantity="one">%1$d занятие в неделю</item>
+        <item quantity="few">%1$d занятия в неделю</item>
+        <item quantity="many">%1$d занятий в неделю</item>
+        <item quantity="other">%1$d занятия в неделю</item>
+    </plurals>
     <string name="forge_plan_target_cardio">%1$d минут кардио в неделю</string>
     <string name="forge_plan_a_week">Неделя этого плана</string>
     <string name="forge_plan_sets">%1$s подходов</string>
@@ -6920,7 +6980,9 @@ NOOP не задаёт фиксированный порог, а берёт ег
     <string name="forge_import_step_reading">Чтение данных</string>
     <string name="forge_import_step_sorting">Упорядочивание данных</string>
     <string name="forge_import_step_saving">Сохранение данных</string>
-    <string name="forge_import_progress_entries">записей: %1$d</string>
+    <plurals name="forge_import_progress_entries">
+        <item quantity="other">записей: %1$d</item>
+    </plurals>
     <string name="forge_roadmap_title">План развития</string>
     <string name="forge_roadmap_subtitle">Что делается и что уже известно</string>
     <string name="forge_roadmap_now">В работе</string>
@@ -6928,7 +6990,118 @@ NOOP не задаёт фиксированный порог, а берёт ег
     <string name="forge_roadmap_later">Позже</string>
     <string name="forge_roadmap_reported">Сообщённые проблемы</string>
     <string name="forge_roadmap_summary">Сообщено: %1$d</string>
+    <plurals name="forge_cmp_n_series">
+        <item quantity="one">%1$d ряд</item>
+        <item quantity="few">%1$d ряда</item>
+        <item quantity="many">%1$d рядов</item>
+        <item quantity="other">%1$d ряда</item>
+    </plurals>
+    <plurals name="forge_cmp_n_pairs">
+        <item quantity="one">%1$d пара</item>
+        <item quantity="few">%1$d пары</item>
+        <item quantity="many">%1$d пар</item>
+        <item quantity="other">%1$d пары</item>
+    </plurals>
+    <plurals name="forge_hl_n_bars">
+        <item quantity="one">%1$d столбец</item>
+        <item quantity="few">%1$d столбца</item>
+        <item quantity="many">%1$d столбцов</item>
+        <item quantity="other">%1$d столбца</item>
+    </plurals>
+    <plurals name="forge_hl_n_readings">
+        <item quantity="one">%1$d измерение</item>
+        <item quantity="few">%1$d измерения</item>
+        <item quantity="many">%1$d измерений</item>
+        <item quantity="other">%1$d измерения</item>
+    </plurals>
+    <plurals name="forge_lb_n_markers">
+        <item quantity="one">%1$d отметка</item>
+        <item quantity="few">%1$d отметки</item>
+        <item quantity="many">%1$d отметок</item>
+        <item quantity="other">%1$d отметки</item>
+    </plurals>
+    <plurals name="forge_wo_n_sports">
+        <item quantity="one">%1$d вид спорта</item>
+        <item quantity="few">%1$d вида спорта</item>
+        <item quantity="many">%1$d видов спорта</item>
+        <item quantity="other">%1$d вида спорта</item>
+    </plurals>
+    <plurals name="forge_wo_n_of_sessions">
+        <item quantity="one">%1$d из %2$d сессии</item>
+        <item quantity="few">%1$d из %2$d сессий</item>
+        <item quantity="many">%1$d из %2$d сессий</item>
+        <item quantity="other">%1$d из %2$d сессий</item>
+    </plurals>
+    <string name="forge_wo_n_total">всего %1$d</string>
+    <string name="forge_cmp_pearson_range">Корреляция Пирсона · %1$s</string>
+    <string name="forge_hl_body_age">Возраст тела %1$d</string>
+    <string name="forge_hl_as_of">на %1$s</string>
+    <string name="forge_lb_side_by_side">рядом · %1$s перед каждым измерением</string>
+    <string name="forge_sl_hours_avg">в среднем %1$.1f ч</string>
+    <string name="forge_wo_log">Журнал</string>
+    <string name="forge_fr_sources_differ">Источники расходятся</string>
+    <string name="forge_hl_latest_readings">Последние измерения</string>
+    <string name="forge_hl_from_rr">из интервалов R-R</string>
+    <string name="forge_lv_session_overline">Записать или посмотреть текущий поток</string>
+    <string name="forge_lv_trust_overline">Доказательство, что панель актуальна</string>
+    <string name="forge_rh_descriptive">Описательная статистика</string>
+    <string name="forge_wo_by_sport">По виду спорта</string>
+    <string name="forge_cmp_overline">Наложить от 2 до 4 сигналов</string>
+    <string name="forge_cmp_pearson">Корреляция Пирсона</string>
+    <string name="forge_hl_strap_history">История со страпа</string>
+    <string name="forge_hl_on_phone">На этом телефоне</string>
+    <string name="forge_hl_nightly">По вашим ночным измерениям</string>
+    <string name="forge_hl_weekly">Еженедельно</string>
+    <string name="forge_hl_five_years">± 5 лет</string>
+    <string name="forge_ih_ranked">По порядку · ваши данные</string>
+    <string name="forge_ih_curve">Своя кривая · подтянута к среднему</string>
+    <string name="forge_in_cost_overline">Чего каждая активность стоит восстановлению</string>
+    <string name="forge_in_protocol">Протокол на одном человеке</string>
+    <string name="forge_in_setup">Настройка</string>
+    <string name="forge_in_pearson">Корреляция Пирсона</string>
+    <string name="forge_il_forecast">Вечерний прогноз</string>
+    <string name="forge_lb_readings_over_time">ваши измерения со временем</string>
+    <string name="forge_lb_every_reading">каждое измерение, которое вы внесли</string>
+    <string name="forge_mk_what">что вы записываете?</string>
+    <string name="forge_mk_number">ваше число, дата и заметка</string>
+    <string name="forge_mind_overline">Как вы себя чувствуете</string>
+    <string name="forge_sl_metrics">Показатели</string>
+    <string name="forge_sl_vs_typical_short">по сравнению с обычным</string>
+    <string name="forge_sl_tonight_target">цель на эту ночь</string>
+    <string name="forge_sl_selected_night">Выбранная ночь</string>
+    <string name="forge_sl_marker_mean">отметка = ваше среднее</string>
+    <string name="forge_st_markers">Отметки</string>
+    <string name="forge_st_vs_baseline">по сравнению с базой за 30 дней</string>
+    <string name="forge_st_intraday">В течение дня</string>
+    <string name="forge_st_history">История</string>
+    <string name="forge_wo_this_session">Эта сессия</string>
+    <string name="forge_cmp_metrics">Показатели</string>
+    <string name="forge_cmp_overlay">Наложение</string>
+    <string name="forge_cmp_together">Как они меняются вместе</string>
+    <string name="forge_hl_sync">Синхронизация</string>
+    <string name="forge_hl_records">Записи и источники</string>
+    <string name="forge_hl_contributors">Факторы</string>
+    <string name="forge_ih_what_moves">Что влияет на ваш %1$s</string>
+    <string name="forge_ih_dose_response">Доза и отклик</string>
+    <string name="forge_in_activity_cost">Цена активности</string>
+    <string name="forge_in_behaviour_effects">Влияние привычек</string>
+    <string name="forge_in_personal_experiment">Личный эксперимент</string>
+    <string name="forge_in_metric_relationships">Связи между показателями</string>
+    <string name="forge_il_tomorrow_charge">Заряд на завтра</string>
+    <string name="forge_lb_trend">Динамика</string>
+    <string name="forge_lb_compare">Сравнить с сигналом</string>
+    <string name="forge_lb_history">История</string>
+    <string name="forge_mk_marker">Отметка</string>
+    <string name="forge_mk_reading">Измерение</string>
+    <string name="forge_mind_title">Настроение</string>
+    <string name="forge_st_today">Сегодня</string>
+    <string name="forge_st_timeline">Ход дня</string>
+    <string name="forge_st_trend">Динамика напряжения</string>
+    <string name="forge_wo_effort">Нагрузка</string>
+    <string name="project_card_planned">запланировано: %1$d</string>
+    <string name="project_card_published">опубликовано: %1$d</string>
     <string name="forge_roadmap_summary_working">Сообщено: %1$d, в работе: %2$d</string>
+    <string name="forge_roadmap_summary_only_working">в работе: %1$d</string>
     <string name="forge_roadmap_show_all">Показать все</string>
     <string name="forge_roadmap_show_less">Показать меньше</string>
     <string name="forge_roadmap_fixed">Недавно исправлено</string>
@@ -6936,6 +7109,9 @@ NOOP не задаёт фиксированный порог, а берёт ег
     <string name="forge_roadmap_decided_note">Сообщения, закрытые без изменений. Остаются здесь месяц.</string>
     <string name="forge_roadmap_report">Сообщить о проблеме</string>
     <string name="forge_roadmap_report_detail">Создаёт журнал для вложения, само ничего не отправляется</string>
+    <string name="project_log_myself">Создать журнал самому</string>
+    <string name="project_log_long_way">Долгий путь: вычищенный файл, который вы несёте куда хотите</string>
+    <string name="project_log_only_way">Вычищенный файл, который можно приложить там, где вы сообщаете</string>
     <string name="forge_roadmap_tracker">Открыть список проблем</string>
     <string name="forge_roadmap_tracker_detail">Чтение и запись происходят в вашем браузере</string>
     <string name="forge_roadmap_empty">Не удалось ничего загрузить. Странице нужен интернет один раз, затем она хранит последнюю копию.</string>
@@ -6949,6 +7125,12 @@ NOOP не задаёт фиксированный порог, а берёт ег
     <string name="forge_roadmap_suggestions">Предложения</string>
     <string name="forge_roadmap_suggest">Предложить</string>
     <string name="forge_roadmap_suggest_note">Это идёт разработчику, а не другим людям с NOOP. Ничто не становится видимым до публикации.</string>
+    <string name="project_wish_how">Что происходит с тем, что вы пишете</string>
+    <string name="project_wish_fact_private">Это попадает в частный список, который читает только разработчик. Не в публичный репозиторий и не к другим людям, которые пользуются NOOP.</string>
+    <string name="project_wish_fact_text">Отправляется тот текст, который вы напишете. Ни имени, ни устройства, ничего о вашем теле или тренировках.</string>
+    <string name="project_wish_fact_filter">Сначала его читает фильтр. Он объединяет пожелание, о котором уже просили, а всё неясное придерживает для разработчика вместо публикации.</string>
+    <string name="project_wish_fact_published">Опубликованные пожелания стоят ниже, вместе с ответом разработчика, и любой может поддержать одно из них пальцем вверх.</string>
+    <string name="project_wish_fact_odds">Большинство пожеланий не делается, и здесь не обещают ни когда, ни вообще. Но то, о чём просят часто, становится вероятнее.</string>
     <string name="forge_roadmap_suggest_hint">Что должен уметь NOOP?</string>
     <string name="forge_roadmap_chars_left">Осталось %1$d символов</string>
     <string name="forge_roadmap_send">Отправить</string>
@@ -7004,6 +7186,7 @@ NOOP не задаёт фиксированный порог, а берёт ег
     <string name="project_report_log_detail">Вы увидите, что именно в нём, прежде чем что-то уйдёт</string>
     <string name="project_report_send">Отправить</string>
     <string name="project_report_sending">Отправка…</string>
+    <string name="project_report_preparing">Подготовка…</string>
     <string name="project_report_failed">Это не ушло. Попробуйте позже.</string>
     <string name="project_report_sent">Отправлено</string>
     <string name="project_report_keep_code">Сохраните этот код. Это единственный путь обратно к сообщению, и он работает на любом устройстве.</string>
@@ -7028,6 +7211,23 @@ NOOP не задаёт фиксированный порог, а берёт ег
     <string name="project_report_review_with">Отправить с журналом</string>
     <string name="project_report_review_without">Без журнала</string>
     <string name="project_report_nothing_said">Пока ничего не сказано. Если придёт вопрос, он появится здесь.</string>
-    <string name="project_report_no_thread_note">Без обратных вопросов об этом сообщении ничего не сохраняется, и никто не сможет спросить деталь, которая помогла бы это исправить. Опишите как можно подробнее.</string>
+    <string name="project_report_checking">Проверка…</string>
+    <string name="project_report_unchecked">Сейчас это не удалось проверить. Это последнее известное состояние.</string>
+    <string name="project_report_sharing_off">Отправка с этого устройства выключена, поэтому проверить это нельзя. Это последнее известное состояние.</string>
+    <string name="project_report_reply_failed">Это не ушло. Ваш текст остался здесь, попробуйте позже.</string>
+    <string name="project_report_withdraw_failed">Это не ушло. Сообщение на месте, и его журнал тоже.</string>
+    <string name="project_report_no_thread_note">Без обратных вопросов об этом сообщении ничего не сохраняется, поэтому ни журнал, ни изображение не могут отправиться вместе с ним, и никто не сможет спросить деталь, которая помогла бы это исправить. Опишите как можно подробнее.</string>
     <string name="project_report_withdraw_note">Журнал удаляется, а код перестаёт работать. Что уже исправлено, остаётся исправленным.</string>
+    <string name="report_notice_title">Ваше сообщение</string>
+    <string name="report_notice_answered">Разработчик вам ответил.</string>
+    <string name="report_notice_fixed">Это исправлено.</string>
+    <string name="report_notice_working">Над этим работают.</string>
+    <string name="report_notice_not_planned">Это не будут менять.</string>
+    <string name="report_notice_read">Это прочитано.</string>
+    <string name="report_notice_switch">Ответы на мои сообщения</string>
+    <string name="report_notice_switch_detail">Уведомление, когда на сообщённую вами проблему ответили или её исправили.</string>
+    <string name="project_report_picture">Картинка, если она помогает</string>
+    <string name="project_report_picture_add">Добавить картинку</string>
+    <string name="project_report_picture_detail">Снимок экрана говорит больше, чем журнал</string>
+    <string name="project_report_picture_remove">Убрать картинку</string>
 </resources>

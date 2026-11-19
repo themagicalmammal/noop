@@ -1616,3 +1616,242 @@ in.
 
 Analysis migration required: no. A strap setting, a readout and a button; no stored derived value, no
 scoring, no analysis window.
+
+## 2026-11-18 — The streak card counted weeks and said days, and nobody could tell which goal it meant
+
+The Today timeline showed "8 days in a row — You've hit your goal 8 days running." The owner read it
+as a running goal after a day of nothing but walking, which is a fair reading: two of the shipped
+translations had read it the same way and turned "days running" into the sport ("di corsa",
+"跑步目标").
+
+**The number was never days.** `GoalTrackingEngine` evaluates a long-term goal one calendar week at a
+time and counts a week as kept once its planned steps are done; `currentStreak` is a run of those
+weeks. `MomentumBuilder` took that number and printed it as days. Every other surface that shows the
+same value either names it weeks (the goals overview) or prints it bare (the journey page), so the
+Today card was the one readout that disagreed with the thing it was reading — the shape this
+repository already has a rule about.
+
+**What the card says now.** The headline carries the count as weeks, reusing the string the goals
+overview already uses. The line under it no longer repeats the number in other words; it names the
+goal (there can be several, and the card silently picked the first active one) and says what a kept
+week actually was: "You've kept every planned step for *goal*." It deliberately stops short of "you
+hit your goal", because a kept week means the planned steps were done and the target can still be far
+off.
+
+**And it is news once, not every morning.** The timeline admits a notice through `TimelineFeed.admit`,
+where a topic speaks at most once a week unless it gets clearly worse — but a milestone or a streak is
+flagged as an EVENT, and an event skipped the cooldown with nothing else to hold it back. The log is
+checked per day, so the same key was admitted again every day it stayed true: with days in the
+headline that was a new key daily, and with weeks it would have been the same card every morning for a
+week. An event is now admitted once per key. The key carries what changed, so the ninth week announces
+itself and the eighth does not announce itself again. This sits in the shared core, so the Android
+timeline, which calls the same `timeline.admit`, follows without a Kotlin twin.
+
+**Not changed:** the threshold. It was three of these units before and is three after, so the same
+streaks are celebrated as before — only the words and the frequency changed. A per-day streak for a
+long-term goal was considered and dropped: nothing measures one. `StreakCalculator` counts days a
+Charge score exists, which is a wearing streak, not a goal streak, and the engine has no per-day
+qualification to offer.
+
+Analysis migration required: no. Card copy and one renamed in-memory field; no stored value, no
+scoring, no analysis window.
+
+## 2026-11-18 — What the two apps said that was not true: a unit, a remedy, and sixty half-translated sentences
+
+A pass over both apps' screens, looking for statements that do not hold rather than for missing
+features. The parity gate (`Tools/test_android_ios_parity.py`) was already green with no named gaps,
+and so were the Tools suites, the doc-comment lint and the translation gate; everything below sat
+underneath all of them.
+
+**A unit the reader did not choose.** The Charge breakdown printed the skin-temperature deviation as
+the scoring engine hands it over, with a literal "C" in the string, on both the Forge breakdown and
+the classic Today driver row. A wearer who had set Fahrenheit was shown a Celsius number under a "C".
+Apple fixed this in #622 with `ChargeBreakdownFormat.displayDriver` and has shown the reader's unit
+since; Android has the setting, every other skin-temp surface there honours it, and this one did not.
+The figure now carries its own sign and unit out of ONE resolver both screens call
+(`UnitFormatter.skinTempDeviation`), composed from the helpers that already existed, and the strings
+lost their hardcoded unit in all nine locales. One consequence worth naming: the number is now
+formatted the way every other skin-temp surface and the Apple row format it, with a US decimal point
+("+0.3 °C"), where this one row used to follow the phone's locale ("+0,3"). Two readouts of one
+figure that could disagree is the worse fault.
+
+**A remedy that breaks the strap.** The card shown when a strap keeps refusing the alarm write told
+the wearer to reset it in the official WHOOP app. That app pulls a firmware update on connect, after
+which the strap is locked out of NOOP: the cure costs the device. NOOP has had its own route since
+#166 (Devices › Restart strap), whose release note already called it "a clean way to reboot a
+misbehaving strap without the official app". Left alone, because no in-app alternative is verified
+and changing them needs a strap on a wrist: the texts that say to unpair a 5.0/MG in the official app
+before pairing it here. Those are an owner decision, not a repair.
+
+**Sixty sentences that stop mid-clause.** One batch of machine translation cut long Android strings at
+some length cap and glued the rest of the ENGLISH source on: "Dies überschreibt aktuelle Daten, so
+back up first if unsure." About sixty strings in every one of the eight locales. Nothing saw it:
+`i18n_audit.py` asks whether a key HAS a translation and all of these do, the XML is well formed, and
+the affected strings are long explanatory texts on Health, Lab Book, Backup, Steps and Smart Alarm
+that nobody reads twice. German is repaired because it is the one that can be checked here; the other
+seven are counted, not hidden.
+
+`Tools/test_i18n_translation_tails.py` is the gate: a translation may not end with a verbatim tail of
+its English source. Its per-locale baseline may only shrink. It lives in `Tools/`, not in the
+`i18n-coverage` workflow, because it reads PRODUCT source and that workflow's path filter would not
+see a later batch move the counts — the same reasoning as the repository-acceptance suite.
+
+**And a weakness in how Android keys are minted.** An Android key is `l10n_<screen>_<slug>_<hash>`,
+hashed on the ORIGINAL English. When the English is rewritten the key survives, so every translation
+stays behind with the old text. The R22 feature-flag note is the live example: the English stopped
+claiming the write unlocks the deeper streams once NOOP never observed it, and five locales went on
+promising exactly that about a write that changes persistent strap settings. Apple keys are the
+English text itself, so a rewrite orphans the old entry and the claim cannot survive. Comparing each
+key's slug against the English it now carries finds the drifted ones; this pass fixed the one that
+made a withdrawn claim and left the rest, which are mostly keys whose slug was never the text.
+
+Analysis migration required: no. Screen copy, one display formatter and a CI gate; no stored value,
+no scoring, no analysis window.
+
+## 2026-11-18 — A unit the reader did not choose, a count that could not say one, and an emulator that was not the app
+
+The second pass of the same day, after walking both apps on a real build rather than reading source.
+
+**The temperature fault had three sites, not one.** The Charge breakdown was the first found; the
+Charge score page and the cycle page's body line printed the same engine figure under their own fixed
+"°C". Found by asking which strings carry a unit the wearer can switch, rather than by looking again
+at the place already fixed. The score page was Android only (Apple resolves it in
+`ForgeToday.driverValue` since #622), the cycle line was wrong on both. All four lines now take the
+figure from one resolver, and the gate covers all four.
+
+**"Best series so far: 1 weeks"** stood on the weekly-goal page of a real build. The card had six
+lines of that shape and nine more strings elsewhere can be handed a 1, each checked at its call site
+rather than guessed: sets, stored workouts, imported entries, the readings behind a body measurement,
+days with a workout, days not measured, sessions, sessions a week, days a week. Two that looked the
+same are already guarded, which is why reading the call site matters: a goal's last day and "last
+week" have their own lines.
+
+Which languages need a singular is not the same everywhere, and this is the part a bulk conversion
+gets wrong. Russian inflects here ("1 неделя", "2 недели", "5 недель") where its abbreviated lines
+elsewhere do not; Polish and Chinese abbreviate and need none; French "mois" is one word either way.
+Three translations were wrong beyond the missing singular and were corrected with them: the Italian
+set count read "imposta" (the verb), the Russian was still English, and the Chinese used 套, the
+classifier for a suit of clothes, where training sets are 组.
+
+`Tools/test_singular_blind_strings.py` holds the rest at a baseline that may only shrink. It counts
+only where the noun is governed by the line's ONLY number: "%lld of %lld days" is not a fault at any
+count, because the noun belongs to the second number. Counting those doubled the reported number and
+made every one of them a false alarm, which is how a gate stops being read.
+
+**The Android hang was the emulator, and the evidence says so.** The demo build ANR'd repeatedly on
+`noop-spike`. The trace puts the main thread in `ViewRootImpl.performDraw` →
+`HardwareRenderer.setStopped` → `RenderProxy::setStopped` → `pthread_cond_wait`, waiting on the
+platform's render thread with no NOOP frame on the stack at all, and the reason Android logs is
+"Input dispatching timed out ... Waited 5063 ms for FocusEvent". The same reason hit
+`com.google.android.googlequicksearchbox` two minutes earlier, and `com.android.systemui` in between.
+Three processes, one starved renderer. This says nothing about a real phone, which is why nothing was
+changed in the app for it; what did change is that `Tools/android_smoke_flow.py` now reports an ANR
+as an ANR instead of dying on a missing "<".
+
+**Worth knowing for the next session:** the simulator carried two installs of the app under different
+bundle identifiers, and `simctl launch` of the wrong one silently ran a build from hours earlier.
+Check `get_app_container` against the build you just made before believing a screenshot.
+
+Analysis migration required: no. Screen copy, display formatters and CI gates; no stored value, no
+scoring, no analysis window.
+
+## 2026-11-18 — Two reports from the testers: a figure that painted nothing, and sessions the fill pass could not see
+
+Both are the same shape: a screen stayed silent about something the app had already worked out.
+
+**The muscle figure under Strength was grey while the list beneath it named twelve trends (#52).**
+The merge per figure muscle compared `abs(slope) >= abs(merged[slug] ?: -1.0)`. The `-1.0` is the
+sentinel for "nothing stored for this muscle yet", and wrapping it in `abs` turned it into a
+threshold of 1.0, a hundred per cent a week. Normalized weekly slopes run around 0.01 to 0.08, so no
+reading ever passed and the map handed to the figure was always empty. Apple compares against a
+stored magnitude, where the sentinel loses every time, so iOS was never affected. The merge is now
+its own function on Android with the sentinel outside `abs`, covered by a test with the reporter's
+own figures. Android only, presentation only.
+
+**A session recorded in Training never showed its heart rate or its Effort (#51).** The reporter
+found the whole chain from an exported backup: the session's load was computed and the day's Effort
+counted it, only the per-workout row was empty. A native session is deliberately not written to the
+`workout` table, it reaches the lists as a read-time projection, and the recorded fill pass built
+its candidates from that table alone. So no fill was ever stored, and the overlay, which already
+maps the `native-training` source to the recorded namespace, had nothing to lay on. The pass now
+projects the native log alongside the table (option A in the report, which reuses the existing fill
+rules unchanged).
+
+Where a native session still has the legacy manual recording of the same session beside it, both
+share the fill key. The native row is the one the list shows, so it is the one that decides, and the
+fill is computed from its span.
+
+Not done: the energy of a native session. The report does not ask for it, and energy is not part of
+a heart rate fill; it would need its own source and its own decision.
+
+Analysis migration required: yes (AI-36). The `.workoutHeartRate` step runs the recorded pass over
+the whole history, which is what gives the sessions already recorded or imported their fill. Its own
+number rather than a rider on AI-35, because AI-35 has shipped: the testing build of 2026-11-14
+(`7b8d2d928`) carries it.
+
+## 2026-11-18 — A build the local gate could not have caught, and what now counts as compiled
+
+The testing build dispatched for `8566c521d` failed in its first leg. `KeepSessionAsRoutineCard`
+declared `private enum State` inside the view, which shadows SwiftUI's property wrapper for the whole
+struct, so the four `@State` declarations above it named the enum: four errors, then eleven that
+follow from them. The matrix cancelled the second macOS slice and the iOS leg, and because the `meta`
+job recreates the rolling `testing-latest` release before any leg attaches a file, the testers were
+left with a release holding nothing at all. The fix is a rename (`SaveStep`), `75801dc39`.
+
+**The gate did run and did pass.** `Tools/local-tests.sh` built and tested the macOS scheme on exactly
+that tree. It runs under the Xcode installed here (27.2); the workflows pin `macos-26`, which is
+Xcode 26.6. The newer compiler resolves the attribute despite the shadow, the shipping one does not, so
+this class of error is invisible locally however carefully the script is run. That is the project's own
+rule about a gate that cannot observe what invalidates it, with the roles reversed: the local gate is
+not the authority on whether app-target Swift compiles.
+
+Decided: keep the workflows on 26.6, because that is the compiler that actually ships, and a second
+toolchain on this machine costs tens of gigabytes for a problem that a dispatch already answers.
+Instead, app-target Swift counts as verified only once a workflow has compiled it, and the workflow for
+that is `app-build.yml`, which builds both app targets and runs `StrandTests` without touching any
+release. `fork-testing-build.yml` stays for the case where the testers are meant to get a build.
+Written into `AGENT_RULES.md` under "Before pushing app or package code".
+
+Not decided here: whether the testing build should attach its artifacts to a staging tag and move
+`testing-latest` only once every leg succeeded. It would have kept the 2026-11-14 build in place
+through this failure. It is a change to the workflow's shape, so it waits for its own round.
+
+Analysis migration required: no
+
+## 2026-11-18 — A build says which channel it came from, and the Apple testing files say it in their names
+
+Three things came out of the failed testing builds of this afternoon.
+
+**Why the second run produced nothing either.** It was not the code: the arm64 macOS slice and the iOS
+leg were both dropped fifteen minutes in with "The job was not acquired by Runner of type hosted even
+after multiple attempts", beside GitHub's own annotation "Due to capacity constraints, jobs targeting
+macOS arm64 runners may experience longer queue times". The x86_64 slice got a runner and passed; the
+`macos` job needs both slices, so it was skipped, and the rolling release stayed empty. That is queue
+time, which `timeout-minutes` does not govern, so no setting in the workflow can buy a runner.
+
+**The macOS slices may now build for 60 minutes**, the same allowance the iOS leg already had. Two jobs
+that each build the whole app from a cold runner should not differ in how long they are given. Recorded
+here because it is easy to mistake for a fix for the above: it is not, and the note in the workflow says
+so at the line.
+
+**A build now says which channel it is.** `MARKETING_VERSION` is the release train, so a testing build
+and the release of the same train both read "13.0.0", and every workflow stamped the bare commit and
+date. Someone looking at About, or at a strap log, could not tell which kind of build it was. The stamp
+now LEADS with the word: `fork-testing-build.yml` passes `testing`, `fork-release.yml`,
+`publish-ios-release.yml` and `android-release.yml` pass `release`. Neither resolver parses it
+(`BuildIdentity` on Android, `LiveState.buildStamp` on Apple print what they are handed), so this is one
+line per workflow and no new field, and an unstamped build still claims neither.
+
+**The Apple testing files carry it in their names too.** Android's tester APK has read
+`NOOP-Forge-android-<version>-testing.apk` all along, while the Apple testing artifacts were
+`NOOP-ios-unsigned-v13.0.0.ipa` and `NOOP-macos-v13.0.0.zip`: the same shape as a release's, which only
+differs by its `-dx` suffix. They are now `NOOP-testing-ios-unsigned-…`, `NOOP-testing-ios-full-unsigned-…`
+and `NOOP-testing-macos-…`, the release title opens with "TESTING BUILD" and closes with "not a release",
+and the notes say it in the first line. Nothing referenced the old testing names except the three test
+documents, which were updated with them; `altstore-source.json` carries release names only.
+
+**Open, not decided here:** the Android artifact says `-testing` for what is an official release build
+signed with the release certificate, which is the opposite of the distinction above. Renaming it touches
+a download name the testing documents and past release notes give out, so it waits for the owner.
+
+Analysis migration required: no

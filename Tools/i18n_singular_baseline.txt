@@ -1,0 +1,17 @@
+# Strings that put a count straight against a plural noun, with no singular form to fall back on.
+# Format: <platform> <allowed count>. Ratchet DOWN as they are given plurals, never up.
+#
+# Found by walking the shipped apps on 2026-11-18: the weekly-goal page said "Best series so far:
+# 1 weeks". That card's six lines were given real plurals on both platforms, and so were the nine
+# others whose call site can hand them a 1 (sets, stored workouts, imported entries, readings behind
+# a body measurement, days with a workout, days not measured, sessions, sessions a week, days a
+# week). These are what is left.
+#
+# These are not all bugs. The gate counts only where the noun is governed by the line's ONLY number,
+# so "1 of 4 nights" no longer counts, but a trailing window that is always 7, 14 or 30 days still
+# does. Deciding those case by case is worth less than the line this holds: a new string of the
+# shape makes the count go up, and the gate says so. Lower a number only together with the plurals
+# that earned it.
+
+android 37
+apple 119

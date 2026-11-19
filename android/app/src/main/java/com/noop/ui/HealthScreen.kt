@@ -1,6 +1,7 @@
 package com.noop.ui
 
 import com.noop.R
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Canvas
 import androidx.annotation.StringRes
@@ -194,7 +195,7 @@ fun HealthScreen(
             item {
                 VitalsSection(
                     title = uiString(R.string.l10n_health_screen_vital_signs_e7d9e1b1),
-                    overline = "Latest readings",
+                    overline = stringResource(R.string.forge_hl_latest_readings),
                     trailing = null,
                     vitals = latestVitals(
                         days,
@@ -287,9 +288,15 @@ private fun SyncStatusSection(vm: AppViewModel, onSyncNow: () -> Unit) {
     val canSync = live.connected && live.bonded && live.historyReady && !live.backfilling
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
         SectionHeader(
-            "Sync",
-            overline = "Strap history",
-            trailing = if (live.connected) (if (live.bonded) "Connected" else "Pairing…") else "Offline",
+            stringResource(R.string.forge_hl_sync),
+            overline = stringResource(R.string.forge_hl_strap_history),
+            trailing = stringResource(
+                if (live.connected) {
+                    if (live.bonded) R.string.forge_strap_connected else R.string.cx_pairing
+                } else {
+                    R.string.forge_first_offline
+                },
+            ),
         )
 
         NoopCard(tint = Palette.chargeColor) {
@@ -390,7 +397,7 @@ private fun RecordsAndSourcesSection(
     onOpenFusedRecord: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-        SectionHeader("Records & sources", overline = "On this phone")
+        SectionHeader(stringResource(R.string.forge_hl_records), overline = stringResource(R.string.forge_hl_on_phone))
         RecordRow(
             icon = Icons.AutoMirrored.Filled.MenuBook,
             tint = Palette.metricCyan,
@@ -497,7 +504,7 @@ private fun SkinTempSuiteSection(
     onTurnOffCycle: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-        SectionHeader("Skin Temperature", overline = "From your nightly readings")
+        SectionHeader(stringResource(R.string.l10n_health_screen_skin_temperature_f59127f6), overline = stringResource(R.string.forge_hl_nightly))
 
         // Illness heads-up first when it has something to say (it's the most time-sensitive card).
         signals?.illness?.let { illness ->
@@ -555,7 +562,7 @@ private fun HealthContributorsSection(day: DailyMetric?) {
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.weight(1f)) {
-                SectionHeader("Contributors", overline = "Recovery")
+                SectionHeader(stringResource(R.string.forge_hl_contributors), overline = stringResource(R.string.l10n_health_screen_recovery_ea924f72))
             }
             StatePill(
                 title = if (solid) "SOLID" else uiString(R.string.cx_calibrating),
@@ -713,7 +720,7 @@ private fun FitnessAgeSection(vm: AppViewModel, days: List<DailyMetric>, profile
     var showChecklist by remember { mutableStateOf(false) }
 
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-        SectionHeader("Fitness Age", overline = "Weekly", trailing = "± 5 yr")
+        SectionHeader(stringResource(R.string.l10n_health_screen_fitness_age_12383b4a), overline = stringResource(R.string.forge_hl_weekly), trailing = stringResource(R.string.forge_hl_five_years))
         val value = fitnessAge
         if (value != null) {
             FitnessAgeHero(
@@ -815,7 +822,7 @@ private fun VitalitySection(vm: AppViewModel, days: List<DailyMetric>, profile: 
     val v = vitality; val ba = bodyAge
     if (v != null && ba != null) {
         Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-            SectionHeader("Vitality", overline = "Weekly", trailing = "Body Age ${ba.roundToInt()}")
+            SectionHeader(stringResource(R.string.l10n_health_screen_vitality_be320b06), overline = stringResource(R.string.forge_hl_weekly), trailing = stringResource(R.string.forge_hl_body_age, ba.roundToInt()))
             VitalityHero(vitality = v, bodyAge = ba, chronoAge = profile.age, contributions = contributions)
         }
     }
@@ -1295,7 +1302,7 @@ fun VitalSignsScreen(vm: AppViewModel, onVitalClick: (String) -> Unit = {}) {
             VitalsSection(
                 title = uiString(R.string.l10n_health_screen_vital_signs_e7d9e1b1),
                 overline = selectedDayLabel(selectedDayOffset),
-                trailing = "as of ${selectedMetric.day}",
+                trailing = stringResource(R.string.forge_hl_as_of, selectedMetric.day),
                 vitals = vitals,
                 onVitalClick = onVitalClick,
                 footer = false,
@@ -1356,8 +1363,8 @@ private fun HeartRateSection(vm: AppViewModel, hrMax: Int) {
     Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
         SectionHeader(
             title = uiString(R.string.l10n_health_screen_heart_rate_dde6e8f7),
-            overline = "Live",
-            trailing = if (derived) "from R-R" else null,
+            overline = stringResource(R.string.nav_live),
+            trailing = if (derived) stringResource(R.string.forge_hl_from_rr) else null,
         )
 
         // The live HR hero is Apple-flat — a plain card tinted rose (heart-rate's metric accent) over a
@@ -2119,8 +2126,11 @@ fun VitalDetailScreen(vm: AppViewModel, key: String, onAskCoach: ((title: String
 
         if (!isStepsDetail && !com.noop.ui.forge.ForgeDesign.preview) SectionHeader(
             detail.title,
-            overline = "Vital Signs",
-            trailing = stepsSeries?.let { "${it.buckets.size} bars" } ?: "${filteredReadings.size} readings",
+            overline = stringResource(R.string.l10n_health_screen_vital_signs_e7d9e1b1),
+            trailing = stepsSeries?.let {
+                pluralStringResource(R.plurals.forge_hl_n_bars, it.buckets.size, it.buckets.size)
+            } ?: pluralStringResource(R.plurals.forge_hl_n_readings,
+                                      filteredReadings.size, filteredReadings.size),
         )
         NoopCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

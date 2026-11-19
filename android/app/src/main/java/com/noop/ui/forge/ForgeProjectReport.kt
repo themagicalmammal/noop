@@ -1,6 +1,17 @@
 package com.noop.ui.forge
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Base64
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import java.io.ByteArrayOutputStream
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,9 +19,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,6 +48,7 @@ import com.noop.ui.buildPending
 import com.noop.ui.AppViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BugReport
+import androidx.compose.material.icons.rounded.ChevronRight
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -99,7 +113,8 @@ internal fun ProjectReportSection(canWrite: Boolean, viewModel: AppViewModel) {
 
     val code = openCode
     when {
-        code != null -> ThreadScreen(code, onBack = { openCode = null },
+        code != null -> ThreadScreen(code, mine.firstOrNull { it.code == code }?.status,
+                                     onBack = { openCode = null },
                                      onGone = { openCode = null; scope.launch { reload() } })
         composing -> ReportForm(viewModel, onDone = { composing = false })
         else -> {
@@ -118,14 +133,21 @@ internal fun ProjectReportSection(canWrite: Boolean, viewModel: AppViewModel) {
                          style = Forge.type.caption, color = Forge.colors.textSecondary)
                 } else {
                     mine.forEach { report ->
-                        Column(
+                        // The chevron every other row here has. Without it this one was the only
+                        // thing on the page that opened something and did not say so.
+                        Row(
                             Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget)
                                 .clickable(role = Role.Button) { openCode = report.code },
-                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(report.title, style = Forge.type.body, color = Forge.colors.text)
-                            Text(statusText(report.status), style = Forge.type.caption,
-                                 color = Forge.colors.textTertiary)
+                            Column(Modifier.weight(1f),
+                                   verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(report.title, style = Forge.type.body, color = Forge.colors.text)
+                                Text(statusText(report.status), style = Forge.type.caption,
+                                     color = Forge.colors.textTertiary)
+                            }
+                            Icon(Icons.Rounded.ChevronRight, contentDescription = null,
+                                 tint = Forge.colors.textTertiary, modifier = Modifier.size(18.dp))
                         }
                     }
                 }
@@ -142,6 +164,17 @@ internal fun ProjectReportSection(canWrite: Boolean, viewModel: AppViewModel) {
     }
 
     if (typing) {
+        // Whether this is a code at all is the core's answer, not a second copy of the alphabet
+        // here. Nothing else is verified: the thread screen asks the service, and a code that means
+        // nothing answers exactly like one that was withdrawn.
+        var looksLikeACode by remember { mutableStateOf(false) }
+        LaunchedEffect(typed) {
+            looksLikeACode = runCatching {
+                JSONObject(withContext(Dispatchers.IO) {
+                    SwiftCore.call("project.codeOk", JSONObject().put("code", typed.trim()).toString())
+                } ?: "").optBoolean("ok")
+            }.getOrDefault(false)
+        }
         AlertDialog(
             onDismissRequest = { typing = false; typed = "" },
             title = { Text(stringResource(R.string.project_report_have_code)) },
@@ -150,9 +183,7 @@ internal fun ProjectReportSection(canWrite: Boolean, viewModel: AppViewModel) {
                                   placeholder = { Text(stringResource(R.string.project_report_code_example)) })
             },
             confirmButton = {
-                TextButton(onClick = {
-                    // Nothing is verified here: the thread screen asks the service, and a code that
-                    // means nothing answers exactly like one that was withdrawn.
+                TextButton(enabled = looksLikeACode, onClick = {
                     openCode = typed.trim()
                     typing = false
                     typed = ""
@@ -170,11 +201,24 @@ private fun ReportForm(viewModel: AppViewModel, onDone: () -> Unit) {
     var wantsThread by remember { mutableStateOf(true) }
     var attachLog by remember { mutableStateOf(true) }
     var sending by remember { mutableStateOf(false) }
+    // Building the log reads the strap archive and probes the store, which takes seconds. Without a
+    // state of its own the button said "Send" throughout, so a second tap built a second bundle and
+    // opened a second sheet over the first. The Apple twin calls this `isPreparing`.
+    var preparing by remember { mutableStateOf(false) }
     var failed by remember { mutableStateOf(false) }
     var code by remember { mutableStateOf<String?>(null) }
     var sentWithoutThread by remember { mutableStateOf(false) }
     var staged by remember { mutableStateOf<com.noop.ui.PendingReport?>(null) }
+    var picture by remember { mutableStateOf<ByteArray?>(null) }
     val scope = rememberCoroutineScope()
+    val pick = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            picture = withContext(Dispatchers.IO) { ReportPicture.scaled(context, uri) }
+        }
+    }
 
     suspend fun send(log: ByteArray?) {
         sending = true
@@ -242,12 +286,62 @@ private fun ReportForm(viewModel: AppViewModel, onDone: () -> Unit) {
              style = Forge.type.caption, color = Forge.colors.textTertiary)
     }
 
+    // A log and a picture are both filed under the code, and without questions back there is no
+    // code. So neither is offered then, rather than being taken and dropped at the end.
+    if (wantsThread) {
+        SectionHeader(stringResource(R.string.project_report_picture))
+        ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
+            val shot = picture
+            if (shot != null) {
+                val bitmap = remember(shot) { BitmapFactory.decodeByteArray(shot, 0, shot.size) }
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(), contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxWidth().height(180.dp),
+                    )
+                }
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget)
+                        .clickable(role = Role.Button) { picture = null },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(stringResource(R.string.project_report_picture_remove),
+                         style = Forge.type.body, color = ForgeTokens.Color.systemRed.resolve())
+                }
+            } else {
+                Row(
+                    Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget)
+                        .clickable(role = Role.Button) {
+                            pick.launch(PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(stringResource(R.string.project_report_picture_add),
+                             style = Forge.type.body, color = Forge.colors.accent)
+                        Text(stringResource(R.string.project_report_picture_detail),
+                             style = Forge.type.caption, color = Forge.colors.textSecondary)
+                    }
+                }
+            }
+    }
+
+    }
+
     SectionHeader(stringResource(R.string.project_report_how))
     ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
         ToggleRow(stringResource(R.string.project_report_thread),
-                  stringResource(R.string.project_report_thread_detail), wantsThread) { wantsThread = it }
-        ToggleRow(stringResource(R.string.project_report_log),
-                  stringResource(R.string.project_report_log_detail), attachLog) { attachLog = it }
+                  stringResource(R.string.project_report_thread_detail), wantsThread) {
+            wantsThread = it
+            attachLog = it
+            if (!it) picture = null
+        }
+        if (wantsThread) {
+            ToggleRow(stringResource(R.string.project_report_log),
+                      stringResource(R.string.project_report_log_detail), attachLog) { attachLog = it }
+        }
     }
     if (!wantsThread) {
         ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
@@ -259,21 +353,38 @@ private fun ReportForm(viewModel: AppViewModel, onDone: () -> Unit) {
     ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
         Row(
             Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget)
-                .clickable(enabled = draft.isNotBlank() && !sending, role = Role.Button) {
+                .clickable(enabled = draft.isNotBlank() && !sending && !preparing,
+                           role = Role.Button) {
                     scope.launch {
-                        if (!attachLog) { send(null); return@launch }
+                        if (!attachLog) {
+                            // A picture without a log is still worth sending.
+                            val shot = picture
+                            send(if (shot == null) null else withContext(Dispatchers.IO) {
+                                LogExport.zipEntries(listOf("picture.jpg" to shot))
+                            })
+                            return@launch
+                        }
                         // With a log: build it, show it, and send only on an explicit press.
-                        val pending = buildPending(context, MASTER_REPORT_MODE,
-                                                   viewModel.ble.exportLogText(), viewModel)
-                        staged = pending
+                        preparing = true
+                        staged = runCatching {
+                            buildPending(context, MASTER_REPORT_MODE,
+                                         viewModel.ble.exportLogText(), viewModel)
+                        }.getOrNull()
+                        preparing = false
+                        // Nothing to show means nothing to attach. The report still goes, rather
+                        // than opening an empty sheet over a bundle that is not there.
+                        if (staged == null) send(null)
                     }
                 },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(stringResource(if (sending) R.string.project_report_sending
-                                else R.string.project_report_send),
+            Text(stringResource(when {
+                     preparing -> R.string.project_report_preparing
+                     sending -> R.string.project_report_sending
+                     else -> R.string.project_report_send
+                 }),
                  style = Forge.type.body,
-                 color = if (draft.isNotBlank() && !sending) Forge.colors.accent
+                 color = if (draft.isNotBlank() && !sending && !preparing) Forge.colors.accent
                          else Forge.colors.textTertiary)
         }
         if (failed) {
@@ -296,7 +407,10 @@ private fun ReportForm(viewModel: AppViewModel, onDone: () -> Unit) {
                 TextButton(onClick = {
                     staged = null
                     scope.launch {
-                        send(withContext(Dispatchers.IO) { LogExport.zipEntries(pending.entries) })
+                        val shot = picture
+                        val entries = if (shot == null) pending.entries
+                                      else pending.entries + ("picture.jpg" to shot)
+                        send(withContext(Dispatchers.IO) { LogExport.zipEntries(entries) })
                     }
                 }) { Text(stringResource(R.string.project_report_review_with)) }
             },
@@ -311,14 +425,23 @@ private fun ReportForm(viewModel: AppViewModel, onDone: () -> Unit) {
 
 /** One report: where it stands, what was said, the way to answer, and the way to take it back. */
 @Composable
-private fun ThreadScreen(code: String, onBack: () -> Unit, onGone: () -> Unit) {
-    var status by remember { mutableStateOf("arrived") }
+private fun ThreadScreen(code: String, seen: String?, onBack: () -> Unit, onGone: () -> Unit) {
+    // The last status this device was told, until the service says otherwise. Starting at "arrived"
+    // meant an unreachable service printed "nobody has looked at it yet" over a report that was
+    // fixed weeks ago: a line stating what it had not observed.
+    var status by remember { mutableStateOf(seen) }
     var fixedIn by remember { mutableStateOf<String?>(null) }
     var publicNumber by remember { mutableStateOf(0) }
     var messages by remember { mutableStateOf(emptyList<Triple<Boolean, String, String>>()) }
     var loaded by remember { mutableStateOf(false) }
+    var reached by remember { mutableStateOf(true) }
+    // Switched off is not the same as unreachable, and saying "could not be checked" would blame the
+    // network for a switch the wearer threw themselves.
+    var sharingOn by remember { mutableStateOf(true) }
     var draft by remember { mutableStateOf("") }
     var sending by remember { mutableStateOf(false) }
+    var replyFailed by remember { mutableStateOf(false) }
+    var withdrawFailed by remember { mutableStateOf(false) }
     var confirming by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -336,10 +459,19 @@ private fun ThreadScreen(code: String, onBack: () -> Unit, onGone: () -> Unit) {
                 val row = array.optJSONObject(index) ?: return@mapNotNull null
                 Triple(row.optBoolean("mine"), row.optString("text"), row.optString("at"))
             }
+            reached = true
+        } else {
+            reached = false
         }
         loaded = true
     }
-    LaunchedEffect(code) { reload() }
+    LaunchedEffect(code) {
+        sharingOn = runCatching {
+            JSONObject(withContext(Dispatchers.IO) { SwiftCore.call("project.sharing", "{}") } ?: "")
+                .optBoolean("on", true)
+        }.getOrDefault(true)
+        reload()
+    }
 
     Row(
         Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget)
@@ -349,7 +481,19 @@ private fun ThreadScreen(code: String, onBack: () -> Unit, onGone: () -> Unit) {
              color = Forge.colors.accent) }
 
     ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
-        Text(statusText(status), style = Forge.type.headline, color = Forge.colors.text)
+        status?.let {
+            Text(statusText(it), style = Forge.type.headline, color = Forge.colors.text)
+        }
+        if (!loaded) {
+            Text(stringResource(R.string.project_report_checking), style = Forge.type.caption,
+                 color = Forge.colors.textTertiary)
+        } else if (!sharingOn) {
+            Text(stringResource(R.string.project_report_sharing_off), style = Forge.type.caption,
+                 color = Forge.colors.textTertiary)
+        } else if (!reached) {
+            Text(stringResource(R.string.project_report_unchecked), style = Forge.type.caption,
+                 color = Forge.colors.textTertiary)
+        }
         fixedIn?.let {
             Text(stringResource(R.string.project_report_fixed_in, it), style = Forge.type.body,
                  color = Forge.colors.textSecondary)
@@ -377,39 +521,49 @@ private fun ThreadScreen(code: String, onBack: () -> Unit, onGone: () -> Unit) {
         }
     }
 
-    SectionHeader(stringResource(R.string.project_report_answer))
-    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
-        OutlinedTextField(
-            value = draft, onValueChange = { if (it.length <= MAX_REPLY) draft = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(stringResource(R.string.project_report_answer_hint)) },
-            textStyle = Forge.type.body, maxLines = 6,
-        )
-        Row(
-            Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget)
-                .clickable(enabled = draft.isNotBlank() && !sending, role = Role.Button) {
-                    scope.launch {
-                        sending = true
-                        val answer = withContext(Dispatchers.IO) {
-                            SwiftCore.call("project.reply", JSONObject().put("code", code)
-                                .put("text", draft).toString())
+    if (sharingOn) {
+        SectionHeader(stringResource(R.string.project_report_answer))
+        ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
+            OutlinedTextField(
+                value = draft, onValueChange = { if (it.length <= MAX_REPLY) draft = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text(stringResource(R.string.project_report_answer_hint)) },
+                textStyle = Forge.type.body, maxLines = 6,
+            )
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget)
+                    .clickable(enabled = draft.isNotBlank() && !sending, role = Role.Button) {
+                        scope.launch {
+                            sending = true
+                            val answer = withContext(Dispatchers.IO) {
+                                SwiftCore.call("project.reply", JSONObject().put("code", code)
+                                    .put("text", draft).toString())
+                            }
+                            if (runCatching { JSONObject(answer ?: "") }.getOrNull()
+                                    ?.optBoolean("ok") == true) {
+                                draft = ""
+                                replyFailed = false
+                                reload()
+                            } else {
+                                // The text stays in the field: it is the only copy of it.
+                                replyFailed = true
+                            }
+                            sending = false
                         }
-                        if (runCatching { JSONObject(answer ?: "") }.getOrNull()
-                                ?.optBoolean("ok") == true) {
-                            draft = ""
-                            reload()
-                        }
-                        sending = false
-                    }
-                },
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(stringResource(if (sending) R.string.project_report_sending
-                                else R.string.project_report_send),
-                 style = Forge.type.body,
-                 color = if (draft.isNotBlank() && !sending) Forge.colors.accent
-                         else Forge.colors.textTertiary)
-        }
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(stringResource(if (sending) R.string.project_report_sending
+                                    else R.string.project_report_send),
+                     style = Forge.type.body,
+                     color = if (draft.isNotBlank() && !sending) Forge.colors.accent
+                             else Forge.colors.textTertiary)
+            }
+            if (replyFailed) {
+                Text(stringResource(R.string.project_report_reply_failed), style = Forge.type.caption,
+                     color = Forge.colors.textSecondary)
+            }
+    }
     }
 
     ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
@@ -420,6 +574,10 @@ private fun ThreadScreen(code: String, onBack: () -> Unit, onGone: () -> Unit) {
         ) {
             Text(stringResource(R.string.project_report_withdraw), style = Forge.type.body,
                  color = ForgeTokens.Color.systemRed.resolve())
+        }
+        if (withdrawFailed) {
+            Text(stringResource(R.string.project_report_withdraw_failed), style = Forge.type.caption,
+                 color = Forge.colors.textSecondary)
         }
     }
 
@@ -436,7 +594,7 @@ private fun ThreadScreen(code: String, onBack: () -> Unit, onGone: () -> Unit) {
                             SwiftCore.call("project.withdraw", JSONObject().put("code", code).toString())
                         }
                         if (runCatching { JSONObject(answer ?: "") }.getOrNull()
-                                ?.optBoolean("ok") == true) onGone()
+                                ?.optBoolean("ok") == true) onGone() else withdrawFailed = true
                     }
                 }) { Text(stringResource(R.string.project_report_withdraw)) }
             },

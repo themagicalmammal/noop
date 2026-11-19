@@ -200,6 +200,11 @@ struct ProjectProblemsView: View {
     /// One line instead of a number on a card: "8 reported, 1 being worked on". A count that reads as
     /// an alarm is the thing this page is not for. Static so the hub card says it from the same page.
     static func summary(_ page: ProjectPage) -> String {
+        // "0 reported, 3 being worked on" is a true sentence that reads as a fault. Everything open
+        // is being worked on is the good case, so say that and nothing else.
+        if page.workingCount > 0 && page.reportedCount == 0 {
+            return String(localized: "\(page.workingCount) being worked on")
+        }
         if page.workingCount > 0 {
             return String(localized: "\(page.reportedCount) reported, \(page.workingCount) being worked on")
         }
@@ -287,6 +292,9 @@ struct ProjectProblemsView: View {
 struct ProjectWishesView: View {
     @ObservedObject var model: RoadmapModel
 
+    /// This screen's first appearance, so the last wish's confirmation does not greet the next one.
+    @State private var opened = false
+
     var body: some View {
         ScreenScaffold(
             title: "Wishes",
@@ -300,6 +308,14 @@ struct ProjectWishesView: View {
                 suggestionsSection
             }
         }
+        .task {
+            guard !opened else { return }
+            opened = true
+            // The model outlives this screen, so "Arrived" from a wish sent an hour ago would stand
+            // under an empty box as though it had just been sent again.
+            model.sentConfirmation = false
+            model.sendFailed = false
+        }
     }
 
     /// The five questions somebody asks themselves while typing. They used to be answered by one line
@@ -308,15 +324,15 @@ struct ProjectWishesView: View {
         ForgeListGroup("What happens to what you write") {
             VStack(alignment: .leading, spacing: NoopMetrics.space3) {
                 WishFact(icon: "lock.fill",
-                         text: "It goes to a private list only the developer reads. Not to the public repository, and not to the other people using NOOP.")
+                         line: "It goes to a private list only the developer reads. Not to the public repository, and not to the other people using NOOP.")
                 WishFact(icon: "textformat",
-                         text: "What is sent is the text you type. No name, no device, nothing about your body or your training.")
+                         line: "What is sent is the text you type. No name, no device, nothing about your body or your training.")
                 WishFact(icon: "line.3.horizontal.decrease",
-                         text: "A filter reads it first. It merges a wish somebody already asked for, and holds anything unclear for the developer instead of publishing it.")
+                         line: "A filter reads it first. It merges a wish somebody already asked for, and holds anything unclear for the developer instead of publishing it.")
                 WishFact(icon: "bubble.left.and.bubble.right.fill",
-                         text: "Published wishes appear below, with the developer's answer, and anyone can back one with a thumb.")
+                         line: "Published wishes appear below, with the developer's answer, and anyone can back one with a thumb.")
                 WishFact(icon: "clock.arrow.circlepath",
-                         text: "Most wishes are not built, and nothing here promises when or whether. Being asked for often does make a thing more likely.")
+                         line: "Most wishes are not built, and nothing here promises when or whether. Being asked for often does make a thing more likely.")
             }
         }
     }
@@ -377,7 +393,8 @@ struct ProjectWishesView: View {
                     SuggestionCard(suggestion: suggestion,
                                    voted: model.myVotes.contains(suggestion.id),
                                    count: model.counts[suggestion.id],
-                                   canVote: model.canWrite) {
+                                   canVote: model.canWrite,
+                                   failed: model.voteFailed == suggestion.id) {
                         Task { await model.vote(suggestion) }
                     }
                 }
@@ -389,7 +406,9 @@ struct ProjectWishesView: View {
 /// One fact about the way a wish travels, as a symbol and a sentence.
 private struct WishFact: View {
     let icon: String
-    let text: LocalizedStringKey
+    /// Named `line` rather than `text`: that is what the audit reads as copy, and a fact nobody
+    /// can see is how five of these shipped in English.
+    let line: LocalizedStringKey
 
     var body: some View {
         HStack(alignment: .top, spacing: NoopMetrics.space3) {
@@ -398,7 +417,7 @@ private struct WishFact: View {
                 .foregroundStyle(StrandPalette.accent)
                 .frame(width: 22, alignment: .center)
                 .accessibilityHidden(true)
-            Text(text)
+            Text(line)
                 .font(StrandFont.subhead)
                 .foregroundStyle(StrandPalette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)

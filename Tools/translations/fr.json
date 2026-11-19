@@ -4655,5 +4655,20 @@
   "Being worked on.": "En cours de traitement.",
   "Fixed.": "Corrigé.",
   "Not planned.": "Non prévu.",
-  "The plan could not be read, or there is none right now.": "Le plan n'a pas pu être lu, ou il n'y en a pas pour le moment."
+  "The plan could not be read, or there is none right now.": "Le plan n'a pas pu être lu, ou il n'y en a pas pour le moment.",
+  "The report arrived. The log did not: it was too large, or the service refused it.": "Le signalement est arrivé, pas le journal : il était trop volumineux, ou le service l'a refusé.",
+  "Answers to my reports": "Réponses à mes signalements",
+  "A notice when a problem you reported is answered or fixed.": "Un avis quand un problème que vous avez signalé reçoit une réponse ou est corrigé.",
+  "The developer answered you.": "Le développeur vous a répondu.",
+  "It is fixed.": "C'est corrigé.",
+  "Somebody is working on it.": "Quelqu'un y travaille.",
+  "It will not be changed.": "Cela ne sera pas changé.",
+  "It has been read.": "Cela a été lu.",
+  "A picture, if it helps": "Une image, si elle aide",
+  "Add a picture": "Ajouter une image",
+  "A screenshot of what went wrong says more than a log": "Une capture de ce qui a mal tourné en dit plus qu'un journal",
+  "Remove the picture": "Retirer l'image",
+  "Those weeks met your plan for %@, or came close.": "Ces semaines ont tenu votre plan pour %@, ou presque.",
+  "4.0, unconfirmed on real hardware": "4.0, non confirmé sur du matériel réel",
+  "The strap keeps reporting a different time than NOOP sends, so its firmware alarm won't fire at your wake time — usually a strap whose clock or alarm has reset. Restart the strap from Devices, or fully charge it and reconnect; keep your phone's Clock alarm as your wake until it takes.": "La sangle continue d'indiquer une heure différente de celle que NOOP envoie, donc son alarme firmware ne se déclenchera pas à votre heure de réveil, en général une sangle dont l'horloge ou l'alarme s'est réinitialisée. Redémarrez la sangle depuis Appareils, ou chargez-la complètement et reconnectez-la ; gardez l'alarme de l'app Horloge de votre téléphone comme réveil jusqu'à ce que cela fonctionne."
 }

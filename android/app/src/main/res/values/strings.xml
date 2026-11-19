@@ -265,9 +265,13 @@
     <string name="timeline_owned">Owned</string>
     <string name="timeline_all">All</string>
     <string name="timeline_loading_day">Loading the day…</string>
-    <string name="timeline_pinch_to_zoom">Pinch to zoom · drag to pan</string>
-    <string name="timeline_zoomed_in">Zoomed in · drag to pan</string>
+    <string name="timeline_pinch_to_zoom">Pinch to zoom · drag to pan · hold to read</string>
+    <string name="timeline_zoomed_in">Zoomed in · drag to pan · hold to read</string>
     <string name="timeline_reset">Reset</string>
+    <string name="timeline_whole_day">The whole day</string>
+    <string name="timeline_lane_sleep">Sleep</string>
+    <string name="timeline_lane_heart">Heart</string>
+    <string name="timeline_lane_workouts">Workouts</string>
     <string name="timeline_min">MIN</string>
     <string name="timeline_avg">AVG</string>
     <string name="timeline_max">MAX</string>
@@ -2393,7 +2397,7 @@
     <string name="today_hr_empty_window">No heart rate in the last %1$s. Try a wider window or Today.</string>
     <string name="today_hr_none_today">No heart rate stored for today yet. The curve draws once the strap offloads, or once an import brings one in.</string>
     <string name="today_hr_one_block">Only one five-minute block of heart rate is stored for today. The curve needs two of them to draw a line.</string>
-    <string name="today_hr_average_last_window">5-minute average | last %1$s</string>
+    <string name="today_hr_average_last_window">5-minute average · last %1$s</string>
     <string name="today_hr_zoomed_hint">Zoomed in · drag to pan</string>
     <string name="today_not_connected">Not connected</string>
     <string name="today_should_you_push">Should you push today?</string>
@@ -2554,8 +2558,8 @@
     <string name="today_confidence_solid">SOLID</string>
     <string name="today_confidence_building">BUILDING</string>
     <string name="today_confidence_calibrating">CALIBRATING</string>
-    <string name="today_hr_average_selected_day">5-minute average | selected day</string>
-    <string name="today_hr_average_since_midnight">5-minute average | since midnight</string>
+    <string name="today_hr_average_selected_day">5-minute average · selected day</string>
+    <string name="today_hr_average_since_midnight">5-minute average · since midnight</string>
     <string name="today_hr_a11y_24_hour">24-hour heart rate</string>
     <string name="today_hr_a11y_sleep_band">sleep band %1$s</string>
     <string name="today_hr_a11y_charge_at_wake">%1$d percent Charge at wake</string>
@@ -2609,7 +2613,7 @@
     <string name="today_driver_value_bpm">%1$d bpm</string>
     <string name="today_driver_value_percent">%1$d%%</string>
     <string name="today_driver_value_br_min">%1$s br/min</string>
-    <string name="today_driver_value_temp_deviation">%1$s C vs baseline</string>
+    <string name="today_driver_value_temp_deviation">%1$s vs baseline</string>
     <string name="today_driver_baseline_ms">%1$d ms baseline</string>
     <string name="today_driver_baseline_bpm">%1$d bpm baseline</string>
     <string name="today_driver_baseline_br_min">%1$s br/min baseline</string>
@@ -3130,6 +3134,7 @@
     <string name="forge_training_finish">Finish</string>
     <string name="forge_training_discard">Discard workout</string>
     <string name="forge_training_finish_empty">Mark at least one set as done to save the workout.</string>
+    <string name="forge_training_not_saved">That change was not saved. Try it again.</string>
     <string name="forge_training_finish_clock">Your device clock reads earlier than this workout\'s start, so it has no length yet. Check the date and time, then save again.</string>
     <string name="forge_training_finish_gone">This workout is no longer open. It was either saved already or ended somewhere else.</string>
     <string name="forge_training_finish_failed">The workout could not be saved. Nothing was lost; try again, and if it keeps failing, share your strap log.</string>
@@ -3590,8 +3595,8 @@
     <string name="forge_library_equipment">Equipment</string>
     <string name="forge_library_equipment_optional">Equipment, optional</string>
     <string name="forge_library_estimate_note">The estimated one-rep maximum is a projection from your logged sets, not a lift you performed.</string>
-    <string name="forge_library_favorite">Add to favorites</string>
-    <string name="forge_library_favorites">Favorites</string>
+    <string name="forge_library_favorite">Add to favourites</string>
+    <string name="forge_library_favorites">Favourites</string>
     <string name="forge_library_filter">Filter</string>
     <string name="forge_library_heaviest">Heaviest</string>
     <string name="forge_library_hide_filters">Hide filters</string>
@@ -3630,7 +3635,10 @@
     <string name="forge_library_region_shoulders">Shoulders</string>
     <string name="forge_library_save_failed">The exercise could not be saved. Try again.</string>
     <string name="forge_library_search">Exercise, muscle or equipment</string>
-    <string name="forge_library_sets">%1$d sets</string>
+    <plurals name="forge_library_sets">
+        <item quantity="one">%1$d set</item>
+        <item quantity="other">%1$d sets</item>
+    </plurals>
     <string name="forge_library_subtitle">Find exercises, instructions and your records</string>
     <string name="forge_library_this_exercise">This exercise</string>
     <string name="forge_library_title">Exercise library</string>
@@ -3638,7 +3646,7 @@
     <string name="forge_library_try_another">Try another search or add your own exercise.</string>
     <string name="forge_library_type">Type</string>
     <string name="forge_library_unavailable">The exercise library could not be loaded.</string>
-    <string name="forge_library_unfavorite">Remove from favorites</string>
+    <string name="forge_library_unfavorite">Remove from favourites</string>
     <string name="forge_library_unilateral">Track left and right separately</string>
     <string name="forge_library_user_source">Stored locally with your training data.</string>
     <string name="forge_library_your_history">Your history</string>
@@ -3670,7 +3678,10 @@
     <string name="forge_history_rated">Rated: %1$d of %2$d sessions in this span</string>
     <string name="forge_history_gaps">%1$d of %2$d periods include days that could not be measured (hatched).</string>
     <string name="forge_history_estimate_note">Pale tops are estimated from a workout\'s average heart rate, where no heart-rate trace was kept. They are not counted in the level or the band.</string>
-    <string name="forge_history_unknown_days">%1$d days not measured</string>
+    <plurals name="forge_history_unknown_days">
+        <item quantity="one">%1$d day not measured</item>
+        <item quantity="other">%1$d days not measured</item>
+    </plurals>
     <string name="forge_history_all">All</string>
     <string name="forge_history_unavailable">The training history could not be loaded.</string>
     <string name="forge_session_body_response">What your body did</string>
@@ -3747,7 +3758,10 @@
     <string name="forge_hevy_credentials_failed">Could not save the API key securely.</string>
     <string name="forge_hevy_routines_note">Choose the routines to add. Importing again updates the copies previously imported from Hevy.</string>
     <string name="forge_hevy_counts">Stored: %1$d · updated: %2$d · removed: %3$d · skipped: %4$d</string>
-    <string name="forge_hevy_stored">%1$d workouts stored</string>
+    <plurals name="forge_hevy_stored">
+        <item quantity="one">%1$d workout stored</item>
+        <item quantity="other">%1$d workouts stored</item>
+    </plurals>
     <string name="forge_hevy_last_sync">Last sync: %1$s</string>
     <string name="forge_hevy_pages">Page %1$d of %2$d</string>
     <string name="forge_hevy_skipped_exercises">%1$d exercises skipped</string>
@@ -3930,12 +3944,30 @@
     <string name="forge_goals_to_go">%1$s to go · %2$d days left</string>
     <string name="forge_goals_first_week_prorated">First week, pro-rated: %1$s to go</string>
     <string name="forge_goals_first_month_prorated">First month, pro-rated: %1$s to go</string>
-    <string name="forge_goals_streak_weeks">%1$d weeks in a row</string>
-    <string name="forge_goals_streak_months">%1$d months in a row</string>
-    <string name="forge_goals_streak_weeks_best">%1$d weeks in a row · best %2$d</string>
-    <string name="forge_goals_streak_months_best">%1$d months in a row · best %2$d</string>
-    <string name="forge_goals_best_weeks">Best series so far: %1$d weeks</string>
-    <string name="forge_goals_best_months">Best series so far: %1$d months</string>
+    <plurals name="forge_goals_streak_weeks">
+        <item quantity="one">%1$d week in a row</item>
+        <item quantity="other">%1$d weeks in a row</item>
+    </plurals>
+    <plurals name="forge_goals_streak_months">
+        <item quantity="one">%1$d month in a row</item>
+        <item quantity="other">%1$d months in a row</item>
+    </plurals>
+    <plurals name="forge_goals_streak_weeks_best">
+        <item quantity="one">%1$d week in a row · best %2$d</item>
+        <item quantity="other">%1$d weeks in a row · best %2$d</item>
+    </plurals>
+    <plurals name="forge_goals_streak_months_best">
+        <item quantity="one">%1$d month in a row · best %2$d</item>
+        <item quantity="other">%1$d months in a row · best %2$d</item>
+    </plurals>
+    <plurals name="forge_goals_best_weeks">
+        <item quantity="one">Best series so far: %1$d week</item>
+        <item quantity="other">Best series so far: %1$d weeks</item>
+    </plurals>
+    <plurals name="forge_goals_best_months">
+        <item quantity="one">Best series so far: %1$d month</item>
+        <item quantity="other">Best series so far: %1$d months</item>
+    </plurals>
     <string name="forge_goals_s_achieved">Achieved</string>
     <string name="forge_goals_s_ahead">Ahead</string>
     <string name="forge_goals_s_on_track">On track</string>
@@ -4911,7 +4943,7 @@
     <string name="forge_cb_pt">%1$d pt</string>
     <string name="forge_cb_zero">0 pts</string>
     <string name="forge_cb_skin">Skin temperature</string>
-    <string name="forge_cb_vs_normal">%1$s%2$s C vs your normal</string>
+    <string name="forge_cb_vs_normal">%1$s vs your normal</string>
     <string name="forge_cb_warmer">Warmer than your baseline</string>
     <string name="forge_cb_cooler">Cooler than your baseline</string>
     <string name="forge_cb_typical">Typical for you</string>
@@ -6104,7 +6136,7 @@
     <string name="forge_cy_topic_exercise">Exercise</string>
     <string name="forge_cy_topic_mind">Mind</string>
     <string name="forge_cy_day_n_of_n">day %1$d of %2$d</string>
-    <string name="forge_cy_nights_x_c">nights %1$s °C</string>
+    <string name="forge_cy_nights_x_c">nights %1$s</string>
     <string name="forge_cy_resting_heart_rate_x_bpm">resting heart rate %1$s bpm</string>
     <string name="forge_cy_rise_on_day_n">rise on day %1$d</string>
     <string name="forge_cy_skin_temperature_against_your_usual">skin temperature against your usual</string>
@@ -6290,7 +6322,10 @@
     <string name="forge_wk_min">%1$d min</string>
     <string name="forge_wk_h_min">%1$d h %2$s min</string>
     <string name="forge_wk_cal_label">Training days in the last 13 weeks</string>
-    <string name="forge_wk_cal_value">%1$d days with a workout</string>
+    <plurals name="forge_wk_cal_value">
+        <item quantity="one">%1$d day with a workout</item>
+        <item quantity="other">%1$d days with a workout</item>
+    </plurals>
     <string name="forge_steps_from">Steps from</string>
     <string name="forge_steps_auto">Automatic</string>
     <string name="forge_steps_strap">Strap</string>
@@ -6480,7 +6515,7 @@
     <string name="forge_cband_moderate">Moderate</string>
     <string name="forge_cband_primed">Primed</string>
     <string name="forge_cband_peak">Peak</string>
-    <string name="forge_ch_temp_vs_usual">%1$s °C vs usual</string>
+    <string name="forge_ch_temp_vs_usual">%1$s vs usual</string>
     <string name="forge_tr_coach_shorter">Shorter, please</string>
     <string name="forge_tr_coach_other">Other routine</string>
     <string name="forge_tr_coach_plan_today">Plan today with the coach</string>
@@ -6635,7 +6670,10 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="diet_train_all">With every day a training day there is no rest day to move calories from, so all days stay the same.</string>
     <string name="diet_train_moved">Moved to training days</string>
     <string name="diet_train_fasting">A fasting form keeps its own days, so nothing moves between training and rest days.</string>
-    <string name="body_site_over">over %1$d readings</string>
+    <plurals name="body_site_over">
+        <item quantity="one">over %1$d reading</item>
+        <item quantity="other">over %1$d readings</item>
+    </plurals>
     <string name="body_site_history">History</string>
     <string name="body_site_one">One reading so far. A second one gives this site a trend to draw.</string>
     <string name="body_site_how">How to measure it</string>
@@ -6857,7 +6895,10 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="forge_plan_unnamed">My plan</string>
     <string name="forge_plan_following">Following</string>
     <string name="forge_plan_resting">Resting</string>
-    <string name="forge_plan_days_a_week">%1$d days a week</string>
+    <plurals name="forge_plan_days_a_week">
+        <item quantity="one">%1$d day a week</item>
+        <item quantity="other">%1$d days a week</item>
+    </plurals>
     <string name="forge_plan_block_week">Week %1$d of %2$d</string>
     <string name="forge_plan_block_weeks">%1$d week block</string>
     <string name="forge_plan_block_finished">Block finished</string>
@@ -6880,13 +6921,19 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="forge_plan_block_running">Prescriptions follow the block week by week.</string>
     <string name="forge_plan_this_block">This block so far</string>
     <string name="forge_plan_sessions_of">%1$d of %2$d sessions</string>
-    <string name="forge_plan_sessions">%1$d sessions</string>
+    <plurals name="forge_plan_sessions">
+        <item quantity="one">%1$d session</item>
+        <item quantity="other">%1$d sessions</item>
+    </plurals>
     <string name="forge_plan_work_sets">%1$d work sets</string>
     <string name="forge_plan_load_moved">%1$d kg moved</string>
     <string name="forge_plan_unpriced">%1$d sets carried no weight to count.</string>
     <string name="forge_plan_more_sets_than_before">%1$d work sets more than the block before</string>
     <string name="forge_plan_fewer_sets_than_before">%1$d work sets fewer than the block before</string>
-    <string name="forge_plan_target_sessions">%1$d sessions a week</string>
+    <plurals name="forge_plan_target_sessions">
+        <item quantity="one">%1$d session a week</item>
+        <item quantity="other">%1$d sessions a week</item>
+    </plurals>
     <string name="forge_plan_target_cardio">%1$d cardio minutes a week</string>
     <string name="forge_plan_a_week">A week of this plan</string>
     <string name="forge_plan_sets">%1$s sets</string>
@@ -6987,7 +7034,10 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="forge_import_step_reading">Reading data</string>
     <string name="forge_import_step_sorting">Sorting data</string>
     <string name="forge_import_step_saving">Saving data</string>
-    <string name="forge_import_progress_entries">%1$d entries</string>
+    <plurals name="forge_import_progress_entries">
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
+    </plurals>
     <string name="forge_roadmap_title">Roadmap</string>
     <string name="forge_roadmap_subtitle">What is being built, and what is known</string>
     <string name="forge_roadmap_now">In progress</string>
@@ -6995,7 +7045,104 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="forge_roadmap_later">Later</string>
     <string name="forge_roadmap_reported">Reported problems</string>
     <string name="forge_roadmap_summary">%1$d reported</string>
+    <plurals name="forge_cmp_n_series">
+        <item quantity="one">%1$d series</item>
+        <item quantity="other">%1$d series</item>
+    </plurals>
+    <plurals name="forge_cmp_n_pairs">
+        <item quantity="one">%1$d pair</item>
+        <item quantity="other">%1$d pairs</item>
+    </plurals>
+    <plurals name="forge_hl_n_bars">
+        <item quantity="one">%1$d bar</item>
+        <item quantity="other">%1$d bars</item>
+    </plurals>
+    <plurals name="forge_hl_n_readings">
+        <item quantity="one">%1$d reading</item>
+        <item quantity="other">%1$d readings</item>
+    </plurals>
+    <plurals name="forge_lb_n_markers">
+        <item quantity="one">%1$d marker</item>
+        <item quantity="other">%1$d markers</item>
+    </plurals>
+    <plurals name="forge_wo_n_sports">
+        <item quantity="one">%1$d sport</item>
+        <item quantity="other">%1$d sports</item>
+    </plurals>
+    <plurals name="forge_wo_n_of_sessions">
+        <item quantity="one">%1$d of %2$d session</item>
+        <item quantity="other">%1$d of %2$d sessions</item>
+    </plurals>
+    <string name="forge_wo_n_total">%1$d total</string>
+    <string name="forge_cmp_pearson_range">Pearson r · %1$s</string>
+    <string name="forge_hl_body_age">Body Age %1$d</string>
+    <string name="forge_hl_as_of">as of %1$s</string>
+    <string name="forge_lb_side_by_side">side by side · %1$s before each reading</string>
+    <string name="forge_sl_hours_avg">%1$.1f h avg</string>
+    <string name="forge_wo_log">Log</string>
+    <string name="forge_fr_sources_differ">Sources differ</string>
+    <string name="forge_hl_latest_readings">Latest readings</string>
+    <string name="forge_hl_from_rr">from R-R</string>
+    <string name="forge_lv_session_overline">Record or inspect the current stream</string>
+    <string name="forge_lv_trust_overline">Proof that the console is current</string>
+    <string name="forge_rh_descriptive">Descriptive stats</string>
+    <string name="forge_wo_by_sport">By sport</string>
+    <string name="forge_cmp_overline">Overlay 2-4 signals</string>
+    <string name="forge_cmp_pearson">Pearson r</string>
+    <string name="forge_hl_strap_history">Strap history</string>
+    <string name="forge_hl_on_phone">On this phone</string>
+    <string name="forge_hl_nightly">From your nightly readings</string>
+    <string name="forge_hl_weekly">Weekly</string>
+    <string name="forge_hl_five_years">± 5 yr</string>
+    <string name="forge_ih_ranked">Ranked · your data</string>
+    <string name="forge_ih_curve">Personal curve · prior-shrunk</string>
+    <string name="forge_in_cost_overline">What each activity costs your recovery</string>
+    <string name="forge_in_protocol">N-of-1 protocol</string>
+    <string name="forge_in_setup">Setup</string>
+    <string name="forge_in_pearson">Pearson r</string>
+    <string name="forge_il_forecast">Evening forecast</string>
+    <string name="forge_lb_readings_over_time">your readings over time</string>
+    <string name="forge_lb_every_reading">every reading you\'ve entered</string>
+    <string name="forge_mk_what">what are you logging?</string>
+    <string name="forge_mk_number">your number, date and any note</string>
+    <string name="forge_mind_overline">Mood check-in</string>
+    <string name="forge_sl_metrics">Metrics</string>
+    <string name="forge_sl_vs_typical_short">vs typical</string>
+    <string name="forge_sl_tonight_target">tonight\'s target</string>
+    <string name="forge_sl_selected_night">Selected night</string>
+    <string name="forge_sl_marker_mean">marker = your mean</string>
+    <string name="forge_st_markers">Markers</string>
+    <string name="forge_st_vs_baseline">vs 30-day baseline</string>
+    <string name="forge_st_intraday">Intraday</string>
+    <string name="forge_st_history">History</string>
+    <string name="forge_wo_this_session">This session</string>
+    <string name="forge_cmp_metrics">Metrics</string>
+    <string name="forge_cmp_overlay">Overlay</string>
+    <string name="forge_cmp_together">How They Move Together</string>
+    <string name="forge_hl_sync">Sync</string>
+    <string name="forge_hl_records">Records &amp; sources</string>
+    <string name="forge_hl_contributors">Contributors</string>
+    <string name="forge_ih_what_moves">What moves your %1$s</string>
+    <string name="forge_ih_dose_response">Dose-response</string>
+    <string name="forge_in_activity_cost">Activity Cost</string>
+    <string name="forge_in_behaviour_effects">Behaviour Effects</string>
+    <string name="forge_in_personal_experiment">Personal Experiment</string>
+    <string name="forge_in_metric_relationships">Metric Relationships</string>
+    <string name="forge_il_tomorrow_charge">Tomorrow\'s Charge</string>
+    <string name="forge_lb_trend">Trend</string>
+    <string name="forge_lb_compare">Compare with a signal</string>
+    <string name="forge_lb_history">History</string>
+    <string name="forge_mk_marker">Marker</string>
+    <string name="forge_mk_reading">Reading</string>
+    <string name="forge_mind_title">Mind</string>
+    <string name="forge_st_today">Today</string>
+    <string name="forge_st_timeline">Today\'s Timeline</string>
+    <string name="forge_st_trend">Stress Trend</string>
+    <string name="forge_wo_effort">Effort</string>
+    <string name="project_card_planned">%1$d planned</string>
+    <string name="project_card_published">%1$d published</string>
     <string name="forge_roadmap_summary_working">%1$d reported, %2$d being worked on</string>
+    <string name="forge_roadmap_summary_only_working">%1$d being worked on</string>
     <string name="forge_roadmap_show_all">Show all</string>
     <string name="forge_roadmap_show_less">Show less</string>
     <string name="forge_roadmap_fixed">Recently fixed</string>
@@ -7003,6 +7150,9 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="forge_roadmap_decided_note">Reports closed without a change. They stay here for a month.</string>
     <string name="forge_roadmap_report">Report a problem</string>
     <string name="forge_roadmap_report_detail">Builds a log you can attach, nothing is sent on its own</string>
+    <string name="project_log_myself">Build a log myself</string>
+    <string name="project_log_long_way">The long way: a redacted file you carry wherever you like</string>
+    <string name="project_log_only_way">A redacted file you can attach wherever you report it</string>
     <string name="forge_roadmap_tracker">Open the issue tracker</string>
     <string name="forge_roadmap_tracker_detail">Reading and writing there happens in your browser</string>
     <string name="forge_roadmap_empty">Nothing could be loaded. The page needs the internet once, then it keeps the last copy.</string>
@@ -7016,6 +7166,12 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="forge_roadmap_suggestions">Suggestions</string>
     <string name="forge_roadmap_suggest">Suggest something</string>
     <string name="forge_roadmap_suggest_note">It reaches the developer, not the other people using NOOP. Nothing becomes visible until it is released.</string>
+    <string name="project_wish_how">What happens to what you write</string>
+    <string name="project_wish_fact_private">It goes to a private list only the developer reads. Not to the public repository, and not to the other people using NOOP.</string>
+    <string name="project_wish_fact_text">What is sent is the text you type. No name, no device, nothing about your body or your training.</string>
+    <string name="project_wish_fact_filter">A filter reads it first. It merges a wish somebody already asked for, and holds anything unclear for the developer instead of publishing it.</string>
+    <string name="project_wish_fact_published">Published wishes appear below, with the developer\'s answer, and anyone can back one with a thumb.</string>
+    <string name="project_wish_fact_odds">Most wishes are not built, and nothing here promises when or whether. Being asked for often does make a thing more likely.</string>
     <string name="forge_roadmap_suggest_hint">What would you like NOOP to do?</string>
     <string name="forge_roadmap_chars_left">%1$d characters left</string>
     <string name="forge_roadmap_send">Send</string>
@@ -7071,6 +7227,7 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="project_report_log_detail">You see exactly what it contains before anything is sent</string>
     <string name="project_report_send">Send</string>
     <string name="project_report_sending">Sending…</string>
+    <string name="project_report_preparing">Preparing…</string>
     <string name="project_report_failed">That did not go out. Try again later.</string>
     <string name="project_report_sent">Sent</string>
     <string name="project_report_keep_code">Keep this code. It is the only way back to this report, and it works on any device.</string>
@@ -7095,7 +7252,24 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="project_report_review_with">Send with the log</string>
     <string name="project_report_review_without">Without the log</string>
     <string name="project_report_nothing_said">Nothing said yet. If a question comes, it appears here.</string>
-    <string name="project_report_no_thread_note">Without questions back nothing is stored about this report, and nobody can ask you for the detail that would have made it fixable. Say as much as you can in the text.</string>
+    <string name="project_report_checking">Checking…</string>
+    <string name="project_report_unchecked">This could not be checked just now. It is what was last known.</string>
+    <string name="project_report_sharing_off">Sending from this device is switched off, so this cannot be checked. It is what was last known.</string>
+    <string name="project_report_reply_failed">That did not go out. Your text is still here; try again later.</string>
+    <string name="project_report_withdraw_failed">That did not go out. The report is still there, and so is its log.</string>
+    <string name="project_report_no_thread_note">Without questions back nothing is stored about this report, so no log and no picture can travel with it, and nobody can ask you for the detail that would have made it fixable. Say as much as you can in the text.</string>
     <string name="project_report_withdraw_note">The log is deleted and the code stops working. What was already fixed stays fixed.</string>
     <string name="project_report_code_example" translatable="false">ABCD-EFGH-JKLM-NPQR</string>
+    <string name="report_notice_title">Your report</string>
+    <string name="report_notice_answered">The developer answered you.</string>
+    <string name="report_notice_fixed">It is fixed.</string>
+    <string name="report_notice_working">Somebody is working on it.</string>
+    <string name="report_notice_not_planned">It will not be changed.</string>
+    <string name="report_notice_read">It has been read.</string>
+    <string name="report_notice_switch">Answers to my reports</string>
+    <string name="report_notice_switch_detail">A notice when a problem you reported is answered or fixed.</string>
+    <string name="project_report_picture">A picture, if it helps</string>
+    <string name="project_report_picture_add">Add a picture</string>
+    <string name="project_report_picture_detail">A screenshot of what went wrong says more than a log</string>
+    <string name="project_report_picture_remove">Remove the picture</string>
 </resources>

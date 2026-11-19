@@ -4809,5 +4809,20 @@
   "Being worked on.": "正在處理。",
   "Fixed.": "已修復。",
   "Not planned.": "不計畫處理。",
-  "The plan could not be read, or there is none right now.": "無法讀取計畫，或者目前沒有計畫。"
+  "The plan could not be read, or there is none right now.": "無法讀取計畫，或者目前沒有計畫。",
+  "The report arrived. The log did not: it was too large, or the service refused it.": "報告已送達，日誌沒有：它太大，或者服務拒絕了它。",
+  "Answers to my reports": "對我的報告的回覆",
+  "A notice when a problem you reported is answered or fixed.": "當你報告的問題收到回覆或被修復時通知你。",
+  "The developer answered you.": "開發者回覆了你。",
+  "It is fixed.": "已經修復了。",
+  "Somebody is working on it.": "有人正在處理。",
+  "It will not be changed.": "不會更改。",
+  "It has been read.": "已被閱讀。",
+  "A picture, if it helps": "一張圖，如果有幫助",
+  "Add a picture": "新增圖片",
+  "A screenshot of what went wrong says more than a log": "一張出錯時的截圖勝過一份日誌",
+  "Remove the picture": "移除圖片",
+  "Those weeks met your plan for %@, or came close.": "這幾週達成了「%@」的計畫，或接近達成。",
+  "4.0, unconfirmed on real hardware": "4.0，未在真實裝置上確認",
+  "The strap keeps reporting a different time than NOOP sends, so its firmware alarm won't fire at your wake time — usually a strap whose clock or alarm has reset. Restart the strap from Devices, or fully charge it and reconnect; keep your phone's Clock alarm as your wake until it takes.": "錶帶回報的時間與 NOOP 傳送的時間不一致，因此它的韌體鬧鐘不會在你的起床時間響起，通常是錶帶的時鐘或鬧鐘被重設了。請在「裝置」中重新啟動錶帶，或將它充飽電後重新連線；在生效之前，請繼續使用手機的時鐘鬧鐘。"
 }
