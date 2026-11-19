@@ -29,6 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.DirectionsRun
 import androidx.compose.material.icons.rounded.EditNote
+import androidx.compose.material.icons.rounded.BatteryFull
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -52,6 +53,9 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -316,166 +320,191 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                 TodaySection.LIVE_SESSION, TodaySection.DATA_SOURCES -> Unit
             }
     }
+    val scrollState = rememberScrollState()
+    val scrollScope = rememberCoroutineScope()
+    var heroChargeScore by remember { mutableStateOf<Double?>(null) }
+    var heroEffortScore by remember { mutableStateOf<Double?>(null) }
+    var heroRestScore by remember { mutableStateOf<Double?>(null) }
+    val density = LocalDensity.current
+    val heroBarVisible by derivedStateOf {
+        with(density) { scrollState.value.toDp().value > 300f }
+    }
     val previousLabel = stringResource(R.string.forge_previous_day)
     val nextLabel = stringResource(R.string.forge_next_day)
     var drag by remember { mutableStateOf(0f) }
-    Column(
-        Modifier.fillMaxSize()
-            // Swipe sideways for another day, as on iOS; screen readers get the same as two actions.
-            // Not while arranging the tiles: a tile dragged sideways would turn the day instead.
-            .pointerInput(editingWidgets) {
-                if (editingWidgets) return@pointerInput
-                detectHorizontalDragGestures(
-                    onDragStart = { drag = 0f },
-                    onDragEnd = {
-                        if (drag > 120f) date -= 1
-                        else if (drag < -120f && date < com.noop.ui.logicalDayNow().toEpochDay()) date += 1
-                    },
-                    onHorizontalDrag = { _, amount -> drag += amount },
-                )
-            }
-            .semantics {
-                customActions = listOf(
-                    CustomAccessibilityAction(previousLabel) { date -= 1; true },
-                    CustomAccessibilityAction(nextLabel) {
-                        if (date < com.noop.ui.logicalDayNow().toEpochDay()) { date += 1; true } else false
-                    },
-                )
-            }
-            .verticalScroll(rememberScrollState()).padding(padding)
-            .padding(horizontal = ForgeMetrics.screenPadding),
-        verticalArrangement = Arrangement.spacedBy(ForgeMetrics.sectionGap),
-    ) {
-        val style = remember(layoutRevision) { DashboardStylePrefs.style(context) }
-        if (ForgeDesign.preview) {
-            // The new design's Today, as iOS's `ForgeTodayView`: the header, the rings, a detected activity and the
-            // morning's suggestion, the widgets, then the day as a time rail. One Today, whatever the dashboard style.
-            NewDesignHeader(shown, isToday = shown == today, backfilling = viewModel.live.collectAsState().value.backfilling,
-                            batteryPct = viewModel.live.collectAsState().value.batteryPct,
-                            onProfile = { openSettings?.invoke() ?: run { settingsOpen = true } }, onQuickActions = { logOpen = true },
-                            onWorkout = { if (viewModel.activeWorkout.value != null) liveWorkout = true else startWorkout = true },
-                            workoutRunning = viewModel.activeWorkout.collectAsState().value != null,
-                            onCustomize = { editingWidgets = true },
-                            onBattery = { more.push(MoreRoute.Dest(MoreDest.Settings)) })
-            // A running import, above everything: it is the answer to "why is nothing here yet" and the
-            // page it was started from is not the page the wearer waits on. Draws nothing when none runs,
-            // and it is shown on a past day too, because the import is not about the day on screen.
-            com.noop.ui.ImportProgressBanner()
-            // The illness early warning above the rings, as iOS's `HealthAlertBanner` on its Today; it belongs to
-            // today, so a past day does not repeat it.
-            val healthAlert by viewModel.healthAlert.collectAsState()
-            if (shown == today) healthAlert?.let { com.noop.ui.IllnessBanner(it) }
-            // First run, as iOS's `WearableConnectionStateCard` on Today: nothing recorded or imported yet, and
-            // the one next step. The question is the core's (`read.hasAnyDay`), which is iOS's own
-            // `repo.days.isEmpty` over the same merge — asking instead whether a Rest or Charge SCORE existed
-            // kept this card up for a tester whose strap had been streaming for an hour, because a day of
-            // heart rate without a scored night has neither. Null while the store is still being read, so a
-            // full history never flashes it, and the answer latches once a day exists: the card has nothing
-            // left to say then, and re-reading on every write during a sync would merge the whole history for
-            // an answer that cannot change back.
-            val firstRunRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-            var hasDay by remember { mutableStateOf<Boolean?>(null) }
-            LaunchedEffect(firstRunRevision) {
-                if (hasDay == true) return@LaunchedEffect
-                hasDay = withContext(Dispatchers.IO) {
-                    CoreRead.open(context)
-                    com.noop.core.CoreDailyRows.hasAnyDay()
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            Modifier.fillMaxSize()
+                // Swipe sideways for another day, as on iOS; screen readers get the same as two actions.
+                // Not while arranging the tiles: a tile dragged sideways would turn the day instead.
+                .pointerInput(editingWidgets) {
+                    if (editingWidgets) return@pointerInput
+                    detectHorizontalDragGestures(
+                        onDragStart = { drag = 0f },
+                        onDragEnd = {
+                            if (drag > 120f) date -= 1
+                            else if (drag < -120f && date < com.noop.ui.logicalDayNow().toEpochDay()) date += 1
+                        },
+                        onHorizontalDrag = { _, amount -> drag += amount },
+                    )
                 }
-            }
-            // The card's own state line says what the link is doing rather than a fixed "Offline": the strap
-            // can be connected and streaming while no day has been scored yet, which is exactly the state a
-            // first run is in, and a card that says Offline there contradicts every other screen.
-            if (hasDay == false) FirstRunCard(connected = viewModel.live.collectAsState().value.connected) { devicesOpen = true }
-            // Holding a ring arranges the tiles, as on iOS. The rings' own tap claims the touch, so the hold rides
-            // on the same click (a long-press detector around them never saw the press).
-            // As iOS's rings: Charge carried from the latest scored day and Rest from the latest night while today has
-            // none yet (the small hours, a morning before the sync); Effort stays today's.
-            val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-            val carried by produceState<Pair<Double?, Double?>>(null to null, shown, coreRevision) {
-                value = withContext(Dispatchers.IO) {
-                    CoreRead.open(context)
-                    val from = shown.minusDays(14).toString(); val to = shown.toString()
-                    CoreRead.series(CoreRead.Metric.Charge, from, to).lastOrNull()?.value to
-                        CoreRead.series(CoreRead.Metric.Rest, from, to).lastOrNull()?.value
+                .semantics {
+                    customActions = listOf(
+                        CustomAccessibilityAction(previousLabel) { date -= 1; true },
+                        CustomAccessibilityAction(nextLabel) {
+                            if (date < com.noop.ui.logicalDayNow().toEpochDay()) { date += 1; true } else false
+                        },
+                    )
                 }
-            }
-            // Today's Effort as the classic dashboard has always shown it: the live score over today's raw
-            // heart rate, floored at the stored row. The stored row only moves when the nightly pass runs,
-            // so reading it raw showed a lower Effort here than on the other Today for most of the day
-            // (#41). The core resolves it; a past day has no in-progress figure and keeps its stored one.
-            val liveEffort by produceState<Double?>(null, shown, coreRevision, model?.day?.effort) {
-                value = if (shown != today) null else withContext(Dispatchers.IO) {
-                    CoreRead.open(context)
-                    com.noop.core.CoreLiveEffort.today(context, model?.day?.restingHr, model?.day?.effort)
+                .verticalScroll(scrollState).padding(padding)
+                .padding(horizontal = ForgeMetrics.screenPadding),
+            verticalArrangement = Arrangement.spacedBy(ForgeMetrics.sectionGap),
+        ) {
+            val style = remember(layoutRevision) { DashboardStylePrefs.style(context) }
+            if (ForgeDesign.preview) {
+                // The new design's Today, as iOS's `ForgeTodayView`: the header, the rings, a detected activity and the
+                // morning's suggestion, the widgets, then the day as a time rail. One Today, whatever the dashboard style.
+                NewDesignHeader(shown, isToday = shown == today, backfilling = viewModel.live.collectAsState().value.backfilling,
+                                batteryPct = viewModel.live.collectAsState().value.batteryPct,
+                                onProfile = { openSettings?.invoke() ?: run { settingsOpen = true } }, onQuickActions = { logOpen = true },
+                                onWorkout = { if (viewModel.activeWorkout.value != null) liveWorkout = true else startWorkout = true },
+                                workoutRunning = viewModel.activeWorkout.collectAsState().value != null,
+                                onCustomize = { editingWidgets = true },
+                                onBattery = { more.push(MoreRoute.Dest(MoreDest.Settings)) })
+                // A running import, above everything: it is the answer to "why is nothing here yet" and the
+                // page it was started from is not the page the wearer waits on. Draws nothing when none runs,
+                // and it is shown on a past day too, because the import is not about the day on screen.
+                com.noop.ui.ImportProgressBanner()
+                // The illness early warning above the rings, as iOS's `HealthAlertBanner` on its Today; it belongs to
+                // today, so a past day does not repeat it.
+                val healthAlert by viewModel.healthAlert.collectAsState()
+                if (shown == today) healthAlert?.let { com.noop.ui.IllnessBanner(it) }
+                // First run, as iOS's `WearableConnectionStateCard` on Today: nothing recorded or imported yet, and
+                // the one next step. The question is the core's (`read.hasAnyDay`), which is iOS's own
+                // `repo.days.isEmpty` over the same merge — asking instead whether a Rest or Charge SCORE existed
+                // kept this card up for a tester whose strap had been streaming for an hour, because a day of
+                // heart rate without a scored night has neither. Null while the store is still being read, so a
+                // full history never flashes it, and the answer latches once a day exists: the card has nothing
+                // left to say then, and re-reading on every write during a sync would merge the whole history for
+                // an answer that cannot change back.
+                val firstRunRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+                var hasDay by remember { mutableStateOf<Boolean?>(null) }
+                LaunchedEffect(firstRunRevision) {
+                    if (hasDay == true) return@LaunchedEffect
+                    hasDay = withContext(Dispatchers.IO) {
+                        CoreRead.open(context)
+                        com.noop.core.CoreDailyRows.hasAnyDay()
+                    }
                 }
-            }
-            val heroDay = (model?.day ?: CoreRead.Day(shown.toString(), null, null, null, null, null, null, null, null, null,
-                                                      null, null, null, null, null)).let { d ->
-                d.copy(charge = d.charge ?: carried.first, rest = d.rest ?: carried.second,
-                       effort = liveEffort ?: d.effort)
-            }
-            Hero(heroDay, width, onHold = { editingWidgets = true }, viewModel = viewModel)
+                // The card's own state line says what the link is doing rather than a fixed "Offline": the strap
+                // can be connected and streaming while no day has been scored yet, which is exactly the state a
+                // first run is in, and a card that says Offline there contradicts every other screen.
+                if (hasDay == false) FirstRunCard(connected = viewModel.live.collectAsState().value.connected) { devicesOpen = true }
+                // Holding a ring arranges the tiles, as on iOS. The rings' own tap claims the touch, so the hold rides
+                // on the same click (a long-press detector around them never saw the press).
+                // As iOS's rings: Charge carried from the latest scored day and Rest from the latest night while today has
+                // none yet (the small hours, a morning before the sync); Effort stays today's.
+                val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+                val carried by produceState<Pair<Double?, Double?>>(null to null, shown, coreRevision) {
+                    value = withContext(Dispatchers.IO) {
+                        CoreRead.open(context)
+                        val from = shown.minusDays(14).toString(); val to = shown.toString()
+                        CoreRead.series(CoreRead.Metric.Charge, from, to).lastOrNull()?.value to
+                            CoreRead.series(CoreRead.Metric.Rest, from, to).lastOrNull()?.value
+                    }
+                }
+                // Today's Effort as the classic dashboard has always shown it: the live score over today's raw
+                // heart rate, floored at the stored row. The stored row only moves when the nightly pass runs,
+                // so reading it raw showed a lower Effort here than on the other Today for most of the day
+                // (#41). The core resolves it; a past day has no in-progress figure and keeps its stored one.
+                val liveEffort by produceState<Double?>(null, shown, coreRevision, model?.day?.effort) {
+                    value = if (shown != today) null else withContext(Dispatchers.IO) {
+                        CoreRead.open(context)
+                        com.noop.core.CoreLiveEffort.today(context, model?.day?.restingHr, model?.day?.effort)
+                    }
+                }
+                val heroDay = (model?.day ?: CoreRead.Day(shown.toString(), null, null, null, null, null, null, null, null, null,
+                                                          null, null, null, null, null)).let { d ->
+                    d.copy(charge = d.charge ?: carried.first, rest = d.rest ?: carried.second,
+                           effort = liveEffort ?: d.effort)
+                }
+                SideEffect {
+                    heroChargeScore = heroDay.charge
+                    heroEffortScore = heroDay.effort
+                    heroRestScore = heroDay.rest
+                }
+                Hero(heroDay, width, onHold = { editingWidgets = true }, viewModel = viewModel)
+                if (shown == today) ForgeActivityPrompt()
+                // The day's one hint under the rings, as iOS's `hintCard`.
+                if (shown == today) {
+                    var hintCharge by remember { mutableStateOf(false) }
+                    TodayHintCard(viewModel, today.toString(), onCharge = { hintCharge = true },
+                                  onGoals = { more.push(MoreRoute.Dest(MoreDest.Goals)) },
+                                  onPlan = { selectTab(ForgeTab.Coach) },
+                                  onWeight = { more.push(MoreRoute.Dest(MoreDest.Body)) })
+                    if (hintCharge) ChargeBreakdownHost(viewModel, onDismiss = { hintCharge = false })
+                }
+                if (shown == today) ForgeMorningSuggestion()
+                // iOS's layout choices: the timeline can be hidden, and the tiles can follow it instead of the rings.
+                TodayWidgets.loadLayout(context)
+                val showsTimeline by TodayWidgets.showsTimeline.collectAsState()
+                val belowTimeline by TodayWidgets.belowTimeline.collectAsState()
+                val timelineFirst = showsTimeline != false && belowTimeline == true && !editingWidgets
+                if (shown == today && timelineFirst) ForgeTodayTimeline(viewModel, onSleep = { selectTab(ForgeTab.Sleep) })
+                ForgeTodayWidgetArea(model, viewModel, width, editing = editingWidgets, onEditing = { editingWidgets = it },
+                                     onOpenTrainingLoad = { more.push(MoreRoute.Dest(MoreDest.TrainingLoad)) },
+                                     onOpenSleep = { selectTab(ForgeTab.Sleep) },
+                                     onOpenAlarms = { more.push(MoreRoute.Dest(MoreDest.Alarms)) },
+                                     onOpenTraining = { selectTab(ForgeTab.Training) },
+                                     onOpenBreathe = { more.push(MoreRoute.Dest(MoreDest.Breathe)) },
+                                     onOpenStrap = { more.push(MoreRoute.Dest(MoreDest.Settings)) },
+                                     onOpenInsights = { more.push(MoreRoute.Dest(MoreDest.Insights)) },
+                                     onOpenTrends = { ForgeDesign.openTrends = true; selectTab(ForgeTab.Health) },
+                                     onOpenHydration = { more.push(MoreRoute.Dest(MoreDest.Hydration)) },
+                                     onOpenAgeLess = { more.push(MoreRoute.Dest(MoreDest.AgeLess)) },
+                                     onOpenFood = { more.push(MoreRoute.Dest(MoreDest.Food)) })
+                if (shown == today && showsTimeline != false && !timelineFirst) ForgeTodayTimeline(viewModel, onSleep = { selectTab(ForgeTab.Sleep) })
+            } else if (style != "liquid") {
+                // The Trends and Overview styles (Settings › Dashboard) draw their own header and blocks.
+                val live by viewModel.live.collectAsState()
+                val updateStore = remember { com.noop.ui.UpdateStore.from(context) }
+                val coachOn = com.noop.ui.NoopPrefs.coachEnabled(context) && com.noop.ui.CoachTodayPrefs.shown(context)
+                DashboardHeader(shown, isToday = shown == today,
+                                battery = live.batteryPct?.let { stringResource(R.string.forge_percent, kotlin.math.round(it).toInt()) },
+                                unread = updateStore.unreadCount, onBattery = { selectTab(ForgeTab.More) },
+                                onQuickActions = { quickActions = true }, onUpdates = { updatesOpen = true },
+                                onCoach = if (coachOn) ({ more.push(MoreRoute.Dest(MoreDest.Coach)) }) else null,
+                                onArrange = { arranging = style }, onPickDay = { dayPicker = true })
+                if (shown == today) ForgeActivityPrompt()
+                if (shown == today) ForgeMorningSuggestion()
+                ForgeStyledDashboard(style, layoutRevision, shown, model?.day, viewModel,
+                    onSection = { drawSection(it) },
+                    onHealth = { more.push(MoreRoute.Dest(MoreDest.Health)) },
+                    onSleep = { selectTab(ForgeTab.Sleep) },
+                    onStress = { more.push(MoreRoute.Dest(MoreDest.Stress)) },
+                    onCoach = { more.push(MoreRoute.Dest(MoreDest.Coach)) },
+                    onActivity = { more.push(MoreRoute.Dest(MoreDest.Workouts)) })
+            } else {
+            Header(shown, isToday = shown == today, backfilling = viewModel.live.collectAsState().value.backfilling,
+                   onProfile = { settingsOpen = true }, onQuickActions = { quickActions = true })
+            // Pinned above the arranged sections, as on iOS (`MorningSuggestionCard` before the `ForEach`); activity
+            // detection's prompt first, so a suggestion waiting for an answer cannot be arranged below the fold.
             if (shown == today) ForgeActivityPrompt()
-            // The day's one hint under the rings, as iOS's `hintCard`.
-            if (shown == today) {
-                var hintCharge by remember { mutableStateOf(false) }
-                TodayHintCard(viewModel, today.toString(), onCharge = { hintCharge = true },
-                              onGoals = { more.push(MoreRoute.Dest(MoreDest.Goals)) },
-                              onPlan = { selectTab(ForgeTab.Coach) },
-                              onWeight = { more.push(MoreRoute.Dest(MoreDest.Body)) })
-                if (hintCharge) ChargeBreakdownHost(viewModel, onDismiss = { hintCharge = false })
+            if (shown == today) ForgeMorningSuggestion()
+            // Every drawn section in the saved order (`TodayLayoutDefaults`); a hidden one keeps its stored place.
+            sections.forEach { drawSection(it) }
             }
-            if (shown == today) ForgeMorningSuggestion()
-            // iOS's layout choices: the timeline can be hidden, and the tiles can follow it instead of the rings.
-            TodayWidgets.loadLayout(context)
-            val showsTimeline by TodayWidgets.showsTimeline.collectAsState()
-            val belowTimeline by TodayWidgets.belowTimeline.collectAsState()
-            val timelineFirst = showsTimeline != false && belowTimeline == true && !editingWidgets
-            if (shown == today && timelineFirst) ForgeTodayTimeline(viewModel, onSleep = { selectTab(ForgeTab.Sleep) })
-            ForgeTodayWidgetArea(model, viewModel, width, editing = editingWidgets, onEditing = { editingWidgets = it },
-                                 onOpenTrainingLoad = { more.push(MoreRoute.Dest(MoreDest.TrainingLoad)) },
-                                 onOpenSleep = { selectTab(ForgeTab.Sleep) },
-                                 onOpenAlarms = { more.push(MoreRoute.Dest(MoreDest.Alarms)) },
-                                 onOpenTraining = { selectTab(ForgeTab.Training) },
-                                 onOpenBreathe = { more.push(MoreRoute.Dest(MoreDest.Breathe)) },
-                                 onOpenStrap = { more.push(MoreRoute.Dest(MoreDest.Settings)) },
-                                 onOpenInsights = { more.push(MoreRoute.Dest(MoreDest.Insights)) },
-                                 onOpenTrends = { ForgeDesign.openTrends = true; selectTab(ForgeTab.Health) },
-                                 onOpenHydration = { more.push(MoreRoute.Dest(MoreDest.Hydration)) },
-                                 onOpenAgeLess = { more.push(MoreRoute.Dest(MoreDest.AgeLess)) },
-                                 onOpenFood = { more.push(MoreRoute.Dest(MoreDest.Food)) })
-            if (shown == today && showsTimeline != false && !timelineFirst) ForgeTodayTimeline(viewModel, onSleep = { selectTab(ForgeTab.Sleep) })
-        } else if (style != "liquid") {
-            // The Trends and Overview styles (Settings › Dashboard) draw their own header and blocks.
-            val live by viewModel.live.collectAsState()
-            val updateStore = remember { com.noop.ui.UpdateStore.from(context) }
-            val coachOn = com.noop.ui.NoopPrefs.coachEnabled(context) && com.noop.ui.CoachTodayPrefs.shown(context)
-            DashboardHeader(shown, isToday = shown == today,
-                            battery = live.batteryPct?.let { stringResource(R.string.forge_percent, kotlin.math.round(it).toInt()) },
-                            unread = updateStore.unreadCount, onBattery = { selectTab(ForgeTab.More) },
-                            onQuickActions = { quickActions = true }, onUpdates = { updatesOpen = true },
-                            onCoach = if (coachOn) ({ more.push(MoreRoute.Dest(MoreDest.Coach)) }) else null,
-                            onArrange = { arranging = style }, onPickDay = { dayPicker = true })
-            if (shown == today) ForgeActivityPrompt()
-            if (shown == today) ForgeMorningSuggestion()
-            ForgeStyledDashboard(style, layoutRevision, shown, model?.day, viewModel,
-                onSection = { drawSection(it) },
-                onHealth = { more.push(MoreRoute.Dest(MoreDest.Health)) },
-                onSleep = { selectTab(ForgeTab.Sleep) },
-                onStress = { more.push(MoreRoute.Dest(MoreDest.Stress)) },
-                onCoach = { more.push(MoreRoute.Dest(MoreDest.Coach)) },
-                onActivity = { more.push(MoreRoute.Dest(MoreDest.Workouts)) })
-        } else {
-        Header(shown, isToday = shown == today, backfilling = viewModel.live.collectAsState().value.backfilling,
-               onProfile = { settingsOpen = true }, onQuickActions = { quickActions = true })
-        // Pinned above the arranged sections, as on iOS (`MorningSuggestionCard` before the `ForEach`); activity
-        // detection's prompt first, so a suggestion waiting for an answer cannot be arranged below the fold.
-        if (shown == today) ForgeActivityPrompt()
-        if (shown == today) ForgeMorningSuggestion()
-        // Every drawn section in the saved order (`TodayLayoutDefaults`); a hidden one keeps its stored place.
-        sections.forEach { drawSection(it) }
+            Spacer(Modifier.height(ForgeMetrics.space2))
         }
-        Spacer(Modifier.height(ForgeMetrics.space2))
+        // The pinned score bar while the rings scroll away, as iOS's `pinnedBar`.
+        if (heroBarVisible) {
+            PinnedBar(
+                charge = heroChargeScore,
+                effort = heroEffortScore,
+                rest = heroRestScore,
+                onClick = { scrollScope.launch { scrollState.animateScrollTo(0) } }
+            )
+        }
     }
 }
 
@@ -513,7 +542,7 @@ private fun NewDesignHeader(date: LocalDate, isToday: Boolean, backfilling: Bool
                 Row(Modifier.height(36.dp).background(colors.inset, CircleShape).clickable(onClick = onBattery)
                         .padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(androidx.compose.material.icons.rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(16.dp))
                     Text(batteryPct.roundToInt().toString(), style = Forge.type.footnote, color = colors.text)
                 }
                 Spacer(Modifier.width(ForgeMetrics.space2))
@@ -949,6 +978,41 @@ internal fun ForgeDayHeartRatePage(date: LocalDate, onBack: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+/**
+ * The pinned score bar, as iOS's `pinnedBar`: a glass capsule holding the three ring scores
+ * while the rings scroll out of view. Tapping scrolls back to the top.
+ */
+@Composable
+private fun PinnedBar(charge: Double?, effort: Double?, rest: Double?, onClick: () -> Unit) {
+    val colors = Forge.colors
+    Row(
+        Modifier.fillMaxWidth()
+            .padding(top = ForgeMetrics.space4)
+            .clickable(onClick = onClick),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        PinnedValue(stringResource(R.string.forge_charge), charge?.let { "%.0f".format(it) } ?: "–", colors.charge)
+        PinnedValue(stringResource(R.string.forge_effort), effort?.let { "%.0f".format(it) } ?: "–", colors.effort)
+        PinnedValue(stringResource(R.string.forge_rest), rest?.let { "%.0f".format(it) } ?: "–", colors.rest)
+    }
+}
+
+@Composable
+private fun PinnedValue(label: String, value: String, tint: Color) {
+    val colors = Forge.colors
+    Row(
+        Modifier.background(colors.surfaceTop.copy(alpha = 0.88f), RoundedCornerShape(50))
+            .padding(horizontal = ForgeMetrics.space4, vertical = ForgeMetrics.space2),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Box(Modifier.size(8.dp).clip(CircleShape).background(tint))
+        Text(value, style = Forge.type.captionNumber, color = colors.text)
+        Text(label, style = Forge.type.caption, color = colors.textSecondary)
     }
 }
 
