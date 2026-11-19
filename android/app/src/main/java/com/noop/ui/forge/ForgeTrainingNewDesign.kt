@@ -166,8 +166,12 @@ internal fun TrainingRoutineRow(routines: List<CoreTraining.Routine>, onStart: (
             Column(Modifier.width(150.dp).height(140.dp).background(colors.surface, RoundedCornerShape(12.dp))
                        .combinedClickable(role = Role.Button, onClick = { onStart(routine) }, onLongClick = { onEdit(routine) })
                        .semantics { contentDescription = label }.padding(14.dp)) {
-                Box(Modifier.size(40.dp).background(colors.effort.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.FitnessCenter, contentDescription = null, tint = colors.effort, modifier = Modifier.size(20.dp))
+                if (routine.muscles.values.any { it > 0 }) {
+                    MiniMusclePreview(values = routine.muscles, height = 72.dp)
+                } else {
+                    Box(Modifier.size(40.dp).background(colors.effort.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
+                        Icon(Icons.Rounded.FitnessCenter, contentDescription = null, tint = colors.effort, modifier = Modifier.size(20.dp))
+                    }
                 }
                 Spacer(Modifier.weight(1f))
                 Text(routine.title, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text,
