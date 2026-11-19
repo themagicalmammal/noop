@@ -44,6 +44,8 @@ import androidx.compose.material.icons.rounded.SentimentSatisfied
 import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material.icons.rounded.WaterDrop
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -745,7 +747,11 @@ private fun CycleFertilePage(snap: CycleSnapshot, onBack: () -> Unit, onLog: () 
     val colors = Forge.colors
     val f = snap.fertile
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_cy_fertile_days), onBack)
+        PageTitle(stringResource(R.string.forge_cy_fertile_days), onBack, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.AutoAwesome, accentAIcon = Icons.Rounded.Favorite,
+                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.cycleFertile, size = 56,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         ForgeCard(Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.Top) {
                 Icon(Icons.Rounded.Warning, contentDescription = null, tint = colors.effort, modifier = Modifier.size(20.dp))
