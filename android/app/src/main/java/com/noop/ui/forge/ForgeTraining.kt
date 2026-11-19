@@ -430,8 +430,7 @@ fun ForgeTrainingScreen(padding: PaddingValues, viewModel: AppViewModel) {
         if (ForgeDesign.preview) Section(stringResource(R.string.forge_th_tools), overline = null) {
             ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
                 TrainingPlanRows(onWeekPlan = { page = TrainingPage.WeekPlan },
-                                 onLibrary = { page = TrainingPage.PlanLibrary },
-                                 onPlans = { page = TrainingPage.Plans })
+                                 onLibrary = { page = TrainingPage.PlanLibrary })
                 TrainingGroupRow(Icons.Rounded.Timer, ForgeTokens.Color.systemOrange.resolve(),
                                  stringResource(R.string.forge_th_interval_timer), stringResource(R.string.forge_th_interval_timer_sub),
                                  true) { page = TrainingPage.Intervals }
