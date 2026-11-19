@@ -28,7 +28,9 @@ import androidx.compose.material.icons.rounded.ListAlt
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Flag
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.LocalFireDepartment
 import androidx.compose.material.icons.rounded.BarChart
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -169,9 +171,8 @@ internal fun TrainingRoutineRow(routines: List<CoreTraining.Routine>, onStart: (
                 if (routine.muscles.values.any { it > 0 }) {
                     MiniMusclePreview(values = routine.muscles, height = 72.dp)
                 } else {
-                    Box(Modifier.size(40.dp).background(colors.effort.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Rounded.FitnessCenter, contentDescription = null, tint = colors.effort, modifier = Modifier.size(20.dp))
-                    }
+                    CoachPicture(mainIcon = Icons.Rounded.FitnessCenter, accentAIcon = Icons.Rounded.LocalFireDepartment,
+                                 accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 56)
                 }
                 Spacer(Modifier.weight(1f))
                 Text(routine.title, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text,
@@ -185,9 +186,8 @@ internal fun TrainingRoutineRow(routines: List<CoreTraining.Routine>, onStart: (
             val prompt = stringResource(R.string.forge_tr_coach_create_prompt)
             Column(Modifier.width(150.dp).height(140.dp).background(colors.surface, RoundedCornerShape(12.dp))
                        .clickable(role = Role.Button) { onAsk(prompt) }.padding(14.dp)) {
-                Box(Modifier.size(40.dp).background(colors.effort.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.AutoAwesome, contentDescription = null, tint = colors.effort, modifier = Modifier.size(20.dp))
-                }
+                CoachPicture(mainIcon = Icons.Rounded.AutoAwesome, accentAIcon = Icons.Rounded.LocalFireDepartment,
+                             accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 56)
                 Spacer(Modifier.weight(1f))
                 Text(stringResource(R.string.forge_tr_coach_create), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
                      color = colors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
