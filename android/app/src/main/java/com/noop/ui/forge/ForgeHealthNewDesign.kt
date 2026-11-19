@@ -34,6 +34,7 @@ import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.DirectionsRun
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.GridView
@@ -254,7 +255,11 @@ internal fun FocusAreaPage(area: FocusArea, viewModel: com.noop.ui.AppViewModel,
         }
     }
     SettingsColumn {
-        PageTitle(stringResource(area.titleRes), onBack)
+        PageTitle(stringResource(area.titleRes), onBack, trailing = {
+            CoachPicture(mainIcon = area.icon, accentAIcon = Icons.Rounded.AutoAwesome,
+                         accentBIcon = Icons.Rounded.Star, tint = tint, size = 56,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         data class FocusTile(val key: String?, val label: String, val value: String, val unit: String, val values: List<Double>)
         val tiles = series.map { (m, v) -> FocusTile(m.key, stringResource(m.titleRes), focusValue(v.last(), m), focusUnit(m), v.takeLast(30)) } +
             (if (energy.isNotEmpty()) listOf(FocusTile("energy", stringResource(R.string.forge_fm_energy),
