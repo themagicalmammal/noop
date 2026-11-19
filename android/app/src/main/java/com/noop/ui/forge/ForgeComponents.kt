@@ -401,17 +401,21 @@ internal fun ForgeDirection(delta: Int) {
 
 /** iOS `ForgeChip`: a capsule button with optional icon and prominence, as the coach chips and prompts draw them. */
 @Composable
-internal fun ForgeChip(title: String, onClick: () -> Unit) {
+internal fun ForgeChip(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+                       prominent: Boolean = false, onClick: () -> Unit) {
     val colors = Forge.colors
+    val ink = if (prominent) colors.accent else colors.text
     Box(
         Modifier.clickable(role = Role.Button, onClick = onClick)
             .background(colors.inset, androidx.compose.foundation.shape.RoundedCornerShape(50))
             .padding(horizontal = 14.dp, vertical = 8.dp),
         contentAlignment = Alignment.CenterStart
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-
-            Text(title, style = Forge.type.subhead.copy(fontWeight = FontWeight.Medium), color = colors.text, maxLines = 1)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (icon != null) {
+                androidx.compose.material3.Icon(icon, contentDescription = null, tint = ink, modifier = Modifier.size(16.dp))
+            }
+            Text(title, style = Forge.type.subhead.copy(fontWeight = FontWeight.Medium), color = ink, maxLines = 1)
         }
     }
 }
