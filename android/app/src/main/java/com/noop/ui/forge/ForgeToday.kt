@@ -351,10 +351,12 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
             // The new design's Today, as iOS's `ForgeTodayView`: the header, the rings, a detected activity and the
             // morning's suggestion, the widgets, then the day as a time rail. One Today, whatever the dashboard style.
             NewDesignHeader(shown, isToday = shown == today, backfilling = viewModel.live.collectAsState().value.backfilling,
+                            batteryPct = viewModel.live.collectAsState().value.batteryPct,
                             onProfile = { openSettings?.invoke() ?: run { settingsOpen = true } }, onQuickActions = { logOpen = true },
                             onWorkout = { if (viewModel.activeWorkout.value != null) liveWorkout = true else startWorkout = true },
                             workoutRunning = viewModel.activeWorkout.collectAsState().value != null,
-                            onCustomize = { editingWidgets = true })
+                            onCustomize = { editingWidgets = true },
+                            onBattery = { more.push(MoreRoute.Dest(MoreDest.Settings)) })
             // A running import, above everything: it is the answer to "why is nothing here yet" and the
             // page it was started from is not the page the wearer waits on. Draws nothing when none runs,
             // and it is shown on a past day too, because the import is not about the day on screen.
@@ -483,27 +485,39 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
  * wordmark: the new design's headers carry none.
  */
 @Composable
-private fun NewDesignHeader(date: LocalDate, isToday: Boolean, backfilling: Boolean, onProfile: () -> Unit,
-                            onQuickActions: () -> Unit, onWorkout: () -> Unit, workoutRunning: Boolean, onCustomize: () -> Unit) {
+private fun NewDesignHeader(date: LocalDate, isToday: Boolean, backfilling: Boolean, batteryPct: Double?,
+                            onProfile: () -> Unit, onQuickActions: () -> Unit, onWorkout: () -> Unit,
+                            workoutRunning: Boolean, onCustomize: () -> Unit, onBattery: () -> Unit) {
+    val colors = Forge.colors
     val locale = Locale.getDefault()
     val sceneShadow = if (Forge.sceneInk.dark) Shadow(Color.Black.copy(alpha = 0.55f), Offset(0f, 1f), 8f) else null
     Column(Modifier.fillMaxWidth().padding(top = ForgeMetrics.space4)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.space5), verticalAlignment = Alignment.CenterVertically) {
+            // As iOS's `ForgeLargeHeader`: the title and its date, then the battery, the plus, the profile.
             Text(
                 androidx.compose.ui.text.buildAnnotatedString {
                     withStyle(androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold)) {
                         append(if (isToday) stringResource(R.string.nav_today)
                                else date.format(DateTimeFormatter.ofPattern(WEEKDAY_PATTERN, locale)).replaceFirstChar { it.titlecase(locale) })
                     }
+                    append("  ")
                     withStyle(Forge.type.subhead.toSpanStyle().copy(color = Forge.sceneInk.secondary)) {
-                        append("  ")
                         append(date.format(DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEMMMd"), locale)))
                     }
                 },
                 style = Forge.type.title2.copy(shadow = sceneShadow), color = Forge.sceneInk.text, maxLines = 1,
                 overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
             )
-            // As iOS's `addMenu`: start (or return to) a workout, add an entry, customise Today behind one plus.
+            if (batteryPct != null) {
+                Spacer(Modifier.width(ForgeMetrics.space2))
+                Row(Modifier.height(36.dp).background(colors.inset, CircleShape).clickable(onClick = onBattery)
+                        .padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(androidx.compose.material.icons.rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(16.dp))
+                    Text(batteryPct.roundToInt().toString(), style = Forge.type.footnote, color = colors.text)
+                }
+                Spacer(Modifier.width(ForgeMetrics.space2))
+            }
             TodayHeaderButtons(onProfile, onQuickActions) { close ->
                 ForgeMenuItem(stringResource(if (workoutRunning) R.string.forge_log_back_to_workout else R.string.forge_qa_start_workout),
                               Icons.AutoMirrored.Rounded.DirectionsRun) { close(); onWorkout() }
