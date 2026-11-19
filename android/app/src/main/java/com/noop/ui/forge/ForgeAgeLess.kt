@@ -9,6 +9,7 @@ import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.HourglassBottom
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.WbTwilight
@@ -44,6 +45,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -91,8 +93,20 @@ internal fun ForgeAgeLessPage(onBack: () -> Unit, onOpenRhythm: () -> Unit = {})
         output = withContext(Dispatchers.IO) { CoreRead.open(context); CoreAgeLess.snapshot(context) }
         loaded = true
     }
+    var showAbout by remember { mutableStateOf(false) }
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_ageless_title), onBack)
+        PageTitle(
+            stringResource(R.string.forge_ageless_title),
+            onBack,
+            trailing = {
+                IconButton(onClick = { showAbout = true }) {
+                    Icon(Icons.Rounded.Info, stringResource(R.string.forge_ageless_about), tint = Forge.colors.textSecondary)
+                }
+            }
+        )
+        if (showAbout) {
+            ForgeAgeLessAboutSheet(onDismiss = { showAbout = false })
+        }
         val weeks = output?.weeks.orEmpty()
         if (weeks.isEmpty()) {
             AgelessCard {

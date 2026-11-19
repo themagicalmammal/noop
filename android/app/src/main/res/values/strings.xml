@@ -4160,6 +4160,7 @@
     <string name="forge_settings_journal_card">Journal card</string>
     <string name="forge_settings_journal_card_detail">Shows your last 7 journal days and reminds you when today is still missing.</string>
     <string name="forge_ageless_title">AgeLess</string>
+    <string name="forge_ageless_about">About AgeLess</string>
     <string name="forge_ageless_speed">Aging speed</string>
     <string name="forge_ageless_in6">In 6 months: %1$s if the last 30 days continue</string>
     <string name="forge_ageless_n_reversing">Getting younger</string>
