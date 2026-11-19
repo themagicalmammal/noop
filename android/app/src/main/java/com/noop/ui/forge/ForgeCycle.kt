@@ -37,6 +37,8 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MedicalServices
 import androidx.compose.material.icons.rounded.Psychology
+import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.SentimentSatisfied
 import androidx.compose.material.icons.rounded.Thermostat
@@ -190,7 +192,11 @@ internal fun ForgeCyclePage(viewModel: AppViewModel, onBack: () -> Unit, startLo
         }
     }
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_cy_title), onBack)
+        PageTitle(stringResource(R.string.forge_cy_title), onBack, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.WaterDrop, accentAIcon = Icons.Rounded.Bedtime,
+                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.cycleFertile, size = 56,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         if (!enabled) {
             CycleOptIn(onTurnOn = { viewModel.setCycleTrackingEnabled(true) }, showFertile = false)
             return@SettingsColumn
