@@ -582,7 +582,7 @@ private fun EnergyFigure(title: String, value: String, info: Boolean = false, mo
 /** A section's title standing in the scene above its card; with an action it opens the section's own page. */
 @Composable
 internal fun FoodSectionHeader(title: String, onOpen: (() -> Unit)? = null) {
-    Row(Modifier.fillMaxWidth().padding(top = ForgeMetrics.space4)
+    Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, top = ForgeMetrics.space4)
             .then(if (onOpen != null) Modifier.clickable(role = Role.Button, onClick = onOpen) else Modifier),
         verticalAlignment = Alignment.CenterVertically) {
         Text(title, style = Forge.type.title2, color = Forge.sceneInk.text)
