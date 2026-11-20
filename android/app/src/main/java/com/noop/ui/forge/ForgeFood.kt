@@ -841,14 +841,14 @@ private fun ItemRow(item: CoreFood.Item, onAdd: () -> Unit, onFavourite: (Boolea
     var menu by remember { mutableStateOf(false) }
     Box {
         Row(Modifier.fillMaxWidth().combinedClickable(onClick = onAdd, onLongClick = { menu = true })
-            .padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text(item.name, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text, maxLines = 2)
+            .padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(item.name, style = Forge.type.headline.copy(fontWeight = FontWeight.Bold), color = Forge.colors.text, maxLines = 2)
                 val source = when (item.source) { "bls" -> "BLS"; "off", "online" -> "Open Food Facts"; "recipe" -> stringResource(R.string.food_recipe); else -> stringResource(R.string.food_yours) }
                 Text(listOfNotNull(item.brand, stringResource(R.string.food_kcal_per_100g, kcalText(item.per100g["energy_kcal"])), source).joinToString(" · "),
                      style = Forge.type.footnote, color = Forge.colors.textSecondary, maxLines = 1)
             }
-            Icon(Icons.Rounded.AddCircle, stringResource(R.string.food_add), tint = Forge.colors.food)
+            Icon(Icons.Rounded.AddCircle, stringResource(R.string.food_add), tint = Forge.colors.food, modifier = Modifier.size(20.dp))
         }
         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
             DropdownMenuItem(text = { Text(stringResource(R.string.food_favourite_add)) }, onClick = { menu = false; onFavourite(true) })
