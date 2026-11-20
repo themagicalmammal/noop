@@ -38,6 +38,7 @@ import com.noop.core.CoreBody
 import com.noop.core.CoreCoach
 import com.noop.core.CoreEnergyDetail
 import com.noop.core.CoreRead
+import com.noop.core.CoreCache
 import com.noop.ui.KeyMetric
 import com.noop.ui.KeyMetricPrefs
 import com.noop.ui.TemperatureUnit
@@ -211,7 +212,7 @@ internal fun rememberKeyTiles(model: TodayModel?, metrics: Collection<KeyMetric>
                 KeyMetric.WEIGHT -> CoreBody.snapshot(context)?.weight?.filter { it.day <= to }?.map { it.day to it.value }
                 KeyMetric.CALORIES -> CoreEnergyDetail.read(context, to, "sevenDay", dismissed)
                     ?.summaries?.mapNotNull { s -> s.total?.let { s.day to it } }
-                else -> metric.series?.let { s -> CoreRead.series(s, "1970-01-01", to).map { it.day to it.value } }
+                else -> metric.series?.let { s -> CoreCache.series(s, "1970-01-01", to, coreRevision).map { it.day to it.value } }
             }
             metrics.mapNotNull { m -> history(m)?.let { m to windowedSpark(it, cutoff, windowDays) } }
                 .filter { it.second.size >= 2 }.toMap()
@@ -225,7 +226,7 @@ internal fun rememberKeyTiles(model: TodayModel?, metrics: Collection<KeyMetric>
         value = if (!latestFallback) emptyMap() else withContext(Dispatchers.IO) {
             val to = date.toString()
             metrics.mapNotNull { m ->
-                m.series?.let { s -> CoreRead.series(s, date.minusDays(60).toString(), to).lastOrNull()?.let { m to it.value } }
+                m.series?.let { s -> CoreCache.series(s, date.minusDays(60).toString(), to, coreRevision).lastOrNull()?.let { m to it.value } }
             }.toMap()
         }
     }
