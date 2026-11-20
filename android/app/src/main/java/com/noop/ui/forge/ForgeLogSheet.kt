@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.DirectionsWalk
@@ -99,7 +100,7 @@ internal fun ForgeLogSheet(coachOn: Boolean, onDismiss: () -> Unit, coachPhotos:
             FlowRow(horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space2),
                     verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
                 direct.forEach { item ->
-                    Row(Modifier.heightIn(min = 40.dp).background(colors.surfaceTop, CircleShape)
+                    Row(Modifier.heightIn(min = 40.dp).background(colors.surfaceTop, RoundedCornerShape(20.dp))
                             .clickable(role = Role.Button) { onPick(item.choice) }.padding(horizontal = 14.dp),
                         horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space2), verticalAlignment = Alignment.CenterVertically) {
                         Icon(item.icon, contentDescription = null, tint = item.tint, modifier = Modifier.size(18.dp))
