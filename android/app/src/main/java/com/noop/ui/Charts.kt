@@ -272,6 +272,7 @@ fun Sparkline(
     values: List<Double>,
     modifier: Modifier = Modifier,
     color: Color = Palette.accent,
+    showsArea: Boolean = false,
 ) {
     // PERF (#scroll-jank): the point mapping + Path were rebuilt inside the Canvas draw lambda EVERY
     // frame. drawWithCache tessellates the Path ONCE (keyed on the values + size — the cache block
@@ -298,7 +299,17 @@ fun Sparkline(
                         for (i in 1 until pts.size) lineTo(pts[i].x, pts[i].y)
                     }
                     val stroke = Stroke(width = strokePx, cap = StrokeCap.Round, join = StrokeJoin.Round)
+                    val areaPath = Path().apply {
+                        moveTo(pts.first().x, size.height)
+                        moveTo(pts.first().x, pts.first().y)
+                        for (p in pts) lineTo(p.x, p.y)
+                        lineTo(pts.last().x, size.height)
+                        close()
+                    }
                     onDrawBehind {
+                        if (showsArea) {
+                            drawPath(path = areaPath, color = color.copy(alpha = 0.22f))
+                        }
                         drawPath(path = path, color = color, style = stroke)
                     }
                 }

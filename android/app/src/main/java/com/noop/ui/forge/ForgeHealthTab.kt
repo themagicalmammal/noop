@@ -485,7 +485,7 @@ private fun VitalTile(v: Vital, modifier: Modifier, onClick: () -> Unit) {
             style = Forge.type.heroNumber, color = colors.text, maxLines = 1,
         )
         Spacer(Modifier.height(ForgeMetrics.space2))
-        if (v.sparkline.size > 1) Sparkline(v.sparkline, color = v.metricColor)
+        if (v.sparkline.size > 1) Sparkline(v.sparkline, color = v.metricColor, showsArea = true)
         VitalBadge(v)
     }
 }
