@@ -169,6 +169,7 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
     var updatesOpen by remember { mutableStateOf(false) }
     var dayPicker by remember { mutableStateOf(false) }
     var editingWidgets by remember { mutableStateOf(false) }
+    var timelineCharge by remember { mutableStateOf(false) }
     val more = rememberMoreNavigator()
     val selectTab = LocalForgeTabSelect.current
     val openMore = LocalForgeOpenMore.current
@@ -463,13 +464,21 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                                   onPlan = { selectTab(ForgeTab.Coach) },
                                   onWeight = { more.push(MoreRoute.Dest(MoreDest.Body)) })
                     if (hintCharge) ChargeBreakdownHost(viewModel, onDismiss = { hintCharge = false })
+                    if (timelineCharge) ChargeBreakdownHost(viewModel, onDismiss = { timelineCharge = false })
                 }
                 // iOS's layout choices: the timeline can be hidden, and the tiles can follow it instead of the rings.
                 TodayWidgets.loadLayout(context)
                 val showsTimeline by TodayWidgets.showsTimeline.collectAsState()
                 val belowTimeline by TodayWidgets.belowTimeline.collectAsState()
                 val timelineFirst = showsTimeline != false && belowTimeline == true && !editingWidgets
-                if (shown == today && timelineFirst) ForgeTodayTimeline(viewModel, onSleep = { selectTab(ForgeTab.Sleep) })
+                if (shown == today && timelineFirst) ForgeTodayTimeline(viewModel, onSleep = { selectTab(ForgeTab.Sleep) },
+                                     onDestination = { dest ->
+                                         when (dest) {
+                                             "chargeBreakdown" -> timelineCharge = true
+                                             "goalJourney" -> more.push(MoreRoute.Dest(MoreDest.Goals))
+                                             "plan" -> selectTab(ForgeTab.Coach)
+                                         }
+                                     })
                 ForgeTodayWidgetArea(model, viewModel, width, editing = editingWidgets, onEditing = { editingWidgets = it },
                                      onOpenTrainingLoad = { more.push(MoreRoute.Dest(MoreDest.TrainingLoad)) },
                                      onOpenSleep = { selectTab(ForgeTab.Sleep) },
@@ -482,7 +491,14 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                                      onOpenHydration = { more.push(MoreRoute.Dest(MoreDest.Hydration)) },
                                      onOpenAgeLess = { more.push(MoreRoute.Dest(MoreDest.AgeLess)) },
                                      onOpenFood = { more.push(MoreRoute.Dest(MoreDest.Food)) })
-                if (shown == today && showsTimeline != false && !timelineFirst) ForgeTodayTimeline(viewModel, onSleep = { selectTab(ForgeTab.Sleep) })
+                if (shown == today && showsTimeline != false && !timelineFirst) ForgeTodayTimeline(viewModel, onSleep = { selectTab(ForgeTab.Sleep) },
+                                     onDestination = { dest ->
+                                         when (dest) {
+                                             "chargeBreakdown" -> timelineCharge = true
+                                             "goalJourney" -> more.push(MoreRoute.Dest(MoreDest.Goals))
+                                             "plan" -> selectTab(ForgeTab.Coach)
+                                         }
+                                     })
             } else if (style != "liquid") {
                 // The Trends and Overview styles (Settings › Dashboard) draw their own header and blocks.
                 val live by viewModel.live.collectAsState()

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.WbTwilight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.verticalScroll
@@ -66,6 +68,7 @@ import com.noop.R
 import com.noop.core.CoreRead
 import com.noop.data.WorkoutRow
 import com.noop.ui.AppViewModel
+import com.noop.ui.forge.ForgeMetrics
 import com.noop.ui.UnitFormatter
 import com.noop.ui.UnitPrefs
 import com.noop.ui.WorkoutEditing
@@ -76,6 +79,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+internal val NOTICES_DESTINATIONS = setOf("chargeBreakdown", "goalJourney", "plan")
 
 /**
  * Fork (DX23876), Forge parity 2026-11: Today's timeline as the new iOS design draws it (`ForgeTimeline`,
@@ -225,7 +229,7 @@ internal object TodayTimeline {
 }
 
 @Composable
-internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
+internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit, onDestination: ((String) -> Unit)? = null) {
     val context = LocalContext.current
     val workouts by viewModel.workouts.collectAsState()
     var nights by remember { mutableStateOf<List<CoreRead.Night>>(emptyList()) }
@@ -443,6 +447,13 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
                                 }
                                 if (e.notice.detail.isNotEmpty()) Text(e.notice.detail, style = Forge.type.caption, color = Forge.colors.textSecondary,
                                                                        modifier = Modifier.padding(top = 4.dp))
+                                if (e.notice.actionTitle != null && e.notice.destination != null &&
+                                    e.notice.destination in NOTICES_DESTINATIONS && onDestination != null) {
+                                    TextButton(onClick = { onDestination(e.notice.destination!!) },
+                                               modifier = Modifier.padding(top = 4.dp).heightIn(min = ForgeMetrics.minHitTarget)) {
+                                        Text(e.notice.actionTitle, style = Forge.type.subhead, color = Forge.colors.accent)
+                                    }
+                                }
                             }
                         }
                     }
