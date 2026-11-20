@@ -60,7 +60,7 @@ data class ForgeColors(
 data class ForgeType(
     val title1: TextStyle, val title2: TextStyle, val headerTitle: TextStyle, val figure: TextStyle, val headline: TextStyle, val body: TextStyle,
     val bodyNumber: TextStyle, val subhead: TextStyle, val caption: TextStyle, val captionNumber: TextStyle,
-    val footnote: TextStyle, val overline: TextStyle, val heroNumber: TextStyle,
+    val footnote: TextStyle, val overline: TextStyle, val heroNumber: TextStyle, val foodFigure: TextStyle,
 )
 
 private fun ForgeColor.pick(dark: Boolean) = Color(if (dark) this.dark else this.light)
@@ -283,6 +283,7 @@ val forgeType = ForgeType(
     footnote = ForgeTokens.StrandFont.footnote.style(),
     overline = ForgeTokens.StrandFont.overline.style().copy(letterSpacing = ForgeTokens.StrandFont.overlineTracking.sp),
     heroNumber = ForgeTokens.StrandFont.heroNumber.style(),
+    foodFigure = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.SemiBold, fontFamily = roundedFamily),
 )
 
 /** Spacing and shapes in dp, from the same tokens. */

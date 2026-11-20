@@ -575,7 +575,7 @@ private fun EnergyFigure(title: String, value: String, info: Boolean = false, mo
                 Icon(Icons.Rounded.Info, null, tint = Forge.colors.textSecondary, modifier = Modifier.size(14.dp))
             }
         }
-        Text(value, style = Forge.type.bodyNumber, color = Forge.colors.text)
+        Text(value, style = Forge.type.foodFigure, color = Forge.colors.text)
     }
 }
 
