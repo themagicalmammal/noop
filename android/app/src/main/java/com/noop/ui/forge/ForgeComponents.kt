@@ -327,7 +327,7 @@ internal fun ForgeBadgePill(text: String, tone: ForgeBadgeTone) {
         ForgeBadgeTone.Neutral -> colors.textSecondary to colors.inset
     }
     Text(text, style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = ink, maxLines = 1,
-         modifier = Modifier.background(wash, RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 3.dp))
+         modifier = Modifier.background(wash, RoundedCornerShape(50)).padding(horizontal = 8.dp, vertical = 4.dp))
 }
 
 /**
