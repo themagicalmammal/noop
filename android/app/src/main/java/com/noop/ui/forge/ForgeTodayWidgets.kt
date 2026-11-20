@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
@@ -418,7 +419,7 @@ internal fun ForgeTodayWidgetArea(model: TodayModel?, viewModel: AppViewModel, w
                          modifier = Modifier.weight(1f))
                     Text(stringResource(R.string.forge_w_done), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
                          color = Forge.colors.onDark,
-                         modifier = Modifier.heightIn(min = 36.dp).background(Forge.colors.accent, CircleShape)
+                         modifier = Modifier.heightIn(min = 36.dp).background(Forge.colors.accent, RoundedCornerShape(18.dp))
                              .clickable(role = Role.Button) { onEditing(false) }
                              .padding(horizontal = ForgeMetrics.space4, vertical = ForgeMetrics.space2))
                 }
