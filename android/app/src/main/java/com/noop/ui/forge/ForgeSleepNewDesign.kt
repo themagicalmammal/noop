@@ -114,7 +114,7 @@ internal fun SleepTonightCard(viewModel: AppViewModel, need: Double, onOpen: () 
     val clock = rememberClockFormatter()
     ForgeCard(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onOpen)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).background(colors.rest.copy(alpha = 0.15f), CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(40.dp).background(colors.rest.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
                 Icon(Icons.Rounded.Bedtime, contentDescription = null, tint = colors.rest, modifier = Modifier.size(20.dp))
             }
             Spacer(Modifier.width(ForgeMetrics.space3))
@@ -125,7 +125,7 @@ internal fun SleepTonightCard(viewModel: AppViewModel, need: Double, onOpen: () 
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(bed.format(clock), style = Forge.type.title1.copy(fontSize = 26.sp, fontWeight = FontWeight.SemiBold),
-                     color = colors.rest, maxLines = 1)
+                     color = colors.restInk, maxLines = 1)
                 Text(stringResource(R.string.forge_sl_bedtime_word), style = Forge.type.caption, color = colors.textSecondary)
             }
         }
