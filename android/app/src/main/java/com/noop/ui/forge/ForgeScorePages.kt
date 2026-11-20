@@ -1,5 +1,6 @@
 package com.noop.ui.forge
 
+import com.noop.core.CoreCache
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -230,8 +231,8 @@ internal fun ForgeEffortPage(viewModel: AppViewModel, effortStored: Double?, cha
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val from = today.minusDays(30).toString(); val to = today.toString()
-            val charges = CoreRead.series(CoreRead.Metric.Charge, from, to).associate { it.day to it.value }
-            CoreRead.series(CoreRead.Metric.Effort, from, to).takeLast(14).map { Triple(it.day, it.value, charges[it.day]) }
+            val charges = CoreCache.series(CoreRead.Metric.Charge, from, to, coreRevision).associate { it.day to it.value }
+            CoreCache.series(CoreRead.Metric.Effort, from, to, coreRevision).takeLast(14).map { Triple(it.day, it.value, charges[it.day]) }
         }
     }
     val sentence = if (effortStored != null && target != null) {
@@ -306,7 +307,7 @@ internal fun ForgeRestPage(viewModel: AppViewModel, rest: Double?, onBack: () ->
     val days by produceState(emptyList<Pair<String, Double>>(), coreRevision) {
         value = withContext(Dispatchers.IO) {
             val today = LocalDate.now()
-            CoreRead.series(CoreRead.Metric.Rest, today.minusDays(30).toString(), today.toString()).takeLast(14).map { it.day to it.value }
+            CoreCache.series(CoreRead.Metric.Rest, today.minusDays(30).toString(), today.toString(), coreRevision).takeLast(14).map { it.day to it.value }
         }
     }
     val clock = rememberClockFormatter()
@@ -411,7 +412,7 @@ internal fun ForgeChargePage(viewModel: AppViewModel, onBack: () -> Unit, onHist
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val now = LocalDate.now()
-            CoreRead.series(CoreRead.Metric.Charge, now.minusDays(30).toString(), now.toString()).takeLast(14).map { it.day to it.value }
+            CoreCache.series(CoreRead.Metric.Charge, now.minusDays(30).toString(), now.toString(), coreRevision).takeLast(14).map { it.day to it.value }
         }
     }
     val format = rememberEffortFormat()
