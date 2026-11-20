@@ -73,8 +73,6 @@ internal fun TodayHeaderButtons(onProfile: () -> Unit, onQuickActions: () -> Uni
     val quickLabel = stringResource(if (menu != null) R.string.forge_log_add else R.string.forge_qa_quick_actions)
     var menuOpen by remember { mutableStateOf(false) }
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space3), verticalAlignment = Alignment.CenterVertically) {
-        ProfileAvatar(size = HEADER_BUTTON, contentDescription = profileLabel,
-                      modifier = Modifier.clickable(role = Role.Button, onClick = onProfile))
         Box {
             Box(Modifier.size(HEADER_BUTTON).background(colors.heroFill, CircleShape).border(1.dp, colors.heroBorder, CircleShape)
                     .clickable(role = Role.Button) { if (menu != null) menuOpen = true else onQuickActions() }
@@ -89,6 +87,8 @@ internal fun TodayHeaderButtons(onProfile: () -> Unit, onQuickActions: () -> Uni
                 }
             }
         }
+        ProfileAvatar(size = HEADER_BUTTON, contentDescription = profileLabel,
+                      modifier = Modifier.clickable(role = Role.Button, onClick = onProfile))
     }
 }
 
