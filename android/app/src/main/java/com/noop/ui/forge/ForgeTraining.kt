@@ -101,6 +101,7 @@ import com.noop.analytics.WorkoutSport
 import com.noop.core.CoreRead
 import com.noop.core.CorePrefs
 import com.noop.core.CoreTraining
+import com.noop.core.CoreCache
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.noop.ui.AppViewModel
@@ -209,7 +210,7 @@ fun ForgeTrainingScreen(padding: PaddingValues, viewModel: AppViewModel) {
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     LaunchedEffect(revision, coreRevision) {
         val dismissed = withContext(Dispatchers.IO) { dismissedTrainingWorkouts(context) }
-        snapshot = core(context) { CoreTraining.snapshot(dismissed) }
+        snapshot = core(context) { CoreCache.trainingSnapshot(dismissed, 4_000, "monday", coreRevision) }
         withContext(Dispatchers.IO) { com.noop.notif.SessionRatingReminderWorker.synchronize(context) }
     }
     fun reload() { revision++ }
@@ -516,7 +517,7 @@ fun ForgeTrainingScreen(padding: PaddingValues, viewModel: AppViewModel) {
                     TrainingPage.Library -> ForgeExerciseLibrary(onClose = close, onAdded = {
                         scope.launch {
                             val dismissed = withContext(Dispatchers.IO) { dismissedTrainingWorkouts(context) }
-                            snapshot = core(context) { CoreTraining.snapshot(dismissed) }
+                            snapshot = core(context) { CoreCache.trainingSnapshot(dismissed, 4_000, "monday", coreRevision) }
                             page = TrainingPage.Session
                         }
                     })
