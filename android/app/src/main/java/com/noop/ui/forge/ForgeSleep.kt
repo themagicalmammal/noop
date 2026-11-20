@@ -403,17 +403,17 @@ private fun SleepSummaryTiles(night: CoreRead.Night, rest: Double?, model: Sleep
     val today = LocalDate.now()
     val weekdays = (6 downTo 0).map { today.minusDays(it.toLong()).dayOfWeek.getDisplayName(java.time.format.TextStyle.NARROW, locale) }
     Row(horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.gap)) {
-        ForgeTrendTile(stringResource(R.string.forge_rest), rest?.roundToInt()?.toString(), "%", restWeek, colors.rest,
-                       Modifier.weight(1f),
-                       badge = rest?.let { r ->
-                           stringResource(RestWord.of(r)) to when { r >= 80 -> ForgeBadgeTone.Good; r >= 60 -> ForgeBadgeTone.Neutral
-                                                                    else -> ForgeBadgeTone.Attention }
-                       }, axisLabels = weekdays, onClick = onRest)
-        ForgeTrendTile(stringResource(R.string.forge_sleep_duration_tile),
-                       asleep.takeIf { it > 0 }?.let { TodayTimeline.hoursMinutes(it.toDouble()) }, "h", asleepWeek, colors.rest,
-                       Modifier.weight(1f),
-                       badge = stringResource(R.string.forge_sl_need_h, TodayTimeline.hoursMinutes(need)) to ForgeBadgeTone.Attention,
-                       axisLabels = weekdays, onClick = onDuration)
+        ForgeMetricTile(stringResource(R.string.forge_rest), rest?.roundToInt()?.toString(), "%", colors.rest,
+                        trend = restWeek, modifier = Modifier.weight(1f),
+                        badge = rest?.let { r ->
+                            stringResource(RestWord.of(r)) to when { r >= 80 -> ForgeBadgeTone.Good; r >= 60 -> ForgeBadgeTone.Neutral
+                                                                     else -> ForgeBadgeTone.Attention }
+                        }, axisLabels = weekdays, onClick = onRest)
+        ForgeMetricTile(stringResource(R.string.forge_sleep_duration_tile),
+                        asleep.takeIf { it > 0 }?.let { TodayTimeline.hoursMinutes(it.toDouble()) }, "h", colors.rest,
+                        trend = asleepWeek, modifier = Modifier.weight(1f),
+                        badge = stringResource(R.string.forge_sl_need_h, TodayTimeline.hoursMinutes(need)) to ForgeBadgeTone.Attention,
+                        axisLabels = weekdays, onClick = onDuration)
     }
 }
 
