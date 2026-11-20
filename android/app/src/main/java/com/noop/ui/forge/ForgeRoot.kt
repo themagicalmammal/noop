@@ -1,5 +1,6 @@
 package com.noop.ui.forge
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import android.content.Context
 import android.content.Intent
@@ -8,6 +9,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import com.noop.ui.AppViewModel
 
@@ -103,26 +106,17 @@ fun ForgeRoot(viewModel: AppViewModel) {
             // The tabs lie under the More page while it is open.
             LocalForgeCovered provides (LocalForgeCovered.current || (moreOpen && ForgeDesign.preview))) {
         ForgeShell { tab, padding, width ->
-            when (tab) {
-                // The new design has one Today whatever the dashboard style, as iOS; the classic page jumps to tabs
-                // the new design does not have.
-                ForgeTab.Today ->
-                    if (!ForgeDesign.preview && DashboardStylePrefs.style(context) == "classic") ForgeClassicToday(padding, viewModel)
-                    else ForgeTodayScreen(padding, width, viewModel)
-                ForgeTab.Trends -> ForgeTrendsScreen(padding, width, viewModel)
-                ForgeTab.Health -> ForgeHealthTab(padding, width, viewModel)
-                ForgeTab.Training -> ForgeTrainingScreen(padding, viewModel)
-                ForgeTab.Sleep -> ForgeSleepScreen(padding, width, viewModel)
-                ForgeTab.More -> ForgeMoreScreen(padding, viewModel)
-                // The chat in its tab, as iOS (2026-11); leaving it returns to Today.
-                ForgeTab.Coach -> {
-                    val select = LocalForgeTabSelect.current
-                    // The system Back does what the page's own arrow does, back to Today, instead of closing the app;
-                    // the chat's inner pages register later and keep their own Back first.
-                    androidx.activity.compose.BackHandler { select(ForgeTab.Today) }
-                    androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.padding(padding)) {
-                        ForgeCoachChatPages(viewModel, androidx.compose.ui.res.stringResource(com.noop.R.string.nav_coach),
-                                            onBack = { select(ForgeTab.Today) })
+            // Compose all tabs simultaneously so their state survives switches, as iOS keeps all
+            // tab view controllers alive. Non-selected tabs are transparent but remain composed.
+            val visibleTabs = ForgeDesign.tabs(ForgeDesign.preview, com.noop.ui.BottomBarStyleStore.coachEnabled)
+            androidx.compose.foundation.layout.Box(
+                modifier = androidx.compose.ui.Modifier.fillMaxSize()
+            ) {
+                for (t in visibleTabs) {
+                    androidx.compose.foundation.layout.Box(
+                        modifier = androidx.compose.ui.Modifier.fillMaxSize().alpha(if (t == tab) 1f else 0f)
+                    ) {
+                        ForgeTabContent(t, padding, width, viewModel, context, visible = (t == tab))
                     }
                 }
             }
@@ -155,5 +149,44 @@ fun ForgeRoot(viewModel: AppViewModel) {
         // In the new design the coach has its own place while it is on (`ForgeTab.Coach`: a button beside the bar, a
         // rail entry on wide windows), as on iOS; the floating button is for the shipped tabs and a coach that is off.
         if (!(ForgeDesign.preview && com.noop.ui.BottomBarStyleStore.coachEnabled)) ForgeCoachButton(viewModel)
+    }
+}
+
+/** Renders a single tab's content, keeping it composed even when hidden so state survives tab switches. */
+@Composable
+private fun ForgeTabContent(t: ForgeTab, padding: androidx.compose.foundation.layout.PaddingValues, width: ForgeWidth,
+                             viewModel: AppViewModel, context: Context, visible: Boolean) {
+    when (t) {
+        ForgeTab.Today ->
+            if (!ForgeDesign.preview && DashboardStylePrefs.style(context) == "classic")
+                ForgeClassicToday(padding, viewModel)
+            else
+                ForgeTodayScreen(padding, width, viewModel)
+        ForgeTab.Trends -> ForgeTrendsScreen(padding, width, viewModel)
+        ForgeTab.Health -> ForgeHealthTab(padding, width, viewModel)
+        ForgeTab.Training -> ForgeTrainingScreen(padding, viewModel)
+        ForgeTab.Sleep -> ForgeSleepScreen(padding, width, viewModel)
+        ForgeTab.More -> ForgeMoreScreen(padding, viewModel)
+        // The chat in its tab, as iOS (2026-11); leaving it returns to Today.
+        ForgeTab.Coach -> {
+            // Capture the tab selector at composition time, as the original code did.
+            val select = LocalForgeTabSelect.current
+            // Only the visible tab's BackHandler is active.
+            if (visible) {
+                // The system Back does what the page's own arrow does, back to Today,
+                // instead of closing the app; the chat's inner pages register later and
+                // keep their own Back first.
+                androidx.activity.compose.BackHandler { select(ForgeTab.Today) }
+            }
+            androidx.compose.foundation.layout.Box(
+                modifier = androidx.compose.ui.Modifier.padding(padding)
+            ) {
+                ForgeCoachChatPages(
+                    viewModel,
+                    androidx.compose.ui.res.stringResource(com.noop.R.string.nav_coach),
+                    onBack = { select(ForgeTab.Today) }
+                )
+            }
+        }
     }
 }
