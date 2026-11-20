@@ -74,7 +74,7 @@ object ForgeTokens {
         const val hairlineWidth: Float = 1f
         const val headerControlReserveWidth: Float = 168f
         const val headerTextFadeWidth: Float = 48f
-        const val heroRadius: Float = 30f
+        const val heroRadius: Float = 28f
         const val hypnogramBandMinThickness: Float = 14f
         const val indicatorTrackHeight: Float = 8f
         const val keyMetricTileHeight: Float = 122f
