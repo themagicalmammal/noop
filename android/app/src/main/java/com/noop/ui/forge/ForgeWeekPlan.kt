@@ -95,7 +95,7 @@ internal fun ForgeWeekPlanPage(viewModel: AppViewModel, onBack: () -> Unit, onSc
     SettingsColumn {
         PageTitle(stringResource(R.string.forge_tr_week_plan), onBack, trailing = {
             CoachPicture(mainIcon = Icons.Rounded.CalendarMonth, accentAIcon = Icons.Rounded.Check,
-                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.Color.systemBlue.resolve(), size = 56,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.Color.systemBlue.resolve(), size = 72,
                          modifier = Modifier.padding(end = ForgeMetrics.space2))
         })
         // Effort per day: filled for what was done, dashed for a day still to come with a target.

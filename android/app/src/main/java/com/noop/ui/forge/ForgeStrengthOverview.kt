@@ -95,7 +95,7 @@ private fun ForgeStrengthOverview(snapshot: CoreTraining.Snapshot?, onClose: () 
     SettingsColumn {
         PageTitle(stringResource(R.string.forge_so_strength), onClose, trailing = {
             CoachPicture(mainIcon = Icons.Rounded.FitnessCenter, accentAIcon = Icons.Rounded.LocalFireDepartment,
-                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 56,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 72,
                          modifier = Modifier.padding(end = ForgeMetrics.space2))
         })
         val s = snapshot ?: return@SettingsColumn

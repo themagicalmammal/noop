@@ -101,7 +101,7 @@ internal fun ForgeAgeLessPage(onBack: () -> Unit, onOpenRhythm: () -> Unit = {})
             onBack,
             trailing = {
                 CoachPicture(mainIcon = Icons.Rounded.HourglassBottom, accentAIcon = Icons.Rounded.Favorite,
-                             accentBIcon = Icons.Rounded.Star, tint = Forge.colors.charge, size = 56,
+                             accentBIcon = Icons.Rounded.Star, tint = Forge.colors.charge, size = 72,
                              modifier = Modifier.padding(end = ForgeMetrics.space2))
                 IconButton(onClick = { showAbout = true }) {
                     Icon(Icons.Rounded.Info, stringResource(R.string.forge_ageless_about), tint = Forge.colors.textSecondary)

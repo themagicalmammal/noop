@@ -273,7 +273,7 @@ fun MuscleAnalyticsPage(muscles: CoreTraining.MuscleAnalytics, onClose: () -> Un
     SettingsColumn {
         PageTitle(stringResource(R.string.forge_th_muscle_analytics), onClose, trailing = {
             CoachPicture(mainIcon = Icons.Rounded.FitnessCenter, accentAIcon = Icons.Rounded.Bolt,
-                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 56,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 72,
                          modifier = Modifier.padding(end = ForgeMetrics.space2))
             androidx.compose.material3.TextButton(onClick = onClose) {
                 Text(stringResource(R.string.forge_th_done), color = Forge.colors.charge,

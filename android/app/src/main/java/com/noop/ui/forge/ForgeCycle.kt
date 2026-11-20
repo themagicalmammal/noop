@@ -196,7 +196,7 @@ internal fun ForgeCyclePage(viewModel: AppViewModel, onBack: () -> Unit, startLo
     SettingsColumn {
         PageTitle(stringResource(R.string.forge_cy_title), onBack, trailing = {
             CoachPicture(mainIcon = Icons.Rounded.WaterDrop, accentAIcon = Icons.Rounded.Bedtime,
-                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.cycleFertile, size = 56,
+                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.cycleFertile, size = 72,
                          modifier = Modifier.padding(end = ForgeMetrics.space2))
         })
         if (!enabled) {
@@ -749,7 +749,7 @@ private fun CycleFertilePage(snap: CycleSnapshot, onBack: () -> Unit, onLog: () 
     SettingsColumn {
         PageTitle(stringResource(R.string.forge_cy_fertile_days), onBack, trailing = {
             CoachPicture(mainIcon = Icons.Rounded.AutoAwesome, accentAIcon = Icons.Rounded.Favorite,
-                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.cycleFertile, size = 56,
+                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.cycleFertile, size = 72,
                          modifier = Modifier.padding(end = ForgeMetrics.space2))
         })
         ForgeCard(Modifier.fillMaxWidth()) {

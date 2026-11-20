@@ -104,7 +104,7 @@ internal fun ForgeEnergyDetailPage(onBack: () -> Unit) {
         // The explaining picture in the title row, as iOS's Energy page carries it in its toolbar.
         PageTitle(stringResource(R.string.forge_en_title), onBack, trailing = {
             CoachPicture(mainIcon = Icons.Rounded.LocalFireDepartment, accentAIcon = Icons.Rounded.Bolt,
-                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.forgeEnergyActive.resolve(), size = 56,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.forgeEnergyActive.resolve(), size = 72,
                          modifier = Modifier.padding(end = ForgeMetrics.space2))
             ExplainerInfoButton(R.string.forge_ex_energy_title, R.string.forge_ex_energy_text) { ExplainerEnergyBars() }
         })

@@ -99,7 +99,7 @@ internal fun ForgeWorkoutsPage(viewModel: AppViewModel, onBack: () -> Unit) {
     SettingsColumn {
         PageTitle(stringResource(R.string.forge_wk_title), onBack, trailing = {
             CoachPicture(mainIcon = Icons.AutoMirrored.Rounded.DirectionsRun, accentAIcon = Icons.Rounded.LocalFireDepartment,
-                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.effort, size = 56,
+                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.effort, size = 72,
                          modifier = Modifier.padding(end = ForgeMetrics.space2))
         })
         Row(horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
