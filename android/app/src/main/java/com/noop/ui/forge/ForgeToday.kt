@@ -243,6 +243,12 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
     if (settingsOpen) {
         ForgeOverlayPage(onDismiss = { settingsOpen = false }) { ForgeSettings(viewModel, onClose = { settingsOpen = false }) }
     }
+    // The strap battery page, opened from the header's battery pill, as iOS's `TabRoute.battery`.
+    if (batteryPageOpen) {
+        ForgeOverlayPage(onDismiss = { batteryPageOpen = false }) {
+            ForgeBatteryPage(viewModel, onBack = { batteryPageOpen = false })
+        }
+    }
     // The workout picker, then the live workout once one runs, as the Training tab opens them.
     if (startWorkout) {
         com.noop.ui.StartWorkoutSheet(vm = viewModel, onDismiss = {
