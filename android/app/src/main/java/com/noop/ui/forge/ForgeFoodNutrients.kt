@@ -197,7 +197,7 @@ internal fun ForgeFoodNutrientsPage(week: CoreFood.NutrientReport, day: CoreFood
             }
         }
         foodNutrientGroups.forEach { (title, keys) ->
-            Text(stringResource(title), style = Forge.type.title2, color = Forge.sceneInk.text,
+            Text(stringResource(title), style = Forge.type.headline, color = Forge.sceneInk.text,
                  modifier = Modifier.padding(top = ForgeMetrics.space3))
             ForgeCard(Modifier.fillMaxWidth()) {
                 keys.mapNotNull { key -> report.rows.firstOrNull { it.nutrient == key } }.forEachIndexed { index, row ->
