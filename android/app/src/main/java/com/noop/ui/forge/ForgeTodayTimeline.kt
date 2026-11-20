@@ -586,7 +586,7 @@ private fun RailRow(time: String?, dot: Color, last: Boolean, isNew: Boolean = f
     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
         Box(Modifier.width(56.dp).padding(top = 14.dp)) {
             if (time != null) {
-                Text(time, style = Forge.type.captionNumber, color = Forge.colors.textSecondary, maxLines = 1)
+                Text(time, style = Forge.type.captionNumber, color = Forge.colors.textSecondaryOnPicture, maxLines = 1)
             }
         }
         Box(Modifier.width(20.dp).fillMaxHeight(), contentAlignment = Alignment.TopCenter) {

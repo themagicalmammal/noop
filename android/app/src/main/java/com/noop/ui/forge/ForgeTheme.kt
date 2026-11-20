@@ -39,7 +39,7 @@ data class ForgeColors(
     val dark: Boolean,
     val canvas: Color, val surface: Color, val surfaceTop: Color, val inset: Color,
     val border: Color, val divider: Color,
-    val text: Color, val textSecondary: Color, val textTertiary: Color,
+    val text: Color, val textSecondary: Color, val textSecondaryOnPicture: Color, val textTertiary: Color,
     val onDark: Color, val onDarkSecondary: Color, val onDarkTertiary: Color,
     val heroFill: Color, val heroBorder: Color,
     val accent: Color, val trainingAccent: Color,
@@ -147,6 +147,7 @@ object ForgeAccent {
 private object ForgeText {
     val primary = ForgeColor(light = 0xFF000000, dark = 0xFFFFFFFF)
     val secondary = ForgeColor(light = 0xD83C3C43, dark = 0xB8EBEBF5)
+    val secondaryOnPicture = ForgeColor(light = 0xB8000000, dark = 0xC7FFFFFF)
     val tertiary = ForgeColor(light = 0xC43C3C43, dark = 0x94EBEBF5)
 }
 
@@ -163,6 +164,7 @@ fun forgeColors(dark: Boolean, newDesign: Boolean = ForgeDesign.preview,
     canvas = chrome(Chrome.canvas, c.canvas), surface = chrome(Chrome.surface, c.surface), surfaceTop = chrome(Chrome.surfaceTop, c.surfaceTop),
     inset = chrome(Chrome.inset, c.inset), border = chrome(Chrome.border, c.border), divider = chrome(Chrome.divider, c.divider),
     text = chrome(Chrome.primaryText, ForgeText.primary), textSecondary = chrome(Chrome.secondaryText, ForgeText.secondary),
+    textSecondaryOnPicture = chrome(ForgeColor(0xFF3C3C43, 0xFFEBEBF5), ForgeText.secondaryOnPicture),
     textTertiary = chrome(Chrome.tertiaryText, ForgeText.tertiary),
     onDark = P.onDarkPrimary.pick(dark), onDarkSecondary = P.onDarkSecondary.pick(dark),
     onDarkTertiary = P.onDarkTertiary.pick(dark),
