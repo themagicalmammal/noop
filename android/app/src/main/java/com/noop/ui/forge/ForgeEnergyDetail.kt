@@ -151,7 +151,7 @@ private fun DayStepper(d: CoreEnergyDetail.Detail, onDay: (String) -> Unit) {
         }
         Spacer(Modifier.weight(1f))
         val spoken = stringResource(R.string.forge_join_dot, stringResource(R.string.forge_en_choose_date), label)
-        Row(Modifier.clip(CircleShape).background(colors.surface).clickable(role = Role.Button) { picking = true }
+        Row(Modifier.clip(RoundedCornerShape(18.dp)).background(colors.surface).clickable(role = Role.Button) { picking = true }
                 .semantics { contentDescription = spoken }.padding(horizontal = 14.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(label, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
