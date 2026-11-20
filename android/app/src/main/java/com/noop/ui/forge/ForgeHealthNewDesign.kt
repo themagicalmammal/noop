@@ -396,7 +396,7 @@ private fun MiniRings(charge: Double?, effort: Double?, rest: Double?) {
         listOf(charge to colors.charge, effort to colors.effort, rest to colors.rest).forEachIndexed { i, (v, c) ->
             val inset = w / 2 + i * (w + 1.dp.toPx())
             val arc = Size(size.width - inset * 2, size.height - inset * 2)
-            drawArc(c.copy(alpha = 0.18f), 0f, 360f, false, Offset(inset, inset), arc, style = Stroke(w))
+            drawArc(c.copy(alpha = 0.2f), 0f, 360f, false, Offset(inset, inset), arc, style = Stroke(w))
             val f = ((v ?: 0.0) / 100).coerceIn(0.0, 1.0).toFloat()
             if (f > 0f) drawArc(c, -90f, 360f * f, false, Offset(inset, inset), arc, style = Stroke(w, cap = StrokeCap.Round))
         }
