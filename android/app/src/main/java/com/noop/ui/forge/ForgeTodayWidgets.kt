@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
+import androidx.compose.material.icons.rounded.RemoveCircle
 import androidx.compose.material.icons.rounded.MonitorHeart
 import androidx.compose.material.icons.rounded.HourglassBottom
 import androidx.compose.material.icons.rounded.Terrain
@@ -547,7 +548,9 @@ internal fun ForgeTodayWidgetArea(model: TodayModel?, viewModel: AppViewModel, w
     ForgeMetricDetail(open, viewModel) { open = null }
     if (gallery) {
         ForgeOverlayPage(onDismiss = { gallery = false }) {
-            WidgetGallery(cycleOn = viewModel.cycleTrackingEnabled.collectAsState().value, onAdd = { update(widgets + it); gallery = false },
+            WidgetGallery(cycleOn = viewModel.cycleTrackingEnabled.collectAsState().value, existing = widgets.toList(),
+                          onAdd = { update(widgets + it); gallery = false },
+                          onRemove = { id -> update(widgets.filter { it.id != id }); gallery = false },
                           onClose = { gallery = false })
         }
     }
@@ -629,7 +632,8 @@ private fun summaryLine(s: com.noop.core.CoreTile.Summary, unit: String): String
  * size its own row with what it shows; a row adds its widget and closes the gallery.
  */
 @Composable
-private fun WidgetGallery(cycleOn: Boolean, onAdd: (TodayWidget) -> Unit, onClose: () -> Unit) {
+private fun WidgetGallery(cycleOn: Boolean, existing: List<TodayWidget>, onAdd: (TodayWidget) -> Unit,
+                          onRemove: (String) -> Unit, onClose: () -> Unit) {
     val colors = Forge.colors
     val context = LocalContext.current
     ForgeSceneBackdrop(ForgeBackdrop.Sky) {
@@ -647,8 +651,12 @@ private fun WidgetGallery(cycleOn: Boolean, onAdd: (TodayWidget) -> Unit, onClos
                 TodayWidgets.measures.forEachIndexed { i, key ->
                     if (i > 0) HubDivider()
                     val metric = KeyMetric.fromRaw(key)
+                    val alreadyAdded = existing.any { it.kind == TodayWidget.Kind.Measure && it.key == key }
+                    val existingId = existing.firstOrNull { it.kind == TodayWidget.Kind.Measure && it.key == key }?.id
                     GalleryRow(metric?.icon ?: Icons.Rounded.Bedtime, metric?.tileLabel() ?: stringResource(R.string.forge_sleep),
-                               stringResource(R.string.forge_g_measure_sub)) { onAdd(TodayWidget(kind = TodayWidget.Kind.Measure, key = key)) }
+                               stringResource(R.string.forge_g_measure_sub), alreadyAdded,
+                               onAdd = { onAdd(TodayWidget(kind = TodayWidget.Kind.Measure, key = key)) },
+                               onRemove = { existingId?.let(onRemove) })
                 }
             }
             val coach = com.noop.ui.BottomBarStyleStore.coachEnabled
@@ -683,7 +691,11 @@ private fun WidgetGallery(cycleOn: Boolean, onAdd: (TodayWidget) -> Unit, onClos
             ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
                 cards.forEachIndexed { i, e ->
                     if (i > 0) HubDivider()
-                    GalleryRow(e.icon, e.title, e.sub) { onAdd(e.widget.copy(id = UUID.randomUUID().toString())) }
+                    val alreadyAdded = existing.any { it.kind == e.widget.kind }
+                    val existingId = existing.firstOrNull { it.kind == e.widget.kind }?.id
+                    GalleryRow(e.icon, e.title, e.sub, alreadyAdded,
+                               onAdd = { onAdd(e.widget.copy(id = UUID.randomUUID().toString())) },
+                               onRemove = { existingId?.let(onRemove) })
                 }
             }
             Spacer(Modifier.heightIn(min = ForgeMetrics.space8))
@@ -693,18 +705,23 @@ private fun WidgetGallery(cycleOn: Boolean, onAdd: (TodayWidget) -> Unit, onClos
 
 /** iOS's gallery row: the symbol on an accent wash, the name over its size and content, a plus at the end. */
 @Composable
-private fun GalleryRow(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String, onAdd: () -> Unit) {
+private fun GalleryRow(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, subtitle: String,
+                       added: Boolean, onAdd: () -> Unit, onRemove: () -> Unit) {
     val colors = Forge.colors
-    Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onAdd).padding(horizontal = ForgeMetrics.space4, vertical = 10.dp),
+    Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = { if (added) onRemove() else onAdd() })
+        .padding(horizontal = ForgeMetrics.space4, vertical = 10.dp)
+        .background(if (added) colors.accent.copy(alpha = 0.08f) else androidx.compose.ui.graphics.Color.Transparent),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Box(Modifier.size(36.dp).background(colors.accent.copy(alpha = 0.14f), CircleShape), contentAlignment = Alignment.Center) {
             Icon(icon, contentDescription = null, tint = colors.accent, modifier = Modifier.size(20.dp))
         }
         Column(Modifier.weight(1f)) {
-            Text(title, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
+            Text(title, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold),
+                 color = if (added) colors.accent else colors.text)
             Text(subtitle, style = Forge.type.caption, color = colors.textSecondary)
         }
-        Icon(Icons.Rounded.AddCircle, contentDescription = null, tint = colors.accent, modifier = Modifier.size(24.dp))
+        Icon(if (added) Icons.Rounded.RemoveCircle else Icons.Rounded.AddCircle, contentDescription = null,
+             tint = colors.accent, modifier = Modifier.size(24.dp))
     }
 }
 
