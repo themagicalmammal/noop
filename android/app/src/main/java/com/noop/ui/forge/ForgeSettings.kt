@@ -813,7 +813,7 @@ internal fun HubRow(icon: ImageVector, tint: Color, title: String, subtitle: Str
 
 @Composable
 internal fun HubDivider() {
-    HorizontalDivider(color = Forge.colors.divider.copy(alpha = 0.5f), modifier = Modifier.padding(start = ForgeMetrics.space6))
+    HorizontalDivider(color = Forge.colors.divider.copy(alpha = 0.5f), modifier = Modifier.padding(start = 66.dp))
 }
 
 /**
