@@ -109,6 +109,7 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
     val days by viewModel.recentDays.collectAsStateWithLifecycle()
     val spo2CandidateByDay by viewModel.spo2CandidateByDay.collectAsStateWithLifecycle()
     val hrvOverCountByDay by viewModel.hrvOverCountByDay.collectAsStateWithLifecycle()
+    val live by viewModel.live.collectAsStateWithLifecycle()
     var settingsOpen by remember { mutableStateOf(false) }
     // Read again when Settings closes, so a unit or SpO₂ choice made there shows without a restart.
     val tempUnit = remember(settingsOpen) { UnitPrefs.temperature(context) }
@@ -161,7 +162,8 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
         val openMore = LocalForgeOpenMore.current
         val openSettings = LocalForgeOpenSettings.current ?: openMore
         TabHeader(stringResource(R.string.nav_health), onProfile = { openSettings?.invoke() ?: run { settingsOpen = true } },
-                  onSearch = rememberOpenSearch())
+                  onSearch = rememberOpenSearch(),
+                  batteryPct = live.batteryPct)
 
         // The tab's answer: how many of last night's vitals sat in the wearer's own range, then each by name.
         Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
@@ -374,9 +376,10 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
 
 /** A tab's own header row, as iOS's `ForgeLargeHeader`: the title with today's date, the profile at the end. */
 @Composable
-internal fun TabHeader(title: String, onProfile: () -> Unit, onSearch: (() -> Unit)? = null) {
+internal fun TabHeader(title: String, onProfile: () -> Unit, onSearch: (() -> Unit)? = null,
+                  batteryPct: Double? = null, onBattery: (() -> Unit)? = null) {
     val locale = Locale.getDefault()
-    Row(Modifier.fillMaxWidth().padding(top = ForgeMetrics.space4), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().padding(top = ForgeMetrics.space4, start = 20.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(
             buildAnnotatedString {
                 withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(title) }
@@ -388,6 +391,12 @@ internal fun TabHeader(title: String, onProfile: () -> Unit, onSearch: (() -> Un
             },
             style = Forge.type.title2, color = Forge.sceneInk.text, maxLines = 1, modifier = Modifier.weight(1f),
         )
+        // The strap battery, between title and magnifier, as iOS's `DashboardBatteryButton` in `ForgeLargeHeader`.
+        if (batteryPct != null && onBattery != null) {
+            Spacer(Modifier.width(ForgeMetrics.space2))
+            BatteryPill(batteryPct, onClick = onBattery)
+            Spacer(Modifier.width(ForgeMetrics.space1))
+        }
         // The magnifier before the profile, as iOS's `ForgeSearchButton` in each tab's header.
         if (onSearch != null) {
             Box(Modifier.size(ForgeMetrics.minHitTarget).clickable(role = Role.Button, onClick = onSearch),
@@ -398,7 +407,7 @@ internal fun TabHeader(title: String, onProfile: () -> Unit, onSearch: (() -> Un
             Spacer(Modifier.size(ForgeMetrics.space1))
         }
         ProfileAvatar(size = 32.dp, contentDescription = stringResource(R.string.forge_qa_profile_settings),
-                      modifier = Modifier.clickable(role = Role.Button, onClick = onProfile))
+                      modifier = Modifier.size(44.dp).clickable(role = Role.Button, onClick = onProfile))
     }
 }
 /** The magnifier action in the new design: opens the dedicated search overlay, as iOS pushes `ForgeRoute.search`. Null in the shipped design. */

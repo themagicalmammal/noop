@@ -1100,9 +1100,8 @@ private fun FirstRunCard(connected: Boolean, onConnect: () -> Unit) {
 }
 
 /** A circular battery pill: the border ring fills with the charge level; a horizontal battery icon sits inside. */
-/** A circular battery pill: the border ring fills with the charge level; a horizontal battery icon sits inside. */
 @Composable
-private fun BatteryPill(pct: Double, onClick: () -> Unit) {
+internal fun BatteryPill(pct: Double, onClick: () -> Unit) {
     val colors = Forge.colors
     val progress = (pct.coerceIn(0.0, 100.0)) / 100.0
     Box(Modifier.size(32.dp).clickable(onClick = onClick), contentAlignment = Alignment.Center) {

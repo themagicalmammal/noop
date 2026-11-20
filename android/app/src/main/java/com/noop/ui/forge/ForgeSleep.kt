@@ -139,6 +139,7 @@ fun ForgeSleepScreen(padding: PaddingValues, width: ForgeWidth, viewModel: com.n
     // recent days (the tiles' fallback and every Room write) and the core's own revision (its passes and lanes).
     val recentDays by viewModel.recentDays.collectAsState()
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val live by viewModel.live.collectAsState()
     LaunchedEffect(recentDays, coreRevision) {
         model = withContext(Dispatchers.IO) {
             CoreRead.open(context)
@@ -214,7 +215,7 @@ fun ForgeSleepScreen(padding: PaddingValues, width: ForgeWidth, viewModel: com.n
         // The new design's header over the night, as iOS's `ForgeLargeHeader(title: "Sleep")`.
         LocalForgeOpenMore.current?.let { openMore ->
             Box(Modifier.padding(horizontal = ForgeMetrics.screenPadding)) {
-                TabHeader(stringResource(R.string.nav_sleep), onProfile = LocalForgeOpenSettings.current ?: openMore, onSearch = rememberOpenSearch())
+                TabHeader(stringResource(R.string.nav_sleep), onProfile = LocalForgeOpenSettings.current ?: openMore, onSearch = rememberOpenSearch(), batteryPct = live.batteryPct)
             }
         }
         // The new design pages the nights in one line under the tab header, as iOS's `nightNavigator`; the shipped
