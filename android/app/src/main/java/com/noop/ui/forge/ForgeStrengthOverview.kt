@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BarChart
@@ -168,7 +167,7 @@ private fun NextUp(s: CoreTraining.Snapshot, onStart: (String) -> Unit, onOpenPl
         Text(pluralStringResource(R.plurals.forge_nx_exercises, routine.exerciseCount, routine.exerciseCount),
              style = Forge.type.caption, color = colors.textSecondary)
         Spacer(Modifier.height(10.dp))
-        Row(Modifier.fillMaxWidth().heightIn(min = 50.dp).background(colors.effort, CircleShape)
+        Row(Modifier.fillMaxWidth().heightIn(min = 50.dp).background(colors.effort, RoundedCornerShape(25.dp))
                 .clickable(role = Role.Button) { onStart(routine.id) }.semantics { contentDescription = startLabel },
             horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Rounded.PlayArrow, contentDescription = null, tint = colors.onDark, modifier = Modifier.size(20.dp))
