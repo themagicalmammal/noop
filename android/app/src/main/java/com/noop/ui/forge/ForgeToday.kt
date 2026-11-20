@@ -825,11 +825,11 @@ internal fun HeartCard(viewModel: AppViewModel, date: LocalDate, live: Boolean) 
 
 /**
  * The hero's ring sizing, as `LiquidHeroRingLayout` on iOS: each ring owns a third of the row and is drawn 8 %
- * larger than its slot, between 100 and 150 dp, inside 8 dp of side padding and 24 dp above and below.
+ * larger than its slot, between 100 and 150 dp, inside 8 dp of side padding and 20 dp above and below.
  */
 object HeroRingLayout {
     val horizontalPadding = 8.dp
-    val verticalPadding = 24.dp
+    val verticalPadding = 20.dp
     private const val OVERDRAW = 1.08f
     private val minDiameter = 100.dp
     private val maxDiameter = 150.dp
