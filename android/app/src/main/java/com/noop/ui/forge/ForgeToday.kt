@@ -1069,7 +1069,7 @@ private fun PinnedValue(label: String, value: String, tint: Color, colors: Forge
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Box(Modifier.size(8.dp).clip(CircleShape).background(tint))
-        Text(value, style = Forge.type.captionNumber.copy(fontSize = 16.sp), color = colors.text)
+        Text(value, style = Forge.type.figure.copy(fontSize = 16.sp), color = colors.text)
         Text(label, style = Forge.type.caption, color = colors.textSecondary)
     }
 }
