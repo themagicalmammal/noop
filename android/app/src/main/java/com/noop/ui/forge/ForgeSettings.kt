@@ -440,10 +440,10 @@ private fun NewDesignHub(onClose: () -> Unit, onOpen: (ForgeSettingsPage) -> Uni
             }
         }
         Row(Modifier.fillMaxWidth().clickable(role = Role.Button) { onOpen(ForgeSettingsPage.Profile) }
-                .padding(horizontal = ForgeMetrics.space1, vertical = ForgeMetrics.space2),
+                .padding(horizontal = ForgeMetrics.space1, vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
             com.noop.ui.ProfileAvatar(size = 64.dp, contentDescription = null)
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(stringResource(R.string.forge_set_your_profile), style = Forge.type.title2.copy(fontWeight = FontWeight.Bold),
                      color = Forge.sceneInk.text)
                 Text(stringResource(R.string.forge_set_profile_detail), style = Forge.type.caption, color = Forge.sceneInk.secondary)
