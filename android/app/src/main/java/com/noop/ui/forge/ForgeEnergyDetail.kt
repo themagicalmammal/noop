@@ -251,7 +251,7 @@ private fun Figure(color: Color, title: String, value: Double?, modifier: Modifi
     val colors = Forge.colors
     Column(modifier.clip(RoundedCornerShape(10.dp)).background(colors.canvas).padding(vertical = 12.dp),
            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(value?.let(::kcalText) ?: "–", style = Forge.type.title2.copy(fontWeight = FontWeight.Bold), color = colors.text, maxLines = 1)
+        Text(value?.let(::kcalText) ?: "–", style = Forge.type.figure.copy(fontSize = 22.sp), color = colors.text, maxLines = 1)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Box(Modifier.size(8.dp).clip(CircleShape).background(color))
             Text(title, style = Forge.type.caption, color = colors.textSecondary, maxLines = 1)
