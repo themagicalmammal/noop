@@ -184,6 +184,8 @@ private fun focusLinks(area: FocusArea, context: android.content.Context): List<
     val red = ForgeTokens.Color.systemRed.resolve(); val pink = ForgeTokens.Color.systemPink.resolve()
     val teal = ForgeTokens.Color.systemTeal.resolve(); val orange = ForgeTokens.Color.systemOrange.resolve()
     val blue = ForgeTokens.Color.systemBlue.resolve(); val yellow = ForgeTokens.Color.systemYellow.resolve()
+    val indigo = ForgeTokens.Color.systemIndigo.resolve(); val purple = ForgeTokens.Color.systemPurple.resolve()
+    val brown = ForgeTokens.Color.systemBrown.resolve()
     val I = androidx.compose.material.icons.Icons.Rounded
     return when (area) {
         FocusArea.Fitness -> listOf(FocusLink(R.string.forge_fl_cardio, R.string.forge_fl_cardio_sub, I.DirectionsRun, c.effort, MoreDest.Cardio),
@@ -195,16 +197,16 @@ private fun focusLinks(area: FocusArea, context: android.content.Context): List<
         FocusArea.Vitals -> listOf(FocusLink(R.string.forge_fl_hr, R.string.forge_fl_hr_sub, androidx.compose.material.icons.Icons.Rounded.MonitorHeart, red, MoreDest.Health),
             FocusLink(R.string.forge_fl_ecg, R.string.forge_fl_ecg_sub, I.Favorite, pink, MoreDest.Ecg),
             FocusLink(R.string.forge_fl_rhythm, R.string.forge_fl_rhythm_sub, androidx.compose.material.icons.Icons.Rounded.GraphicEq, pink, MoreDest.BeatRhythm))
-        FocusArea.Body -> listOfNotNull(FocusLink(R.string.forge_fl_weight, R.string.forge_fl_weight_sub, androidx.compose.material.icons.Icons.Rounded.MonitorWeight, blue, MoreDest.Body),
+        FocusArea.Body -> listOfNotNull(FocusLink(R.string.forge_fl_weight, R.string.forge_fl_weight_sub, androidx.compose.material.icons.Icons.Rounded.MonitorWeight, indigo, MoreDest.Body),
             FocusLink(R.string.forge_fl_body, R.string.forge_fl_body_sub, I.Accessibility, teal, MoreDest.Body),
             FocusLink(R.string.forge_fl_energy, R.string.forge_fl_energy_sub, androidx.compose.material.icons.Icons.Rounded.LocalFireDepartment, orange, MoreDest.Energy),
-            FocusLink(R.string.forge_fl_records, R.string.forge_fl_records_sub, androidx.compose.material.icons.Icons.Rounded.Science, c.accent, MoreDest.Biomarkers),
-            FocusLink(R.string.forge_fl_cycle, R.string.forge_fl_cycle_sub, androidx.compose.material.icons.Icons.Rounded.WaterDrop, pink, action = "cycle")
+            FocusLink(R.string.forge_fl_records, R.string.forge_fl_records_sub, androidx.compose.material.icons.Icons.Rounded.Science, purple, MoreDest.Biomarkers),
+            FocusLink(R.string.forge_fl_cycle, R.string.forge_fl_cycle_sub, androidx.compose.material.icons.Icons.Rounded.WaterDrop, c.cyclePeriod, action = "cycle")
                 .takeIf { com.noop.ui.NoopPrefs.cycleTracking(context) })
         FocusArea.Mind -> listOf(FocusLink(R.string.forge_fl_stress, R.string.forge_fl_stress_sub, androidx.compose.material.icons.Icons.Rounded.Bolt, orange, MoreDest.Stress),
             FocusLink(R.string.forge_fl_breathe, R.string.forge_fl_breathe_sub, androidx.compose.material.icons.Icons.Rounded.Air, teal, MoreDest.Breathe),
             FocusLink(R.string.forge_fl_works, R.string.forge_fl_works_sub, androidx.compose.material.icons.Icons.Rounded.Lightbulb, yellow, MoreDest.Insights),
-            FocusLink(R.string.forge_fl_journal, R.string.forge_fl_journal_sub, androidx.compose.material.icons.Icons.Rounded.Book, c.effort, MoreDest.Journal),
+            FocusLink(R.string.forge_fl_journal, R.string.forge_fl_journal_sub, androidx.compose.material.icons.Icons.Rounded.Book, brown, MoreDest.Journal),
             FocusLink(R.string.forge_fl_momentum, R.string.forge_fl_momentum_sub, androidx.compose.material.icons.Icons.Rounded.Bolt, orange, MoreDest.Momentum))
         FocusArea.More -> listOfNotNull(
             FocusLink(R.string.forge_fl_ageless_sub, R.string.forge_fl_ageless_sub, androidx.compose.material.icons.Icons.Rounded.HourglassBottom, c.charge, MoreDest.AgeLess)
