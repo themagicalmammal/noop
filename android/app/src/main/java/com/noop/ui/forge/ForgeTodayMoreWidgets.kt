@@ -106,7 +106,7 @@ internal fun TodayTonightForge(viewModel: AppViewModel, onOpen: () -> Unit) {
     ForgeCard(Modifier.fillMaxWidth().clickable(onClick = onOpen)) {
         WidgetHead(stringResource(R.string.forge_w_tonight))
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(bed.format(clock), style = Forge.type.title1.copy(fontSize = 28.sp, fontWeight = FontWeight.SemiBold),
+            Text(bed.format(clock), style = Forge.type.figure.copy(fontSize = 28.sp),
                  color = colors.text)
             Text(stringResource(R.string.forge_tn_in_bed), style = Forge.type.subhead, color = colors.textSecondary,
                  modifier = Modifier.padding(start = 8.dp, bottom = 4.dp))
