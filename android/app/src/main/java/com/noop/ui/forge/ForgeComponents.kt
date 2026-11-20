@@ -457,7 +457,7 @@ internal fun ForgeChip(title: String, icon: androidx.compose.ui.graphics.vector.
     val ink = if (prominent) colors.accent else colors.text
     Box(
         Modifier.clickable(role = Role.Button, onClick = onClick)
-            .background(colors.inset, androidx.compose.foundation.shape.RoundedCornerShape(50))
+            .background(colors.fill, androidx.compose.foundation.shape.RoundedCornerShape(50))
             .padding(horizontal = 14.dp, vertical = 8.dp),
         contentAlignment = Alignment.CenterStart
     ) {
