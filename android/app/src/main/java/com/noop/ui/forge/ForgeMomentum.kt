@@ -139,7 +139,7 @@ internal fun ForgeTodayMomentum(viewModel: com.noop.ui.AppViewModel) {
                 Text(stringResource(R.string.forge_mw_none), style = Forge.type.caption, color = Forge.colors.textSecondary)
             } else {
                 Row(verticalAlignment = Alignment.Top) {
-                    Box(Modifier.size(40.dp).background(tint.copy(alpha = 0.15f), RoundedCornerShape(10.dp)),
+                    Box(Modifier.size(40.dp).background(tint.copy(alpha = 0.16f), RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center) {
                         Icon(Icons.Rounded.Bolt, contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
                     }
