@@ -310,7 +310,7 @@ internal fun FocusAreaPage(area: FocusArea, viewModel: com.noop.ui.AppViewModel,
     SettingsColumn {
         PageTitle(stringResource(area.titleRes), onBack, trailing = {
             CoachPicture(mainIcon = area.icon, accentAIcon = Icons.Rounded.AutoAwesome,
-                         accentBIcon = Icons.Rounded.Star, tint = tint, size = 56,
+                         accentBIcon = Icons.Rounded.Star, tint = tint, size = 72,
                          modifier = Modifier.padding(end = ForgeMetrics.space2))
         })
         data class FocusTile(val key: String?, val label: String, val value: String, val unit: String, val values: List<Double>)
