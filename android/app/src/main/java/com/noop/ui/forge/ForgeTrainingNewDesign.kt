@@ -260,7 +260,7 @@ internal fun TrainingGroupRow(icon: ImageVector, tint: Color, title: String, sub
             Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
         }
         Spacer(Modifier.width(ForgeMetrics.space3))
-        Column(Modifier.weight(1f)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
             Text(title, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
             Text(subtitle, style = Forge.type.footnote, color = colors.textSecondary, maxLines = 2)
         }
