@@ -492,10 +492,8 @@ internal fun SleepHighlights(night: CoreRead.Night, model: com.noop.ui.SleepMode
                             Text(item.title, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
                             Text(item.detail, style = Forge.type.caption, color = colors.textSecondary)
                         }
-                        val tone = if (item.more) colors.charge else colors.effort
-                        Text(stringResource(if (item.more) R.string.forge_sl_more else R.string.forge_sl_less),
-                             style = Forge.type.caption.copy(fontWeight = FontWeight.SemiBold), color = tone,
-                             modifier = Modifier.background(tone.copy(alpha = 0.14f), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp))
+                        ForgeBadgePill(stringResource(if (item.more) R.string.forge_sl_more else R.string.forge_sl_less),
+                                       if (item.more) ForgeBadgeTone.Good else ForgeBadgeTone.Attention)
                     }
                     Spacer(Modifier.height(ForgeMetrics.space3))
                     Text(stringResource(R.string.forge_sl_n_of, i + 1, items.size), style = Forge.type.caption, color = colors.textTertiary)
