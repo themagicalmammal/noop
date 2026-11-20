@@ -261,7 +261,7 @@ internal fun ForgeActivityInboxSection() {
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Icon(icon(item.likelyKind), contentDescription = null, tint = colors.effort.copy(alpha = if (open) 1f else 0.6f),
-                     modifier = Modifier.size(28.dp).clip(CircleShape).background(colors.effort.copy(alpha = 0.14f)).padding(6.dp))
+                     modifier = Modifier.size(28.dp).clip(CircleShape).background(colors.effort.copy(alpha = 0.15f)).padding(6.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     val title = titleOf(r, item)
                     Text(title, style = Forge.type.subhead, color = if (open) colors.text else colors.textSecondary)
