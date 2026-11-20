@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -156,7 +157,7 @@ private fun RowScope.TodayFigure(value: String?, label: String, day: String?) {
 @Composable
 private fun BodyMeasureButton(onClick: () -> Unit) {
     val colors = Forge.colors
-    Row(Modifier.fillMaxWidth().heightIn(min = 46.dp).background(colors.accent, CircleShape)
+    Row(Modifier.fillMaxWidth().heightIn(min = 46.dp).background(colors.accent, RoundedCornerShape(50))
             .clickable(role = Role.Button, onClick = onClick),
         horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Rounded.AddCircle, contentDescription = null, tint = colors.onAccent, modifier = Modifier.size(18.dp))
