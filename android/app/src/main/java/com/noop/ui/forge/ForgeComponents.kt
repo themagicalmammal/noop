@@ -322,9 +322,9 @@ internal enum class ForgeBadgeTone { Good, Attention, Neutral }
 internal fun ForgeBadgePill(text: String, tone: ForgeBadgeTone) {
     val colors = Forge.colors
     val (ink, wash) = when (tone) {
-        ForgeBadgeTone.Good -> colors.charge to colors.charge.copy(alpha = 0.14f)
-        ForgeBadgeTone.Attention -> colors.effort to colors.effort.copy(alpha = 0.14f)
-        ForgeBadgeTone.Neutral -> colors.textSecondary to colors.inset
+        ForgeBadgeTone.Good -> colors.chargeInk to colors.charge.copy(alpha = 0.16f)
+        ForgeBadgeTone.Attention -> colors.effortInk to colors.effort.copy(alpha = 0.16f)
+        ForgeBadgeTone.Neutral -> colors.textSecondary to colors.fill
     }
     Text(text, style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = ink, maxLines = 1,
          modifier = Modifier.background(wash, RoundedCornerShape(50)).padding(horizontal = 8.dp, vertical = 4.dp))
