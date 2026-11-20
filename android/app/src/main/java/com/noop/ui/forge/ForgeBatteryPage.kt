@@ -30,26 +30,28 @@ fun ForgeBatteryPage(viewModel: AppViewModel, onBack: () -> Unit) {
     val colors = Forge.colors
     val charging = live.charging
 
-    Column(Modifier.fillMaxSize().statusBarsPadding()) {
-        Box(Modifier.padding(horizontal = ForgeMetrics.screenPadding)) {
-            PageTitle(stringResource(R.string.forge_battery_title), onBack)
-        }
-        Spacer(Modifier.height(ForgeMetrics.space4))
-        Column(Modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.screenPadding)) {
-            ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
-                BatteryRow(stringResource(R.string.forge_battery_charge),
-                    live.batteryPct?.let { "${it.roundToInt()}%" } ?: "—")
-                DividerRow(colors)
-                BatteryRow(stringResource(R.string.forge_battery_voltage),
-                    live.batteryMv?.let { "${it} mV" } ?: "—")
-                DividerRow(colors)
-                BatteryRow(stringResource(R.string.forge_battery_status),
-                    if (charging == true) stringResource(R.string.forge_battery_charging)
-                    else if (charging == false) stringResource(R.string.forge_battery_not_charging)
-                    else "—")
-                DividerRow(colors)
-                BatteryRow(stringResource(R.string.forge_battery_firmware),
-                    live.strapFirmware ?: "—")
+    ForgeSceneBackdrop(ForgeBackdrop.Canvas) {
+        Column(Modifier.fillMaxSize()) {
+            Box(Modifier.padding(horizontal = ForgeMetrics.screenPadding)) {
+                PageTitle(stringResource(R.string.forge_battery_title), onBack)
+            }
+            Spacer(Modifier.height(ForgeMetrics.space4))
+            Column(Modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.screenPadding)) {
+                ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
+                    BatteryRow(stringResource(R.string.forge_battery_charge),
+                        live.batteryPct?.let { "${it.roundToInt()}%" } ?: "—")
+                    DividerRow(colors)
+                    BatteryRow(stringResource(R.string.forge_battery_voltage),
+                        live.batteryMv?.let { "${it} mV" } ?: "—")
+                    DividerRow(colors)
+                    BatteryRow(stringResource(R.string.forge_battery_status),
+                        if (charging == true) stringResource(R.string.forge_battery_charging)
+                        else if (charging == false) stringResource(R.string.forge_battery_not_charging)
+                        else "—")
+                    DividerRow(colors)
+                    BatteryRow(stringResource(R.string.forge_battery_firmware),
+                        live.strapFirmware ?: "—")
+                }
             }
         }
     }
