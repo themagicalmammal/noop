@@ -79,7 +79,7 @@ internal fun TodayHeaderButtons(onProfile: () -> Unit, onQuickActions: () -> Uni
                     .semantics { contentDescription = quickLabel },
                 contentAlignment = Alignment.Center) {
                 Icon(Icons.Rounded.Add, contentDescription = null, tint = if (menu != null) colors.accent else colors.text,
-                     modifier = Modifier.size(20.dp))
+                     modifier = Modifier.size(18.dp))
             }
             if (menu != null) {
                 DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }, modifier = Modifier.background(colors.surfaceTop)) {
@@ -93,7 +93,7 @@ internal fun TodayHeaderButtons(onProfile: () -> Unit, onQuickActions: () -> Uni
 }
 
 /** `NoopMetrics.compactControlSize`. */
-private val HEADER_BUTTON = 36.dp
+private val HEADER_BUTTON = 32.dp
 
 /**
  * The quick-action sheet after the iOS `QuickActionSheet`: the strap's charge and link on top, then the quick

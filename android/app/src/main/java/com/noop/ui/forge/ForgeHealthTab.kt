@@ -381,11 +381,11 @@ internal fun TabHeader(title: String, onProfile: () -> Unit, onSearch: (() -> Un
             Box(Modifier.size(ForgeMetrics.minHitTarget).clickable(role = Role.Button, onClick = onSearch),
                 contentAlignment = Alignment.Center) {
                 Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.forge_more_search),
-                     tint = Forge.sceneInk.text, modifier = Modifier.size(22.dp))
+                     tint = Forge.sceneInk.text, modifier = Modifier.size(20.dp))
             }
             Spacer(Modifier.size(ForgeMetrics.space1))
         }
-        ProfileAvatar(size = 36.dp, contentDescription = stringResource(R.string.forge_qa_profile_settings),
+        ProfileAvatar(size = 32.dp, contentDescription = stringResource(R.string.forge_qa_profile_settings),
                       modifier = Modifier.clickable(role = Role.Button, onClick = onProfile))
     }
 }

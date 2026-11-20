@@ -1095,8 +1095,8 @@ private fun FirstRunCard(connected: Boolean, onConnect: () -> Unit) {
 private fun BatteryPill(pct: Double, onClick: () -> Unit) {
     val colors = Forge.colors
     val progress = (pct.coerceIn(0.0, 100.0)) / 100.0
-    Box(Modifier.size(36.dp).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.size(36.dp)) {
+    Box(Modifier.size(32.dp).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.size(32.dp)) {
             val sw = 2.5f
             val r = size.width / 2f - sw / 2f
             val center = Offset(size.width / 2f, size.height / 2f)
@@ -1110,6 +1110,6 @@ private fun BatteryPill(pct: Double, onClick: () -> Unit) {
             drawArc(color = colors.accent, startAngle = startAngle, sweepAngle = sweepAngle,
                     useCenter = false, topLeft = arcTopLeft, size = arcSize)
         }
-        Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(14.dp))
+        Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(12.dp))
     }
 }
