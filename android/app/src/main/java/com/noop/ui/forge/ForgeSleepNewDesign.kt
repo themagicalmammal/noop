@@ -489,13 +489,13 @@ internal fun SleepHighlights(night: CoreRead.Night, model: com.noop.ui.SleepMode
                         }
                         Spacer(Modifier.width(ForgeMetrics.space3))
                         Column(Modifier.weight(1f)) {
-                            Text(item.title, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
+                            Text(item.title, style = Forge.type.headline, color = colors.text)
                             Text(item.detail, style = Forge.type.caption, color = colors.textSecondary)
                         }
                         ForgeBadgePill(stringResource(if (item.more) R.string.forge_sl_more else R.string.forge_sl_less),
                                        if (item.more) ForgeBadgeTone.Good else ForgeBadgeTone.Attention)
                     }
-                    Spacer(Modifier.height(ForgeMetrics.space3))
+                    Spacer(Modifier.height(10.dp))
                     Text(stringResource(R.string.forge_sl_n_of, i + 1, items.size), style = Forge.type.caption, color = colors.textTertiary)
                 }
             }
