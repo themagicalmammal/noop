@@ -372,7 +372,7 @@ internal fun TodayWhatWorksForge(viewModel: AppViewModel, onOpen: () -> Unit) {
                                  style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
                         }
                         androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth().height(6.dp)
-                                .background(colors.textSecondary.copy(alpha = 0.14f), CircleShape)) {
+                                .background(colors.inset, CircleShape)) {
                             val half = maxWidth / 2
                             val width = maxOf(4.dp, half * (kotlin.math.abs(pct) / widest).toFloat())
                             Box(Modifier.padding(start = half).width(1.dp).height(6.dp).background(colors.textSecondary.copy(alpha = 0.4f)))
