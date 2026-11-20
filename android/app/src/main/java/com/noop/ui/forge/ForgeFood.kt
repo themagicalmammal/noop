@@ -617,7 +617,7 @@ private fun MealCard(meal: CoreFood.Meal, onEdit: (CoreFood.Entry) -> Unit, onCo
             }
         }
         meal.entries.forEach { entry ->
-            Row(Modifier.fillMaxWidth().clickable(role = Role.Button) { onEdit(entry) }.padding(vertical = ForgeMetrics.space2),
+            Row(Modifier.fillMaxWidth().clickable(role = Role.Button) { onEdit(entry) }.padding(vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     // A database name like "Vollmilch frisch, 3,5 % Fett" reads as its first part; the rest goes below.
@@ -840,7 +840,7 @@ private fun ItemRow(item: CoreFood.Item, onAdd: () -> Unit, onFavourite: (Boolea
     var menu by remember { mutableStateOf(false) }
     Box {
         Row(Modifier.fillMaxWidth().combinedClickable(onClick = onAdd, onLongClick = { menu = true })
-            .padding(vertical = ForgeMetrics.space2), verticalAlignment = Alignment.CenterVertically) {
+            .padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text(item.name, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text, maxLines = 2)
                 val source = when (item.source) { "bls" -> "BLS"; "off", "online" -> "Open Food Facts"; "recipe" -> stringResource(R.string.food_recipe); else -> stringResource(R.string.food_yours) }
@@ -1072,7 +1072,7 @@ internal fun FoodProductDataCards() {
         listOf(FoodDataPrefs.NONE to R.string.food_mode_none, FoodDataPrefs.ONLINE to R.string.food_mode_online,
                FoodDataPrefs.PACKS to R.string.food_mode_packs).forEach { (value, label) ->
             Row(Modifier.fillMaxWidth().clickable(role = Role.RadioButton) { mode = value; prefs.mode = value }
-                .padding(vertical = ForgeMetrics.space2), verticalAlignment = Alignment.CenterVertically) {
+                .padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 androidx.compose.material3.RadioButton(selected = mode == value, onClick = { mode = value; prefs.mode = value })
                 Text(stringResource(label), style = Forge.type.body, color = Forge.colors.text)
             }
@@ -1085,7 +1085,7 @@ internal fun FoodProductDataCards() {
                     Row(Modifier.fillMaxWidth().clickable {
                         countries = if (tag in countries) countries - tag else if (countries.size < 3) countries + tag else countries
                         prefs.countries = countries
-                    }.padding(vertical = ForgeMetrics.space2)) {
+                    }.padding(vertical = 12.dp)) {
                         Text(FoodDataPrefs.countryName(tag), style = Forge.type.body, color = Forge.colors.text, modifier = Modifier.weight(1f))
                         if (tag in countries) Text("✓", color = Forge.colors.accent)
                     }
@@ -1095,7 +1095,7 @@ internal fun FoodProductDataCards() {
     if (mode == FoodDataPrefs.PACKS) {
         SettingsCard(stringResource(R.string.food_on_phone), if (installed.isEmpty()) stringResource(R.string.food_no_pack) else null) {
             installed.forEach { pack ->
-                Row(Modifier.fillMaxWidth().padding(vertical = ForgeMetrics.space2), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text(FoodDataPrefs.countryName(pack.country), style = Forge.type.body, color = Forge.colors.text)
                         Text(stringResource(R.string.food_products, NumberFormat.getIntegerInstance().format(pack.rows)),
