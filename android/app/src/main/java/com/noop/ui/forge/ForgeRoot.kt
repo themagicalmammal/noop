@@ -53,6 +53,22 @@ fun ForgeRoot(viewModel: AppViewModel) {
     // Loaded at start and again after each analysis pass, when a synced workout can have arrived.
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     androidx.compose.runtime.LaunchedEffect(coreRevision) { viewModel.loadWorkouts() }
+    // Prefetch Today's data on app start so the first tab opens instantly.
+    // The cache is keyed by revision, so this only fetches when data has changed.
+    androidx.compose.runtime.LaunchedEffect(coreRevision) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            com.noop.core.CoreRead.open(context)
+            val d = java.time.LocalDate.now()
+            val from = d.minusDays(7).toString()
+            val to = d.minusDays(1).toString()
+            com.noop.core.CoreCache.day(d.toString(), coreRevision)
+            com.noop.core.CoreCache.series(com.noop.core.CoreRead.Metric.Charge, from, to, coreRevision)
+            com.noop.core.CoreCache.series(com.noop.core.CoreRead.Metric.Rest, from, to, coreRevision)
+            com.noop.core.CoreCache.series(com.noop.core.CoreRead.Metric.Hrv, from, to, coreRevision)
+            com.noop.core.CoreCache.series(com.noop.core.CoreRead.Metric.RestingHr, from, to, coreRevision)
+            com.noop.core.CoreCache.series(com.noop.core.CoreRead.Metric.RespRate, from, to, coreRevision)
+        }
+    }
     // Settings and pairing open over the tabs in the same window (`ForgeOverlayHost`).
     var moreOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     var settingsOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
