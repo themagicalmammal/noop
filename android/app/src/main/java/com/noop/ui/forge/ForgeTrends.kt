@@ -67,6 +67,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.ui.unit.Dp
 import com.noop.R
 import com.noop.core.CoreRead
+import com.noop.core.CoreCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -130,9 +131,10 @@ fun ForgeTrendsScreen(padding: PaddingValues, width: ForgeWidth, viewModel: com.
     LaunchedEffect(Unit) {
         series = withContext(Dispatchers.IO) {
             CoreRead.open(context)
+            val rev = com.noop.core.CoreShadow.dataRevision.value
             val today = LocalDate.now()
             listOf(CoreRead.Metric.Charge, CoreRead.Metric.Effort, CoreRead.Metric.Rest, CoreRead.Metric.Hrv,
-                   CoreRead.Metric.RestingHr).associateWith { CoreRead.series(it, "2000-01-01", today.toString()) }
+                   CoreRead.Metric.RestingHr).associateWith { CoreCache.series(it, "2000-01-01", today.toString(), rev) }
         }
     }
     val today = LocalDate.now()
