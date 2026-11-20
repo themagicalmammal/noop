@@ -568,7 +568,7 @@ private fun NewDesignHeader(date: LocalDate, isToday: Boolean, backfilling: Bool
     val locale = Locale.getDefault()
     val sceneShadow = if (Forge.sceneInk.dark) Shadow(Color.Black.copy(alpha = 0.55f), Offset(0f, 1f), 8f) else null
     Column(Modifier.fillMaxWidth().padding(top = ForgeMetrics.space4)) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.space5), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             // As iOS's `ForgeLargeHeader`: the title and its date, then the battery, the plus, the profile.
             Text(
                 androidx.compose.ui.text.buildAnnotatedString {
