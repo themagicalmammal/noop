@@ -156,7 +156,7 @@ private fun NutrientLine(key: String, value: Double, reference: Double?, atMost:
                     androidx.compose.material3.Icon(Icons.Rounded.Error, null, tint = Forge.colors.effort, modifier = Modifier.size(14.dp))
                 }
                 Spacer(Modifier.weight(1f))
-                Text(nutrientAmount(value, key), style = Forge.type.bodyNumber, color = Forge.colors.text)
+                Text(nutrientAmount(value, key), style = Forge.type.bodyNumber.copy(fontWeight = FontWeight.Bold), color = Forge.colors.text)
                 if (reference != null) {
                     Spacer(Modifier.width(4.dp))
                     Text(stringResource(if (atMost) R.string.food_max_amount else R.string.food_of_amount, nutrientAmount(reference, key)),
