@@ -243,9 +243,9 @@ internal fun nutrientTint(key: String, dark: Boolean): Color = when (key) {
 }.pick(dark)
 
 /**
- * Typography faces. Rubik is the default text face, a variable font covering all weights (Light to Black).
- * Nunito stands in for Apple's SF Pro Rounded on titles, hero numbers, and tile values. Rubik is under
- * the Apache License 2.0; Nunito and Inter are under the SIL Open Font License (`assets/licenses/`).
+ * Typography faces. Linotte is the default text face, a static font family covering Light to Heavy.
+ * Nunito stands in for Apple's SF Pro Rounded on titles, hero numbers, and tile values. Linotte is
+ * free for personal use; Nunito is under the SIL Open Font License (`assets/licenses/`).
  */
 @OptIn(ExperimentalTextApi::class)
 private fun variable(res: Int) = FontFamily((100..900 step 100).map { w ->
@@ -253,7 +253,13 @@ private fun variable(res: Int) = FontFamily((100..900 step 100).map { w ->
 })
 
 private val roundedFamily = variable(R.font.nunito)
-private val textFamily = variable(R.font.rubik)
+private val textFamily = FontFamily(
+    Font(R.font.linotte_light, FontWeight.Light),
+    Font(R.font.linotte_regular, FontWeight.Normal),
+    Font(R.font.linotte_semibold, FontWeight.SemiBold),
+    Font(R.font.linotte_bold, FontWeight.Bold),
+    Font(R.font.linotte_heavy, FontWeight.Black),
+)
 
 private fun ForgeFont.style(color: Color = Color.Unspecified) = TextStyle(
     fontSize = size.sp, fontWeight = FontWeight(weight), color = color,
