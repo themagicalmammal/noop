@@ -158,7 +158,7 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding)
             .padding(horizontal = ForgeMetrics.screenPadding),
-        verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space3),
+        verticalArrangement = Arrangement.spacedBy(ForgeMetrics.sectionGap),
     ) {
         val openMore = LocalForgeOpenMore.current
         val openSettings = LocalForgeOpenSettings.current ?: openMore
