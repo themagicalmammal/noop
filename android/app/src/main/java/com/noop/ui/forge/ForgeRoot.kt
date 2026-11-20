@@ -10,8 +10,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import com.noop.ui.AppViewModel
 
@@ -107,35 +105,22 @@ fun ForgeRoot(viewModel: AppViewModel) {
             // The tabs lie under the More page while it is open.
             LocalForgeCovered provides (LocalForgeCovered.current || (moreOpen && ForgeDesign.preview))) {
         ForgeShell { tab, padding, width ->
-            // Compose all tabs simultaneously so their state survives switches, as iOS keeps all
-            // tab view controllers alive. Non-selected tabs are transparent but remain composed.
-            // The visible tab is drawn last (on top of the Box stack) so it captures touch and
-            // scroll events first; hidden tabs below it don't intercept gestures.
-            val visibleTabs = ForgeDesign.tabs(ForgeDesign.preview, com.noop.ui.BottomBarStyleStore.coachEnabled)
-            // Sort so the visible tab is last in the Box (topmost Z-order, receives touches first).
-            val sortedTabs = visibleTabs.sortedWith(compareBy({ it != tab }, { visibleTabs.indexOf(it) }))
-            androidx.compose.foundation.layout.Box(
-                modifier = androidx.compose.ui.Modifier.fillMaxSize()
-            ) {
-                for (t in sortedTabs) {
-                    val isVisible = (t == tab)
-                    // Hidden tabs sit below the visible one in Z-order. Block their pointer input
-                    // so their scroll/drag detectors don't compete; the visible tab on top
-                    // captures gestures first, and only passes through what it doesn't claim.
-                    androidx.compose.foundation.layout.Box(
-                        modifier = androidx.compose.ui.Modifier
-                            .fillMaxSize()
-                            .alpha(if (isVisible) 1f else 0f)
-                            .then(
-                                if (isVisible) androidx.compose.ui.Modifier
-                                else androidx.compose.ui.Modifier.pointerInput(t) {
-                                    awaitPointerEventScope {
-                                        while (true) awaitPointerEvent().changes.forEach { it.consume() }
-                                    }
-                                }
-                            )
-                    ) {
-                        ForgeTabContent(t, padding, width, viewModel, context, visible = isVisible)
+            // Only the visible tab is composed; its data stays fresh via CoreCache.
+            when (tab) {
+                ForgeTab.Today ->
+                    if (!ForgeDesign.preview && DashboardStylePrefs.style(context) == "classic") ForgeClassicToday(padding, viewModel)
+                    else ForgeTodayScreen(padding, width, viewModel)
+                ForgeTab.Trends -> ForgeTrendsScreen(padding, width, viewModel)
+                ForgeTab.Health -> ForgeHealthTab(padding, width, viewModel)
+                ForgeTab.Training -> ForgeTrainingScreen(padding, viewModel)
+                ForgeTab.Sleep -> ForgeSleepScreen(padding, width, viewModel)
+                ForgeTab.More -> ForgeMoreScreen(padding, viewModel)
+                ForgeTab.Coach -> {
+                    val select = LocalForgeTabSelect.current
+                    androidx.activity.compose.BackHandler { select(ForgeTab.Today) }
+                    androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.padding(padding)) {
+                        ForgeCoachChatPages(viewModel, androidx.compose.ui.res.stringResource(com.noop.R.string.nav_coach),
+                                            onBack = { select(ForgeTab.Today) })
                     }
                 }
             }
@@ -171,41 +156,4 @@ fun ForgeRoot(viewModel: AppViewModel) {
     }
 }
 
-/** Renders a single tab's content, keeping it composed even when hidden so state survives tab switches. */
-@Composable
-private fun ForgeTabContent(t: ForgeTab, padding: androidx.compose.foundation.layout.PaddingValues, width: ForgeWidth,
-                             viewModel: AppViewModel, context: Context, visible: Boolean) {
-    when (t) {
-        ForgeTab.Today ->
-            if (!ForgeDesign.preview && DashboardStylePrefs.style(context) == "classic")
-                ForgeClassicToday(padding, viewModel)
-            else
-                ForgeTodayScreen(padding, width, viewModel)
-        ForgeTab.Trends -> ForgeTrendsScreen(padding, width, viewModel)
-        ForgeTab.Health -> ForgeHealthTab(padding, width, viewModel)
-        ForgeTab.Training -> ForgeTrainingScreen(padding, viewModel)
-        ForgeTab.Sleep -> ForgeSleepScreen(padding, width, viewModel)
-        ForgeTab.More -> ForgeMoreScreen(padding, viewModel)
-        // The chat in its tab, as iOS (2026-11); leaving it returns to Today.
-        ForgeTab.Coach -> {
-            // Capture the tab selector at composition time, as the original code did.
-            val select = LocalForgeTabSelect.current
-            // Only the visible tab's BackHandler is active.
-            if (visible) {
-                // The system Back does what the page's own arrow does, back to Today,
-                // instead of closing the app; the chat's inner pages register later and
-                // keep their own Back first.
-                androidx.activity.compose.BackHandler { select(ForgeTab.Today) }
-            }
-            androidx.compose.foundation.layout.Box(
-                modifier = androidx.compose.ui.Modifier.padding(padding)
-            ) {
-                ForgeCoachChatPages(
-                    viewModel,
-                    androidx.compose.ui.res.stringResource(com.noop.R.string.nav_coach),
-                    onBack = { select(ForgeTab.Today) }
-                )
-            }
-        }
-    }
-}
+
