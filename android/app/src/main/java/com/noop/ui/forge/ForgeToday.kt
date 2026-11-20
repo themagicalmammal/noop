@@ -1104,21 +1104,28 @@ private fun FirstRunCard(connected: Boolean, onConnect: () -> Unit) {
 internal fun BatteryPill(pct: Double, onClick: () -> Unit) {
     val colors = Forge.colors
     val progress = (pct.coerceIn(0.0, 100.0)) / 100.0
-    Box(Modifier.size(32.dp).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
-        Canvas(Modifier.size(32.dp)) {
-            val sw = 2.5f
-            val r = size.width / 2f - sw / 2f
-            val center = Offset(size.width / 2f, size.height / 2f)
-            // Track ring
-            drawCircle(color = colors.inset.copy(alpha = 0.25f), radius = r, center = center)
-            // Progress ring: draw a filled arc at the ring radius
-            val startAngle = -90f
-            val sweepAngle = (progress * 360f).toFloat()
-            val arcTopLeft = Offset(sw / 2f, sw / 2f)
-            val arcSize = androidx.compose.ui.geometry.Size(size.width - sw, size.height - sw)
-            drawArc(color = colors.accent, startAngle = startAngle, sweepAngle = sweepAngle,
-                    useCenter = false, topLeft = arcTopLeft, size = arcSize)
+    val ringSize = 34.dp
+    // The reading shows the NUMBER beside the ring, as iOS's `DashboardBatteryButton(showsPercent: true)`.
+    Row(Modifier.clickable(onClick = onClick).padding(end = 8.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(ringSize), contentAlignment = Alignment.Center) {
+            Canvas(Modifier.size(ringSize)) {
+                val sw = 2.5f.coerceAtLeast(size.width * 0.09f)
+                val r = size.width / 2f - sw / 2f
+                val center = Offset(size.width / 2f, size.height / 2f)
+                // Track ring, iOS's `Circle().fill(surfaceInset)` then hairline stroke.
+                drawCircle(color = colors.inset.copy(alpha = 0.25f), radius = r, center = center)
+                // Progress ring: iOS trims from the top, stroke width `max(2.5, size * 0.09)`, round cap.
+                val startAngle = -90f
+                val sweepAngle = (progress * 360f).toFloat()
+                drawArc(color = colors.accent, startAngle = startAngle, sweepAngle = sweepAngle,
+                        useCenter = false, topLeft = Offset(0f, 0f), size = size,
+                        style = Stroke(width = sw, cap = StrokeCap.Round))
+            }
+            // iOS uses a battery glyph at `size * 0.32`.
+            Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(11.dp))
         }
-        Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(12.dp))
+        Text("${pct.toInt()}%", style = Forge.type.caption, color = Forge.sceneInk.secondary,
+             modifier = Modifier.padding(start = 4.dp))
     }
 }
