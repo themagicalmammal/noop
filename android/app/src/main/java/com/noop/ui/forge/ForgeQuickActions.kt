@@ -93,7 +93,7 @@ internal fun TodayHeaderButtons(onProfile: () -> Unit, onQuickActions: () -> Uni
 }
 
 /** `NoopMetrics.compactControlSize`. */
-private val HEADER_BUTTON = 32.dp
+private val HEADER_BUTTON = 28.dp
 
 /**
  * The quick-action sheet after the iOS `QuickActionSheet`: the strap's charge and link on top, then the quick

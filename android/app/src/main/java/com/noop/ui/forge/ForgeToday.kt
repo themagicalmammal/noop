@@ -737,7 +737,7 @@ private fun ScoreSlot(labelRes: Int, score: Double?, tint: Color, diameter: andr
             Text(label.uppercase(), style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold).copy(letterSpacing = 1.5.sp),
                  color = Forge.colors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis,
                  modifier = Modifier.weight(1f, true))
-            Icon(Icons.Rounded.ChevronRight, null, tint = Forge.colors.textSecondary, modifier = Modifier.size(11.dp))
+            Icon(Icons.Rounded.ChevronRight, null, tint = Forge.colors.textSecondary, modifier = Modifier.size(10.dp))
         }
     }
 }
@@ -1109,7 +1109,7 @@ private fun FirstRunCard(connected: Boolean, onConnect: () -> Unit) {
 internal fun BatteryPill(pct: Double, onClick: () -> Unit) {
     val colors = Forge.colors
     val progress = (pct.coerceIn(0.0, 100.0)) / 100.0
-    val ringSize = 34.dp
+    val ringSize = 28.dp
     // The level lives in the ring's border only; the number belongs on the battery page.
     Box(Modifier.size(ringSize).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
         Canvas(Modifier.size(ringSize)) {
@@ -1123,6 +1123,6 @@ internal fun BatteryPill(pct: Double, onClick: () -> Unit) {
                     useCenter = false, topLeft = Offset(0f, 0f), size = size,
                     style = Stroke(width = sw, cap = StrokeCap.Round))
         }
-        Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(11.dp))
+        Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(10.dp))
     }
 }
