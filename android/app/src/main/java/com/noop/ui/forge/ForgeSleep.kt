@@ -62,6 +62,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.runtime.collectAsState
 import com.noop.R
 import com.noop.core.CoreRead
+import com.noop.core.CoreCache
 import androidx.compose.runtime.produceState
 import com.noop.core.CoreGoals
 import kotlinx.coroutines.Dispatchers
@@ -142,12 +143,12 @@ fun ForgeSleepScreen(padding: PaddingValues, width: ForgeWidth, viewModel: com.n
         model = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val now = Instant.now().epochSecond
-            val nights = CoreRead.nights(now - 60L * 86_400, now)
+            val nights = CoreCache.nights(now - 60L * 86_400, now, coreRevision)
             val from = LocalDate.now().minusDays(61).toString()
-            val rest = CoreRead.series(CoreRead.Metric.Rest, from, LocalDate.now().toString())
+            val rest = CoreCache.series(CoreRead.Metric.Rest, from, LocalDate.now().toString(), coreRevision)
             // The merged daily rows, as iOS's `repo.days`, for the typical stages and the asleep-duration trend.
-            val days = com.noop.core.CoreDailyRows.rows(LocalDate.now().minusDays(400).toString(),
-                                                        LocalDate.now().toString(), "core").orEmpty()
+            val days = com.noop.core.CoreCache.dailyRows(LocalDate.now().minusDays(400).toString(),
+                                                        LocalDate.now().toString(), "core", coreRevision).orEmpty()
             SleepModel(nights, rest.associate { it.day to it.value }, days)
         }
     }
