@@ -136,7 +136,7 @@ internal fun HealthFocusGrid(onOpen: (FocusArea) -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space3)) {
                 pair.forEach { area ->
                     val tint = area.tint()
-                    ForgeCard(Modifier.weight(1f).heightIn(min = 112.dp).clickable(role = Role.Button) { onOpen(area) }) {
+                    ForgeCard(Modifier.weight(1f).heightIn(min = 128.dp).clickable(role = Role.Button) { onOpen(area) }) {
                         CoachPicture(
                             mainIcon = area.icon,
                             accentAIcon = Icons.Rounded.AutoAwesome,
@@ -144,7 +144,7 @@ internal fun HealthFocusGrid(onOpen: (FocusArea) -> Unit) {
                             tint = tint,
                             size = 56,
                         )
-                        Spacer(Modifier.height(ForgeMetrics.space3))
+                        Spacer(Modifier.height(8.dp))
                         Text(stringResource(area.titleRes), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
                              color = colors.text, maxLines = 2)
                         Text(stringResource(area.subRes), style = Forge.type.caption, color = colors.textSecondary, maxLines = 2)
