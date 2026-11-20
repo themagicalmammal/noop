@@ -1089,31 +1089,27 @@ private fun FirstRunCard(connected: Boolean, onConnect: () -> Unit) {
     }
 }
 
-/** A circular battery pill: the border fills with the charge level; the icon inside is horizontal. */
+/** A circular battery pill: the border ring fills with the charge level; a horizontal battery icon sits inside. */
+/** A circular battery pill: the border ring fills with the charge level; a horizontal battery icon sits inside. */
 @Composable
 private fun BatteryPill(pct: Double, onClick: () -> Unit) {
     val colors = Forge.colors
     val progress = (pct.coerceIn(0.0, 100.0)) / 100.0
     Box(Modifier.size(36.dp).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
         Canvas(Modifier.size(36.dp)) {
-            val strokeWidth = 2.5f
-            val side = size.width - strokeWidth
-            val topLeft = Offset(strokeWidth / 2f, strokeWidth / 2f)
-            val bounds = androidx.compose.ui.geometry.Rect(topLeft.x, topLeft.y, topLeft.x + side, topLeft.y + side)
-            val radius = bounds.width / 2f
-            // Track
-            drawCircle(color = colors.inset.copy(alpha = 0.3f), radius = radius)
-            // Fill arc
-            val sweep = (progress * 360f).toFloat()
-            drawArc(
-                color = colors.accent,
-                startAngle = -90f,
-                sweepAngle = sweep,
-                useCenter = false,
-                topLeft = topLeft,
-                size = androidx.compose.ui.geometry.Size(bounds.width, bounds.height),
-            )
+            val sw = 2.5f
+            val r = size.width / 2f - sw / 2f
+            val center = Offset(size.width / 2f, size.height / 2f)
+            // Track ring
+            drawCircle(color = colors.inset.copy(alpha = 0.25f), radius = r, center = center)
+            // Progress ring: draw a filled arc at the ring radius
+            val startAngle = -90f
+            val sweepAngle = (progress * 360f).toFloat()
+            val arcTopLeft = Offset(sw / 2f, sw / 2f)
+            val arcSize = androidx.compose.ui.geometry.Size(size.width - sw, size.height - sw)
+            drawArc(color = colors.accent, startAngle = startAngle, sweepAngle = sweepAngle,
+                    useCenter = false, topLeft = arcTopLeft, size = arcSize)
         }
-        Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(16.dp))
+        Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(14.dp))
     }
 }
