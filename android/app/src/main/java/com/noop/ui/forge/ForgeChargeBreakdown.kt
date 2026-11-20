@@ -147,7 +147,7 @@ private fun ConfidenceTierChip(tier: ScoreConfidence) {
         ScoreConfidence.BUILDING -> R.string.forge_cb_est to ForgeTokens.StrandPalette.statusWarning.resolve()
         ScoreConfidence.CALIBRATING -> R.string.forge_cb_cal to Forge.colors.textTertiary
     }
-    Row(Modifier.background(color.copy(alpha = 0.14f), RoundedCornerShape(50)).border(1.dp, color.copy(alpha = 0.35f), RoundedCornerShape(50))
+    Row(Modifier.background(color.copy(alpha = 0.16f), RoundedCornerShape(50)).border(1.dp, color.copy(alpha = 0.35f), RoundedCornerShape(50))
             .padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Box(Modifier.size(7.dp).background(color, CircleShape))
