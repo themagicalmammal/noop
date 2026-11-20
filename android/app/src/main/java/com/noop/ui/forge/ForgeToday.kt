@@ -1109,7 +1109,7 @@ private fun FirstRunCard(connected: Boolean, onConnect: () -> Unit) {
 internal fun BatteryPill(pct: Double, onClick: () -> Unit) {
     val colors = Forge.colors
     val progress = (pct.coerceIn(0.0, 100.0)) / 100.0
-    val ringSize = 28.dp
+    val ringSize = 34.dp
     // The level lives in the ring's border only; the number belongs on the battery page.
     Box(Modifier.size(ringSize).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
         Canvas(Modifier.size(ringSize)) {
