@@ -618,8 +618,9 @@ private fun MealCard(meal: CoreFood.Meal, onEdit: (CoreFood.Entry) -> Unit, onCo
         }
         meal.entries.forEach { entry ->
             Row(Modifier.fillMaxWidth().clickable(role = Role.Button) { onEdit(entry) }.padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     // A database name like "Vollmilch frisch, 3,5 % Fett" reads as its first part; the rest goes below.
                     val rest = entry.name.substringAfter(", ", "").ifEmpty { null }
                     Text(entry.name.substringBefore(", "), style = Forge.type.body, color = Forge.colors.text, maxLines = 2)
@@ -627,7 +628,7 @@ private fun MealCard(meal: CoreFood.Meal, onEdit: (CoreFood.Entry) -> Unit, onCo
                     if (detail.isNotEmpty()) Text(detail.joinToString(" · "), style = Forge.type.footnote, color = Forge.colors.textSecondary,
                                                   maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                 }
-                Text(kcalText(entry.totals["energy_kcal"]), style = Forge.type.bodyNumber, color = Forge.colors.text)
+                Text(kcalText(entry.totals["energy_kcal"]), style = Forge.type.headerTitle.copy(fontSize = 17.sp, fontWeight = FontWeight.Medium), color = Forge.colors.text)
             }
         }
     }
