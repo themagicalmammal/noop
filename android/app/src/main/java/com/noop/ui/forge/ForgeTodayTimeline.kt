@@ -3,6 +3,7 @@ package com.noop.ui.forge
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -577,6 +578,7 @@ private fun noticeLook(notice: TodayNotices.Notice): Pair<ImageVector, Color> {
 @Composable
 private fun RailRow(time: String?, dot: Color, last: Boolean, isNew: Boolean = false, content: @Composable () -> Unit) {
     val line = Forge.colors.divider
+    val canvas = Forge.colors.canvas
     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
         Box(Modifier.width(56.dp).padding(top = 14.dp)) {
             if (time != null) {
@@ -585,7 +587,11 @@ private fun RailRow(time: String?, dot: Color, last: Boolean, isNew: Boolean = f
         }
         Box(Modifier.width(20.dp).fillMaxHeight(), contentAlignment = Alignment.TopCenter) {
             Box(Modifier.width(1.dp).fillMaxHeight(if (last) 0.2f else 1f).background(line))
-            Box(Modifier.padding(top = 17.dp).size(9.dp).background(dot, CircleShape))
+            // As iOS's rail dot: an 8pt filled circle with a 2pt canvas ring around it.
+            Box(Modifier.padding(top = 18.dp).size(12.dp), contentAlignment = Alignment.Center) {
+                Box(Modifier.size(12.dp).border(2.dp, canvas, CircleShape))
+                Box(Modifier.size(8.dp).background(dot, CircleShape))
+            }
         }
         Box(Modifier.weight(1f).padding(start = ForgeMetrics.space2, top = 6.dp, bottom = ForgeMetrics.space3)) {
             Box(Modifier.fillMaxWidth()) {
