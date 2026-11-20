@@ -88,7 +88,7 @@ internal fun forgeSportTint(sport: String): Color {
 internal fun ForgeCapsuleChip(title: String, icon: ImageVector? = null, prominent: Boolean = false, onClick: () -> Unit) {
     val colors = Forge.colors
     val ink = if (prominent) colors.accent else colors.text
-    Row(Modifier.heightIn(min = 36.dp).background(colors.inset, CircleShape)
+    Row(Modifier.heightIn(min = 36.dp).background(colors.inset, RoundedCornerShape(50))
             .clickable(role = Role.Button, onClick = onClick).padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically) {
         if (icon != null) {
