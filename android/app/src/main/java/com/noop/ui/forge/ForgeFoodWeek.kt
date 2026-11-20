@@ -184,7 +184,7 @@ internal fun FoodScoreRow(score: CoreFood.Score?, loggedDays: Int, onOpen: () ->
             }
             Spacer(Modifier.width(ForgeMetrics.space3))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(stringResource(R.string.food_score_title), style = Forge.type.headline, color = colors.text)
+                Text(stringResource(R.string.food_score_title), style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
                 Text(if (score != null) stringResource(R.string.food_score_week, scoreWord(score.score))
                      else stringResource(R.string.food_score_after, loggedDays),
                      style = Forge.type.footnote, color = colors.textSecondary)
