@@ -405,10 +405,7 @@ private fun Hub(onClose: () -> Unit, onOpen: (ForgeSettingsPage) -> Unit, onAll:
                 }
             }
         }
-        ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
-            HubRow(Icons.Rounded.Tune, ForgeTokens.Color.systemGray.resolve(), stringResource(R.string.forge_settings_all),
-                   stringResource(R.string.forge_settings_all_detail), onAll)
-        }
+
     }
 }
 
@@ -477,8 +474,7 @@ private fun NewDesignHub(onClose: () -> Unit, onOpen: (ForgeSettingsPage) -> Uni
             page(ForgeSettingsPage.Help),
         ))
         group(null, listOf(page(ForgeSettingsPage.Lab), page(ForgeSettingsPage.About),
-            { HubRow(Icons.Rounded.Tune, ForgeTokens.Color.systemGray.resolve(), stringResource(R.string.forge_settings_all),
-                     stringResource(R.string.forge_settings_all_detail)) { onSub(ForgeSettingsSub.AllSettings) } }))
+            ))
     }
 }
 
