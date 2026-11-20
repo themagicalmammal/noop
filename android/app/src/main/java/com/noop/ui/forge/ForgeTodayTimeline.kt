@@ -114,6 +114,45 @@ internal object TodayTimeline {
 
         /** A day's log of one kind (iOS .dayLog): water drunk, food eaten, or journal written. */
         data class DayLog(override val endTs: Long, val kind: String, val value: Double) : Entry
+
+        }
+
+    /** The small events that share a card (iOS `isRow`). */
+    fun isRow(entry: Entry): Boolean {
+        return when (entry) {
+            is Entry.Workout, is Entry.Walks, is Entry.Weight, is Entry.DayLog,
+            is Entry.Meal, is Entry.Ecg -> true
+            is Entry.Wake -> entry.nap
+            else -> false
+        }
+    }
+
+    /** A block of the rail: one large entry in its own card, or several small row events sharing one card. */
+    sealed interface Block {
+        data class Card(val entry: Entry) : Block
+        data class Rows(val entries: List<Entry>) : Block
+    }
+
+    /** [entries] in order, with neighbouring small events joined into one block (iOS `blocks`). */
+    fun blocks(entries: List<Entry>): List<Block> {
+        val out = mutableListOf<Block>()
+        var run = mutableListOf<Entry>()
+        fun flush() {
+            if (run.isNotEmpty()) {
+                out.add(Block.Rows(run.toList()))
+                run.clear()
+            }
+        }
+        for (entry in entries) {
+            if (isRow(entry)) {
+                run.add(entry)
+            } else {
+                flush()
+                out.add(Block.Card(entry))
+            }
+        }
+        flush()
+        return out
     }
 
     /** A walk that bundles: a walk from the strap, Health or detection, not one the wearer started or imported (iOS `bundlesAsWalk`). */
@@ -313,8 +352,14 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
                  modifier = Modifier.background(Forge.colors.effort, CircleShape).padding(horizontal = 10.dp, vertical = 3.dp))
         }
         var yesterdayShown = false
-        entries.forEachIndexed { i, e ->
-            val day = Instant.ofEpochSecond(e.endTs).atZone(zone).toLocalDate()
+        val blocks = TodayTimeline.blocks(entries)
+        blocks.forEachIndexed { bi, block ->
+            // Determine the first entry's timestamp for the day divider check
+            val firstEntry = when (block) {
+                is TodayTimeline.Block.Card -> block.entry
+                is TodayTimeline.Block.Rows -> block.entries.first()
+            }
+            val day = Instant.ofEpochSecond(firstEntry.endTs).atZone(zone).toLocalDate()
             if (day != today && !yesterdayShown) {
                 yesterdayShown = true
                 RailRow(time = null, dot = Forge.colors.text, last = false) {
@@ -322,55 +367,63 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
                          color = Forge.colors.text)
                 }
             }
-            val last = i == entries.lastIndex
-            when (e) {
-                is TodayTimeline.Entry.Workout -> RailRow(time(context, e.endTs), Forge.colors.effort, last) { WorkoutEntry(e.row) }
-                is TodayTimeline.Entry.Wake -> RailRow(time(context, e.endTs), Forge.colors.rest, last) { WakeEntry(e) }
-                is TodayTimeline.Entry.Walks -> RailRow(time(context, e.endTs), Forge.colors.effort, last) {
-                    FactRow(Icons.Rounded.DirectionsWalk, Forge.colors.charge, stringResource(R.string.forge_tl_walks, e.rows.size), "",
-                            TodayTimeline.hoursMinutes(e.minutes), stringResource(R.string.forge_tl_h_walked))
-                }
-                is TodayTimeline.Entry.Meal -> RailRow(time(context, e.endTs), Forge.colors.food, last) {
-                    FactRow(Icons.Rounded.Restaurant, Forge.colors.food, mealName(e.meal.kind),
-                            e.meal.entries.joinToString(", ") { it.name.substringBefore(", ") },
-                            ((e.meal.totals["energy_kcal"] ?: 0.0).toInt()).toString(), "kcal")
-                }
-                is TodayTimeline.Entry.Ecg -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
-                    FactRow(Icons.Rounded.MonitorHeart, Forge.colors.accent, stringResource(R.string.forge_tl_ecg), e.reading.title,
-                            e.reading.averageHr?.toString(), "bpm")
-                }
-                is TodayTimeline.Entry.Weight -> RailRow(time(context, e.endTs), Forge.colors.rest, last) {
-                    FactRow(Icons.Rounded.MonitorWeight, Forge.colors.rest, stringResource(R.string.forge_tl_weight),
-                            e.change30?.let { c -> stringResource(R.string.forge_tl_weight_30,
-                                (if (c >= 0) "+" else "−") + "%.1f kg".format(java.util.Locale.getDefault(), kotlin.math.abs(c))) } ?: "",
-                            "%.1f".format(java.util.Locale.getDefault(), e.kg), "kg")
-                }
-                is TodayTimeline.Entry.DayLog -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
-                    when (e.kind) {
-                        "drink" -> FactRow(Icons.Rounded.WaterDrop, ForgeTokens.StrandPalette.metricCyan.resolve(),
-                            stringResource(R.string.forge_tl_drink), "",
-                            "%.1f".format(java.util.Locale.getDefault(), e.value / 1000), "L")
-                        "food" -> FactRow(Icons.Rounded.Restaurant, Forge.colors.effort,
-                            stringResource(R.string.forge_tl_food), "",
-                            e.value.toInt().toString(), "kcal")
-                        "journal" -> FactRow(Icons.Rounded.Book, Forge.colors.accent,
-                            stringResource(R.string.forge_tl_journal), "",
-                            e.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
-                        else -> FactRow(Icons.Rounded.Book, Forge.colors.accent,
-                            stringResource(R.string.forge_tl_journal), "",
-                            e.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
+            val last = bi == blocks.lastIndex
+            when (block) {
+                is TodayTimeline.Block.Card -> {
+                    val e = block.entry
+                    when (e) {
+                        is TodayTimeline.Entry.Workout -> RailRow(time(context, e.endTs), Forge.colors.effort, last) { WorkoutEntry(e.row) }
+                        is TodayTimeline.Entry.Wake -> RailRow(time(context, e.endTs), Forge.colors.rest, last) { WakeEntry(e) }
+                        is TodayTimeline.Entry.Walks -> RailRow(time(context, e.endTs), Forge.colors.effort, last) {
+                            FactRow(Icons.Rounded.DirectionsWalk, Forge.colors.charge, stringResource(R.string.forge_tl_walks, e.rows.size), "",
+                                    TodayTimeline.hoursMinutes(e.minutes), stringResource(R.string.forge_tl_h_walked))
+                        }
+                        is TodayTimeline.Entry.Meal -> RailRow(time(context, e.endTs), Forge.colors.food, last) {
+                            FactRow(Icons.Rounded.Restaurant, Forge.colors.food, mealName(e.meal.kind),
+                                    e.meal.entries.joinToString(", ") { it.name.substringBefore(", ") },
+                                    ((e.meal.totals["energy_kcal"] ?: 0.0).toInt()).toString(), "kcal")
+                        }
+                        is TodayTimeline.Entry.Ecg -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
+                            FactRow(Icons.Rounded.MonitorHeart, Forge.colors.accent, stringResource(R.string.forge_tl_ecg), e.reading.title,
+                                    e.reading.averageHr?.toString(), "bpm")
+                        }
+                        is TodayTimeline.Entry.Weight -> RailRow(time(context, e.endTs), Forge.colors.rest, last) {
+                            FactRow(Icons.Rounded.MonitorWeight, Forge.colors.rest, stringResource(R.string.forge_tl_weight),
+                                    e.change30?.let { c -> stringResource(R.string.forge_tl_weight_30,
+                                        (if (c >= 0) "+" else "−") + "%.1f kg".format(java.util.Locale.getDefault(), kotlin.math.abs(c))) } ?: "",
+                                    "%.1f".format(java.util.Locale.getDefault(), e.kg), "kg")
+                        }
+                        is TodayTimeline.Entry.DayLog -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
+                            when (e.kind) {
+                                "drink" -> FactRow(Icons.Rounded.WaterDrop, ForgeTokens.StrandPalette.metricCyan.resolve(),
+                                    stringResource(R.string.forge_tl_drink), "",
+                                    "%.1f".format(java.util.Locale.getDefault(), e.value / 1000), "L")
+                                "food" -> FactRow(Icons.Rounded.Restaurant, Forge.colors.effort,
+                                    stringResource(R.string.forge_tl_food), "",
+                                    e.value.toInt().toString(), "kcal")
+                                "journal" -> FactRow(Icons.Rounded.Book, Forge.colors.accent,
+                                    stringResource(R.string.forge_tl_journal), "",
+                                    e.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
+                                else -> FactRow(Icons.Rounded.Book, Forge.colors.accent,
+                                    stringResource(R.string.forge_tl_journal), "",
+                                    e.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
+                            }
+                        }
+                        is TodayTimeline.Entry.Coach -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
+                            CoachNoteCard(e.note, onWhy = { why = e.note })
+                        }
+                        is TodayTimeline.Entry.DayEnd -> RailRow(time(context, e.endTs), Forge.colors.rest, last) { DayEndEntry(e, todayRow) }
+                        is TodayTimeline.Entry.Notice -> RailRow(time(context, e.endTs), Forge.colors.textTertiary, last) {
+                            ForgeCard(Modifier.fillMaxWidth()) {
+                                Text(e.notice.headline, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text)
+                                if (e.notice.detail.isNotEmpty()) Text(e.notice.detail, style = Forge.type.caption, color = Forge.colors.textSecondary,
+                                                                       modifier = Modifier.padding(top = 4.dp))
+                            }
+                        }
                     }
                 }
-                is TodayTimeline.Entry.Coach -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
-                    CoachNoteCard(e.note, onWhy = { why = e.note })
-                }
-                is TodayTimeline.Entry.DayEnd -> RailRow(time(context, e.endTs), Forge.colors.rest, last) { DayEndEntry(e, todayRow) }
-                is TodayTimeline.Entry.Notice -> RailRow(time(context, e.endTs), Forge.colors.textTertiary, last) {
-                    ForgeCard(Modifier.fillMaxWidth()) {
-                        Text(e.notice.headline, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text)
-                        if (e.notice.detail.isNotEmpty()) Text(e.notice.detail, style = Forge.type.caption, color = Forge.colors.textSecondary,
-                                                               modifier = Modifier.padding(top = 4.dp))
-                    }
+                is TodayTimeline.Block.Rows -> RailRow(time = null, dot = Forge.colors.textTertiary, last = last) {
+                    RowsCard(block.entries, context)
                 }
             }
         }
@@ -453,6 +506,65 @@ private fun RailRow(time: String?, dot: Color, last: Boolean, content: @Composab
             Box(Modifier.padding(top = 17.dp).size(9.dp).background(dot, CircleShape))
         }
         Box(Modifier.weight(1f).padding(start = ForgeMetrics.space2, top = 6.dp, bottom = ForgeMetrics.space3)) { content() }
+    }
+}
+
+/**
+ * Several small events sharing one card, divided by hairlines, so a busy day reads as a few blocks
+ * rather than a dozen equal cards (iOS `rowsCard`).
+ */
+@Composable
+private fun RowsCard(entries: List<TodayTimeline.Entry>, context: Context) {
+    ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
+        Column(Modifier.fillMaxWidth()) {
+            entries.forEachIndexed { index, entry ->
+                if (index > 0) {
+                    Box(Modifier.fillMaxWidth().height(0.5.dp).padding(start = 60.dp).background(Forge.colors.divider))
+                }
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+                    Box(Modifier.width(56.dp).padding(top = 2.dp)) {
+                        Text(time(context, entry.endTs), style = Forge.type.footnote, color = Forge.colors.textSecondary, maxLines = 1)
+                    }
+                    Box(Modifier.weight(1f).padding(start = 8.dp)) {
+                        when (entry) {
+                            is TodayTimeline.Entry.Workout -> WorkoutEntry(entry.row)
+                            is TodayTimeline.Entry.Wake -> WakeEntry(entry)
+                            is TodayTimeline.Entry.Walks -> FactRow(Icons.Rounded.DirectionsWalk, Forge.colors.charge,
+                                stringResource(R.string.forge_tl_walks, entry.rows.size), "",
+                                TodayTimeline.hoursMinutes(entry.minutes), stringResource(R.string.forge_tl_h_walked))
+                            is TodayTimeline.Entry.Meal -> FactRow(Icons.Rounded.Restaurant, Forge.colors.food, mealName(entry.meal.kind),
+                                entry.meal.entries.joinToString(", ") { it.name.substringBefore(", ") },
+                                ((entry.meal.totals["energy_kcal"] ?: 0.0).toInt()).toString(), "kcal")
+                            is TodayTimeline.Entry.Ecg -> FactRow(Icons.Rounded.MonitorHeart, Forge.colors.accent,
+                                stringResource(R.string.forge_tl_ecg), entry.reading.title,
+                                entry.reading.averageHr?.toString(), "bpm")
+                            is TodayTimeline.Entry.Weight -> FactRow(Icons.Rounded.MonitorWeight, Forge.colors.rest,
+                                stringResource(R.string.forge_tl_weight),
+                                entry.change30?.let { c -> stringResource(R.string.forge_tl_weight_30,
+                                    (if (c >= 0) "+" else "−") + "%.1f kg".format(java.util.Locale.getDefault(), kotlin.math.abs(c))) } ?: "",
+                                "%.1f".format(java.util.Locale.getDefault(), entry.kg), "kg")
+                            is TodayTimeline.Entry.DayLog -> {
+                                when (entry.kind) {
+                                    "drink" -> FactRow(Icons.Rounded.WaterDrop, ForgeTokens.StrandPalette.metricCyan.resolve(),
+                                        stringResource(R.string.forge_tl_drink), "",
+                                        "%.1f".format(java.util.Locale.getDefault(), entry.value / 1000), "L")
+                                    "food" -> FactRow(Icons.Rounded.Restaurant, Forge.colors.effort,
+                                        stringResource(R.string.forge_tl_food), "",
+                                        entry.value.toInt().toString(), "kcal")
+                                    "journal" -> FactRow(Icons.Rounded.Book, Forge.colors.accent,
+                                        stringResource(R.string.forge_tl_journal), "",
+                                        entry.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
+                                    else -> FactRow(Icons.Rounded.Book, Forge.colors.accent,
+                                        stringResource(R.string.forge_tl_journal), "",
+                                        entry.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
+                                }
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
