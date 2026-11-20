@@ -507,7 +507,7 @@ private fun FoodHero(day: LocalDate, totals: Map<String, Double>, goals: CoreFoo
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         val left = goal?.let { it - eaten }
-                        Text(kcalText(abs(left ?: eaten)), style = Forge.type.heroNumber.copy(fontSize = 38.sp),
+                        Text(kcalText(abs(left ?: eaten)), style = Forge.type.heroNumber.copy(fontSize = 38.sp, fontWeight = FontWeight.Bold),
                              color = if ((left ?: 0.0) < 0) colors.effort else colors.text)
                         Text(stringResource(when {
                             left == null -> R.string.food_kcal_eaten_short
