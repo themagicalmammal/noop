@@ -392,8 +392,14 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit, on
             if (day != today && !yesterdayShown) {
                 yesterdayShown = true
                 RailRow(time = null, dot = Forge.colors.text, last = false) {
-                    Text(stringResource(R.string.today_day_yesterday), style = Forge.type.headline.copy(fontWeight = FontWeight.Bold),
-                         color = Forge.colors.text)
+                    // As iOS's dayDivider: the named day semibold, its date beside in secondary.
+                    val named = stringResource(R.string.today_day_yesterday)
+                    val dateStr = day.format(java.time.format.DateTimeFormatter.ofPattern("EEE, d MMM", java.util.Locale.getDefault()))
+                    Row {
+                        Text(named, style = Forge.type.headline.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text)
+                        Spacer(Modifier.width(8.dp))
+                        Text(dateStr, style = Forge.type.headline, color = Forge.colors.textSecondaryOnPicture)
+                    }
                 }
             }
             val last = bi == blocks.lastIndex
