@@ -379,7 +379,7 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
 internal fun TabHeader(title: String, onProfile: () -> Unit, onSearch: (() -> Unit)? = null,
                   batteryPct: Double? = null, onBattery: (() -> Unit)? = null) {
     val locale = Locale.getDefault()
-    Row(Modifier.fillMaxWidth().padding(top = ForgeMetrics.space4, start = 20.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().padding(top = ForgeMetrics.space4, start = 4.dp, end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(
             buildAnnotatedString {
                 withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(title) }
