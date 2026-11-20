@@ -398,11 +398,11 @@ internal fun ForgeMetricTile(label: String, value: String?, unit: String?, tint:
             Text(label, style = Forge.type.footnote.copy(fontWeight = FontWeight.Medium), color = colors.textSecondary,
                  maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(buildAnnotatedString {
-                append(value ?: "–")
+                withStyle(Forge.type.figure.toSpanStyle()) { append(value ?: "–") }
                 if (value != null && unit != null) withStyle(Forge.type.footnote.toSpanStyle().copy(color = colors.textSecondary)) {
                     append(" " + unit)
                 }
-            }, style = Forge.type.title1, color = colors.text, maxLines = 1)
+            }, style = Forge.type.figure, color = colors.text, maxLines = 1)
             when {
                 hasBars -> MetricTileBars(bars!!, tint)
                 value != null && trend != null && trend.size > 1 -> TrendArea(trend, tint)
