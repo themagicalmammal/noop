@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.collectAsState
@@ -430,7 +431,7 @@ private fun RangeChip(v: Vital) {
     val ok = v.banding.band == VitalBands.Band.IN_RANGE
     Row(
         Modifier.heightIn(min = 30.dp)
-            .background(if (ok) colors.surface.copy(alpha = 0.75f) else colors.effort.copy(alpha = 0.16f), CircleShape)
+            .background(if (ok) colors.surface.copy(alpha = 0.75f) else colors.effort.copy(alpha = 0.16f), RoundedCornerShape(50))
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
