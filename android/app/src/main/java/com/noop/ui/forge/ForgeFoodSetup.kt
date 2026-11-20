@@ -124,7 +124,7 @@ internal fun FoodTodayCard(onOpen: () -> Unit, onAdd: () -> Unit) {
     }
     val totals = summary?.totals.orEmpty()
     val logged = summary?.meals?.isNotEmpty() == true
-    ForgeCard(Modifier.fillMaxWidth()) {
+    ForgeCard(Modifier.fillMaxWidth(), contentPadding = 14.dp) {
         Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space3)) {
             Row(Modifier.fillMaxWidth().clickable(onClick = onOpen), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
