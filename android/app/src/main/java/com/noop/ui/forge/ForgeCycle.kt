@@ -214,7 +214,7 @@ internal fun ForgeCyclePage(viewModel: AppViewModel, onBack: () -> Unit, startLo
                 Spacer(Modifier.height(ForgeMetrics.space3))
                 val hint = stringResource(R.string.forge_cy_how_the_fertile_days_are)
                 Row(Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget)
-                        .background(colors.cycleFertile.copy(alpha = 0.14f), RoundedCornerShape(22.dp))
+                        .background(colors.cycleFertile.copy(alpha = 0.16f), RoundedCornerShape(22.dp))
                         .clickable(role = Role.Button, onClickLabel = hint) { sub = CycleSub.Fertile }
                         .padding(horizontal = ForgeMetrics.space4, vertical = ForgeMetrics.space2),
                     verticalAlignment = Alignment.CenterVertically) {
@@ -333,7 +333,7 @@ private fun CycleLogRow(onLog: () -> Unit) {
                       contentPadding = ForgeMetrics.space2) {
                 Column(Modifier.fillMaxWidth().heightIn(min = 72.dp), horizontalAlignment = Alignment.CenterHorizontally,
                        verticalArrangement = Arrangement.Center) {
-                    Box(Modifier.size(40.dp).background(tint.copy(alpha = 0.14f), CircleShape), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(40.dp).background(tint.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
                         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
                     }
                     Spacer(Modifier.height(6.dp))
@@ -448,7 +448,7 @@ private fun CycleTopicCard(topic: CycleTopic, phase: CyclePhase, snap: CycleSnap
     val tint = phase.color()
     ForgeCard(Modifier.width(250.dp).heightIn(min = 190.dp).fillMaxHeight().clickable(role = Role.Button, onClick = onClick)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).background(tint.copy(alpha = 0.14f), CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(40.dp).background(tint.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
                 Icon(topic.icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
             }
             Spacer(Modifier.width(10.dp))
@@ -484,7 +484,7 @@ private fun CycleTopicPage(topic: CycleTopic, phase: CyclePhase, snap: CycleSnap
                  style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = colors.surface,
                  modifier = Modifier.background(tint, CircleShape).padding(horizontal = ForgeMetrics.space3, vertical = 6.dp))
             Spacer(Modifier.height(10.dp))
-            Box(Modifier.size(84.dp).background(tint.copy(alpha = 0.14f), CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(84.dp).background(tint.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
                 Icon(topic.icon, contentDescription = null, tint = tint, modifier = Modifier.size(40.dp))
             }
             Spacer(Modifier.height(10.dp))
