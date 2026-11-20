@@ -645,7 +645,7 @@ private fun CycleCalendar(snap: CycleSnapshot) {
                     val styled = when {
                         isToday -> base.background(colors.text, CircleShape)
                         period -> base.background(colors.cyclePeriod, CircleShape)
-                        fertile -> base.background(colors.cycleFertile.copy(alpha = 0.28f), CircleShape)
+                        fertile -> base.background(colors.cycleFertile.copy(alpha = 0.24f), CircleShape)
                         likely -> base.border(1.5.dp, colors.cyclePeriod, CircleShape)
                         else -> base
                     }
