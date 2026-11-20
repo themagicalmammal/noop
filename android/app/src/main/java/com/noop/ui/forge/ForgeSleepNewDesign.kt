@@ -687,7 +687,7 @@ private fun AlarmRow(icon: ImageVector, title: String, subtitle: String, onClick
         }
         Spacer(Modifier.width(ForgeMetrics.space3))
         Column(Modifier.weight(1f)) {
-            Text(title, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
+            Text(title, style = Forge.type.headline, color = colors.text)
             Text(subtitle, style = Forge.type.footnote, color = colors.textSecondary, maxLines = 2)
         }
         Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = colors.textTertiary,
