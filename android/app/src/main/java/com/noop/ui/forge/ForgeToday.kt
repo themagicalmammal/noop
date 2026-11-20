@@ -84,6 +84,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.noop.R
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableIntStateOf
@@ -1025,36 +1026,39 @@ internal fun ForgeDayHeartRatePage(date: LocalDate, onBack: () -> Unit) {
 }
 
 /**
- * The pinned score bar, as iOS's `pinnedBar`: a glass capsule holding the three ring scores
- * while the rings scroll out of view. Tapping scrolls back to the top.
+ * The pinned score bar, as iOS's `pinnedBar`: one glass capsule holding the three ring
+ * scores, spaced 16 between them, while the rings scroll out of view. Tapping scrolls back
+ * to the top.
  */
 @Composable
 private fun PinnedBar(charge: Double?, effort: Double?, rest: Double?, onClick: () -> Unit) {
     val colors = Forge.colors
+    // As iOS's `pinnedBar`: one capsule, three values spaced 16, height 44, padding 16 horizontal.
     Row(
         Modifier.fillMaxWidth()
-            .padding(top = ForgeMetrics.space4)
+            .padding(top = 4.dp)
+            .height(44.dp)
+            .background(colors.surfaceTop.copy(alpha = 0.88f), RoundedCornerShape(50))
+            .padding(horizontal = ForgeMetrics.space4)
             .clickable(onClick = onClick),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        PinnedValue(stringResource(R.string.forge_charge), charge?.let { "%.0f".format(it) } ?: "–", colors.charge)
-        PinnedValue(stringResource(R.string.forge_effort), effort?.let { "%.0f".format(it) } ?: "–", colors.effort)
-        PinnedValue(stringResource(R.string.forge_rest), rest?.let { "%.0f".format(it) } ?: "–", colors.rest)
+        PinnedValue(stringResource(R.string.forge_charge), charge?.let { "%.0f".format(it) } ?: "–", colors.charge, colors)
+        PinnedValue(stringResource(R.string.forge_effort), effort?.let { "%.0f".format(it) } ?: "–", colors.effort, colors)
+        PinnedValue(stringResource(R.string.forge_rest), rest?.let { "%.0f".format(it) } ?: "–", colors.rest, colors)
     }
 }
 
 @Composable
-private fun PinnedValue(label: String, value: String, tint: Color) {
-    val colors = Forge.colors
+private fun PinnedValue(label: String, value: String, tint: Color, colors: ForgeColors) {
     Row(
-        Modifier.background(colors.surfaceTop.copy(alpha = 0.88f), RoundedCornerShape(50))
-            .padding(horizontal = ForgeMetrics.space4, vertical = ForgeMetrics.space2),
+        Modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Box(Modifier.size(8.dp).clip(CircleShape).background(tint))
-        Text(value, style = Forge.type.captionNumber, color = colors.text)
+        Text(value, style = Forge.type.captionNumber.copy(fontSize = 16.sp), color = colors.text)
         Text(label, style = Forge.type.caption, color = colors.textSecondary)
     }
 }
