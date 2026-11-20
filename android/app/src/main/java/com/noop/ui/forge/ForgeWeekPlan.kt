@@ -166,7 +166,7 @@ internal fun ForgeWeekPlanPage(viewModel: AppViewModel, onBack: () -> Unit, onSc
                     }
                     tag?.let { (t, c) ->
                         Text(t, style = Forge.type.caption.copy(fontWeight = FontWeight.SemiBold), color = c,
-                             modifier = Modifier.background(c.copy(alpha = 0.14f), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp))
+                             modifier = Modifier.background(c.copy(alpha = 0.16f), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp))
                     }
                 }
             }
