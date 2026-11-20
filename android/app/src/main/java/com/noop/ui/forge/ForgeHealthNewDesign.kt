@@ -98,8 +98,8 @@ internal enum class FocusArea(val titleRes: Int, val subRes: Int, val icon: Imag
     fun tint(): Color = when (this) {
         Fitness -> Forge.colors.effort
         Sleep -> Forge.colors.rest
-        Vitals -> Forge.colors.heart
-        Body -> Forge.colors.charge
+        Vitals -> Forge.colors.charge
+        Body -> ForgeTokens.Color.systemPurple.resolve()
         Mind -> ForgeTokens.Color.systemTeal.resolve()
         More -> Forge.colors.accent
     }
