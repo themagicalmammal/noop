@@ -124,7 +124,7 @@ internal fun TrainingPlannedToday(routine: CoreTraining.Routine, onStart: () -> 
         Spacer(Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth().background(colors.inset.copy(alpha = 0.6f), RoundedCornerShape(10.dp)).padding(12.dp),
             verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(38.dp).background(colors.effort.copy(alpha = 0.15f), CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(38.dp).background(colors.effort.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
                 Icon(Icons.Rounded.FitnessCenter, contentDescription = null, tint = colors.effort, modifier = Modifier.size(18.dp))
             }
             Spacer(Modifier.width(ForgeMetrics.space3))
