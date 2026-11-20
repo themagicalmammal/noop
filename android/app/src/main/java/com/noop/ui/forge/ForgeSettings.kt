@@ -785,7 +785,7 @@ internal fun SettingsColumn(content: @Composable ColumnScope.() -> Unit) {
 
 /** One hub row as iOS draws it (`ForgeRow`): icon tile, title over subtitle, chevron. */
 @Composable
-internal fun HubRow(icon: ImageVector, tint: Color, title: String, subtitle: String, onClick: () -> Unit, compact: Boolean = true) {
+internal fun HubRow(icon: ImageVector, tint: Color, title: String, subtitle: String, compact: Boolean = true, onClick: () -> Unit) {
     val colors = Forge.colors
     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = ForgeMetrics.space4, vertical = ForgeMetrics.space3),

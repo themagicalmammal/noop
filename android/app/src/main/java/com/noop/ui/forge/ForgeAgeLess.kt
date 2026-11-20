@@ -134,7 +134,7 @@ internal fun ForgeAgeLessPage(onBack: () -> Unit, onOpenRhythm: () -> Unit = {})
         }
         ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
             HubRow(Icons.Rounded.WbTwilight, Forge.colors.charge, stringResource(R.string.forge_al_rhythm),
-                   stringResource(R.string.forge_al_rhythm_sub), onOpenRhythm)
+                   stringResource(R.string.forge_al_rhythm_sub), onClick = onOpenRhythm)
         }
         Text(stringResource(R.string.forge_al_beta), style = Forge.type.caption, color = Forge.colors.textTertiary,
              modifier = Modifier.padding(horizontal = ForgeMetrics.space1))

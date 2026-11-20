@@ -115,13 +115,13 @@ private fun ForgeStrengthOverview(snapshot: CoreTraining.Snapshot?, onClose: () 
         SectionHeader(stringResource(R.string.forge_so_plan_library))
         ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
             HubRow(Icons.Rounded.CalendarMonth, colors.effort, stringResource(R.string.forge_so_routines),
-                   stringResource(R.string.forge_so_routine_count, s.routines.size), onOpenPlan)
+                   stringResource(R.string.forge_so_routine_count, s.routines.size), onClick = onOpenPlan)
             HubDivider()
             HubRow(Icons.Rounded.Accessibility, colors.effort, stringResource(R.string.forge_so_muscles),
-                   stringResource(R.string.forge_so_muscles_detail), onOpenMuscles)
+                   stringResource(R.string.forge_so_muscles_detail), onClick = onOpenMuscles)
             HubDivider()
             HubRow(Icons.Rounded.BarChart, colors.effort, stringResource(R.string.forge_so_all_details),
-                   stringResource(R.string.forge_so_all_details_detail), onOpenDetails)
+                   stringResource(R.string.forge_so_all_details_detail), onClick = onOpenDetails)
         }
     }
 }
@@ -146,7 +146,7 @@ private fun NextUp(s: CoreTraining.Snapshot, onStart: (String) -> Unit, onOpenPl
     if (next == null) {
         ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
             HubRow(Icons.Rounded.EventAvailable, colors.effort, stringResource(R.string.forge_so_plan_day),
-                   stringResource(R.string.forge_so_plan_day_detail), onOpenPlan)
+                   stringResource(R.string.forge_so_plan_day_detail), onClick = onOpenPlan)
         }
         return
     }
