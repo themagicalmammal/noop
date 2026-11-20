@@ -62,6 +62,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -233,7 +234,7 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
                         val vital = vitals.firstOrNull { it.key == key }
                         val tap = { if (editingTiles) tilePick = key else openMeasure(key) }
                         if (vital != null) VitalTile(vital, Modifier.fillMaxWidth(), columns > 2) { tap() }
-                        else MeasureTile(viewModel, key, Modifier.fillMaxWidth()) { tap() }
+                        else MeasureTile(viewModel, key, Modifier.fillMaxWidth(), columns > 2) { tap() }
                         if (editingTiles) {
                             RemoveBadge(Modifier.align(Alignment.TopEnd)) { save(placed - key) }
                             Row(Modifier.align(Alignment.BottomEnd).padding(4.dp)) {
@@ -481,15 +482,6 @@ private fun OffRangeCard(v: Vital, coachOn: Boolean, onAsk: (String) -> Unit) {
 
 
 /** The icon for a measure, as iOS's . */
-private fun measureIcon(key: String) = when (key) {
-    "ageless" -> Icons.Rounded.HourglassBottom
-    "vo2max" -> Icons.Rounded.DirectionsRun
-    "weight" -> Icons.Rounded.MonitorWeight
-    "stress" -> Icons.Rounded.Psychology
-    "steps" -> Icons.Rounded.DirectionsWalk
-    else -> Icons.Rounded.MonitorHeart
-}
-
 /** One vital tile, as iOS's vitalTile: label, figure with unit, trend line and a state badge. */
 @Composable
 private fun VitalTile(v: Vital, modifier: Modifier, compact: Boolean, onClick: () -> Unit) {
@@ -562,9 +554,8 @@ private fun measureTitle(key: String): String = when (key) {
 
 /** A measure beside the vitals, its latest value and two months as a line (iOS `ForgeHealthMeasureTile`). */
 @Composable
-private fun MeasureTile(viewModel: AppViewModel, key: String, modifier: Modifier, onClick: () -> Unit) {
+private fun MeasureTile(viewModel: AppViewModel, key: String, modifier: Modifier, compact: Boolean, onClick: () -> Unit) {
     val context = LocalContext.current
-    val colors = Forge.colors
     val revision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     val values by androidx.compose.runtime.produceState(emptyList<Double>(), key, revision) {
         value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
@@ -586,10 +577,27 @@ private fun MeasureTile(viewModel: AppViewModel, key: String, modifier: Modifier
         else -> "%.1f".format(java.util.Locale.getDefault(), v)
     } }
     val unit = when (key) { "weight" -> "kg"; "ageless" -> stringResource(R.string.forge_vt_years); else -> null }
-    val tint = when (key) { "vo2max" -> colors.charge; "weight" -> colors.rest; "stress" -> colors.effort; "ageless" -> colors.accent; else -> colors.charge }
-    MetricTile(measureIcon(key), tint, measureTitle(key), text, unit, stringResource(R.string.forge_no_data),
-               modifier.clickable(role = Role.Button, onClick = onClick),
-               below = values.takeIf { it.size > 1 }?.let { v -> @Composable { KeyTileSpark(v.takeLast(60), tint) } })
+    ForgeMetricTile(
+        label = measureTitle(key),
+        value = text,
+        unit = unit,
+        tint = measureTint(key),
+        trend = values.takeIf { it.size > 1 }?.takeLast(60),
+        minHeight = if (compact) 96.dp else 132.dp,
+        onClick = onClick,
+        modifier = modifier,
+    )
+}
+
+/** The measure's tint, as iOS's `ForgeMeasureWidget.tint`. */
+@Composable
+private fun measureTint(key: String): Color {
+    return when (key) {
+        "stress" -> ForgeTokens.StrandPalette.effortColor.resolve()
+        "weight" -> ForgeTokens.StrandPalette.metricAmber.resolve()
+        "steps" -> ForgeTokens.StrandPalette.chargeColor.resolve()
+        else -> Forge.colors.accent
+    }
 }
 
 @Composable
