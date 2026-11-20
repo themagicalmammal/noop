@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.WbTwilight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
@@ -245,6 +246,14 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
     var coachNotes by remember { mutableStateOf<List<com.noop.core.CoreCoach.Note>>(emptyList()) }
     var dayLogs by remember { mutableStateOf<List<TodayTimeline.Entry.DayLog>>(emptyList()) }
     var why by remember { mutableStateOf<com.noop.core.CoreCoach.Note?>(null) }
+    // New-dot tracking: entries after the last time the reader left Today carry a dot, like an unread mail.
+    val timelinePrefs = context.getSharedPreferences(com.noop.ui.NoopPrefs.NAME, android.content.Context.MODE_PRIVATE)
+    var seenBefore = timelinePrefs.getString("forge.timeline.seenAt", "0")?.toLong() ?: 0
+    DisposableEffect(Unit) {
+        onDispose {
+            timelinePrefs.edit().putString("forge.timeline.seenAt", System.currentTimeMillis().toString()).apply()
+        }
+    }
     // The evening report from the evening on (iOS `ForgeToday.eveningStart`): 19:00, or two hours before the planned
     // bedtime when that is later; not in quiet hours (22:00 to 07:00), when the coach keeps quiet too.
     val wake = rememberTomorrowWake(viewModel)
@@ -330,6 +339,8 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
         TodayTimeline.entries(workouts, nights, naps, now, zone, meals, ecgs, notices, weighIns, weightChange, dayEnd,
                               coachNotes.filter { it.id != hintNoteId }, dayLogs)
     }
+    // An entry is "new" if it appeared after the reader last left Today.
+    val isNew: (TodayTimeline.Entry) -> Boolean = { entry -> seenBefore > 0 && entry.endTs > seenBefore }
     // "Yesterday" by the logical day, as iOS's rail (`logicalDayKey`): an evening workout seen after midnight
     // still belongs to today.
     val today = com.noop.ui.logicalDayNow(zone)
@@ -371,29 +382,30 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
             when (block) {
                 is TodayTimeline.Block.Card -> {
                     val e = block.entry
+                    val cardNew = isNew(e)
                     when (e) {
-                        is TodayTimeline.Entry.Workout -> RailRow(time(context, e.endTs), Forge.colors.effort, last) { WorkoutEntry(e.row) }
-                        is TodayTimeline.Entry.Wake -> RailRow(time(context, e.endTs), Forge.colors.rest, last) { WakeEntry(e) }
-                        is TodayTimeline.Entry.Walks -> RailRow(time(context, e.endTs), Forge.colors.effort, last) {
+                        is TodayTimeline.Entry.Workout -> RailRow(time(context, e.endTs), Forge.colors.effort, last, cardNew) { WorkoutEntry(e.row) }
+                        is TodayTimeline.Entry.Wake -> RailRow(time(context, e.endTs), Forge.colors.rest, last, cardNew) { WakeEntry(e) }
+                        is TodayTimeline.Entry.Walks -> RailRow(time(context, e.endTs), Forge.colors.effort, last, cardNew) {
                             FactRow(Icons.Rounded.DirectionsWalk, Forge.colors.charge, stringResource(R.string.forge_tl_walks, e.rows.size), "",
                                     TodayTimeline.hoursMinutes(e.minutes), stringResource(R.string.forge_tl_h_walked))
                         }
-                        is TodayTimeline.Entry.Meal -> RailRow(time(context, e.endTs), Forge.colors.food, last) {
+                        is TodayTimeline.Entry.Meal -> RailRow(time(context, e.endTs), Forge.colors.food, last, cardNew) {
                             FactRow(Icons.Rounded.Restaurant, Forge.colors.food, mealName(e.meal.kind),
                                     e.meal.entries.joinToString(", ") { it.name.substringBefore(", ") },
                                     ((e.meal.totals["energy_kcal"] ?: 0.0).toInt()).toString(), "kcal")
                         }
-                        is TodayTimeline.Entry.Ecg -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
+                        is TodayTimeline.Entry.Ecg -> RailRow(time(context, e.endTs), Forge.colors.accent, last, cardNew) {
                             FactRow(Icons.Rounded.MonitorHeart, Forge.colors.accent, stringResource(R.string.forge_tl_ecg), e.reading.title,
                                     e.reading.averageHr?.toString(), "bpm")
                         }
-                        is TodayTimeline.Entry.Weight -> RailRow(time(context, e.endTs), Forge.colors.rest, last) {
+                        is TodayTimeline.Entry.Weight -> RailRow(time(context, e.endTs), Forge.colors.rest, last, cardNew) {
                             FactRow(Icons.Rounded.MonitorWeight, Forge.colors.rest, stringResource(R.string.forge_tl_weight),
                                     e.change30?.let { c -> stringResource(R.string.forge_tl_weight_30,
                                         (if (c >= 0) "+" else "−") + "%.1f kg".format(java.util.Locale.getDefault(), kotlin.math.abs(c))) } ?: "",
                                     "%.1f".format(java.util.Locale.getDefault(), e.kg), "kg")
                         }
-                        is TodayTimeline.Entry.DayLog -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
+                        is TodayTimeline.Entry.DayLog -> RailRow(time(context, e.endTs), Forge.colors.accent, last, cardNew) {
                             when (e.kind) {
                                 "drink" -> FactRow(Icons.Rounded.WaterDrop, ForgeTokens.StrandPalette.metricCyan.resolve(),
                                     stringResource(R.string.forge_tl_drink), "",
@@ -409,11 +421,11 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
                                     e.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
                             }
                         }
-                        is TodayTimeline.Entry.Coach -> RailRow(time(context, e.endTs), Forge.colors.accent, last) {
+                        is TodayTimeline.Entry.Coach -> RailRow(time(context, e.endTs), Forge.colors.accent, last, cardNew) {
                             CoachNoteCard(e.note, onWhy = { why = e.note })
                         }
-                        is TodayTimeline.Entry.DayEnd -> RailRow(time(context, e.endTs), Forge.colors.rest, last) { DayEndEntry(e, todayRow) }
-                        is TodayTimeline.Entry.Notice -> RailRow(time(context, e.endTs), Forge.colors.textTertiary, last) {
+                        is TodayTimeline.Entry.DayEnd -> RailRow(time(context, e.endTs), Forge.colors.rest, last, cardNew) { DayEndEntry(e, todayRow) }
+                        is TodayTimeline.Entry.Notice -> RailRow(time(context, e.endTs), Forge.colors.textTertiary, last, cardNew) {
                             ForgeCard(Modifier.fillMaxWidth()) {
                                 Text(e.notice.headline, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text)
                                 if (e.notice.detail.isNotEmpty()) Text(e.notice.detail, style = Forge.type.caption, color = Forge.colors.textSecondary,
@@ -423,7 +435,7 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
                     }
                 }
                 is TodayTimeline.Block.Rows -> RailRow(time = null, dot = Forge.colors.textTertiary, last = last) {
-                    RowsCard(block.entries, context)
+                    RowsCard(block.entries, context, isNew)
                 }
             }
         }
@@ -493,7 +505,7 @@ internal fun CoachWhySheet(note: com.noop.core.CoreCoach.Note, onDismiss: () -> 
 
 /** One row of the rail: the time in its column, a dot on the line, the entry beside them. */
 @Composable
-private fun RailRow(time: String?, dot: Color, last: Boolean, content: @Composable () -> Unit) {
+private fun RailRow(time: String?, dot: Color, last: Boolean, isNew: Boolean = false, content: @Composable () -> Unit) {
     val line = Forge.colors.divider
     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
         Box(Modifier.width(56.dp).padding(top = 14.dp)) {
@@ -505,7 +517,15 @@ private fun RailRow(time: String?, dot: Color, last: Boolean, content: @Composab
             Box(Modifier.width(1.dp).fillMaxHeight(if (last) 0.2f else 1f).background(line))
             Box(Modifier.padding(top = 17.dp).size(9.dp).background(dot, CircleShape))
         }
-        Box(Modifier.weight(1f).padding(start = ForgeMetrics.space2, top = 6.dp, bottom = ForgeMetrics.space3)) { content() }
+        Box(Modifier.weight(1f).padding(start = ForgeMetrics.space2, top = 6.dp, bottom = ForgeMetrics.space3)) {
+            Box(Modifier.fillMaxWidth()) {
+                content()
+                if (isNew) {
+                    Box(Modifier.align(Alignment.TopEnd).padding(top = 5.dp, end = 5.dp)
+                        .size(8.dp).background(Forge.colors.accent, CircleShape))
+                }
+            }
+        }
     }
 }
 
@@ -514,19 +534,20 @@ private fun RailRow(time: String?, dot: Color, last: Boolean, content: @Composab
  * rather than a dozen equal cards (iOS `rowsCard`).
  */
 @Composable
-private fun RowsCard(entries: List<TodayTimeline.Entry>, context: Context) {
+private fun RowsCard(entries: List<TodayTimeline.Entry>, context: Context, isNew: (TodayTimeline.Entry) -> Boolean) {
     ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
         Column(Modifier.fillMaxWidth()) {
             entries.forEachIndexed { index, entry ->
                 if (index > 0) {
                     Box(Modifier.fillMaxWidth().height(0.5.dp).padding(start = 60.dp).background(Forge.colors.divider))
                 }
-                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-                    Box(Modifier.width(56.dp).padding(top = 2.dp)) {
-                        Text(time(context, entry.endTs), style = Forge.type.footnote, color = Forge.colors.textSecondary, maxLines = 1)
-                    }
-                    Box(Modifier.weight(1f).padding(start = 8.dp)) {
-                        when (entry) {
+                Box(Modifier.fillMaxWidth()) {
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+                        Box(Modifier.width(56.dp).padding(top = 2.dp)) {
+                            Text(time(context, entry.endTs), style = Forge.type.footnote, color = Forge.colors.textSecondary, maxLines = 1)
+                        }
+                        Box(Modifier.weight(1f).padding(start = 8.dp)) {
+                            when (entry) {
                             is TodayTimeline.Entry.Workout -> WorkoutEntry(entry.row)
                             is TodayTimeline.Entry.Wake -> WakeEntry(entry)
                             is TodayTimeline.Entry.Walks -> FactRow(Icons.Rounded.DirectionsWalk, Forge.colors.charge,
@@ -560,7 +581,12 @@ private fun RowsCard(entries: List<TodayTimeline.Entry>, context: Context) {
                                 }
                             }
                             else -> {}
+                            }
                         }
+                    }
+                    if (isNew(entry)) {
+                        Box(Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = 10.dp)
+                            .size(8.dp).background(Forge.colors.accent, CircleShape))
                     }
                 }
             }
