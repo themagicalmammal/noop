@@ -5154,6 +5154,11 @@
     <string name="forge_h_badge_in_range">In your range</string>
     <string name="forge_h_badge_typical">Typical range</string>
     <string name="forge_h_badge_estimated">Estimated</string>
+    <string name="forge_h_badge_uncalibrated">Uncalibrated</string>
+    <string name="forge_h_vital_rhr_full">Resting heart rate</string>
+    <string name="forge_h_vital_resp_full">Breathing rate</string>
+    <string name="forge_h_vital_spo2_full">Blood oxygen</string>
+    <string name="forge_h_vital_skin_full">Skin temperature</string>
     <string name="forge_sleep_nav">%1$s · %2$s to %3$s</string>
     <string name="forge_sleep_days">%1$s to %2$s</string>
     <string name="forge_sleep_duration_tile">Sleep duration</string>

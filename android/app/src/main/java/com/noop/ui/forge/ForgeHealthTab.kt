@@ -232,7 +232,7 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
                             })) {
                         val vital = vitals.firstOrNull { it.key == key }
                         val tap = { if (editingTiles) tilePick = key else openMeasure(key) }
-                        if (vital != null) VitalTile(vital, Modifier.fillMaxWidth()) { tap() }
+                        if (vital != null) VitalTile(vital, Modifier.fillMaxWidth(), columns > 2) { tap() }
                         else MeasureTile(viewModel, key, Modifier.fillMaxWidth()) { tap() }
                         if (editingTiles) {
                             RemoveBadge(Modifier.align(Alignment.TopEnd)) { save(placed - key) }
@@ -481,15 +481,6 @@ private fun OffRangeCard(v: Vital, coachOn: Boolean, onAsk: (String) -> Unit) {
     }
 }
 
-/** The icon for a vital, as iOS's . */
-private fun vitalIcon(key: String) = when (key) {
-    "hrv" -> Icons.Rounded.TrendingUp
-    "rhr" -> Icons.Rounded.Favorite
-    "spo2", "spo2raw" -> Icons.Rounded.WaterDrop
-    "resp" -> Icons.Rounded.Air
-    "skin" -> Icons.Rounded.Thermostat
-    else -> Icons.Rounded.MonitorHeart
-}
 
 /** The icon for a measure, as iOS's . */
 private fun measureIcon(key: String) = when (key) {
@@ -501,52 +492,51 @@ private fun measureIcon(key: String) = when (key) {
     else -> Icons.Rounded.MonitorHeart
 }
 
-/** One vital: its name, the figure large with the unit small beside it, and its recent course. */
+/** One vital tile, as iOS's vitalTile: label, figure with unit, trend line and a state badge. */
 @Composable
-private fun VitalTile(v: Vital, modifier: Modifier, onClick: () -> Unit) {
-    val colors = Forge.colors
-    ForgeCard(modifier.clickable(role = Role.Button, onClick = onClick), contentPadding = 14.dp) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(30.dp).background(v.metricColor.copy(alpha = 0.13f), CircleShape), contentAlignment = Alignment.Center) {
-                Icon(vitalIcon(v.key), contentDescription = null, tint = v.metricColor, modifier = Modifier.size(16.dp))
+private fun VitalTile(v: Vital, modifier: Modifier, compact: Boolean, onClick: () -> Unit) {
+    val badge = if (compact) null else vitalBadge(v)
+    ForgeMetricTile(
+        label = if (compact) v.label else vitalPlainLabel(v.key, v.label),
+        value = v.value?.let(v.format),
+        unit = v.unit,
+        tint = v.metricColor,
+        trend = v.sparkline,
+        badge = badge,
+        minHeight = if (compact) 96.dp else 132.dp,
+        onClick = onClick,
+        modifier = modifier,
+    )
+}
+
+/** The vital's state badge, as iOS's badge(r): the state word and its tone. */
+@Composable
+private fun vitalBadge(v: Vital): Pair<String, ForgeBadgeTone>? {
+    return when {
+        v.key == "spo2raw" -> stringResource(R.string.forge_h_badge_uncalibrated) to ForgeBadgeTone.Neutral
+        v.banding.band == VitalBands.Band.NO_DATA -> stringResource(R.string.forge_tl_no_data) to ForgeBadgeTone.Neutral
+        v.isEstimate -> stringResource(R.string.forge_h_badge_estimated) to ForgeBadgeTone.Neutral
+        else -> {
+            val personal = v.banding.basis == VitalBands.Basis.PERSONAL
+            val inRange = v.banding.band == VitalBands.Band.IN_RANGE
+            when {
+                inRange -> stringResource(if (personal) R.string.forge_h_badge_in_range else R.string.forge_h_badge_typical) to ForgeBadgeTone.Good
+                else -> stringResource(if (personal) R.string.forge_h_off_baseline else R.string.forge_h_off_typical) to ForgeBadgeTone.Attention
             }
-            Spacer(Modifier.width(ForgeMetrics.space2 + ForgeMetrics.space1))
-            Text(v.label, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
-        Spacer(Modifier.height(ForgeMetrics.space2 + ForgeMetrics.space1))
-        Text(
-            buildAnnotatedString {
-                append(v.value?.let(v.format) ?: "–")
-                if (v.value != null && v.unit.isNotEmpty()) {
-                    withStyle(Forge.type.footnote.toSpanStyle().copy(color = colors.textSecondary)) { append(" " + v.unit) }
-                }
-            },
-            style = Forge.type.heroNumber, color = colors.text, maxLines = 1,
-        )
-        Spacer(Modifier.height(ForgeMetrics.space2))
-        if (v.sparkline.size > 1) Sparkline(v.sparkline, color = v.metricColor, showsArea = true)
-        VitalBadge(v)
     }
 }
 
-/**
- * The judgement under a vital tile, as iOS's `ForgeBadge`: in the wearer's range or the typical one, off it,
- * or "Estimated" for the strap's blood-oxygen figure. Nothing for an empty tile or the raw optical reading.
- */
+/** The full label for a vital, as iOS's plainLabel: the shared labels are abbreviated for dense screens. */
 @Composable
-private fun VitalBadge(v: Vital) {
-    if (v.banding.band == VitalBands.Band.NO_DATA || v.key == "spo2raw") return
-    val colors = Forge.colors
-    val personal = v.banding.basis == VitalBands.Basis.PERSONAL
-    val inRange = v.banding.band == VitalBands.Band.IN_RANGE
-    val (text, tint) = when {
-        v.isEstimate -> stringResource(R.string.forge_h_badge_estimated) to colors.textSecondary
-        inRange -> stringResource(if (personal) R.string.forge_h_badge_in_range else R.string.forge_h_badge_typical) to colors.charge
-        else -> stringResource(if (personal) R.string.forge_h_off_baseline else R.string.forge_h_off_typical) to colors.effort
+private fun vitalPlainLabel(key: String, defaultLabel: String): String {
+    return when (key) {
+        "rhr" -> stringResource(R.string.forge_h_vital_rhr_full)
+        "resp" -> stringResource(R.string.forge_h_vital_resp_full)
+        "spo2", "spo2raw" -> stringResource(R.string.forge_h_vital_spo2_full)
+        "skin" -> stringResource(R.string.forge_h_vital_skin_full)
+        else -> defaultLabel
     }
-    Spacer(Modifier.height(ForgeMetrics.space2))
-    Text(text, style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = tint, maxLines = 1,
-         modifier = Modifier.background(tint.copy(alpha = 0.14f), CircleShape).padding(horizontal = 10.dp, vertical = 3.dp))
 }
 
 /** The wearer's vital tiles in order and the tiles per row, as iOS's `ForgeVitalTileStore` keeps them (same keys). */

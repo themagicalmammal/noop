@@ -388,12 +388,13 @@ private fun TrendArea(values: List<Double>, tint: Color) {
 internal fun ForgeMetricTile(label: String, value: String?, unit: String?, tint: Color,
                               bars: List<Double>? = null, trend: List<Double>? = null,
                               modifier: Modifier = Modifier, badge: Pair<String, ForgeBadgeTone>? = null,
-                              axisLabels: List<String>? = null, onClick: (() -> Unit)? = null) {
+                              axisLabels: List<String>? = null, onClick: (() -> Unit)? = null,
+                              minHeight: Dp = 132.dp) {
     val colors = Forge.colors
     val hasBars = bars != null && bars.any { it > 0 }
     ForgeCard(modifier.let { if (onClick != null) it.clickable(role = Role.Button, onClick = onClick) else it },
               contentPadding = 16.dp) {
-        Column(Modifier.heightIn(min = 132.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(Modifier.heightIn(min = minHeight), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(label, style = Forge.type.footnote.copy(fontWeight = FontWeight.Medium), color = colors.textSecondary,
                  maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(buildAnnotatedString {
