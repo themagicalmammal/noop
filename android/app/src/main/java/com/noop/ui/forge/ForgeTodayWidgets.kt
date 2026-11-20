@@ -713,7 +713,7 @@ private fun GalleryRow(icon: androidx.compose.ui.graphics.vector.ImageVector, ti
         .padding(horizontal = ForgeMetrics.space4, vertical = 10.dp)
         .background(if (added) colors.accent.copy(alpha = 0.08f) else androidx.compose.ui.graphics.Color.Transparent),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Box(Modifier.size(36.dp).background(colors.accent.copy(alpha = 0.14f), CircleShape), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(36.dp).background(colors.accent.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
             Icon(icon, contentDescription = null, tint = colors.accent, modifier = Modifier.size(20.dp))
         }
         Column(Modifier.weight(1f)) {
