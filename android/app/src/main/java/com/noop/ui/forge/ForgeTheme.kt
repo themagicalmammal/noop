@@ -292,8 +292,9 @@ object ForgeMetrics {
     // The new design (preview) uses Apple's tight grouped corners, as iOS's `ForgeRadius.card` (14): 22 and 17 read
     // as soft and bubbly beside it. The shipped Forge keeps its tokens.
     val cardRadius: Dp get() = if (ForgeDesign.preview) NEW_DESIGN_CARD_RADIUS else ForgeTokens.NoopMetrics.cardRadius.dp
-    val groupedRadius: Dp get() = if (ForgeDesign.preview) NEW_DESIGN_CARD_RADIUS else ForgeTokens.NoopMetrics.groupedRadius.dp
+    val groupedRadius: Dp get() = if (ForgeDesign.preview) NEW_DESIGN_INNER_RADIUS else ForgeTokens.NoopMetrics.groupedRadius.dp
     private val NEW_DESIGN_CARD_RADIUS = 14.dp
+    private val NEW_DESIGN_INNER_RADIUS = 10.dp
     val heroRadius = ForgeTokens.NoopMetrics.heroRadius.dp
     val gap = ForgeTokens.NoopMetrics.gap.dp
     val sectionGap = ForgeTokens.NoopMetrics.sectionGap.dp
