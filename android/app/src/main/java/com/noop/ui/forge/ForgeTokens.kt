@@ -82,7 +82,7 @@ object ForgeTokens {
         const val rowSpacing: Float = 10f
         const val screenHPadding: Float = 16f
         const val screenPadding: Float = 16f
-        const val sectionGap: Float = 24f
+        const val sectionGap: Float = 14f
         const val sourceBadgeHeight: Float = 18f
         const val space1: Float = 4f
         const val space10: Float = 40f
