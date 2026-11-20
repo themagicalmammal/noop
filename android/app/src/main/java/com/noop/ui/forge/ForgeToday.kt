@@ -2,6 +2,7 @@ package com.noop.ui.forge
 
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Sensors
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.ui.draw.clip
 import android.text.format.DateFormat
 import androidx.compose.foundation.Canvas
@@ -732,8 +733,12 @@ private fun ScoreSlot(labelRes: Int, score: Double?, tint: Color, diameter: andr
             OrganicRing(score, tint, diameter, metric, Modifier.requiredSize(diameter), format)
         }
         Spacer(Modifier.height(ForgeMetrics.space2))
-        Text(label.uppercase() + CHEVRON, style = Forge.type.overline, color = Forge.colors.textSecondary, maxLines = 1,
-             overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+        Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+            Text(label.uppercase(), style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold).copy(letterSpacing = 1.5.sp),
+                 color = Forge.colors.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                 modifier = Modifier.weight(1f, true))
+            Icon(Icons.Rounded.ChevronRight, null, tint = Forge.colors.textSecondary, modifier = Modifier.size(11.dp))
+        }
     }
 }
 
