@@ -289,21 +289,19 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
         ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
             // The week read back, as iOS's first row of the group (`ForgeRoute.weeklyReport`).
             HubRow(Icons.Rounded.CalendarMonth, colors.accent, stringResource(R.string.forge_hv_weekly),
-                   stringResource(R.string.forge_hv_weekly_sub)) { weeklyOpen = true }
+                   stringResource(R.string.forge_hv_weekly_sub), compact = false, onClick = { weeklyOpen = true })
             HubDivider()
             HubRow(Icons.Rounded.ShowChart, colors.charge, stringResource(R.string.nav_trends),
-                   stringResource(R.string.forge_health_trends_sub)) { trendsOpen = true }
+                   stringResource(R.string.forge_health_trends_sub), compact = false, onClick = { trendsOpen = true })
             HubDivider()
             // What works sits between them, as iOS's Long term group lists it.
             if (MoreDest.Insights.shown(context)) {
                 HubRow(Icons.Rounded.Lightbulb, ForgeTokens.Color.systemYellow.resolve(), stringResource(R.string.forge_health_what_works),
-                       stringResource(R.string.forge_health_what_works_sub)) { open(MoreDest.Insights) }
+                       stringResource(R.string.forge_health_what_works_sub), compact = false, onClick = { open(MoreDest.Insights) })
                 HubDivider()
             }
             HubRow(Icons.Rounded.GridView, colors.accent, stringResource(R.string.forge_health_all_metrics),
-                   stringResource(R.string.forge_health_all_metrics_sub)) {
-                open(MoreDest.Explore)
-            }
+                   stringResource(R.string.forge_health_all_metrics_sub), compact = false, onClick = { open(MoreDest.Explore) })
         }
         Spacer(Modifier.height(ForgeMetrics.space4))
     }

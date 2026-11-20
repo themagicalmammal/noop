@@ -783,21 +783,28 @@ internal fun SettingsColumn(content: @Composable ColumnScope.() -> Unit) {
     )
 }
 
-/** One hub row as iOS draws it (`SettingsHubRow`): icon tile, title over subtitle, chevron. */
+/** One hub row as iOS draws it (`ForgeRow`): icon tile, title over subtitle, chevron. */
 @Composable
-internal fun HubRow(icon: ImageVector, tint: Color, title: String, subtitle: String, onClick: () -> Unit) {
+internal fun HubRow(icon: ImageVector, tint: Color, title: String, subtitle: String, onClick: () -> Unit, compact: Boolean = true) {
     val colors = Forge.colors
     Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = ForgeMetrics.space4, vertical = ForgeMetrics.space3),
         verticalAlignment = Alignment.CenterVertically) {
-        // `appleInspiredMenuIcon`: a 30 pt tile, corner 0.28 of its size, the white symbol at half its size.
-        Box(Modifier.size(30.dp).background(tint, RoundedCornerShape(8.4.dp)), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
+        if (compact) {
+            // Settings rows: white glyph on a coloured square.
+            Box(Modifier.size(30.dp).background(tint, RoundedCornerShape(8.4.dp)), contentAlignment = Alignment.Center) {
+                Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
+            }
+        } else {
+            // List rows: coloured glyph on a wash circle, as iOS's non-compact ForgeRow.
+            Box(Modifier.size(38.dp).background(tint.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
+                Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
+            }
         }
         Spacer(Modifier.width(ForgeMetrics.space3))
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space1)) {
-            Text(title, style = Forge.type.body, color = colors.text)
-            if (subtitle.isNotEmpty()) Text(subtitle, style = Forge.type.subhead, color = colors.textSecondary)
+            Text(title, style = Forge.type.body.copy(fontWeight = if (compact) FontWeight.Normal else FontWeight.SemiBold), color = colors.text)
+            if (subtitle.isNotEmpty()) Text(subtitle, style = if (compact) Forge.type.subhead else Forge.type.footnote, color = colors.textSecondary)
         }
         Spacer(Modifier.width(ForgeMetrics.space2))
         Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = colors.textTertiary, modifier = Modifier.size(18.dp))
