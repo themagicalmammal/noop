@@ -601,8 +601,9 @@ internal fun ForgeMetricTrendPage(metric: CoreRead.Metric, titleRes: Int, unit: 
     LaunchedEffect(metric) {
         points = withContext(Dispatchers.IO) {
             CoreRead.open(context)
+            val rev = com.noop.core.CoreShadow.dataRevision.value
             val today = LocalDate.now()
-            CoreRead.series(metric, today.minusDays(179).toString(), today.toString())
+            CoreCache.series(metric, today.minusDays(179).toString(), today.toString(), rev)
         }
     }
     SettingsColumn {
