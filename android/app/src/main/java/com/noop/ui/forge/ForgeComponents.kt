@@ -241,9 +241,9 @@ private const val MIN_TILE_SCALE = 0.6f
 fun SectionHeader(text: String, modifier: Modifier = Modifier) {
     // The new design heads its sections as iOS's ForgeSectionTitle (`ForgeFont.section`, 20 pt bold), in sentence case.
     if (ForgeDesign.preview) Text(text, style = Forge.type.title2, color = Forge.colors.text,
-                                  modifier = modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.space1))
+                                  modifier = modifier.fillMaxWidth().padding(top = 12.dp, start = ForgeMetrics.space1, end = ForgeMetrics.space1))
     else Text(text.uppercase(), style = Forge.type.overline, color = Forge.colors.textSecondary,
-              modifier = modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.space1))
+              modifier = modifier.fillMaxWidth().padding(top = 12.dp, start = ForgeMetrics.space1, end = ForgeMetrics.space1))
 }
 
 /**
