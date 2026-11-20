@@ -177,7 +177,7 @@ internal fun SleepNightCard(night: CoreRead.Night, isLatest: Boolean, zone: Zone
                  style = Forge.type.caption, color = colors.textSecondary, maxLines = 1)
             // The same editor the full Sleep screen opened, here in place (iOS `nightCard`'s pencil).
             if (onEdit != null) androidx.compose.material3.IconButton(onClick = onEdit) {
-                Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.forge_sl_edit_times), tint = colors.rest,
+                Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.forge_sl_edit_times), tint = colors.restInk,
                      modifier = Modifier.size(20.dp))
             }
         }
@@ -485,7 +485,7 @@ internal fun SleepHighlights(night: CoreRead.Night, model: com.noop.ui.SleepMode
                 Column(Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.size(38.dp).background(colors.rest.copy(alpha = 0.15f), CircleShape), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Rounded.Schedule, contentDescription = null, tint = colors.rest, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Rounded.Schedule, contentDescription = null, tint = colors.restInk, modifier = Modifier.size(18.dp))
                         }
                         Spacer(Modifier.width(ForgeMetrics.space3))
                         Column(Modifier.weight(1f)) {
@@ -645,7 +645,7 @@ internal fun SleepHistory(days: List<DailyMetric>, need: Double) {
             }
             Spacer(Modifier.height(ForgeMetrics.space3))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                repeat(3) { Box(Modifier.padding(end = 2.dp).size(3.dp).background(colors.rest, CircleShape)) }
+                repeat(3) { Box(Modifier.padding(end = 2.dp).size(3.dp).background(colors.restInk, CircleShape)) }
                 Spacer(Modifier.width(4.dp))
                 Text(stringResource(R.string.forge_sl_need, TodayTimeline.hoursMinutes(need)), style = Forge.type.caption,
                      color = colors.textSecondary)
