@@ -82,12 +82,13 @@ class HrGlanceWidget : GlanceAppWidget() {
 
 // Local widget colours, mirroring the siblings rather than reading Palette: Glance composes outside the
 // app theme, so every widget in this package carries its own copy on purpose.
-/** The card colour as a raw Color, so the renderer can paint it as the bitmap's ground. */
-private fun hrSurfaceColor(dark: Boolean) = if (dark) Color(0xFF0A1322) else Color(0xFFF4F1EA)
+/** The card colour, resolved from the Forge profile. */
+private fun hrSurfaceColor(ctx: Context, dark: Boolean) = ForgeWidgetColors.surfaceColor(ctx, dark)
 
-private fun hrSurface(dark: Boolean) = ColorProvider(hrSurfaceColor(dark))
-private fun hrTextPrimary(dark: Boolean) = ColorProvider(if (dark) Color(0xFFF4F6F8) else Color(0xFF1A2230))
-private fun hrTextSecondary(dark: Boolean) = ColorProvider(if (dark) Color(0xFF8A94A4) else Color(0xFF7C8696))
+/** The card surface as a ColorProvider. */
+private fun hrSurface(ctx: Context, dark: Boolean) = ForgeWidgetColors.surface(ctx, dark)
+private fun hrTextPrimary(dark: Boolean) = ForgeWidgetColors.textPrimary(dark)
+private fun hrTextSecondary(dark: Boolean) = ForgeWidgetColors.textSecondary(dark)
 
 /** Card padding, both sides. The chart and the axis under it must subtract the SAME figure or the
  *  labels drift out of line with the trace they annotate. */
@@ -121,13 +122,14 @@ private fun hrAccent(dark: Boolean) = if (dark) Color(0xFFE0662F) else Color(0xF
 
 @Composable
 private fun HrWidgetContent(snap: WidgetSnapshot, dark: Boolean) {
+    val context = LocalContext.current
     val size = LocalSize.current
     val stats = HrTrace.stats(snap.hrSeries)
 
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(hrSurface(dark))
+            .background(hrSurface(context, dark))
             .cornerRadius(16.dp)
             .padding(14.dp)
             .clickable(actionStartActivity<MainActivity>()),
@@ -273,7 +275,7 @@ private fun HrTraceImage(
             heightPx = hPx,
             lineColor = hrAccent(dark).toArgb(),
             fillTopColor = hrAccent(dark).copy(alpha = 0.35f).toArgb(),
-            backgroundColor = hrSurfaceColor(dark).toArgb(),
+            backgroundColor = hrSurfaceColor(context, dark).toArgb(),
             strokePx = 2f * density,
         )
     }.getOrNull()
