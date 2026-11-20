@@ -478,6 +478,13 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                                              "goalJourney" -> more.push(MoreRoute.Dest(MoreDest.Goals))
                                              "plan" -> selectTab(ForgeTab.Coach)
                                          }
+                                     },
+                                     onDayLog = { kind ->
+                                         when (kind) {
+                                             "drink" -> more.push(MoreRoute.Dest(MoreDest.Hydration))
+                                             "food" -> more.push(MoreRoute.Dest(MoreDest.Food))
+                                             "journal" -> more.push(MoreRoute.Dest(MoreDest.Insights))
+                                         }
                                      })
                 ForgeTodayWidgetArea(model, viewModel, width, editing = editingWidgets, onEditing = { editingWidgets = it },
                                      onOpenTrainingLoad = { more.push(MoreRoute.Dest(MoreDest.TrainingLoad)) },
@@ -497,6 +504,13 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                                              "chargeBreakdown" -> timelineCharge = true
                                              "goalJourney" -> more.push(MoreRoute.Dest(MoreDest.Goals))
                                              "plan" -> selectTab(ForgeTab.Coach)
+                                         }
+                                     },
+                                     onDayLog = { kind ->
+                                         when (kind) {
+                                             "drink" -> more.push(MoreRoute.Dest(MoreDest.Hydration))
+                                             "food" -> more.push(MoreRoute.Dest(MoreDest.Food))
+                                             "journal" -> more.push(MoreRoute.Dest(MoreDest.Insights))
                                          }
                                      })
             } else if (style != "liquid") {

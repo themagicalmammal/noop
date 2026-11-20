@@ -232,7 +232,7 @@ internal object TodayTimeline {
 }
 
 @Composable
-internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit, onDestination: ((String) -> Unit)? = null) {
+internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit, onDestination: ((String) -> Unit)? = null, onDayLog: ((String) -> Unit)? = null) {
     val context = LocalContext.current
     val workouts by viewModel.workouts.collectAsState()
     var nights by remember { mutableStateOf<List<CoreRead.Night>>(emptyList()) }
@@ -421,19 +421,24 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit, on
                                     "%.1f".format(java.util.Locale.getDefault(), e.kg), "kg")
                         }
                         is TodayTimeline.Entry.DayLog -> RailRow(time(context, e.endTs), Forge.colors.accent, last, cardNew) {
+                            val nav = { kind: String -> onDayLog?.invoke(kind) }
                             when (e.kind) {
                                 "drink" -> FactRow(Icons.Rounded.WaterDrop, ForgeTokens.StrandPalette.metricCyan.resolve(),
                                     stringResource(R.string.forge_tl_drink), "",
-                                    "%.1f".format(java.util.Locale.getDefault(), e.value / 1000), "L")
+                                    "%.1f".format(java.util.Locale.getDefault(), e.value / 1000), "L",
+                                    onClick = { nav("drink") })
                                 "food" -> FactRow(Icons.Rounded.Restaurant, Forge.colors.effort,
                                     stringResource(R.string.forge_tl_food), "",
-                                    e.value.toInt().toString(), "kcal")
+                                    e.value.toInt().toString(), "kcal",
+                                    onClick = { nav("food") })
                                 "journal" -> FactRow(Icons.Rounded.Book, Forge.colors.accent,
                                     stringResource(R.string.forge_tl_journal), "",
-                                    e.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
+                                    e.value.toInt().toString(), stringResource(R.string.forge_tl_entries),
+                                    onClick = { nav("journal") })
                                 else -> FactRow(Icons.Rounded.Book, Forge.colors.accent,
                                     stringResource(R.string.forge_tl_journal), "",
-                                    e.value.toInt().toString(), stringResource(R.string.forge_tl_entries))
+                                    e.value.toInt().toString(), stringResource(R.string.forge_tl_entries),
+                                    onClick = { nav("journal") })
                             }
                         }
                         is TodayTimeline.Entry.Coach -> RailRow(time(context, e.endTs), Forge.colors.accent, last, cardNew) {
@@ -704,9 +709,9 @@ private fun WakeEntry(e: TodayTimeline.Entry.Wake) {
 
 /** The entry's icon on its wash, its title and detail, and the figure large with its unit small (iOS `factRow`). */
 @Composable
-private fun FactRow(icon: ImageVector, tint: Color, title: String, detail: String, value: String?, unit: String) {
+private fun FactRow(icon: ImageVector, tint: Color, title: String, detail: String, value: String?, unit: String, onClick: (() -> Unit)? = null) {
     val colors = Forge.colors
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = if (onClick != null) Modifier.clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onClick) else Modifier) {
         Box(Modifier.size(34.dp).background(tint.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
             Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
         }
