@@ -15,6 +15,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.MonitorHeart
+import androidx.compose.material.icons.rounded.DirectionsWalk
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.WaterDrop
+import androidx.compose.material.icons.rounded.Air
+import androidx.compose.material.icons.rounded.Thermostat
+import androidx.compose.material.icons.rounded.DirectionsRun
+import androidx.compose.material.icons.rounded.MonitorWeight
+import androidx.compose.material.icons.rounded.Psychology
+import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.material.icons.rounded.Timeline
+import androidx.compose.material.icons.rounded.Alarm
+import androidx.compose.material.icons.rounded.Spa
+import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.rounded.ShowChart
+import androidx.compose.material.icons.rounded.FitnessCenter
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.AccessibilityNew
+import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.Mood
+import androidx.compose.material.icons.rounded.HourglassBottom
 import androidx.compose.material.icons.rounded.WbTwilight
 import androidx.compose.material.icons.rounded.CompareArrows
 import androidx.compose.material.icons.rounded.ShowChart
@@ -29,6 +50,7 @@ import androidx.compose.material.icons.rounded.LocalFireDepartment
 import androidx.compose.material.icons.rounded.MonitorWeight
 import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.MonitorHeart
+import androidx.compose.material.icons.rounded.DirectionsWalk
 import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.BarChart
@@ -136,6 +158,35 @@ internal fun HealthFocusGrid(onOpen: (FocusArea) -> Unit) {
 /** One measure on a focus page: its series key and preferred source, as iOS's `ForgeFocusArea.metrics`. */
 internal data class FocusMeasure(val key: String, val source: String, val titleRes: Int, val unit: String, val decimals: Int)
 
+/** The icon for a focus-page measure, as iOS's `ForgeVitalTile.symbol`: each measure carries its own, so the
+ * tiles read as different things rather than one area's symbol stamped on every tile. */
+internal fun measureIcon(key: String): androidx.compose.ui.graphics.vector.ImageVector = when (key) {
+    "hrv" -> Icons.Rounded.MonitorHeart
+    "rhr", "avg_hr" -> Icons.Rounded.Favorite
+    "spo2", "spo2raw" -> Icons.Rounded.WaterDrop
+    "resp_rate" -> Icons.Rounded.Air
+    "skin_temp" -> Icons.Rounded.Thermostat
+    "vo2max_est" -> Icons.Rounded.DirectionsRun
+    "weight" -> Icons.Rounded.MonitorWeight
+    "stress" -> Icons.Rounded.Psychology
+    "steps" -> Icons.Rounded.DirectionsWalk
+    "sleep_performance", "sleep_total_min" -> Icons.Rounded.Bedtime
+    "sleep_consistency" -> Icons.Rounded.Timeline
+    "sleep_debt_min" -> Icons.Rounded.Alarm
+    "restorative_min" -> Icons.Rounded.Spa
+    "sleep_efficiency" -> Icons.Rounded.Shield
+    "hr_zones13_min" -> Icons.Rounded.ShowChart
+    "strength_min" -> Icons.Rounded.FitnessCenter
+    "strain" -> Icons.Rounded.Bolt
+    "body_fat" -> Icons.Rounded.MonitorWeight
+    "lean_mass" -> Icons.Rounded.AccessibilityNew
+    "calories_in" -> Icons.Rounded.LocalFireDepartment
+    "active_kcal" -> Icons.Rounded.LocalFireDepartment
+    "mood" -> Icons.Rounded.Mood
+    "fitness_age" -> Icons.Rounded.HourglassBottom
+    else -> Icons.Rounded.MonitorHeart
+}
+
 /** One entry under a focus page's tiles: a page or a tab, as iOS's `FocusLink`. */
 private data class FocusLink(val titleRes: Int, val subRes: Int, val icon: androidx.compose.ui.graphics.vector.ImageVector,
                              val tint: Color, val dest: MoreDest? = null, val action: String? = null)
@@ -189,32 +240,32 @@ private fun focusLinks(area: FocusArea, context: android.content.Context): List<
     val I = androidx.compose.material.icons.Icons.Rounded
     return when (area) {
         FocusArea.Fitness -> listOf(FocusLink(R.string.forge_fl_cardio, R.string.forge_fl_cardio_sub, I.DirectionsRun, c.effort, MoreDest.Cardio),
-            FocusLink(R.string.forge_fl_strength, R.string.forge_fl_strength_sub, androidx.compose.material.icons.Icons.Rounded.FitnessCenter, c.rest, MoreDest.Strength),
-            FocusLink(R.string.forge_fl_load, R.string.forge_fl_load_sub, androidx.compose.material.icons.Icons.Rounded.BarChart, c.effort, MoreDest.TrainingLoad),
-            FocusLink(R.string.forge_fl_workouts, R.string.forge_fl_workouts_sub, androidx.compose.material.icons.Icons.Rounded.CalendarMonth, c.effort, MoreDest.Workouts))
+            FocusLink(R.string.forge_fl_strength, R.string.forge_fl_strength_sub, Icons.Rounded.FitnessCenter, c.rest, MoreDest.Strength),
+            FocusLink(R.string.forge_fl_load, R.string.forge_fl_load_sub, Icons.Rounded.BarChart, c.effort, MoreDest.TrainingLoad),
+            FocusLink(R.string.forge_fl_workouts, R.string.forge_fl_workouts_sub, Icons.Rounded.CalendarMonth, c.effort, MoreDest.Workouts))
         FocusArea.Sleep -> listOf(FocusLink(R.string.forge_fl_sleep, R.string.forge_fl_sleep_sub, I.Bedtime, c.rest, action = "sleep"),
-            FocusLink(R.string.forge_fl_alarm, R.string.forge_fl_alarm_sub, androidx.compose.material.icons.Icons.Rounded.Alarm, c.rest, MoreDest.Alarms))
-        FocusArea.Vitals -> listOf(FocusLink(R.string.forge_fl_hr, R.string.forge_fl_hr_sub, androidx.compose.material.icons.Icons.Rounded.MonitorHeart, red, MoreDest.Health),
+            FocusLink(R.string.forge_fl_alarm, R.string.forge_fl_alarm_sub, Icons.Rounded.Alarm, c.rest, MoreDest.Alarms))
+        FocusArea.Vitals -> listOf(FocusLink(R.string.forge_fl_hr, R.string.forge_fl_hr_sub, Icons.Rounded.MonitorHeart, red, MoreDest.Health),
             FocusLink(R.string.forge_fl_ecg, R.string.forge_fl_ecg_sub, I.Favorite, pink, MoreDest.Ecg),
-            FocusLink(R.string.forge_fl_rhythm, R.string.forge_fl_rhythm_sub, androidx.compose.material.icons.Icons.Rounded.GraphicEq, pink, MoreDest.BeatRhythm))
-        FocusArea.Body -> listOfNotNull(FocusLink(R.string.forge_fl_weight, R.string.forge_fl_weight_sub, androidx.compose.material.icons.Icons.Rounded.MonitorWeight, indigo, MoreDest.Body),
+            FocusLink(R.string.forge_fl_rhythm, R.string.forge_fl_rhythm_sub, Icons.Rounded.GraphicEq, pink, MoreDest.BeatRhythm))
+        FocusArea.Body -> listOfNotNull(FocusLink(R.string.forge_fl_weight, R.string.forge_fl_weight_sub, Icons.Rounded.MonitorWeight, indigo, MoreDest.Body),
             FocusLink(R.string.forge_fl_body, R.string.forge_fl_body_sub, I.Accessibility, teal, MoreDest.Body),
-            FocusLink(R.string.forge_fl_energy, R.string.forge_fl_energy_sub, androidx.compose.material.icons.Icons.Rounded.LocalFireDepartment, orange, MoreDest.Energy),
-            FocusLink(R.string.forge_fl_records, R.string.forge_fl_records_sub, androidx.compose.material.icons.Icons.Rounded.Science, purple, MoreDest.Biomarkers),
-            FocusLink(R.string.forge_fl_cycle, R.string.forge_fl_cycle_sub, androidx.compose.material.icons.Icons.Rounded.WaterDrop, c.cyclePeriod, action = "cycle")
+            FocusLink(R.string.forge_fl_energy, R.string.forge_fl_energy_sub, Icons.Rounded.LocalFireDepartment, orange, MoreDest.Energy),
+            FocusLink(R.string.forge_fl_records, R.string.forge_fl_records_sub, Icons.Rounded.Science, purple, MoreDest.Biomarkers),
+            FocusLink(R.string.forge_fl_cycle, R.string.forge_fl_cycle_sub, Icons.Rounded.WaterDrop, c.cyclePeriod, action = "cycle")
                 .takeIf { com.noop.ui.NoopPrefs.cycleTracking(context) })
-        FocusArea.Mind -> listOf(FocusLink(R.string.forge_fl_stress, R.string.forge_fl_stress_sub, androidx.compose.material.icons.Icons.Rounded.Bolt, orange, MoreDest.Stress),
-            FocusLink(R.string.forge_fl_breathe, R.string.forge_fl_breathe_sub, androidx.compose.material.icons.Icons.Rounded.Air, teal, MoreDest.Breathe),
-            FocusLink(R.string.forge_fl_works, R.string.forge_fl_works_sub, androidx.compose.material.icons.Icons.Rounded.Lightbulb, yellow, MoreDest.Insights),
-            FocusLink(R.string.forge_fl_journal, R.string.forge_fl_journal_sub, androidx.compose.material.icons.Icons.Rounded.Book, brown, MoreDest.Journal),
-            FocusLink(R.string.forge_fl_momentum, R.string.forge_fl_momentum_sub, androidx.compose.material.icons.Icons.Rounded.Bolt, orange, MoreDest.Momentum))
+        FocusArea.Mind -> listOf(FocusLink(R.string.forge_fl_stress, R.string.forge_fl_stress_sub, Icons.Rounded.Bolt, orange, MoreDest.Stress),
+            FocusLink(R.string.forge_fl_breathe, R.string.forge_fl_breathe_sub, Icons.Rounded.Air, teal, MoreDest.Breathe),
+            FocusLink(R.string.forge_fl_works, R.string.forge_fl_works_sub, Icons.Rounded.Lightbulb, yellow, MoreDest.Insights),
+            FocusLink(R.string.forge_fl_journal, R.string.forge_fl_journal_sub, Icons.Rounded.Book, brown, MoreDest.Journal),
+            FocusLink(R.string.forge_fl_momentum, R.string.forge_fl_momentum_sub, Icons.Rounded.Bolt, orange, MoreDest.Momentum))
         FocusArea.More -> listOfNotNull(
-            FocusLink(R.string.forge_fl_ageless_sub, R.string.forge_fl_ageless_sub, androidx.compose.material.icons.Icons.Rounded.HourglassBottom, c.charge, MoreDest.AgeLess)
+            FocusLink(R.string.forge_fl_ageless_sub, R.string.forge_fl_ageless_sub, Icons.Rounded.HourglassBottom, c.charge, MoreDest.AgeLess)
                 .takeIf { MoreDest.AgeLess.shown(context) },
-            FocusLink(R.string.forge_fl_trends, R.string.forge_fl_trends_sub, androidx.compose.material.icons.Icons.Rounded.ShowChart, c.charge, action = "trends"),
+            FocusLink(R.string.forge_fl_trends, R.string.forge_fl_trends_sub, Icons.Rounded.ShowChart, c.charge, action = "trends"),
             FocusLink(R.string.forge_fl_all, R.string.forge_fl_all_sub, I.GridView, blue, MoreDest.Explore),
-            FocusLink(R.string.forge_fl_compare, R.string.forge_fl_compare_sub, androidx.compose.material.icons.Icons.Rounded.CompareArrows, blue, MoreDest.Compare),
-            FocusLink(R.string.forge_fl_rhythm_age, R.string.forge_fl_rhythm_age_sub, androidx.compose.material.icons.Icons.Rounded.WbTwilight, c.charge, MoreDest.RhythmAge)
+            FocusLink(R.string.forge_fl_compare, R.string.forge_fl_compare_sub, Icons.Rounded.CompareArrows, blue, MoreDest.Compare),
+            FocusLink(R.string.forge_fl_rhythm_age, R.string.forge_fl_rhythm_age_sub, Icons.Rounded.WbTwilight, c.charge, MoreDest.RhythmAge)
                 .takeIf { MoreDest.RhythmAge.shown(context) })
     }
 }
@@ -272,7 +323,7 @@ internal fun FocusAreaPage(area: FocusArea, viewModel: com.noop.ui.AppViewModel,
                     pair.forEach { t ->
                         val key = t.key
                         val values = t.values
-                        MetricTile(area.icon, tint, t.label, t.value, t.unit.ifEmpty { null }, noData,
+                        MetricTile(measureIcon(t.key ?: "hrv"), tint, t.label, t.value, t.unit.ifEmpty { null }, noData,
                                    Modifier.weight(1f).clickable(role = Role.Button) {
                                        // A measure with a page of its own opens it, as iOS opens `MetricDetailView`.
                                        val vital = key?.let(CATALOG_VITAL_PAGES::get)
