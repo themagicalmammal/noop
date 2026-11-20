@@ -412,7 +412,7 @@ internal fun rememberOpenSearch(): (() -> Unit)? {
 /** A section's title above its card, as iOS's `ForgeSectionHeading`: bold, sentence case. */
 @Composable
 private fun Heading(text: String) {
-    Text(text, style = Forge.type.headline.copy(fontWeight = FontWeight.Bold), color = Forge.sceneInk.text,
+    Text(text, style = Forge.type.title2, color = Forge.sceneInk.text,
          modifier = Modifier.padding(top = ForgeMetrics.space3))
 }
 
