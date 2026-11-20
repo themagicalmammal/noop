@@ -44,6 +44,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.noop.R
 import com.noop.core.CoreFood
 import java.text.NumberFormat
@@ -176,19 +177,19 @@ private fun FoodMiniPlate(kcal: Double, macros: List<Double>, modifier: Modifier
 internal fun FoodScoreRow(score: CoreFood.Score?, loggedDays: Int, onOpen: () -> Unit) {
     val colors = Forge.colors
     val leaf = nutrientTint("fiber_g", colors.dark)
-    ForgeCard(Modifier.fillMaxWidth().clickable(enabled = score != null, role = Role.Button, onClick = onOpen)) {
+    ForgeCard(Modifier.fillMaxWidth().clickable(enabled = score != null, role = Role.Button, onClick = onOpen), contentPadding = 12.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(34.dp).background(leaf.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
                 Icon(Icons.Rounded.Eco, null, tint = leaf, modifier = Modifier.size(18.dp))
             }
             Spacer(Modifier.width(ForgeMetrics.space3))
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(stringResource(R.string.food_score_title), style = Forge.type.headline, color = colors.text)
                 Text(if (score != null) stringResource(R.string.food_score_week, scoreWord(score.score))
                      else stringResource(R.string.food_score_after, loggedDays),
                      style = Forge.type.footnote, color = colors.textSecondary)
             }
-            if (score != null) Text(score.score.roundToInt().toString(), style = Forge.type.title1, color = colors.text)
+            if (score != null) Text(score.score.roundToInt().toString(), style = Forge.type.figure.copy(fontSize = 24.sp, fontWeight = FontWeight.Bold), color = colors.text)
             Icon(Icons.Rounded.ChevronRight, null, tint = colors.textSecondary)
         }
     }
