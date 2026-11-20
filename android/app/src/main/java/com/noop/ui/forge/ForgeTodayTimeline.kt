@@ -35,6 +35,11 @@ import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material.icons.rounded.DirectionsWalk
 import androidx.compose.material.icons.rounded.Book
 import androidx.compose.material.icons.rounded.WaterDrop
+import androidx.compose.material.icons.rounded.Flag
+import androidx.compose.material.icons.rounded.Devices
+
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.PersonalInjury
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -339,6 +344,9 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
         TodayTimeline.entries(workouts, nights, naps, now, zone, meals, ecgs, notices, weighIns, weightChange, dayEnd,
                               coachNotes.filter { it.id != hintNoteId }, dayLogs)
     }
+    // Hidden entries: the reader swiped them away, like iOS's hiddenRaw.
+    val hiddenRaw = timelinePrefs.getString("forge.timeline.hidden", "") ?: ""
+    val hiddenIds = remember(hiddenRaw) { hiddenRaw.split("\n").filter { it.isNotEmpty() }.toSet() }
     // An entry is "new" if it appeared after the reader last left Today.
     val isNew: (TodayTimeline.Entry) -> Boolean = { entry -> seenBefore > 0 && entry.endTs > seenBefore }
     // "Yesterday" by the logical day, as iOS's rail (`logicalDayKey`): an evening workout seen after midnight
@@ -426,8 +434,13 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit) {
                         }
                         is TodayTimeline.Entry.DayEnd -> RailRow(time(context, e.endTs), Forge.colors.rest, last, cardNew) { DayEndEntry(e, todayRow) }
                         is TodayTimeline.Entry.Notice -> RailRow(time(context, e.endTs), Forge.colors.textTertiary, last, cardNew) {
+                            val (icon, tint) = noticeLook(e.notice)
                             ForgeCard(Modifier.fillMaxWidth()) {
-                                Text(e.notice.headline, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text)
+                                Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.Top) {
+                                    Icon(icon, null, tint = tint, modifier = Modifier.size(20.dp))
+                                    Text(e.notice.headline, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text,
+                                         modifier = Modifier.weight(1f).padding(start = 8.dp))
+                                }
                                 if (e.notice.detail.isNotEmpty()) Text(e.notice.detail, style = Forge.type.caption, color = Forge.colors.textSecondary,
                                                                        modifier = Modifier.padding(top = 4.dp))
                             }
@@ -501,6 +514,28 @@ internal fun CoachWhySheet(note: com.noop.core.CoreCoach.Note, onDismiss: () -> 
                  modifier = Modifier.align(Alignment.End).clickable(onClick = onDismiss).padding(8.dp))
         }
     }
+}
+
+/** A notice's symbol from its topic and its colour from its tone, for its card (iOS `noticeLook`). */
+@Composable
+private fun noticeLook(notice: TodayNotices.Notice): Pair<ImageVector, Color> {
+    val tint = when (notice.tone) {
+        "positive" -> Forge.colors.charge
+        "neutral" -> Forge.colors.accent
+        "caution" -> Forge.colors.effort
+        "critical" -> if (notice.key == "healthAlert") Forge.colors.effort else Forge.colors.effort
+        else -> Forge.colors.accent
+    }
+    val symbol = when (notice.topic) {
+        "sleep" -> Icons.Rounded.Bedtime
+        "load" -> Icons.Rounded.FitnessCenter
+        "bodySignals" -> Icons.Rounded.MonitorHeart
+        "movement" -> Icons.Rounded.DirectionsWalk
+        "device" -> Icons.Rounded.Devices
+        "goals" -> Icons.Rounded.Flag
+        else -> Icons.Rounded.Info
+    }
+    return symbol to tint
 }
 
 /** One row of the rail: the time in its column, a dot on the line, the entry beside them. */
