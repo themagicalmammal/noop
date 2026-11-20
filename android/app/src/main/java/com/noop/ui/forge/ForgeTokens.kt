@@ -249,6 +249,7 @@ object ForgeTokens {
         val restDeep = ForgeColor(light = 0xFF403DB0, dark = 0xFF4644B8)
         val restGlow = ForgeColor(light = 0xFF5856D6, dark = 0xFF5E5CE6)
         val restInk = ForgeColor(light = 0xFF3F3398, dark = 0xFFC2B5FB)
+        val effortInk = ForgeColor(light = 0xFF8C3911, dark = 0xFFB07A)
         val scenicCenter = ForgeColor(light = 0xFFFBF6EA, dark = 0xFF1C2128)
         val scenicEdge = ForgeColor(light = 0xFFEDE6D6, dark = 0xFF121518)
         val scenicStar = ForgeColor(light = 0xFFD8CDB6, dark = 0xFFC8CFD8)

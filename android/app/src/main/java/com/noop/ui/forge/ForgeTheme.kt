@@ -43,7 +43,7 @@ data class ForgeColors(
     val onDark: Color, val onDarkSecondary: Color, val onDarkTertiary: Color,
     val heroFill: Color, val heroBorder: Color,
     val accent: Color, val trainingAccent: Color,
-    val charge: Color, val effort: Color, val rest: Color, val restInk: Color, val missing: Color,
+    val charge: Color, val effort: Color, val rest: Color, val restInk: Color, val effortInk: Color, val missing: Color,
     val recoveryStops: List<Pair<Float, Color>>,
     val sleepDeep: Color, val sleepLight: Color, val sleepRem: Color, val sleepAwake: Color,
     val heart: Color,
@@ -171,6 +171,7 @@ fun forgeColors(dark: Boolean, newDesign: Boolean = ForgeDesign.preview,
     trainingAccent = P.trainingAccent.pick(dark),
     charge = P.chargeColor.pick(dark), effort = P.organicEffort.pick(dark), rest = P.organicRest.pick(dark),
     restInk = P.restInk.pick(dark),
+    effortInk = P.effortInk.pick(dark),
     missing = P.organicMissing.pick(dark),
     // The Signature style's recovery ramp, the stops `StrandPalette.recoveryStops` gives the score ring.
     recoveryStops = listOf(
