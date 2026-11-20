@@ -328,13 +328,13 @@ private fun componentAmount(p: CoreFood.ScorePart): String {
 @Composable
 internal fun FoodHabitCard(habit: CoreFood.Habit, onAdd: () -> Unit, onDismiss: () -> Unit) {
     val colors = Forge.colors
-    ForgeCard(Modifier.fillMaxWidth().alpha(0.86f)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    ForgeCard(Modifier.fillMaxWidth().alpha(0.86f), contentPadding = 12.dp) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             foodMotifDrawable(habit.motif)?.let { res ->
                 FoodMotifPicture(res, Modifier.size(56.dp))
                 Spacer(Modifier.width(ForgeMetrics.space3))
             }
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(stringResource(R.string.food_as_usual, mealName(habit.kind)), style = Forge.type.footnote, color = colors.textSecondary)
                 Text(habit.entries.joinToString(", ") { it.name.substringBefore(", ") }, style = Forge.type.body, color = colors.text, maxLines = 2)
                 Text(stringResource(R.string.forge_ed_kcal, kcalText(habit.entries.sumOf { it.totals["energy_kcal"] ?: 0.0 })), style = Forge.type.footnote, color = colors.textSecondary)
