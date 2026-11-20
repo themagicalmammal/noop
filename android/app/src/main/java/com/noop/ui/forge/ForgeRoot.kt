@@ -1,6 +1,8 @@
 package com.noop.ui.forge
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.padding
 import android.content.Context
 import android.content.Intent
@@ -105,22 +107,37 @@ fun ForgeRoot(viewModel: AppViewModel) {
             // The tabs lie under the More page while it is open.
             LocalForgeCovered provides (LocalForgeCovered.current || (moreOpen && ForgeDesign.preview))) {
         ForgeShell { tab, padding, width ->
-            // Only the visible tab is composed; its data stays fresh via CoreCache.
-            when (tab) {
-                ForgeTab.Today ->
-                    if (!ForgeDesign.preview && DashboardStylePrefs.style(context) == "classic") ForgeClassicToday(padding, viewModel)
-                    else ForgeTodayScreen(padding, width, viewModel)
-                ForgeTab.Trends -> ForgeTrendsScreen(padding, width, viewModel)
-                ForgeTab.Health -> ForgeHealthTab(padding, width, viewModel)
-                ForgeTab.Training -> ForgeTrainingScreen(padding, viewModel)
-                ForgeTab.Sleep -> ForgeSleepScreen(padding, width, viewModel)
-                ForgeTab.More -> ForgeMoreScreen(padding, viewModel)
-                ForgeTab.Coach -> {
-                    val select = LocalForgeTabSelect.current
-                    androidx.activity.compose.BackHandler { select(ForgeTab.Today) }
-                    androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.padding(padding)) {
-                        ForgeCoachChatPages(viewModel, androidx.compose.ui.res.stringResource(com.noop.R.string.nav_coach),
-                                            onBack = { select(ForgeTab.Today) })
+            // All tabs stay composed so their state survives switches, as iOS keeps all
+            // tab view controllers alive. Hidden tabs are offset off-screen so their
+            // scroll areas do not overlap the visible tab and cannot steal gestures.
+            val visibleTabs = ForgeDesign.tabs(ForgeDesign.preview, com.noop.ui.BottomBarStyleStore.coachEnabled)
+            androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
+                for (t in visibleTabs) {
+                    val isVisible = (t == tab)
+                    val offset = if (isVisible) 0 else (if (visibleTabs.indexOf(t) < visibleTabs.indexOf(tab)) -1 else 1)
+                    androidx.compose.foundation.layout.Box(
+                        modifier = androidx.compose.ui.Modifier
+                            .fillMaxSize()
+                            .offset(x = (offset * 10000).dp)
+                    ) {
+                        when (t) {
+                            ForgeTab.Today ->
+                                if (!ForgeDesign.preview && DashboardStylePrefs.style(context) == "classic") ForgeClassicToday(padding, viewModel)
+                                else ForgeTodayScreen(padding, width, viewModel)
+                            ForgeTab.Trends -> ForgeTrendsScreen(padding, width, viewModel)
+                            ForgeTab.Health -> ForgeHealthTab(padding, width, viewModel)
+                            ForgeTab.Training -> ForgeTrainingScreen(padding, viewModel)
+                            ForgeTab.Sleep -> ForgeSleepScreen(padding, width, viewModel)
+                            ForgeTab.More -> ForgeMoreScreen(padding, viewModel)
+                            ForgeTab.Coach -> {
+                                val select = LocalForgeTabSelect.current
+                                if (isVisible) androidx.activity.compose.BackHandler { select(ForgeTab.Today) }
+                                androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.padding(padding)) {
+                                    ForgeCoachChatPages(viewModel, androidx.compose.ui.res.stringResource(com.noop.R.string.nav_coach),
+                                                        onBack = { select(ForgeTab.Today) })
+                                }
+                            }
+                        }
                     }
                 }
             }

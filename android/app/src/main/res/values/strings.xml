@@ -7297,4 +7297,11 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="project_report_picture_add">Add a picture</string>
     <string name="project_report_picture_detail">A screenshot of what went wrong says more than a log</string>
     <string name="project_report_picture_remove">Remove the picture</string>
-</resources>
+    <string name="forge_battery_title">Strap Battery</string>
+    <string name="forge_battery_charge">Charge</string>
+    <string name="forge_battery_voltage">Voltage</string>
+    <string name="forge_battery_status">Status</string>
+    <string name="forge_battery_charging">Charging</string>
+    <string name="forge_battery_not_charging">Not charging</string>
+    <string name="forge_battery_firmware">Firmware</string>
+    </resources>

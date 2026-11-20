@@ -160,6 +160,7 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
     var logOpen by remember { mutableStateOf(false) }
     var addingWorkout by remember { mutableStateOf(false) }
     var settingsOpen by remember { mutableStateOf(false) }
+    var batteryPageOpen by remember { mutableStateOf(false) }
     var devicesOpen by remember { mutableStateOf(false) }
     // The metric page a "Your cards" row opens, so each card reaches its own figure (#40).
     var cardMetric by remember { mutableStateOf<CoreRead.Metric?>(null) }
@@ -372,7 +373,7 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                                 onWorkout = { if (viewModel.activeWorkout.value != null) liveWorkout = true else startWorkout = true },
                                 workoutRunning = viewModel.activeWorkout.collectAsState().value != null,
                                 onCustomize = { editingWidgets = true },
-                                onBattery = { openSettings?.invoke() ?: run { settingsOpen = true } })
+                                onBattery = { batteryPageOpen = true })
                 // A running import, above everything: it is the answer to "why is nothing here yet" and the
                 // page it was started from is not the page the wearer waits on. Draws nothing when none runs,
                 // and it is shown on a past day too, because the import is not about the day on screen.
@@ -586,12 +587,7 @@ private fun NewDesignHeader(date: LocalDate, isToday: Boolean, backfilling: Bool
             )
             if (batteryPct != null) {
                 Spacer(Modifier.width(ForgeMetrics.space2))
-                Row(Modifier.height(36.dp).background(colors.inset, CircleShape).clickable(onClick = onBattery)
-                        .padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(16.dp))
-                    Text(batteryPct.roundToInt().toString(), style = Forge.type.footnote, color = colors.text)
-                }
+                BatteryPill(batteryPct, onClick = onBattery)
                 Spacer(Modifier.width(ForgeMetrics.space2))
             }
             TodayHeaderButtons(onProfile, onQuickActions) { close ->
@@ -1090,5 +1086,34 @@ private fun FirstRunCard(connected: Boolean, onConnect: () -> Unit) {
             Icon(androidx.compose.material.icons.Icons.AutoMirrored.Rounded.ArrowForward, null, tint = colors.onAccent,
                  modifier = Modifier.size(18.dp))
         }
+    }
+}
+
+/** A circular battery pill: the border fills with the charge level; the icon inside is horizontal. */
+@Composable
+private fun BatteryPill(pct: Double, onClick: () -> Unit) {
+    val colors = Forge.colors
+    val progress = (pct.coerceIn(0.0, 100.0)) / 100.0
+    Box(Modifier.size(36.dp).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.size(36.dp)) {
+            val strokeWidth = 2.5f
+            val side = size.width - strokeWidth
+            val topLeft = Offset(strokeWidth / 2f, strokeWidth / 2f)
+            val bounds = androidx.compose.ui.geometry.Rect(topLeft.x, topLeft.y, topLeft.x + side, topLeft.y + side)
+            val radius = bounds.width / 2f
+            // Track
+            drawCircle(color = colors.inset.copy(alpha = 0.3f), radius = radius)
+            // Fill arc
+            val sweep = (progress * 360f).toFloat()
+            drawArc(
+                color = colors.accent,
+                startAngle = -90f,
+                sweepAngle = sweep,
+                useCenter = false,
+                topLeft = topLeft,
+                size = androidx.compose.ui.geometry.Size(bounds.width, bounds.height),
+            )
+        }
+        Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(16.dp))
     }
 }
