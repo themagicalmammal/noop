@@ -251,17 +251,18 @@ internal fun TrainingRecentList(workouts: List<WorkoutRow>, onOpen: (WorkoutRow)
 /** One row of a grouped list: a coloured icon tile, title and subtitle, the chevron, as iOS's `ForgeRow`. */
 @Composable
 internal fun TrainingGroupRow(icon: ImageVector, tint: Color, title: String, subtitle: String, divider: Boolean, onClick: () -> Unit) {
+    // iOS's `ForgeRow` without `compact`: a coloured glyph on a wash circle, not the dense settings tile.
     val colors = Forge.colors
     if (divider) Box(Modifier.padding(start = 56.dp).fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
     Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick).padding(horizontal = ForgeMetrics.space4, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(28.dp).background(tint, RoundedCornerShape(7.dp)), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+        Box(Modifier.size(38.dp).background(tint.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
         }
         Spacer(Modifier.width(ForgeMetrics.space3))
         Column(Modifier.weight(1f)) {
-            Text(title, style = Forge.type.body, color = colors.text)
-            Text(subtitle, style = Forge.type.caption, color = colors.textSecondary, maxLines = 2)
+            Text(title, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
+            Text(subtitle, style = Forge.type.footnote, color = colors.textSecondary, maxLines = 2)
         }
         Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = colors.textTertiary, modifier = Modifier.size(18.dp))
     }
