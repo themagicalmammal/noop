@@ -111,8 +111,10 @@ fun ForgeRoot(viewModel: AppViewModel) {
             // tab view controllers alive. Hidden tabs are offset off-screen so their
             // scroll areas do not overlap the visible tab and cannot steal gestures.
             val visibleTabs = ForgeDesign.tabs(ForgeDesign.preview, com.noop.ui.BottomBarStyleStore.coachEnabled)
+            // The visible tab last in the layout tree so it is drawn on top and receives gestures first.
+            val orderedTabs = visibleTabs.sortedWith(compareBy({ it != tab }, { visibleTabs.indexOf(it) }))
             androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
-                for (t in visibleTabs) {
+                for (t in orderedTabs) {
                     val isVisible = (t == tab)
                     val offset = if (isVisible) 0 else (if (visibleTabs.indexOf(t) < visibleTabs.indexOf(tab)) -1 else 1)
                     androidx.compose.foundation.layout.Box(
