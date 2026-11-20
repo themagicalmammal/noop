@@ -426,10 +426,10 @@ private fun RangeChip(v: Vital) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(if (ok) Icons.Rounded.CheckCircle else Icons.Rounded.Error, contentDescription = null,
-             tint = if (ok) colors.charge else colors.effort, modifier = Modifier.size(16.dp))
+             tint = if (ok) colors.charge else colors.effortInk, modifier = Modifier.size(16.dp))
         Spacer(Modifier.size(6.dp))
         Text(v.label, style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold),
-             color = if (ok) colors.text else colors.effort)
+             color = if (ok) colors.text else colors.effortInk)
     }
 }
 
