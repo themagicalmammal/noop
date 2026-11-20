@@ -138,7 +138,7 @@ internal fun FoodTodayCard(onOpen: () -> Unit, onAdd: () -> Unit) {
                                                     gramsText(totals["carbs_g"] ?: 0.0), gramsText(totals["fat_g"] ?: 0.0))
                          else stringResource(R.string.food_card_empty_detail), style = Forge.type.caption, color = colors.textSecondary)
                 }
-                Spacer(Modifier.width(ForgeMetrics.space3))
+                Spacer(Modifier.width(ForgeMetrics.space2))
                 Image(painterResource(R.drawable.food_hero), null, contentScale = ContentScale.Crop, alignment = Alignment.CenterEnd,
                       modifier = Modifier.size(76.dp).clip(RoundedCornerShape(12.dp)))
             }
