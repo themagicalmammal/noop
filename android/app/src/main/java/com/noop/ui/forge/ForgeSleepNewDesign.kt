@@ -88,8 +88,8 @@ import kotlin.math.roundToInt
 /** A headline over a group of cards, as iOS's `ForgeSectionTitle`. */
 @Composable
 internal fun SleepSectionTitle(text: String) {
-    // iOS `ForgeFont.section`: 20 pt bold.
-    Text(text, style = Forge.type.title2, color = Forge.colors.text, modifier = Modifier.padding(horizontal = ForgeMetrics.space1))
+    // iOS `ForgeFont.section`: 20 pt bold, with `.padding(.horizontal, 4).padding(.top, 12)`.
+    Text(text, style = Forge.type.title2, color = Forge.colors.text, modifier = Modifier.padding(horizontal = ForgeMetrics.space1).padding(top = ForgeMetrics.space3))
 }
 
 /** Tomorrow's wake time from the phone alarm, with its per-day override (`Calendar.DAY_OF_WEEK`, Sunday 1). */
