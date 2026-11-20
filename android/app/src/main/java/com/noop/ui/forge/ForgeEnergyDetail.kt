@@ -360,7 +360,7 @@ private fun PartRow(icon: androidx.compose.ui.graphics.vector.ImageVector, tint:
     val colors = Forge.colors
     Row(Modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.space4, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Box(Modifier.size(32.dp).clip(CircleShape).background(tint.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(32.dp).clip(CircleShape).background(tint.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
             Icon(icon, null, tint = tint, modifier = Modifier.size(16.dp))
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -391,7 +391,7 @@ private fun EmptyCard(isToday: Boolean) {
     val tint = ForgeTokens.StrandPalette.forgeEnergyActive.resolve()
     ForgeCard(Modifier.fillMaxWidth(), contentPadding = ForgeMetrics.space4) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Box(Modifier.size(48.dp).clip(CircleShape).background(tint.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(48.dp).clip(CircleShape).background(tint.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
                 Icon(Icons.Rounded.LocalFireDepartment, null, tint = tint)
             }
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -502,7 +502,7 @@ private fun QualityRow(s: CoreEnergyDetail.Summary, onOpen: () -> Unit) {
     val tint = confidenceColor(s.confidence)
     ForgeCard(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onOpen), contentPadding = ForgeMetrics.space4) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Box(Modifier.size(36.dp).clip(CircleShape).background(tint.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(36.dp).clip(CircleShape).background(tint.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
                 Icon(Icons.Rounded.VerifiedUser, null, tint = tint, modifier = Modifier.size(18.dp))
             }
             Column(Modifier.weight(1f)) {
@@ -562,7 +562,7 @@ private fun RateChart(points: List<CoreEnergyDetail.Point>, bands: List<CoreEner
                       comparison: List<CoreEnergyDetail.Point>) {
     val energy = ForgeTokens.Color.systemOrange.resolve()
     val reference = Forge.colors.textTertiary
-    val bandColor = energy.copy(alpha = 0.14f)
+    val bandColor = energy.copy(alpha = 0.16f)
     Canvas(Modifier.fillMaxWidth().height(160.dp)) {
         val day = 86_400.0
         val top = (points + comparison).maxOfOrNull { it.kcalPerMinute }?.coerceAtLeast(1.0) ?: 1.0
