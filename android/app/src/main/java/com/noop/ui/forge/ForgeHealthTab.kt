@@ -33,6 +33,16 @@ import androidx.compose.material.icons.rounded.Lightbulb
 import androidx.compose.material.icons.rounded.MonitorHeart
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.ShowChart
+import androidx.compose.material.icons.rounded.TrendingUp
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.WaterDrop
+import androidx.compose.material.icons.rounded.Air
+import androidx.compose.material.icons.rounded.Thermostat
+import androidx.compose.material.icons.rounded.HourglassBottom
+import androidx.compose.material.icons.rounded.DirectionsRun
+import androidx.compose.material.icons.rounded.MonitorWeight
+import androidx.compose.material.icons.rounded.Psychology
+import androidx.compose.material.icons.rounded.DirectionsWalk
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.systemBars
@@ -65,6 +75,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.width
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noop.R
 import com.noop.analytics.VitalBands
@@ -468,13 +481,39 @@ private fun OffRangeCard(v: Vital, coachOn: Boolean, onAsk: (String) -> Unit) {
     }
 }
 
+/** The icon for a vital, as iOS's . */
+private fun vitalIcon(key: String) = when (key) {
+    "hrv" -> Icons.Rounded.TrendingUp
+    "rhr" -> Icons.Rounded.Favorite
+    "spo2", "spo2raw" -> Icons.Rounded.WaterDrop
+    "resp" -> Icons.Rounded.Air
+    "skin" -> Icons.Rounded.Thermostat
+    else -> Icons.Rounded.MonitorHeart
+}
+
+/** The icon for a measure, as iOS's . */
+private fun measureIcon(key: String) = when (key) {
+    "ageless" -> Icons.Rounded.HourglassBottom
+    "vo2max" -> Icons.Rounded.DirectionsRun
+    "weight" -> Icons.Rounded.MonitorWeight
+    "stress" -> Icons.Rounded.Psychology
+    "steps" -> Icons.Rounded.DirectionsWalk
+    else -> Icons.Rounded.MonitorHeart
+}
+
 /** One vital: its name, the figure large with the unit small beside it, and its recent course. */
 @Composable
 private fun VitalTile(v: Vital, modifier: Modifier, onClick: () -> Unit) {
     val colors = Forge.colors
     ForgeCard(modifier.clickable(role = Role.Button, onClick = onClick), contentPadding = 14.dp) {
-        Text(v.label, style = Forge.type.subhead, color = colors.textSecondary, maxLines = 1)
-        Spacer(Modifier.height(ForgeMetrics.space1))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(30.dp).background(v.metricColor.copy(alpha = 0.13f), CircleShape), contentAlignment = Alignment.Center) {
+                Icon(vitalIcon(v.key), contentDescription = null, tint = v.metricColor, modifier = Modifier.size(16.dp))
+            }
+            Spacer(Modifier.width(ForgeMetrics.space2 + ForgeMetrics.space1))
+            Text(v.label, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
+        Spacer(Modifier.height(ForgeMetrics.space2 + ForgeMetrics.space1))
         Text(
             buildAnnotatedString {
                 append(v.value?.let(v.format) ?: "–")
@@ -560,7 +599,7 @@ private fun MeasureTile(viewModel: AppViewModel, key: String, modifier: Modifier
     } }
     val unit = when (key) { "weight" -> "kg"; "ageless" -> stringResource(R.string.forge_vt_years); else -> null }
     val tint = when (key) { "vo2max" -> colors.charge; "weight" -> colors.rest; "stress" -> colors.effort; "ageless" -> colors.accent; else -> colors.charge }
-    MetricTile(Icons.Rounded.MonitorHeart, tint, measureTitle(key), text, unit, stringResource(R.string.forge_no_data),
+    MetricTile(measureIcon(key), tint, measureTitle(key), text, unit, stringResource(R.string.forge_no_data),
                modifier.clickable(role = Role.Button, onClick = onClick),
                below = values.takeIf { it.size > 1 }?.let { v -> @Composable { KeyTileSpark(v.takeLast(60), tint) } })
 }
