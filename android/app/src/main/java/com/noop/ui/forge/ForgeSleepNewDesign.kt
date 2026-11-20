@@ -118,13 +118,13 @@ internal fun SleepTonightCard(viewModel: AppViewModel, need: Double, onOpen: () 
                 Icon(Icons.Rounded.Bedtime, contentDescription = null, tint = colors.rest, modifier = Modifier.size(20.dp))
             }
             Spacer(Modifier.width(ForgeMetrics.space3))
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Text(stringResource(R.string.forge_sl_tonight), style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold),
                      color = colors.text)
                 Text(stringResource(R.string.forge_sl_full_recovery), style = Forge.type.caption, color = colors.textSecondary)
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(bed.format(clock), style = Forge.type.title1.copy(fontSize = 26.sp, fontWeight = FontWeight.SemiBold),
+                Text(bed.format(clock), style = Forge.type.figure.copy(fontSize = 26.sp),
                      color = colors.restInk, maxLines = 1)
                 Text(stringResource(R.string.forge_sl_bedtime_word), style = Forge.type.caption, color = colors.textSecondary)
             }
