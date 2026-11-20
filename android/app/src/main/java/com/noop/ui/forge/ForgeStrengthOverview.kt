@@ -157,7 +157,7 @@ private fun NextUp(s: CoreTraining.Snapshot, onStart: (String) -> Unit, onOpenPl
         else -> day.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
     }
     val startLabel = stringResource(R.string.forge_so_start_routine, routine.title)
-    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
+    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.cardRadius) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.forge_so_next_up), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
                  color = colors.text, modifier = Modifier.weight(1f))
@@ -184,7 +184,7 @@ private fun Volume(tonnes: List<Double>, change: Int?) {
     val colors = Forge.colors
     val top = maxOf(tonnes.maxOrNull() ?: 1.0, 0.1)
     val spoken = stringResource(R.string.forge_so_volume_spoken)
-    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
+    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.cardRadius) {
         Row(verticalAlignment = Alignment.Bottom) {
             Text(stringResource(R.string.forge_so_volume), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
                  color = colors.text, modifier = Modifier.weight(1f))
