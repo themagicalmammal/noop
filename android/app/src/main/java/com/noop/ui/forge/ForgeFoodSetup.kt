@@ -140,7 +140,7 @@ internal fun FoodTodayCard(onOpen: () -> Unit, onAdd: () -> Unit) {
                 }
                 Spacer(Modifier.width(ForgeMetrics.space2))
                 Image(painterResource(R.drawable.food_hero), null, contentScale = ContentScale.Crop, alignment = Alignment.CenterEnd,
-                      modifier = Modifier.size(76.dp).clip(RoundedCornerShape(12.dp)))
+                      modifier = Modifier.size(76.dp).clip(RoundedCornerShape(ForgeMetrics.groupedRadius)))
             }
             Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).clip(RoundedCornerShape(50))
                     .background(colors.inset).clickable(onClick = onAdd).padding(vertical = ForgeMetrics.space2),
