@@ -510,9 +510,17 @@ internal fun CoachNoteCard(note: com.noop.core.CoreCoach.Note, onWhy: () -> Unit
             if (!opened) Text(stringResource(R.string.forge_cn_more), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
                               color = colors.accent, modifier = Modifier.clickable { opened = true }.padding(vertical = 8.dp))
         }
-        note.followUps.forEach { (q, a) ->
-            Text(q, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text, modifier = Modifier.padding(top = 8.dp))
-            Text(a.replace("**", ""), style = Forge.type.body, color = colors.textSecondary)
+        if (note.followUps.isNotEmpty()) {
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(colors.fill)
+                                   .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                note.followUps.forEach { (q, a) ->
+                    Column {
+                        Text(q, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
+                        Text(a.replace("**", ""), style = Forge.type.body, color = colors.textSecondaryOnPicture)
+                    }
+                }
+            }
         }
         if (note.replies.isNotEmpty()) Row(Modifier.padding(top = 8.dp).horizontalScroll(rememberScrollState()),
                                            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
