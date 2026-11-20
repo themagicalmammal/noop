@@ -349,7 +349,7 @@ internal fun ForgeTrendTile(label: String, value: String?, unit: String, trend: 
                 if (value != null) withStyle(Forge.type.footnote.toSpanStyle().copy(color = colors.textSecondary)) {
                     append(" " + unit)
                 }
-            }, style = Forge.type.title1, color = colors.text, maxLines = 1)
+            }, style = Forge.type.figure, color = colors.text, maxLines = 1)
             val line = trend?.takeIf { value != null && it.size > 1 }
             if (line != null) TrendArea(line, tint) else Spacer(Modifier.height(30.dp))
             if (line != null && axisLabels != null) Row(Modifier.fillMaxWidth().clearAndSetSemantics { }) {
