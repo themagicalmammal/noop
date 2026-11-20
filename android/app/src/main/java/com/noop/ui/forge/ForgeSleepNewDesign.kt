@@ -181,7 +181,7 @@ internal fun SleepNightCard(night: CoreRead.Night, isLatest: Boolean, zone: Zone
                      modifier = Modifier.size(20.dp))
             }
         }
-        Spacer(Modifier.height(ForgeMetrics.space3))
+        Spacer(Modifier.height(10.dp))
         val parts = stageParts(night)
         if (!hasStageMinutes(night)) {
             Text(stringResource(R.string.forge_sl_no_stages), style = Forge.type.body, color = colors.textSecondary)
@@ -197,7 +197,7 @@ internal fun SleepNightCard(night: CoreRead.Night, isLatest: Boolean, zone: Zone
             Spacer(Modifier.weight(1f))
             Text(at(night.endTs), style = Forge.type.caption, color = colors.textTertiary)
         }
-        Spacer(Modifier.height(ForgeMetrics.space3))
+        Spacer(Modifier.height(10.dp))
         }
         // The night's make-up as one bar, in the lanes' own stage colours.
         val total = parts.sumOf { it.minutes }.coerceAtLeast(1.0)
@@ -216,7 +216,7 @@ internal fun SleepNightCard(night: CoreRead.Night, isLatest: Boolean, zone: Zone
                 }
             }
         }
-        Spacer(Modifier.height(ForgeMetrics.space3))
+        Spacer(Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth()) {
             parts.forEach { p ->
                 Column(Modifier.weight(1f).semantics(mergeDescendants = true) { }) {
