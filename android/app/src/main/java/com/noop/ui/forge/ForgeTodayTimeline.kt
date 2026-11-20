@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.WbTwilight
 import androidx.compose.material3.Icon
+import androidx.compose.ui.semantics.Role
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.IconButton
@@ -462,10 +463,14 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit, on
                                                                        modifier = Modifier.padding(top = 4.dp))
                                 if (e.notice.actionTitle != null && e.notice.destination != null &&
                                     e.notice.destination in NOTICES_DESTINATIONS && onDestination != null) {
-                                    TextButton(onClick = { onDestination(e.notice.destination!!) },
-                                               modifier = Modifier.padding(top = 4.dp).heightIn(min = ForgeMetrics.minHitTarget)) {
-                                        Text(e.notice.actionTitle, style = Forge.type.subhead, color = Forge.colors.accent)
-                                    }
+                                    Text(e.notice.actionTitle, style = Forge.type.subhead.copy(fontWeight = FontWeight.Medium),
+                                         color = Forge.colors.accent,
+                                         modifier = Modifier.padding(top = 4.dp, start = 52.dp)
+                                             .clip(RoundedCornerShape(50))
+                                             .background(Forge.colors.fill)
+                                             .padding(horizontal = 14.dp, vertical = 6.dp)
+                                             .clickable(role = Role.Button, onClick = { onDestination(e.notice.destination!!) })
+                                             .heightIn(min = 36.dp))
                                 }
                             }
                         }
