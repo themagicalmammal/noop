@@ -405,7 +405,7 @@ private fun ShareRing(r: Shaped, modifier: Modifier) {
                 }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(r.value.roundToInt().toString(), style = Forge.type.title2.copy(fontSize = 22.sp, fontWeight = FontWeight.SemiBold),
+                Text(r.value.roundToInt().toString(), style = Forge.type.figure.copy(fontSize = 22.sp),
                      color = colors.text, maxLines = 1)
                 Text("%", style = Forge.type.caption.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold), color = colors.textSecondary)
             }
