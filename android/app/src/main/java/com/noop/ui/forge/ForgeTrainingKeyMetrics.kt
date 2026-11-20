@@ -61,7 +61,6 @@ import java.time.LocalDate
 internal fun TrainingKeyMetrics(week: List<CoreTraining.PlannedDay>, viewModel: AppViewModel, onWorkouts: () -> Unit,
                                 onCardio: () -> Unit = {}) {
     val context = LocalContext.current
-    val noData = stringResource(R.string.forge_no_data)
     val effortFormat = rememberEffortFormat()
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     val weekEffort by produceState(emptyList<Double?>(), week, coreRevision) {
@@ -115,28 +114,24 @@ internal fun TrainingKeyMetrics(week: List<CoreTraining.PlannedDay>, viewModel: 
              modifier = Modifier.padding(horizontal = ForgeMetrics.space1))
         // In iOS's order: Effort this week, the pace (when there is one), VO₂max, the last 30 days, two to a row.
         val tiles = buildList<@Composable (Modifier) -> Unit> {
-            add { m -> MetricTile(Icons.Rounded.Speed, Forge.colors.effort, stringResource(R.string.forge_th_effort_week),
-                       mean?.let(effortFormat), mean?.let { stringResource(R.string.forge_th_avg) }, noData,
-                       m.clickable { open = CoreRead.Metric.Effort },
-                       below = weekEffort.takeIf { it.any { v -> v != null } }?.let { values ->
-                           @Composable { MiniBars(values.map { it ?: 0.0 }, Forge.colors.effort) }
-                       }) }
+            add { m -> ForgeMetricTile(stringResource(R.string.forge_th_effort_week),
+                       mean?.let(effortFormat), mean?.let { stringResource(R.string.forge_th_avg) }, Forge.colors.effort,
+                       bars = weekEffort.map { it ?: 0.0 },
+                       modifier = m, onClick = { open = CoreRead.Metric.Effort }) }
             pace?.let { (label, values) ->
-                add { m -> MetricTile(Icons.Rounded.DirectionsRun, Forge.colors.accent, stringResource(label),
-                           com.noop.ui.UnitFormatter.paceFromSecPerKm(values.last(), distanceSystem), null, noData,
-                           m.clickable(onClick = onCardio),
-                           // Faster reads higher, as iOS draws the negated paces.
-                           below = values.takeIf { it.size > 1 }?.let { v -> @Composable { KeyTileSpark(v.map { -it }, Forge.colors.accent) } }) }
+                add { m -> ForgeMetricTile(stringResource(label),
+                           com.noop.ui.UnitFormatter.paceFromSecPerKm(values.last(), distanceSystem), null, Forge.colors.accent,
+                           trend = values.map { -it },
+                           modifier = m, onClick = onCardio) }
             }
-            add { m -> MetricTile(Icons.Rounded.Air, Forge.colors.charge, stringResource(R.string.forge_th_vo2max),
-                       vo2max.lastOrNull()?.let { decimal.format(it) }, null, noData, m,
-                       below = vo2max.takeLast(30).takeIf { it.size > 1 }?.let { values ->
-                           @Composable { KeyTileSpark(values, Forge.colors.charge) }
-                       }) }
-            add { m -> MetricTile(Icons.Rounded.History, Forge.colors.accent, stringResource(R.string.forge_th_last30),
-                       recent.size.toString(), stringResource(R.string.forge_th_workouts_unit), noData,
-                       m.clickable(onClick = onWorkouts),
-                       below = @Composable { MiniBars(perWeek, Forge.colors.accent) }) }
+            add { m -> ForgeMetricTile(stringResource(R.string.forge_th_vo2max),
+                       vo2max.lastOrNull()?.let { decimal.format(it) }, null, Forge.colors.charge,
+                       trend = vo2max.takeLast(30).toList(),
+                       modifier = m) }
+            add { m -> ForgeMetricTile(stringResource(R.string.forge_th_last30),
+                       recent.size.toString(), stringResource(R.string.forge_th_workouts_unit), Forge.colors.accent,
+                       bars = perWeek,
+                       modifier = m, onClick = onWorkouts) }
         }
         tiles.chunked(2).forEach { pair ->
             Row(horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.gap)) {
@@ -148,18 +143,6 @@ internal fun TrainingKeyMetrics(week: List<CoreTraining.PlannedDay>, viewModel: 
     ForgeMetricDetail(open) { open = null }
 }
 
-/** A bar per value, scaled to the largest, as iOS's `ForgeMetricTile(bars:)`; an empty value keeps a stub. */
-@Composable
-private fun MiniBars(values: List<Double>, tint: Color) {
-    val top = values.maxOrNull()?.takeIf { it > 0 } ?: 1.0
-    Row(Modifier.fillMaxWidth().height(28.dp), horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.Bottom) {
-        values.forEach { v ->
-            Box(Modifier.weight(1f).fillMaxHeight((v / top).toFloat().coerceIn(0.08f, 1f))
-                    .background(if (v > 0) tint else tint.copy(alpha = 0.2f), RoundedCornerShape(3.dp)))
-        }
-    }
-}
 
 /**
  * The new design's head of Training, as iOS's `weekHero`: this training week's workouts (how many, how long) and a

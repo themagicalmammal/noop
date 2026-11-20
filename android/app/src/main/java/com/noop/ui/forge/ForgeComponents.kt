@@ -383,6 +383,55 @@ private fun TrendArea(values: List<Double>, tint: Color) {
                  style = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
+/** iOS `ForgeMetricTile`: the label, the figure with its unit, day bars or a trend line, and a badge. */
+@Composable
+internal fun ForgeMetricTile(label: String, value: String?, unit: String?, tint: Color,
+                              bars: List<Double>? = null, trend: List<Double>? = null,
+                              modifier: Modifier = Modifier, badge: Pair<String, ForgeBadgeTone>? = null,
+                              axisLabels: List<String>? = null, onClick: (() -> Unit)? = null) {
+    val colors = Forge.colors
+    val hasBars = bars != null && bars.any { it > 0 }
+    ForgeCard(modifier.let { if (onClick != null) it.clickable(role = Role.Button, onClick = onClick) else it },
+              contentPadding = 16.dp) {
+        Column(Modifier.heightIn(min = 132.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(label, style = Forge.type.footnote.copy(fontWeight = FontWeight.Medium), color = colors.textSecondary,
+                 maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(buildAnnotatedString {
+                append(value ?: "–")
+                if (value != null && unit != null) withStyle(Forge.type.footnote.toSpanStyle().copy(color = colors.textSecondary)) {
+                    append(" " + unit)
+                }
+            }, style = Forge.type.title1, color = colors.text, maxLines = 1)
+            when {
+                hasBars -> MetricTileBars(bars!!, tint)
+                value != null && trend != null && trend.size > 1 -> TrendArea(trend, tint)
+                else -> Spacer(Modifier.height(30.dp))
+            }
+            if (axisLabels != null && (hasBars || (trend != null && trend.size > 1))) Row(Modifier.fillMaxWidth().clearAndSetSemantics { }) {
+                axisLabels.forEach { l ->
+                    Text(l, style = Forge.type.caption, color = colors.textTertiary, textAlign = TextAlign.Center,
+                         modifier = Modifier.weight(1f))
+                }
+            }
+            badge?.let { (text, tone) -> ForgeBadgePill(text, tone) }
+        }
+    }
+}
+
+/** Day bars, as iOS's `ForgeMetricTile(bars:)`: the last non-zero bar full strength, the others at 45 %. */
+@Composable
+private fun MetricTileBars(values: List<Double>, tint: Color) {
+    val top = values.maxOrNull()?.takeIf { it > 0 } ?: 1.0
+    val lastNonZero = values.indexOfLast { it > 0 }
+    Row(Modifier.fillMaxWidth().height(30.dp), horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.Bottom) {
+        values.forEachIndexed { i, v ->
+            Box(Modifier.weight(1f).fillMaxHeight(((v / top).toFloat()).coerceIn(0.08f, 1f))
+                    .background(tint.copy(alpha = if (i == lastNonZero) 1f else 0.45f), RoundedCornerShape(3.dp)))
+        }
+    }
+}
+
 
 /** iOS `ForgeDirection`: which way a figure moves its score, an arrow with "raises", "lowers" or "neutral". */
 @Composable
