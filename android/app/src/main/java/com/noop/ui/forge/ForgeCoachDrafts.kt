@@ -482,9 +482,9 @@ private fun WarningLine(text: String) {
 
 @Composable
 private fun Pill(label: String, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Text(label, style = Forge.type.caption, color = if (selected) Forge.colors.accent else Forge.colors.text,
+    Text(label, style = Forge.type.caption, color = if (selected) Forge.colors.onAccent else Forge.colors.text,
          modifier = modifier.clip(RoundedCornerShape(10.dp))
-             .background(if (selected) Forge.colors.accent.copy(alpha = 0.14f) else Forge.colors.inset)
+             .background(if (selected) Forge.colors.accent else Forge.colors.inset)
              .clickable(role = Role.Button, onClick = onClick).padding(horizontal = 10.dp, vertical = 8.dp))
 }
 
