@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import com.noop.ui.AppViewModel
 
@@ -111,16 +112,32 @@ fun ForgeRoot(viewModel: AppViewModel) {
             // The visible tab is drawn last (on top of the Box stack) so it captures touch and
             // scroll events first; hidden tabs below it don't intercept gestures.
             val visibleTabs = ForgeDesign.tabs(ForgeDesign.preview, com.noop.ui.BottomBarStyleStore.coachEnabled)
-            // Sort so the visible tab is last in the Box (topmost Z-order, receives touches first).
-            val sortedTabs = visibleTabs.sortedWith(compareBy({ it != tab }, { visibleTabs.indexOf(it) }))
+            // Compose all tabs simultaneously so their state survives switches, as iOS keeps all
+            // tab view controllers alive. Hidden tabs stay transparent and non-interactive:
+            // pointer events are blocked so their scroll/drag detectors don't compete with
+            // the visible tab's gestures.
             androidx.compose.foundation.layout.Box(
                 modifier = androidx.compose.ui.Modifier.fillMaxSize()
             ) {
-                for (t in sortedTabs) {
+                for (t in visibleTabs) {
+                    val isVisible = (t == tab)
+                    // Hidden tabs stay composed (state survives) but are transparent AND
+                    // non-interactive: a pointer-input blocker consumes all gestures so
+                    // their inner scroll/drag detectors don't compete with the visible tab.
                     androidx.compose.foundation.layout.Box(
-                        modifier = androidx.compose.ui.Modifier.fillMaxSize().alpha(if (t == tab) 1f else 0f)
+                        modifier = androidx.compose.ui.Modifier
+                            .fillMaxSize()
+                            .alpha(if (isVisible) 1f else 0f)
+                            .then(
+                                if (isVisible) androidx.compose.ui.Modifier
+                                else androidx.compose.ui.Modifier.pointerInput(t) {
+                                    awaitPointerEventScope {
+                                        while (true) awaitPointerEvent().changes.forEach { it.consume() }
+                                    }
+                                }
+                            )
                     ) {
-                        ForgeTabContent(t, padding, width, viewModel, context, visible = (t == tab))
+                        ForgeTabContent(t, padding, width, viewModel, context, visible = isVisible)
                     }
                 }
             }
