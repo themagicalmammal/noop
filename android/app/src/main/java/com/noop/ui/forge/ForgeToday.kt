@@ -90,6 +90,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import com.noop.core.CoreGoals
 import com.noop.core.CoreRead
+import com.noop.core.CoreCache
 import com.noop.ui.AppViewModel
 import com.noop.ui.TodayLayoutPrefs
 import com.noop.ui.TodaySection
@@ -143,9 +144,9 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
             CoreRead.open(context)
             val from = d.minusDays(7).toString(); val to = d.minusDays(1).toString()
             val baselines = baselineMetrics.mapNotNull { m ->
-                CoreRead.series(m, from, to).map { it.value }.takeIf { it.isNotEmpty() }?.let { m to it.average() }
+                CoreCache.series(m, from, to, coreRevision).map { it.value }.takeIf { it.isNotEmpty() }?.let { m to it.average() }
             }.toMap()
-            TodayModel(d, CoreRead.day(d.toString()), baselines)
+            TodayModel(d, CoreCache.day(d.toString(), coreRevision), baselines)
         }
     }
     val today = com.noop.ui.logicalDayNow()
@@ -410,8 +411,8 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                     value = withContext(Dispatchers.IO) {
                         CoreRead.open(context)
                         val from = shown.minusDays(14).toString(); val to = shown.toString()
-                        val chargePoint = CoreRead.series(CoreRead.Metric.Charge, from, to).lastOrNull()
-                        val restPoint = CoreRead.series(CoreRead.Metric.Rest, from, to).lastOrNull()
+                        val chargePoint = CoreCache.series(CoreRead.Metric.Charge, from, to, coreRevision).lastOrNull()
+                        val restPoint = CoreCache.series(CoreRead.Metric.Rest, from, to, coreRevision).lastOrNull()
                         Triple(chargePoint?.value, restPoint?.value, chargePoint?.day)
                     }
                 }
