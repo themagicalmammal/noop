@@ -248,7 +248,7 @@ private fun StageLanes(night: CoreRead.Night) {
         Triple("deep", colors.sleepDeep, R.string.forge_stage_deep),
     )
     val step = colors.textTertiary.copy(alpha = 0.5f)
-    Row(Modifier.fillMaxWidth().height(150.dp).background(colors.inset.copy(alpha = 0.45f), RoundedCornerShape(10.dp))
+    Row(Modifier.fillMaxWidth().height(170.dp).background(colors.inset.copy(alpha = 0.45f), RoundedCornerShape(10.dp))
             .padding(10.dp).clearAndSetSemantics { }) {
         Column(Modifier.fillMaxHeight().padding(end = ForgeMetrics.space2)) {
             lanes.forEach { (_, _, name) ->
