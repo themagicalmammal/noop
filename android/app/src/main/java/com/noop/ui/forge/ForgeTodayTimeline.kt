@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.WbTwilight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.verticalScroll
@@ -32,6 +33,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MonitorWeight
+import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material.icons.rounded.MonitorHeart
 import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material.icons.rounded.DirectionsWalk
@@ -64,6 +66,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.rotate
 import com.noop.R
 import com.noop.core.CoreRead
 import com.noop.data.WorkoutRow
@@ -468,12 +471,14 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit, on
 }
 
 /** The coach's note on the rail, as iOS's `coachCard`: its kind, the headline, the body (Read more past four lines), what
- * the wearer asked after it with the answers, and the replies it offers, each sent to the coach. */
+ * the wearer asked after it with the answers, the replies it offers, each sent to the coach, and the thumbs. */
 @Composable
 internal fun CoachNoteCard(note: com.noop.core.CoreCoach.Note, onWhy: () -> Unit) {
+    val context = LocalContext.current
     val colors = Forge.colors
     val select = LocalForgeTabSelect.current
     var opened by remember { mutableStateOf(note.body.length <= 220) }
+    val rating = remember { mutableStateOf(CoachRatings.rating(context, note.id)) }
     ForgeCard(Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Rounded.MonitorHeart, contentDescription = null, tint = colors.accent, modifier = Modifier.size(15.dp))
@@ -500,6 +505,20 @@ internal fun CoachNoteCard(note: com.noop.core.CoreCoach.Note, onWhy: () -> Unit
                 Text(r, style = Forge.type.subhead, color = colors.accent,
                      modifier = Modifier.background(colors.accent.copy(alpha = 0.12f), CircleShape)
                          .clickable { com.noop.ui.CoachHandoff.pendingPrompt = r; select(ForgeTab.Coach) }.padding(horizontal = 14.dp, vertical = 8.dp))
+            }
+        }
+        Row(Modifier.padding(top = 8.dp)) {
+            val rated = rating.value
+            IconButton(onClick = { rating.value = 1; CoachRatings.record(context, note.id, note.origin, 1) },
+                       modifier = Modifier.size(36.dp)) {
+                Icon(Icons.Rounded.ThumbUp, stringResource(R.string.forge_cn_helpful),
+                     tint = if (rated > 0) colors.accent else colors.textTertiary)
+            }
+            IconButton(onClick = { rating.value = -1; CoachRatings.record(context, note.id, note.origin, -1) },
+                       modifier = Modifier.size(36.dp)) {
+                Icon(Icons.Rounded.ThumbUp, stringResource(R.string.forge_cn_not_helpful),
+                     tint = if (rated < 0) colors.accent else colors.textTertiary,
+                     modifier = Modifier.rotate(180f))
             }
         }
     }

@@ -5971,6 +5971,8 @@
     <string name="forge_cn_evening">Coach · evening</string>
     <string name="forge_cn_why">Why am I seeing this?</string>
     <string name="forge_cn_why_now">Why now</string>
+    <string name="forge_cn_helpful">Helpful</string>
+    <string name="forge_cn_not_helpful">Not helpful</string>
     <string name="forge_cn_t_brief">Your morning note, written once a day after the night has synced. It also asks about yesterday when a planned session is still open.</string>
     <string name="forge_cn_t_checkin">Your daily check-in at your usual wake time.</string>
     <string name="forge_cn_t_nudge">The coach found a real signal in your data, such as a streak, a multi-night trend or a goal date. It stays quiet on ordinary days.</string>
