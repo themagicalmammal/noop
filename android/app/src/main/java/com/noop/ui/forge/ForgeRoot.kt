@@ -112,18 +112,16 @@ fun ForgeRoot(viewModel: AppViewModel) {
             // The visible tab is drawn last (on top of the Box stack) so it captures touch and
             // scroll events first; hidden tabs below it don't intercept gestures.
             val visibleTabs = ForgeDesign.tabs(ForgeDesign.preview, com.noop.ui.BottomBarStyleStore.coachEnabled)
-            // Compose all tabs simultaneously so their state survives switches, as iOS keeps all
-            // tab view controllers alive. Hidden tabs stay transparent and non-interactive:
-            // pointer events are blocked so their scroll/drag detectors don't compete with
-            // the visible tab's gestures.
+            // Sort so the visible tab is last in the Box (topmost Z-order, receives touches first).
+            val sortedTabs = visibleTabs.sortedWith(compareBy({ it != tab }, { visibleTabs.indexOf(it) }))
             androidx.compose.foundation.layout.Box(
                 modifier = androidx.compose.ui.Modifier.fillMaxSize()
             ) {
-                for (t in visibleTabs) {
+                for (t in sortedTabs) {
                     val isVisible = (t == tab)
-                    // Hidden tabs stay composed (state survives) but are transparent AND
-                    // non-interactive: a pointer-input blocker consumes all gestures so
-                    // their inner scroll/drag detectors don't compete with the visible tab.
+                    // Hidden tabs sit below the visible one in Z-order. Block their pointer input
+                    // so their scroll/drag detectors don't compete; the visible tab on top
+                    // captures gestures first, and only passes through what it doesn't claim.
                     androidx.compose.foundation.layout.Box(
                         modifier = androidx.compose.ui.Modifier
                             .fillMaxSize()
