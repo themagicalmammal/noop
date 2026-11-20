@@ -372,7 +372,7 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                                 onWorkout = { if (viewModel.activeWorkout.value != null) liveWorkout = true else startWorkout = true },
                                 workoutRunning = viewModel.activeWorkout.collectAsState().value != null,
                                 onCustomize = { editingWidgets = true },
-                                onBattery = { more.push(MoreRoute.Dest(MoreDest.Settings)) })
+                                onBattery = { openSettings?.invoke() ?: run { settingsOpen = true } })
                 // A running import, above everything: it is the answer to "why is nothing here yet" and the
                 // page it was started from is not the page the wearer waits on. Draws nothing when none runs,
                 // and it is shown on a past day too, because the import is not about the day on screen.
