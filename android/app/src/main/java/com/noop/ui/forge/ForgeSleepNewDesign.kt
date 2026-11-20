@@ -484,7 +484,7 @@ internal fun SleepHighlights(night: CoreRead.Night, model: com.noop.ui.SleepMode
                 val item = items[i]
                 Column(Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(38.dp).background(colors.rest.copy(alpha = 0.15f), CircleShape), contentAlignment = Alignment.Center) {
+                        Box(Modifier.size(38.dp).background(colors.rest.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
                             Icon(Icons.Rounded.Schedule, contentDescription = null, tint = colors.restInk, modifier = Modifier.size(18.dp))
                         }
                         Spacer(Modifier.width(ForgeMetrics.space3))
