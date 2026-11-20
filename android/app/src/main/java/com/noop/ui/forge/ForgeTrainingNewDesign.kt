@@ -253,7 +253,7 @@ internal fun TrainingRecentList(workouts: List<WorkoutRow>, onOpen: (WorkoutRow)
 internal fun TrainingGroupRow(icon: ImageVector, tint: Color, title: String, subtitle: String, divider: Boolean, onClick: () -> Unit) {
     // iOS's `ForgeRow` without `compact`: a coloured glyph on a wash circle, not the dense settings tile.
     val colors = Forge.colors
-    if (divider) Box(Modifier.padding(start = 56.dp).fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+    if (divider) Box(Modifier.padding(start = 66.dp).fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
     Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick).padding(horizontal = ForgeMetrics.space4, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(38.dp).background(tint.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
