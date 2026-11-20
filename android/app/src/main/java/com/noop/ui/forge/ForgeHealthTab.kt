@@ -389,7 +389,7 @@ internal fun TabHeader(title: String, onProfile: () -> Unit, onSearch: (() -> Un
                         DateFormat.getBestDateTimePattern(locale, "EEEMMMd"), locale)))
                 }
             },
-            style = Forge.type.title2, color = Forge.sceneInk.text, maxLines = 1, modifier = Modifier.weight(1f),
+            style = Forge.type.headerTitle, color = Forge.sceneInk.text, maxLines = 1, modifier = Modifier.weight(1f),
         )
         // The strap battery, between title and magnifier, as iOS's `DashboardBatteryButton` in `ForgeLargeHeader`.
         if (batteryPct != null && onBattery != null) {

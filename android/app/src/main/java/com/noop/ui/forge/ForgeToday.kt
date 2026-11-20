@@ -590,7 +590,7 @@ private fun NewDesignHeader(date: LocalDate, isToday: Boolean, backfilling: Bool
                         append(date.format(DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "EEEMMMd"), locale)))
                     }
                 },
-                style = Forge.type.title2.copy(shadow = sceneShadow), color = Forge.sceneInk.text, maxLines = 1,
+                style = Forge.type.headerTitle.copy(shadow = sceneShadow), color = Forge.sceneInk.text, maxLines = 1,
                 overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
             )
             if (batteryPct != null) {

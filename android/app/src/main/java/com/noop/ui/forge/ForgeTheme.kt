@@ -58,7 +58,7 @@ data class ForgeColors(
 
 @Immutable
 data class ForgeType(
-    val title1: TextStyle, val title2: TextStyle, val headline: TextStyle, val body: TextStyle,
+    val title1: TextStyle, val title2: TextStyle, val headerTitle: TextStyle, val headline: TextStyle, val body: TextStyle,
     val bodyNumber: TextStyle, val subhead: TextStyle, val caption: TextStyle, val captionNumber: TextStyle,
     val footnote: TextStyle, val overline: TextStyle, val heroNumber: TextStyle,
 )
@@ -275,6 +275,7 @@ private fun ForgeFont.style(color: Color = Color.Unspecified) = TextStyle(
 
 val forgeType = ForgeType(
     title1 = ForgeTokens.StrandFont.title1.style(), title2 = ForgeTokens.StrandFont.title2.style(),
+    headerTitle = ForgeTokens.StrandFont.title2.style(color = Color.Unspecified).copy(fontFamily = roundedFamily),
     headline = ForgeTokens.StrandFont.headline.style(), body = ForgeTokens.StrandFont.body.style(),
     bodyNumber = ForgeTokens.StrandFont.bodyNumber.style(), subhead = ForgeTokens.StrandFont.subhead.style(),
     caption = ForgeTokens.StrandFont.caption.style(), captionNumber = ForgeTokens.StrandFont.captionNumber.style(),
