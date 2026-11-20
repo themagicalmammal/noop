@@ -162,7 +162,7 @@ fun MetricTile(icon: ImageVector, tint: Color, label: String, value: String?, un
                modifier: Modifier = Modifier, delta: String? = null, below: (@Composable () -> Unit)? = null) {
     val colors = Forge.colors
     val newDesignTile = ForgeDesign.preview
-    ForgeCard(modifier, contentPadding = 14.dp) {
+    ForgeCard(modifier, contentPadding = ForgeMetrics.cardPadding) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             // iOS's `TodayMetricTile`: a round plate at 13 % of the tint.
             Box(Modifier.size(30.dp).background(tint.copy(alpha = 0.13f), CircleShape),
