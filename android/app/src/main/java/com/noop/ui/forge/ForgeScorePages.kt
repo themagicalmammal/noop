@@ -117,7 +117,7 @@ internal fun ScoreDailyChart(points: List<Pair<String, Double>>, maxValue: Doubl
                     fun y(v: Double) = (size.height - v / maxValue * size.height).toFloat()
                     ticks.forEach { t -> drawLine(colors.divider, Offset(0f, y(t)), Offset(size.width, y(t)), strokeWidth = 0.5.dp.toPx()) }
                     bands.forEachIndexed { i, b ->
-                        if (b != null) drawRect(tint.copy(alpha = 0.18f), Offset(i * slot, y(b.endInclusive)),
+                        if (b != null) drawRect(tint.copy(alpha = 0.24f), Offset(i * slot, y(b.endInclusive)),
                                                 Size(slot, y(b.start) - y(b.endInclusive)))
                     }
                     if (bars) {
