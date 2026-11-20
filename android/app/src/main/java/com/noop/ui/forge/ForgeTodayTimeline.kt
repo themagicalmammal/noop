@@ -3,6 +3,7 @@ package com.noop.ui.forge
 import android.content.Context
 import android.text.format.DateFormat
 import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -450,7 +451,10 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit, on
                             val (icon, tint) = noticeLook(e.notice)
                             ForgeCard(Modifier.fillMaxWidth()) {
                                 Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.Top) {
-                                    Icon(icon, null, tint = tint, modifier = Modifier.size(20.dp))
+                                    Box(Modifier.size(40.dp).clip(CircleShape).background(tint.copy(alpha = 0.16f)),
+                                        contentAlignment = Alignment.Center) {
+                                        Icon(icon, null, tint = tint, modifier = Modifier.size(20.dp))
+                                    }
                                     Text(e.notice.headline, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text,
                                          modifier = Modifier.weight(1f).padding(start = 8.dp))
                                 }
