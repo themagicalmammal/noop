@@ -302,7 +302,7 @@ internal fun TodayHintCard(viewModel: AppViewModel, day: String, onCharge: () ->
             IconButton(onClick = {
                 dismissedRaw = TodayHints.dismissing(top.id, day, dismissedRaw)
                 NoopPrefs.of(context).edit().putString(TodayHints.DISMISSED_KEY, dismissedRaw).apply()
-            }, modifier = Modifier.padding(top = 0.dp).size(36.dp)) {
+            }, modifier = Modifier.padding(top = 0.dp).size(44.dp)) {
                 Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.forge_hint_dismiss), tint = colors.textTertiary,
                      modifier = Modifier.size(16.dp))
             }
