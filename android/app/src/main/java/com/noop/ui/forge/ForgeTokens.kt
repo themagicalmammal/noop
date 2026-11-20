@@ -282,6 +282,7 @@ object ForgeTokens {
         val titaniumMid = ForgeColor(light = 0xFFBBC2C9, dark = 0xFFC9CFD4)
         val titaniumTop = ForgeColor(light = 0xFFDDE1E6, dark = 0xFFF1F3F5)
         val trainingData = ForgeColor(light = 0xFF0E8AA3, dark = 0xFF40C8E0)
+        val trainingAccent = ForgeColor(light = 0xFF248A3D, dark = 0xFF30D158)
         val zone1 = ForgeColor(light = 0xFF8E8E93, dark = 0xFF8E8E93)
         val zone2 = ForgeColor(light = 0xFF30B0C7, dark = 0xFF40C8E0)
         val zone3 = ForgeColor(light = 0xFFFFCC00, dark = 0xFFFFD60A)

@@ -120,7 +120,7 @@ internal fun TrainingKeyMetrics(week: List<CoreTraining.PlannedDay>, viewModel: 
                        modifier = m, onClick = { open = CoreRead.Metric.Effort }) }
             pace?.let { (label, values) ->
                 add { m -> ForgeMetricTile(stringResource(label),
-                           com.noop.ui.UnitFormatter.paceFromSecPerKm(values.last(), distanceSystem), null, Forge.colors.accent,
+                           com.noop.ui.UnitFormatter.paceFromSecPerKm(values.last(), distanceSystem), null, ForgeTokens.StrandPalette.trainingData.resolve(),
                            trend = values.map { -it },
                            modifier = m, onClick = onCardio) }
             }
@@ -129,7 +129,7 @@ internal fun TrainingKeyMetrics(week: List<CoreTraining.PlannedDay>, viewModel: 
                        trend = vo2max.takeLast(30).toList(),
                        modifier = m) }
             add { m -> ForgeMetricTile(stringResource(R.string.forge_th_last30),
-                       recent.size.toString(), stringResource(R.string.forge_th_workouts_unit), Forge.colors.accent,
+                       recent.size.toString(), stringResource(R.string.forge_th_workouts_unit), ForgeTokens.StrandPalette.trainingData.resolve(),
                        bars = perWeek,
                        modifier = m, onClick = onWorkouts) }
         }
@@ -191,11 +191,11 @@ internal fun TrainingWeekHero(week: List<CoreTraining.PlannedDay>, viewModel: Ap
                        },
                        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Box(Modifier.size(36.dp)
-                            .background(if (first != null) colors.accent.copy(alpha = 0.22f) else colors.surface.copy(alpha = 0.7f), CircleShape)
-                            .border(if (isToday) 1.5.dp else 1.dp, if (isToday) colors.accent else colors.divider, CircleShape),
+                            .background(if (first != null) colors.trainingAccent.copy(alpha = 0.24f) else colors.surface.copy(alpha = 0.7f), CircleShape)
+                            .border(if (isToday) 1.5.dp else 1.dp, if (isToday) colors.trainingAccent else colors.divider, CircleShape),
                         contentAlignment = Alignment.Center) {
                         if (first != null) Icon(com.noop.ui.sportIcon(first.sport), contentDescription = null,
-                                                tint = colors.accent, modifier = Modifier.size(16.dp))
+                                                tint = colors.trainingAccent, modifier = Modifier.size(16.dp))
                     }
                     Text(day.dayOfWeek.getDisplayName(java.time.format.TextStyle.NARROW, java.util.Locale.getDefault()),
                          style = Forge.type.caption.copy(fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal),

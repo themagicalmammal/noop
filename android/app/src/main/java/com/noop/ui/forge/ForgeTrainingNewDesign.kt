@@ -105,7 +105,7 @@ internal fun TrainingSectionHead(title: String, link: String?, onLink: () -> Uni
     Row(Modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.space1).padding(top = ForgeMetrics.space3),
         verticalAlignment = Alignment.Bottom) {
         Text(title, style = Forge.type.title2, color = Forge.sceneInk.text, modifier = Modifier.weight(1f))
-        if (link != null) Text(link, style = Forge.type.subhead, color = Forge.colors.effort,
+        if (link != null) Text(link, style = Forge.type.subhead, color = Forge.colors.trainingAccent,
                                modifier = Modifier.clickable(role = Role.Button, onClick = onLink).padding(vertical = 4.dp))
     }
 }
@@ -119,7 +119,7 @@ internal fun TrainingPlannedToday(routine: CoreTraining.Routine, onStart: () -> 
             Icon(Icons.Rounded.CalendarMonth, contentDescription = null, tint = colors.effort, modifier = Modifier.size(16.dp))
             Spacer(Modifier.width(6.dp))
             Text(stringResource(R.string.forge_tr_planned_today), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
-                 color = colors.effort)
+                 color = colors.trainingAccent)
         }
         Spacer(Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth().background(colors.inset.copy(alpha = 0.6f), RoundedCornerShape(12.dp)).padding(12.dp),
@@ -134,7 +134,7 @@ internal fun TrainingPlannedToday(routine: CoreTraining.Routine, onStart: () -> 
                 Text(pluralStringResource(R.plurals.forge_nx_exercises, routine.exerciseIds.size, routine.exerciseIds.size),
                      style = Forge.type.caption, color = colors.textSecondary)
             }
-            Row(Modifier.heightIn(min = 40.dp).background(colors.effort, CircleShape)
+            Row(Modifier.heightIn(min = 40.dp).background(colors.trainingAccent, CircleShape)
                     .clickable(role = Role.Button, onClick = onStart).padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.PlayArrow, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
@@ -165,7 +165,7 @@ internal fun TrainingRoutineRow(routines: List<CoreTraining.Routine>, onStart: (
     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         routines.forEach { routine ->
             val label = stringResource(R.string.forge_tr_start_named, routine.title)
-            Column(Modifier.width(150.dp).height(140.dp).background(colors.surface, RoundedCornerShape(12.dp))
+            Column(Modifier.width(150.dp).height(158.dp).background(colors.surface, RoundedCornerShape(12.dp))
                        .combinedClickable(role = Role.Button, onClick = { onStart(routine) }, onLongClick = { onEdit(routine) })
                        .semantics { contentDescription = label }.padding(14.dp)) {
                 if (routine.muscles.values.any { it > 0 }) {
@@ -184,7 +184,7 @@ internal fun TrainingRoutineRow(routines: List<CoreTraining.Routine>, onStart: (
         // While the coach is on, the row ends on a card that builds a new routine with it, as on iOS.
         if (onAsk != null) {
             val prompt = stringResource(R.string.forge_tr_coach_create_prompt)
-            Column(Modifier.width(150.dp).height(140.dp).background(colors.surface, RoundedCornerShape(12.dp))
+            Column(Modifier.width(150.dp).height(158.dp).background(colors.surface, RoundedCornerShape(12.dp))
                        .clickable(role = Role.Button) { onAsk(prompt) }.padding(14.dp)) {
                 CoachPicture(mainIcon = Icons.Rounded.AutoAwesome, accentAIcon = Icons.Rounded.LocalFireDepartment,
                              accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 56)
@@ -286,7 +286,7 @@ internal fun TrainingAnalysisGroup(onLoad: () -> Unit, onStrength: () -> Unit, o
 /** The planning rows iOS's Tools group opens with: this week, and the plan and library. */
 @Composable
 internal fun TrainingPlanRows(onWeekPlan: () -> Unit, onLibrary: () -> Unit) {
-    val tint = Forge.colors.effort
+    val tint = Forge.colors.trainingAccent
     TrainingGroupRow(Icons.Rounded.EventNote, tint, stringResource(R.string.forge_tr_week_plan),
                      stringResource(R.string.forge_tr_week_plan_sub), false, onWeekPlan)
     TrainingGroupRow(Icons.Rounded.CalendarMonth, tint, stringResource(R.string.forge_tr_plan_library),
