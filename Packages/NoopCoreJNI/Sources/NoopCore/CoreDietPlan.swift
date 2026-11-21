@@ -77,21 +77,15 @@ enum CoreDietPlan {
     }
 
     /// The resolved strength history (imports and NOOP's own sessions) of the last year.
+    /// The strength work and the training days the plan reads, now from the shared gathering so the iPhone
+    /// can ask the same question from its Today tile (`DietDayContext`).
     static func strengthHistory(reader: StoreReader, dismissed: [String], now: Int) async -> ResolvedStrengthHistory {
-        let fusion = await TrainingSessionResolver.read(reader: reader, from: now - 365 * 86_400, to: now + 86_400,
-                                                        dismissedDetectedSpans: dismissed)
-        return await StrengthHistoryReader.read(store: reader.store, days: 365, now: now) { fusion }
+        await DietDayContext.strengthHistory(reader: reader, dismissed: dismissed, now: now)
     }
 
-    /// The strength days the plan counts as training: logged strength work and the planner's strength or hard sessions.
     static func trainingDays(reader: StoreReader, dismissed: [String], now: Int,
                              history known: ResolvedStrengthHistory? = nil) async -> DietTrainingDays {
-        let history: ResolvedStrengthHistory
-        if let known { history = known } else { history = await strengthHistory(reader: reader, dismissed: dismissed, now: now) }
-        let offset = TimeZone.current.secondsFromGMT()
-        let logged = Set(TrainingLoadLanes.strengthByDay(history.workouts, tzOffsetSeconds: offset).filter { $0.value > 0 }.keys)
-        let planned = await MainActor.run { DietTrainingPlan.days(from: CoachPlanStore.shared.proposals) }
-        return DietTrainingDays(planned: planned, logged: logged)
+        await DietDayContext.trainingDays(reader: reader, dismissed: dismissed, now: now, history: known)
     }
 
     /// The main lifts' change since `since`, as iOS's `ForgeFoodModel` reads it for the plan.
@@ -101,38 +95,18 @@ enum CoreDietPlan {
     }
 
     /// One day of the plan with the reads iOS's `ForgeFoodModel` makes for it, shared by the day and the suggestions.
-    struct DayContext {
-        var day: DietDayResolver.Day
-        var person: DietPerson
-        var complete: Set<String>
-        var weights: [(day: String, kg: Double)]
-        var history: ResolvedStrengthHistory
-    }
+    /// What the plan needs to answer "what is today's goal", gathered in the shared layer so the iPhone's
+    /// Today tile can ask the same question (`DietDayContext`).
+    typealias DayContext = DietDayContext.Context
 
     static func dayContext(plan: DietPlan, person: DietPerson, burn: Double, kcalPerKg: Double?, args: [String: Any],
                            store: WhoopStore, reader: StoreReader, day: String) async -> DayContext {
-        let today = StoreReader.localDayKey(Date())
-        let now = Date()
-        let from = Calendar.current.date(byAdding: .day, value: -(DietExpenditure.windowDays - 1), to: now)
-            .map(StoreReader.localDayKey) ?? today
-        let complete = (try? await store.foodCompleteDays(from: from, to: today)) ?? []
-        let intake = (await NutritionReads.nutritionByDay(store: store, from: from, to: today)).compactMapValues { $0.calories }
-        let weighFrom = Calendar.current.date(byAdding: .day, value: -120, to: now).map(StoreReader.localDayKey) ?? today
-        let weights = await WeightSeries.series(reader: reader, from: weighFrom, to: today).map { (day: $0.day, kg: $0.value) }
         var burned: [String: Double] = [:]
         for (k, v) in args["burnedByDay"] as? [String: Any] ?? [:] { if let n = v as? NSNumber { burned[k] = n.doubleValue } }
-        var withFat = person
-        let metrics = await BodyMetricsReader.read(reader: reader, activeDeviceId: reader.activeDeviceId, days: 365)
-        withFat.bodyFatPercent = metrics.latest("body_fat")?.value
-        let nowSec = Int(now.timeIntervalSince1970)
-        let dismissed = args["dismissedWorkouts"] as? [String] ?? []
-        let history = await strengthHistory(reader: reader, dismissed: dismissed, now: nowSec)
-        let training = await trainingDays(reader: reader, dismissed: dismissed, now: nowSec, history: history)
-        let inputs = DietDayResolver.Inputs(plan: plan, person: withFat, strapBurnKcal: burn, kcalPerKg: kcalPerKg,
-                                            burnedByDay: burned, completeDays: complete, intakeByDay: intake,
-                                            weighIns: weights, training: training, today: today)
-        return DayContext(day: DietDayResolver.resolve(inputs, day: day, now: now), person: withFat,
-                          complete: complete, weights: weights, history: history)
+        return await DietDayContext.read(plan: plan, person: person, burn: burn, kcalPerKg: kcalPerKg,
+                                         burnedByDay: burned,
+                                         dismissedWorkouts: args["dismissedWorkouts"] as? [String] ?? [],
+                                         store: store, reader: reader, day: day)
     }
 
     /// The week a dismissed suggestion belongs to: this week's Monday, as iOS's `ForgeFoodModel.adviceWeek`.
@@ -212,6 +186,44 @@ enum CoreDietPlan {
                 wire.completeDays = days; wire.weighIns = weighIns
             }
             return CoreRead.json(wire)
+        case "food.planDayGoal":
+            // The day's calorie and macro goal, in the ONE order the app resolves it
+            // (`FoodTargets.dayGoal`): the plan's own day first, because it knows the phase, the
+            // training-day shift and the active-day extra, then the plan resolved without that day's
+            // context, then the wearer's fixed goal, then the energy plan.
+            //
+            // Android resolved this order for itself until 2026-11-19, in a Kotlin `when` beside the
+            // Swift one, which is two readouts of the number this app cares about most: the two differed
+            // already (the iPhone's page skipped the middle step). Now there is one, and Kotlin reads its
+            // answer.
+            let day = args["day"] as? String ?? today
+            var planDay: FoodTargets.DayGoal?
+            var planResolved: FoodTargets.DayGoal?
+            if let plan = DietPlan.decode(args["plan"] as? String) {
+                let ctx = await dayContext(plan: plan, person: person, burn: burn, kcalPerKg: kcalPerKg, args: args,
+                                           store: store, reader: reader, day: day)
+                planDay = .init(calories: ctx.day.calories, macros: ctx.day.macros)
+                let result = DietTargets.resolve(plan, person: ctx.person, burnKcal: ctx.day.planBurnKcal, kcalPerKg: kcalPerKg)
+                planResolved = .init(calories: FoodTargets.calories(plan: plan, result: result, day: day),
+                                     macros: FoodTargets.macros(plan: plan, result: result, day: day))
+            }
+            let energy = FoodTargets.calories(measuredMeanKcal: double("measuredMeanKcal"),
+                                              allDaysMeanKcal: double("allDaysMeanKcal"),
+                                              formulaTdeeKcal: double("formulaTdeeKcal"),
+                                              dailyDeltaKcal: double("dailyDeltaKcal"))
+            guard let goal = FoodTargets.dayGoal(planDay: planDay, planResolved: planResolved,
+                                                 fixedKcal: double("fixedKcal"), energyPlan: energy,
+                                                 proteinPercent: double("proteinPercent"),
+                                                 carbsPercent: double("carbsPercent"),
+                                                 fatPercent: double("fatPercent")) else { return "null" }
+            struct GoalWire: Encodable {
+                var kcal: Double; var basis: String; var burnKcal: Double; var planDeltaKcal: Double
+                var proteinG: Double?; var carbsG: Double?; var fatG: Double?
+            }
+            return CoreRead.json(GoalWire(kcal: goal.calories.kcal, basis: goal.calories.basis.rawValue,
+                                          burnKcal: goal.calories.burnKcal, planDeltaKcal: goal.calories.planDeltaKcal,
+                                          proteinG: goal.macros?.proteinG, carbsG: goal.macros?.carbsG,
+                                          fatG: goal.macros?.fatG))
         case "food.planAdvice":
             // This week's suggestions on the plan page (iOS `DietAdviceCard`): kind and action, at most three, without
             // those dismissed this week. `dismissed` holds the stored "week:kind" entries under iOS's key.

@@ -154,6 +154,7 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
     var quickActions by remember { mutableStateOf(false) }
     var logOpen by remember { mutableStateOf(false) }
     var addingWorkout by remember { mutableStateOf(false) }
+    var settingStatus by remember { mutableStateOf(false) }
     var settingsOpen by remember { mutableStateOf(false) }
     var devicesOpen by remember { mutableStateOf(false) }
     // The metric page a "Your cards" row opens, so each card reaches its own figure (#40).
@@ -212,16 +213,18 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                 // Logging is for what already happened; a live session starts from the Training tab.
                 ForgeLogChoice.Workout -> addingWorkout = true
                 ForgeLogChoice.Weight -> more.push(MoreRoute.Dest(MoreDest.Body))
+                ForgeLogChoice.Status -> settingStatus = true
                 ForgeLogChoice.Journal -> more.push(MoreRoute.Dest(MoreDest.Journal))
                 ForgeLogChoice.Drink -> more.push(MoreRoute.Dest(MoreDest.Hydration))
                 ForgeLogChoice.Food -> { FoodArrival.requestAdd(); more.push(MoreRoute.Dest(MoreDest.Food)) }
-                ForgeLogChoice.Sleep -> selectTab(ForgeTab.Sleep)
+                ForgeLogChoice.Sleep -> { SleepArrival.requestAdd(); selectTab(ForgeTab.Sleep) }
                 ForgeLogChoice.LabMarkers -> more.push(MoreRoute.Dest(MoreDest.Biomarkers))
                 ForgeLogChoice.Breathe -> more.push(MoreRoute.Dest(MoreDest.Breathe))
                 ForgeLogChoice.LiveHeartRate -> more.push(MoreRoute.Dest(MoreDest.Live))
             }
         }
     }
+    if (settingStatus) ForgeActivityStatusSheetHost(onDismiss = { settingStatus = false })
     if (addingWorkout) com.noop.ui.ManualWorkoutDialog(editing = null, onDismiss = { addingWorkout = false },
         onSave = { row, replacing -> viewModel.saveManualWorkout(row, replacing); addingWorkout = false })
     if (liveSession) ForgeLiveSessionCover(viewModel, onClose = { liveSession = false })
@@ -354,7 +357,8 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                             onProfile = { openSettings?.invoke() ?: run { settingsOpen = true } }, onQuickActions = { logOpen = true },
                             onWorkout = { if (viewModel.activeWorkout.value != null) liveWorkout = true else startWorkout = true },
                             workoutRunning = viewModel.activeWorkout.collectAsState().value != null,
-                            onCustomize = { editingWidgets = true })
+                            onCustomize = { editingWidgets = true }, viewModel = viewModel,
+                            onBattery = { openMore?.invoke() ?: selectTab(ForgeTab.More) })
             // A running import, above everything: it is the answer to "why is nothing here yet" and the
             // page it was started from is not the page the wearer waits on. Draws nothing when none runs,
             // and it is shown on a past day too, because the import is not about the day on screen.
@@ -363,6 +367,10 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
             // today, so a past day does not repeat it.
             val healthAlert by viewModel.healthAlert.collectAsState()
             if (shown == today) healthAlert?.let { com.noop.ui.IllnessBanner(it) }
+            // A status the wearer set themselves (ill, injured, on a break) suppresses the training
+            // suggestions, so the page says it holds rather than going quiet. Today only: a status is about
+            // now, not about the day being looked at.
+            if (shown == today) ForgeActivityStatusLine()
             // First run, as iOS's `WearableConnectionStateCard` on Today: nothing recorded or imported yet, and
             // the one next step. The question is the core's (`read.hasAnyDay`), which is iOS's own
             // `repo.days.isEmpty` over the same merge — asking instead whether a Rest or Charge SCORE existed
@@ -412,7 +420,10 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                 d.copy(charge = d.charge ?: carried.first, rest = d.rest ?: carried.second,
                        effort = liveEffort ?: d.effort)
             }
-            Hero(heroDay, width, onHold = { editingWidgets = true }, viewModel = viewModel)
+            Hero(heroDay, width, onHold = { editingWidgets = true }, viewModel = viewModel,
+                 // The rings keep more room under them than an ordinary section break, as on iOS, so the
+                 // chamber reads as the page's head rather than as the first of a list.
+                 modifier = Modifier.padding(bottom = ForgeMetrics.heroGap - ForgeMetrics.sectionGap))
             if (shown == today) ForgeActivityPrompt()
             // The day's one hint under the rings, as iOS's `hintCard`.
             if (shown == today) {
@@ -423,7 +434,7 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                               onWeight = { more.push(MoreRoute.Dest(MoreDest.Body)) })
                 if (hintCharge) ChargeBreakdownHost(viewModel, onDismiss = { hintCharge = false })
             }
-            if (shown == today) ForgeMorningSuggestion()
+            if (shown == today) ForgeMorningSuggestion(fetching = viewModel.live.collectAsState().value.backfilling)
             // iOS's layout choices: the timeline can be hidden, and the tiles can follow it instead of the rings.
             TodayWidgets.loadLayout(context)
             val showsTimeline by TodayWidgets.showsTimeline.collectAsState()
@@ -455,7 +466,7 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                             onCoach = if (coachOn) ({ more.push(MoreRoute.Dest(MoreDest.Coach)) }) else null,
                             onArrange = { arranging = style }, onPickDay = { dayPicker = true })
             if (shown == today) ForgeActivityPrompt()
-            if (shown == today) ForgeMorningSuggestion()
+            if (shown == today) ForgeMorningSuggestion(fetching = viewModel.live.collectAsState().value.backfilling)
             ForgeStyledDashboard(style, layoutRevision, shown, model?.day, viewModel,
                 onSection = { drawSection(it) },
                 onHealth = { more.push(MoreRoute.Dest(MoreDest.Health)) },
@@ -469,7 +480,7 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
         // Pinned above the arranged sections, as on iOS (`MorningSuggestionCard` before the `ForEach`); activity
         // detection's prompt first, so a suggestion waiting for an answer cannot be arranged below the fold.
         if (shown == today) ForgeActivityPrompt()
-        if (shown == today) ForgeMorningSuggestion()
+        if (shown == today) ForgeMorningSuggestion(fetching = viewModel.live.collectAsState().value.backfilling)
         // Every drawn section in the saved order (`TodayLayoutDefaults`); a hidden one keeps its stored place.
         sections.forEach { drawSection(it) }
         }
@@ -484,7 +495,8 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
  */
 @Composable
 private fun NewDesignHeader(date: LocalDate, isToday: Boolean, backfilling: Boolean, onProfile: () -> Unit,
-                            onQuickActions: () -> Unit, onWorkout: () -> Unit, workoutRunning: Boolean, onCustomize: () -> Unit) {
+                            onQuickActions: () -> Unit, onWorkout: () -> Unit, workoutRunning: Boolean, onCustomize: () -> Unit,
+                            viewModel: AppViewModel, onBattery: () -> Unit) {
     val locale = Locale.getDefault()
     val sceneShadow = if (Forge.sceneInk.dark) Shadow(Color.Black.copy(alpha = 0.55f), Offset(0f, 1f), 8f) else null
     Column(Modifier.fillMaxWidth().padding(top = ForgeMetrics.space4)) {
@@ -504,7 +516,7 @@ private fun NewDesignHeader(date: LocalDate, isToday: Boolean, backfilling: Bool
                 overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f),
             )
             // As iOS's `addMenu`: start (or return to) a workout, add an entry, customise Today behind one plus.
-            TodayHeaderButtons(onProfile, onQuickActions) { close ->
+            TodayHeaderButtons(onProfile, onQuickActions, viewModel = viewModel, onBattery = onBattery) { close ->
                 ForgeMenuItem(stringResource(if (workoutRunning) R.string.forge_log_back_to_workout else R.string.forge_qa_start_workout),
                               Icons.AutoMirrored.Rounded.DirectionsRun) { close(); onWorkout() }
                 ForgeMenuItem(stringResource(R.string.forge_log_add_entry), Icons.Rounded.EditNote) { close(); onQuickActions() }
@@ -549,11 +561,12 @@ private fun Header(date: LocalDate, isToday: Boolean, backfilling: Boolean, onPr
 }
 
 @Composable
-private fun Hero(day: CoreRead.Day?, width: ForgeWidth, onHold: (() -> Unit)? = null, viewModel: AppViewModel? = null) {
+private fun Hero(day: CoreRead.Day?, width: ForgeWidth, onHold: (() -> Unit)? = null, viewModel: AppViewModel? = null,
+                 modifier: Modifier = Modifier) {
     val colors = Forge.colors
     // Each ring opens its trend, as iOS's `HeroScoreCell` pushes its `detailRoute`.
     var open by remember { mutableStateOf<CoreRead.Metric?>(null) }
-    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.heroRadius, glass = true, contentPadding = 0.dp) {
+    ForgeCard(modifier.fillMaxWidth(), radius = ForgeMetrics.heroRadius, glass = true, contentPadding = 0.dp) {
         Box(Modifier.fillMaxWidth()) {
             BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = HeroRingLayout.horizontalPadding,
                                                                vertical = HeroRingLayout.verticalPadding)) {
@@ -742,7 +755,7 @@ object HeroRingLayout {
 
 /** The Energy card after `EnergyCard`: today's total so far, resting, active and projected; tap opens the detail. */
 @Composable
-internal fun TodayEnergy() {
+internal fun TodayEnergy(compact: TileSize? = null) {
     val context = LocalContext.current
     var summary by remember { mutableStateOf<com.noop.core.CoreEnergyDetail.Summary?>(null) }
     var open by remember { mutableStateOf(false) }
@@ -756,6 +769,23 @@ internal fun TodayEnergy() {
     val s = summary ?: return
     val whole = java.text.NumberFormat.getIntegerInstance(Locale.getDefault())
     fun kcal(v: Double?) = v?.let { whole.format(kotlin.math.round(it).toLong()) } ?: "—"
+    if (compact != null) {
+        // Over two columns: what the day has burned, and under it the resting and active parts that make it
+        // up (owner's table, 2026-11-18). Not what was eaten: the Nutrition tile carries the eating, so the
+        // day's intake is not stated twice on one page.
+        ForgeCardTile(Icons.Rounded.LocalFireDepartment, stringResource(R.string.forge_ew_energy),
+                      s.total?.let { kcal(it) }, stringResource(R.string.forge_unit_kcal),
+                      if (compact == TileSize.Medium && s.total != null)
+                          stringResource(R.string.forge_pair_words,
+                                         stringResource(R.string.forge_ew_resting) + " " + kcal(s.basal ?: s.bmr24h),
+                                         "· " + stringResource(R.string.forge_ew_active) + " " + kcal(s.active))
+                      else null,
+                      Forge.colors.effort) { open = true }
+        if (open) ForgeOverlayPage(onDismiss = { open = false }) {
+            ForgeSceneBackdrop(ForgeBackdrop.Sky) { ForgeEnergyDetailPage(onBack = { open = false }) }
+        }
+        return
+    }
     if (ForgeDesign.preview) {
         // The new design's card, as iOS's ForgeEnergyWidget: the name with its arrow, then before anything is
         // measured one quiet line with the flame, else the resting and active burn so far, each beside its colour.

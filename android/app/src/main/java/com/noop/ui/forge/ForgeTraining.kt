@@ -51,6 +51,10 @@ import androidx.compose.material.icons.rounded.Air
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import com.noop.core.CoreGoals
 import androidx.compose.material.icons.rounded.TrackChanges
 import androidx.compose.material.icons.rounded.Star
@@ -981,6 +985,7 @@ private fun StarterPlans(onClose: () -> Unit) {
  * editable, a set ticked off when done, sets and exercises added or removed. Every change goes through the core and
  * the draft it saves, so a session survives the app being closed exactly as on the iPhone.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ForgeTrainingSession(exercises: List<CoreTraining.Exercise>, onClose: () -> Unit,
                                  onStrapBuzz: () -> Unit = {}, strap: StrapTapHost? = null) {
@@ -1113,7 +1118,7 @@ private fun ForgeTrainingSession(exercises: List<CoreTraining.Exercise>, onClose
      * ("0 ticked") or that it was not ("9 ticked" against the core finding no completed work).
      */
     fun draftShape(): String {
-        val exercises = d?.exercises ?: emptyList()
+        val exercises = draft?.exercises ?: emptyList()
         val sets = exercises.sumOf { it.sets.size }
         val ticked = exercises.sumOf { e -> e.sets.count { it.done } }
         return "${exercises.size} exercise(s), $sets set(s), $ticked ticked"
@@ -1149,9 +1154,17 @@ private fun ForgeTrainingSession(exercises: List<CoreTraining.Exercise>, onClose
      * asked and it reports the same reason the core would have. That short-circuit is why the refusal has
      * to be logged HERE as well — a log written only where the core answers stays silent on the most
      * common refusal of all, and says nothing about what the draft held when it happened.
+     *
+     * It reads [draft], the state, NOT the `d` snapshot the body takes. The top bar used to be handed
+     * `::requestFinish`, and a reference to a local function carries the locals it closed over: the one
+     * the bar kept was made on the first composition, when the draft had not loaded yet, so the guard
+     * asked an empty draft for ever after. Every tick was stored, the header counted them, the screen drew
+     * them, and the finish said "mark at least one set as done" — the loop reported on Discord on
+     * 2026-11-20 and reproduced here. The bar now gets a lambda, and the guard reads the state through it,
+     * so neither half can go stale again.
      */
     fun requestFinish() {
-        if (d?.exercises?.any { e -> e.sets.any { it.done } } == true) {
+        if (draft?.exercises?.any { e -> e.sets.any { it.done } } == true) {
             finishing = true
             return
         }
@@ -1256,7 +1269,7 @@ private fun ForgeTrainingSession(exercises: List<CoreTraining.Exercise>, onClose
                    .padding(horizontal = ForgeMetrics.screenPadding).navigationBarsPadding()
                    .padding(bottom = if (rest != null) 150.dp else ForgeMetrics.space4),
                verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            LoggerTopBar(d?.title ?: stringResource(R.string.forge_training), onMinimize = onClose, onFinish = ::requestFinish) { dismiss ->
+            LoggerTopBar(d?.title ?: stringResource(R.string.forge_training), onMinimize = onClose, onFinish = { requestFinish() }) { dismiss ->
                 DropdownMenuItem(text = { Text(stringResource(R.string.forge_lg_add_exercise)) },
                                  leadingIcon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                                  onClick = { dismiss(); picking = true })
@@ -1345,44 +1358,50 @@ private fun ForgeTrainingSession(exercises: List<CoreTraining.Exercise>, onClose
                     confirmButton = { TextButton(onClick = { finishProblem = null }) { Text(stringResource(android.R.string.ok)) } })
     }
     if (finishing) {
-        var rpe by remember { mutableStateOf("") }
-        // What saving adds to this week's goals, before Save as on iOS (`GoalSessionPreviewNote`).
+        // iOS's `LiftSessionView.finishSheet`, not a bare dialog with a number in it: the question, what
+        // the number is FOR, what saving adds to the week's goals, and one way to save. Two buttons is
+        // what iOS removed on purpose, because Skip saved exactly the same way and read as a second
+        // choice; an empty field is simply no rating.
+        var rpe by remember { mutableStateOf<Double?>(null) }
         val preview by produceState(emptyList<CoreGoals.Preview>()) {
             value = withContext(Dispatchers.IO) {
                 CoreGoals.lines(context, dismissedTrainingWorkouts(context), draft = true)?.preview.orEmpty()
             }
         }
-        AlertDialog(
-            onDismissRequest = { finishing = false },
-            title = { Text(stringResource(R.string.forge_training_effort)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space3)) {
-                    NumberField(rpe, onChange = { rpe = it.filter(Char::isDigit).take(2) })
-                    preview.forEach { line ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(if (line.reaches) Icons.Rounded.Star else Icons.Rounded.TrackChanges, contentDescription = null,
-                                 tint = if (line.reaches) ForgeTokens.StrandPalette.statusWarning.resolve() else Forge.colors.accent,
-                                 modifier = Modifier.size(14.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text(line.text, style = Forge.type.footnote, color = Forge.colors.textSecondary)
-                        }
+        ModalBottomSheet(onDismissRequest = { finishing = false },
+                         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                         containerColor = Forge.colors.surface) {
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).navigationBarsPadding()
+                       .padding(horizontal = ForgeMetrics.screenPadding).padding(bottom = ForgeMetrics.space4),
+                   verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space3)) {
+                Text(stringResource(R.string.forge_fin_title), style = Forge.type.title2.copy(fontWeight = FontWeight.Bold),
+                     color = Forge.colors.text)
+                Text(stringResource(R.string.forge_fin_sub), style = Forge.type.caption, color = Forge.colors.textSecondary)
+                ForgeCard(Modifier.fillMaxWidth()) {
+                    Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
+                        Text(stringResource(R.string.forge_fin_question).uppercase(), style = Forge.type.overline,
+                             color = Forge.colors.textSecondary)
+                        SessionEffortPicker(rpe) { rpe = it }
+                        Text(stringResource(R.string.forge_fin_note), style = Forge.type.footnote,
+                             color = Forge.colors.textTertiary)
                     }
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = {
+                preview.forEach { line ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(if (line.reaches) Icons.Rounded.Star else Icons.Rounded.TrackChanges, contentDescription = null,
+                             tint = if (line.reaches) ForgeTokens.StrandPalette.statusWarning.resolve() else Forge.colors.accent,
+                             modifier = Modifier.size(14.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(line.text, style = Forge.type.footnote, color = Forge.colors.textSecondary)
+                    }
+                }
+                Button(onClick = {
                     finishing = false
-                    val value = rpe.toIntOrNull()?.takeIf { it in 1..10 }?.toDouble()
+                    val value = rpe?.takeIf { it in 1.0..10.0 }
                     scope.launch { finishWorkout(value) }
-                }) { Text(stringResource(R.string.forge_training_save)) }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    finishing = false
-                    scope.launch { finishWorkout(null) }
-                }) { Text(stringResource(R.string.forge_training_skip)) }
-            },
-        )
+                }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.forge_fin_save)) }
+            }
+        }
     }
 }
 

@@ -440,6 +440,15 @@ class ProfileStore(private val prefs: SharedPreferences) {
         }
     }
 
+    /** Whether nobody has said who this is yet. The demo seed asks before it writes a synthetic person,
+     *  so a wearer who once started a demo build keeps their own figures.
+     *
+     *  It asks about the height and the cohort, not the age or the weight: [dateOfBirthMillis] WRITES a
+     *  date of birth and its mirrored age the first time anybody reads it, and the Health Connect weight
+     *  sync copies a weight across, so those keys are set on a profile nobody has touched. Nothing
+     *  derives a height or a cohort. */
+    fun isUnset(): Boolean = !prefs.contains(KEY_HEIGHT) && !prefs.contains(KEY_SEX)
+
     companion object {
         internal const val PREFS = "noop_profile"
         /** Date of birth as epoch millis — the #146 source of truth for [age]. */
@@ -763,7 +772,7 @@ fun SettingsScreen(
     // Display-only; the stored value never changes. Mirrors into local state like the toggles above.
     var effortScale by remember { mutableStateOf(UnitPrefs.effortScale(context)) }
 
-    // App icon (v3 "Titanium & Gold") — machined-titanium (.IconDefault) or blued-titanium (.IconNavy).
+    // App icon (v3 "Titanium & Gold") — the Forge mark (.IconDefault) or the gold loop on navy (.IconNavy).
     // SharedPreferences isn't reactive, so the segmented control drives this local mirror; flipping it
     // enables exactly one launcher alias via PackageManager (see setAppIcon below).
     var appIconNavy by remember { mutableStateOf(NoopPrefs.appIconNavy(context)) }
@@ -2048,7 +2057,7 @@ fun SettingsScreen(
         }
 
         // --- App icon (v3 "Titanium & Gold") ---
-        // Two staged launcher icons — machined titanium (default) and blued/dark-blue titanium. The
+        // The same two icons iOS offers: the Forge mark on stone (default) and the gold loop on navy. The
         // swap is done by enabling exactly one <activity-alias> (.IconDefault / .IconNavy) at runtime;
         // the launcher may take a beat (or briefly disappear/redraw) while it re-reads the icon.
         SettingsCard(

@@ -133,6 +133,10 @@ private struct SettingsPageContent: View, Equatable {
     /// single-subject so far. Display-only; never feeds recovery/illness. See
     /// [PuffinExperiment.stressPersonalBaselineKey].
     @AppStorage(PuffinExperiment.stressPersonalBaselineKey) private var stressPersonalBaselineEnabled = false
+    #if os(iOS) && DEBUG
+    /// The debug-only comparison board, presented from Lab.
+    @State private var showsTileBoard = false
+    #endif
     /// [PuffinExperiment.exerciseVO2maxKey].
     @AppStorage(PuffinExperiment.exerciseVO2maxKey) private var exerciseVO2maxEnabled = false
     /// [PuffinExperiment.effortStrengthBonusKey].
@@ -3686,6 +3690,10 @@ private struct SettingsPageContent: View, Equatable {
             blurb: "Every style reads the same data. Switch back any time."
         ) {
             VStack(alignment: .leading, spacing: NoopMetrics.rowSpacing) {
+                // macOS only since 2026-11-20. These four are the Today screens the iPhone left behind
+                // when the redesign became the only one; the Mac has no redesign, so there they are still
+                // the choice, and the picker stays where it has always been.
+                #if os(macOS)
                 FormRow(label: "Dashboard style") {
                     Picker("Dashboard style", selection: $todayDashboardStyleRaw) {
                         ForEach(TodayDashboardStyle.allCases) { style in
@@ -3697,6 +3705,7 @@ private struct SettingsPageContent: View, Equatable {
                     .appleInspiredTint("settings.controls")
                     .accessibilityLabel("Dashboard style")
                 }
+                #endif
 
                 if TodayDashboardStyle.resolve(todayDashboardStyleRaw) == .trends {
                     trendsSlotPickers
@@ -3828,16 +3837,20 @@ private struct SettingsPageContent: View, Equatable {
             blurb: "Unfinished features. Off by default; turn one off again any time."
         ) {
             VStack(alignment: .leading, spacing: NoopMetrics.rowSpacing) {
-                #if os(iOS)
-                // MARK: The 2026-11 redesign preview (four tabs, timeline Today). Off by default.
-                Toggle(isOn: $forgeDesignPreview) {
-                    Text("New design (preview)")
+                // The redesign's switch stood here until 2026-11-20. It is gone, not hidden: the design
+                // ships to everyone and the screens under it are not maintained any more, so a way back
+                // only produces reports from pages nobody is looking at (`retireTheOldDesign`).
+
+                #if os(iOS) && DEBUG
+                // The comparison board (debug only): every tile at every size on one page, so the two
+                // phones can be held against each other without first arranging a layout by hand on both.
+                Button { showsTileBoard = true } label: {
+                    Text("Tile board")
                         .font(StrandFont.subhead)
-                        .foregroundStyle(StrandPalette.textPrimary)
+                        .foregroundStyle(StrandPalette.accent)
                 }
-                .toggleStyle(.switch)
-                .tint(StrandPalette.accent)
-                Text("Four tabs instead of five: Today becomes a timeline under your rings, Health gathers vitals and long-term trends, and everything else moves behind the profile button. Unfinished; your data and settings stay the same.")
+                .buttonStyle(.plain)
+                Text("Every Today tile at every size, drawn by the views Today uses. Debug builds only.")
                     .font(StrandFont.caption)
                     .foregroundStyle(StrandPalette.textTertiary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -3931,6 +3944,9 @@ private struct SettingsPageContent: View, Equatable {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+        #if os(iOS) && DEBUG
+        .sheet(isPresented: $showsTileBoard) { ForgeTileBoardView() }
+        #endif
     }
 
     // MARK: - Help & Diagnostics

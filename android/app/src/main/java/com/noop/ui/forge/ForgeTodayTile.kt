@@ -44,9 +44,20 @@ import com.noop.ui.KeyMetric
 internal fun ForgeTodayTile(icon: ImageVector, tint: Color, label: String, value: String?, unit: String, caption: String?,
                             noData: String, dense: Boolean, modifier: Modifier = Modifier, delta: String? = null,
                             deltaTone: String? = null, trend: List<Double>? = null,
-                            overlay: (@Composable () -> Unit)? = null) {
+                            overlay: (@Composable () -> Unit)? = null,
+                            /**
+                             * Drawn where the sparkline would be, for a tile that brings its own chart: the
+                             * row-wide form draws a dated one, and a bare curve cannot say when it was.
+                             */
+                            below: (@Composable () -> Unit)? = null,
+                            /**
+                             * A taller curve than the tile's own, for the row-wide form (2026-11-18): the
+                             * same series, given the room to be read rather than glanced at. Null keeps the
+                             * tile's height.
+                             */
+                            sparkHeightOverride: androidx.compose.ui.unit.Dp? = null) {
     val colors = Forge.colors
-    val sparkHeight = if (dense) 22.dp else 28.dp
+    val sparkHeight = sparkHeightOverride ?: if (dense) 22.dp else 28.dp
     Box(modifier.heightIn(min = ForgeTokens.NoopMetrics.tileHeight.dp)) {
         ForgeCard(Modifier.fillMaxWidth().fillMaxHeight(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
             Column(Modifier.fillMaxWidth().padding(horizontal = if (dense) 12.dp else 14.dp, vertical = if (dense) 11.dp else 12.dp),
@@ -82,8 +93,9 @@ internal fun ForgeTodayTile(icon: ImageVector, tint: Color, label: String, value
                 } else if (line != null) {
                     ShrinkText(line, Forge.type.footnote, colors.textSecondary, 0.7f, Modifier.fillMaxWidth())
                 }
-                if (trend != null && trend.size > 1) KeyTileSpark(trend, tint, sparkHeight)
-                else Spacer(Modifier.height(sparkHeight))
+                if (below != null) below()
+                else if (trend != null && trend.size > 1) KeyTileSpark(trend, tint, sparkHeight)
+                else if (trend != null) Spacer(Modifier.height(sparkHeight))
             }
         }
         overlay?.invoke()

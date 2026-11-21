@@ -132,7 +132,7 @@ struct ForgeTodayView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 0) {
                         // The logical day, as the page's values and Liquid Today's header (#144): past midnight the
                         // evening's day is still "Today", not the new calendar date.
                         ForgeLargeHeader(title: "Today",
@@ -142,6 +142,9 @@ struct ForgeTodayView: View {
                             .id("forge-today-top")
                         VStack(alignment: .leading, spacing: 14) {
                             HealthAlertBanner()
+                            // A status the wearer set themselves (ill, injured, on a break) suppresses the
+                            // training suggestions, so the page says it holds rather than going quiet.
+                            ForgeActivityStatusLine()
                             ActiveWorkoutIndicatorSection()
                             if snapshot.loaded && repo.days.isEmpty {
                                 // First run: nothing recorded or imported yet. The same calm state Health and
@@ -169,9 +172,13 @@ struct ForgeTodayView: View {
                                 withAnimation(.easeOut(duration: 0.15)) { cardUnderClock = under }
                             }
                             // Room between the rings and what follows, so the card reads as the page's head.
-                            .padding(.bottom, 12)
-                            // A detected activity waiting for an answer, then the day's one hint.
-                            ActivitySuggestionPrompt(compact: true)
+                            // The measure is `NoopMetrics.heroGap`, which Android keeps in one piece.
+                            .padding(.bottom, NoopMetrics.heroGapUnderCard)
+                            // A detected activity waiting for an answer, then the day's one hint. Each brings
+                            // its own room rather than taking the stack's: on a day with neither, the two
+                            // empty slots still took their spacing, and the rings then sat about twenty
+                            // points further from the tiles than on Android (owner, 2026-11-18).
+                            ActivitySuggestionPrompt(compact: true).padding(.top, 10)
                             hintCard
                         }
                         .padding(.horizontal, 16)
@@ -182,7 +189,7 @@ struct ForgeTodayView: View {
                         }
                     }
                     .padding(.horizontal, 16)
-                    .padding(.top, 20)
+                    .padding(.top, NoopMetrics.heroGap - NoopMetrics.heroGapUnderCard)
                     .padding(.bottom, 16)
                     dayList
                 }
@@ -792,13 +799,15 @@ struct ForgeTodayView: View {
                 }
             }
             // The signals themselves stand on the morning entry and the Charge page; here only the question
-            // that can calm the warning, so one fact is not drawn twice on the same page.
-            if notice.topic == TimelineFeed.Topic.bodySignals.rawValue {
+            // that can calm the warning, so one fact is not drawn twice on the same page. Whether this
+            // notice may ask at all is the notice's own answer (`asksForCause`), never a second reading of
+            // its topic here.
+            if notice.asksForCause {
                 causeChips.padding(.leading, 52)
             }
             explainBlock(key: notice.key, title: notice.headline, figures: notice.detail)
             if let title = notice.actionTitle, notice.action != .none {
-                Group {
+                HStack(spacing: 8) {
                     if notice.action == .charge {
                         NavigationLink(value: ForgeRoute.charge) {
                             Text(title).font(.system(.subheadline, weight: .medium)).foregroundStyle(ForgeColor.accent)
@@ -808,6 +817,11 @@ struct ForgeTodayView: View {
                         .buttonStyle(.plain)
                     } else {
                         ForgeChip(title: title, prominent: true) { perform(notice.action) }
+                    }
+                    // The second answer, where the notice has one: not prominent, because the first is the
+                    // one that needs no screen change.
+                    if let second = notice.secondaryActionTitle, notice.secondaryAction != .none {
+                        ForgeChip(title: second) { perform(notice.secondaryAction) }
                     }
                 }
                 .padding(.leading, 52)
@@ -835,6 +849,13 @@ struct ForgeTodayView: View {
         Task {
             await repo.saveJournalAnswer(day: Repository.logicalDayKey(Date()), question: cause.question,
                                          answeredYes: true, notes: cause.key)
+            // "Unwell" and the status "Sick" are the same statement about the same day. Keeping them apart
+            // let the wearer answer the warning while the app went on proposing training, so the chip sets
+            // the status too. `settingSick` owns both bounds: it never shortens a status the wearer set
+            // themselves, and one tap lasts only for today.
+            if cause == .sick, let sick = ActivityStatus.settingSick(from: ActivityStatusStore.load()) {
+                ActivityStatusStore.save(sick)
+            }
             model?.reevaluateIllness()
             await load()
         }
@@ -1160,6 +1181,21 @@ struct ForgeTodayView: View {
                     .padding(.top, -10).padding(.trailing, -12)
                     .accessibilityLabel(Text("Dismiss"))
                 }
+                // A notice's answers travel with it. Until 2026-11-18 this card showed only the headline
+                // and the line, so the one notice that offers two of them — the night still being scored —
+                // arrived here with neither, and the only way to answer it was a tap that said nothing.
+                // `.charge` is left out: that one opens the Charge page, and the card body is already the
+                // link to it, so a chip beside it would be a second control for the same move.
+                if case .notice(let notice) = top.source, let title = notice.actionTitle,
+                   notice.action != .none, notice.action != .charge {
+                    HStack(spacing: 8) {
+                        ForgeChip(title: title, prominent: true) { perform(notice.action) }
+                        if let second = notice.secondaryActionTitle, notice.secondaryAction != .none {
+                            ForgeChip(title: second) { perform(notice.secondaryAction) }
+                        }
+                    }
+                    .padding(.leading, 52)
+                }
                 if hints.count > 1 {
                     if hintsOpen {
                         ForEach(hints.dropFirst()) { hint in
@@ -1186,6 +1222,8 @@ struct ForgeTodayView: View {
                 }
             }
             .forgeCard(radius: ForgeRadius.card, padding: 16)
+            // Its own room above, so an absent hint costs none (see the stack's spacing of 0).
+            .padding(.top, 10)
         }
     }
 
@@ -1206,6 +1244,10 @@ struct ForgeTodayView: View {
         switch hint.source {
         case .notice(let notice) where notice.action == .charge:
             NavigationLink(value: ForgeRoute.charge) { label() }.buttonStyle(.plain)
+        case .notice(let notice) where notice.action.commits:
+            // Inert on purpose: the card does not say what the action would do, and a tap that commits
+            // something unsaid is the defect. Its chips below carry the answers, in words.
+            label()
         case .notice(let notice):
             Button { perform(notice.action) } label: { label() }.buttonStyle(.plain)
         case .coach:
@@ -1853,7 +1895,12 @@ struct ForgeTodayView: View {
             stepGoal: momentumStepGoal, live: DashboardMomentum.LiveInput(model: model))
         let momentum = MomentumResolver.feed(context: momentumContext, snoozedRaw: momentumSnoozedRaw,
                                              lastKind: momentumLastKind, lastAt: momentumLastAt, retrospective: false)
-        let nightPending = await coach.unconfirmedWakeNeedingReview(now: now) != nil
+        // The wake of a night that is still being scored, if there is one, with whether an offload is
+        // running right now: that decides which reason the card gives, and it is the one thing the
+        // headline cannot carry (`UnsettledNightReadout`).
+        let nightPending = await coach.unconfirmedWakeNeedingReview(now: now).map {
+            UnsettledNightReadout.reading(wakeTs: $0, fetching: model?.live.backfilling ?? false)
+        }
         input.notices = ForgeNotices.notices(momentum: momentum, nightPending: nightPending, day: todayKey, now: now)
         // The evening report, once the evening has begun: two hours before the planned bedtime, from 19:00.
         let bedtime = ForgeToday.plannedBedtime(now: now)

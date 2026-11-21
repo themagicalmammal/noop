@@ -28,6 +28,9 @@ import UIKit
 // minutes for light/deep/rem/awake; typical = mean of repo.days).
 
 struct SleepView: View {
+    /// Opens the "add a sleep" sheet as soon as the screen appears: the Log sheet's Sleep entry, which
+    /// until 2026-11-20 opened this tab and did nothing else.
+    var opensAdd = false
     @EnvironmentObject var repo: Repository
     /// The empty state's "Open Data Sources" button routes through the shell (`NavRouter`), because
     /// neither shell exposes a selection this screen could set directly.
@@ -71,6 +74,8 @@ struct SleepView: View {
     @State private var navNight: Night?
     /// The night editor, its undo and the nap delete confirmation, shared with the new design's Sleep tab.
     @StateObject private var editor = SleepNightEditor()
+    /// So `opensAdd` opens the sheet once, not on every return to this screen.
+    @State private var openedAdd = false
 
     @State private var presentation: SleepPresentation?
     private var habitualMidsleepSec: Int? { presentation?.habitualMidsleepSec }
@@ -193,6 +198,29 @@ struct SleepView: View {
             } catch { /* A superseded load must not replace the currently visible night. */ }
         }
         .sleepNightEditing(editor)
+        // An add refused for lying on top of a stored sleep offers that sleep. Only this screen knows how
+        // its nights are grouped and paged, so it turns the onset into the offset both screens browse by
+        // and hands it to the request the redesign's tab already uses.
+        .onChange(of: editor.jumpToSleepStart) { target in
+            guard let target else { return }
+            editor.jumpToSleepStart = nil
+            guard let index = navDays.firstIndex(where: { $0.contains { $0.effectiveStartTs == target } })
+            else { return }
+            // The night in the way is often the one already on screen. Setting the offset it already holds
+            // restarts no load, so the request would never be consumed: the button would do nothing and
+            // the pending request would then fire on the next unrelated load, opening the editor by itself.
+            if index == nightOffset {
+                if let night = navNight ?? model?.night { editor.edit(night) }
+            } else {
+                SleepEditRequest.pending = (offset: index, action: .editNight)
+                nightOffset = index
+            }
+        }
+        .onAppear {
+            guard opensAdd, !openedAdd else { return }
+            openedAdd = true
+            startAdding(for: Date())
+        }
     }
 
     /// A direct route to the one alarm screen, available even before a night is recorded.
@@ -510,11 +538,13 @@ struct SleepView: View {
                 sleepWindowRow(model.night)
                 stageCard(model.night, intervals: model.intervals)
                 napSection(model.night)
+                addSleepRow(endTs: model.night.session.endTs)
             } else if let night = navNight, night.stages.asleep > 0 {
                 nightNavHeader(trailing: night.spanLabel)
                 sleepWindowRow(night)
                 stageCard(night, intervals: night.intervals)
                 napSection(night)
+                addSleepRow(endTs: night.session.endTs)
             } else if let session = sessionRow(at: displayedNightOffset) {
                 // Stage-less stub purely to reuse Night's date/time formatting.
                 let stub = Night(session: session, stages: Stages(awake: 0, light: 0, deep: 0, rem: 0),
@@ -530,11 +560,37 @@ struct SleepView: View {
                     chart: { noStagePlaceholder }
                 )
                 napSection(stub)
+                addSleepRow(endTs: stub.session.endTs)
             }
         }
         // Stale-highlight guard: browsing to another night clears the stage selection. Attached to
         // the always-present hero container (not a branch that gets swapped out mid-navigation).
         .onChange(of: displayedNightOffset) { _ in selectedStage = nil }
+    }
+
+    /// Adding a sleep NOOP never recorded: a night it missed entirely, or a nap. It sits under the night
+    /// it would join, because that is where someone is standing when they notice the gap.
+    @ViewBuilder
+    private func addSleepRow(endTs: Int) -> some View {
+        Button {
+            startAdding(for: Date(timeIntervalSince1970: TimeInterval(endTs)))
+        } label: {
+            Label("Add a sleep", systemImage: "plus")
+                .font(StrandFont.footnote)
+                .foregroundStyle(StrandPalette.accent)
+        }
+        .buttonStyle(.plain)
+        .padding(.top, 2)
+    }
+
+    /// Opens the add sheet for the day being looked at. Whether that day already holds a main sleep is
+    /// what decides the seed, and it is read from the day's own blocks rather than guessed.
+    private func startAdding(for dayAnchor: Date) {
+        let day = Repository.localDayKey(dayAnchor)
+        let hasMain = repo.sleeps.contains {
+            Repository.localDayKey(Date(timeIntervalSince1970: TimeInterval($0.endTs))) == day
+        }
+        editor.startAdding(dayStart: dayAnchor, hasMainSleep: hasMain)
     }
 
     /// Existing naps remain a compact part of the day's sleep accounting. Creating and editing them is not
@@ -1299,8 +1355,8 @@ struct SleepView: View {
                     .font(StrandFont.overline)
                     .tracking(StrandFont.overlineTracking)
                     .foregroundStyle(StrandPalette.textTertiary)
-                if let t = stageTypical(nil) {
-                    Text("typically \(durationText(t.mean))")
+                if let t = NightSummaryFacts.typicalAsleepMin(repo.days) {
+                    Text("typically \(durationText(t))")
                         .font(StrandFont.footnote)
                         .foregroundStyle(StrandPalette.textTertiary)
                 }
@@ -1313,7 +1369,7 @@ struct SleepView: View {
                     .font(StrandFont.overline)
                     .tracking(StrandFont.overlineTracking)
                     .foregroundStyle(StrandPalette.textTertiary)
-                if let t = restorativeTypical() {
+                if let t = NightSummaryFacts.typicalRestorativeMin(repo.days) {
                     Text("typically \(durationText(t))")
                         .font(StrandFont.footnote)
                         .foregroundStyle(StrandPalette.textTertiary)
@@ -1392,15 +1448,6 @@ struct SleepView: View {
     }
 
     /// 30-day mean restorative minutes (deep + REM per scored night).
-    private func restorativeTypical() -> Double? {
-        let values: [Double] = repo.days.suffix(30).compactMap { d in
-            guard let deep = d.deepMin, let rem = d.remMin else { return nil }
-            let v = deep + rem
-            return v > 0 ? v : nil
-        }
-        guard values.count >= 5 else { return nil }
-        return values.reduce(0, +) / Double(values.count)
-    }
 
     /// One WHOOP stage row: header (STAGE · coloured % · right-aligned duration) above a hatched
     /// night-long track with solid segments where the stage occurred. Tap toggles the highlight:
@@ -1747,14 +1794,15 @@ struct SleepView: View {
         return e.map { "\(Int($0.rounded()))%" } ?? "—"
     }
 
-    /// Efficiency in percent. Prefer the stored session value, else asleep / time-in-bed.
+    /// Efficiency in percent, through the one resolver every sleep screen reads
+    /// (`NightSummaryFacts.efficiencyPct`).
+    ///
+    /// It takes the SHOWN night's own stored value. It used to fall back to `repo.today`, which is the
+    /// newest day whatever night is on screen, so paging back a week could put today's efficiency under
+    /// a night from last Tuesday.
     private func efficiencyPct(_ night: Night) -> Double? {
-        if let stored = night.session.efficiency ?? repo.today?.efficiency {
-            return stored <= 1.0 ? stored * 100 : stored
-        }
-        let bed = night.timeInBed
-        guard bed > 0 else { return nil }
-        return Swift.min(100, night.stages.asleep / bed * 100)
+        NightSummaryFacts.efficiencyPct(asleepMin: night.stages.asleep, inBedMin: night.timeInBed,
+                                        stored: night.session.efficiency)
     }
 
     private func durationText(_ minutes: Double) -> String {
@@ -2277,12 +2325,33 @@ enum SleepEditRequest {
 
 
 
+/// A labelled way out of a refusal, handed to the editor by whoever refused.
+///
+/// Adding a sleep on top of one the app already holds is the case: the window cannot be stored, and the
+/// thing the wearer almost certainly wants is to correct the session that is in the way. Naming it in the
+/// message and leaving them to find it would be the weaker half of that.
+struct SleepEditorExit {
+    let title: String
+    let run: @MainActor () -> Void
+}
+
 /// A small sheet to hand-correct a night's bed (onset) and wake (end) instants. Seeds both pickers with
 /// the current values, including each calendar date. Hands the chosen unix-second (bed, wake) back via
 /// `onSave`. Pure presentation + a single async save — persistence lives in the repo.
 enum SleepEditorActionOutcome: Equatable {
     case success
     case failure(String)
+    /// Refused, with one labelled thing the wearer can do about it instead.
+    case refused(String, SleepEditorExit)
+
+    static func == (lhs: SleepEditorActionOutcome, rhs: SleepEditorActionOutcome) -> Bool {
+        switch (lhs, rhs) {
+        case (.success, .success): return true
+        case (.failure(let a), .failure(let b)): return a == b
+        case (.refused(let a, let x), .refused(let b, let y)): return a == b && x.title == y.title
+        default: return false
+        }
+    }
 
     var shouldDismiss: Bool {
         if case .success = self { return true }
@@ -2290,7 +2359,15 @@ enum SleepEditorActionOutcome: Equatable {
     }
 
     var errorMessage: String? {
-        if case .failure(let message) = self { return message }
+        switch self {
+        case .failure(let message): return message
+        case .refused(let message, _): return message
+        case .success: return nil
+        }
+    }
+
+    var exit: SleepEditorExit? {
+        if case .refused(_, let exit) = self { return exit }
         return nil
     }
 }
@@ -2326,6 +2403,8 @@ struct SleepTimeEditor: View {
     @State private var saving = false
     @State private var confirmingDelete = false
     @State private var saveError: String?
+    /// The labelled way out of the last refusal, when it came with one.
+    @State private var saveExit: SleepEditorExit?
     /// The bed value BEFORE the in-flight picker change, so the #940 auto-correct can tell a
     /// time-only roll (same calendar day: rescue it) from a deliberate date change (respect it).
     @State private var previousBed: Date
@@ -2388,6 +2467,7 @@ struct SleepTimeEditor: View {
     private func commit(start: Int, end: Int, relocating: Bool = false) {
         saving = true
         saveError = nil
+        saveExit = nil
         Task {
             let outcome = await onSave(start, end, relocating)
             if outcome.shouldDismiss {
@@ -2395,6 +2475,7 @@ struct SleepTimeEditor: View {
             } else {
                 saving = false
                 saveError = outcome.errorMessage
+                saveExit = outcome.exit
             }
         }
     }
@@ -2456,6 +2537,11 @@ struct SleepTimeEditor: View {
                     .foregroundStyle(StrandPalette.statusCritical)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityAddTraits(.isStaticText)
+            }
+            // The one thing to do about the refusal, when whoever refused had one to offer.
+            if let saveExit {
+                Button(saveExit.title) { dismiss(); saveExit.run() }
+                    .buttonStyle(.noopGhost)
             }
 
             HStack(spacing: NoopMetrics.gap) {

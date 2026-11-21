@@ -2,12 +2,54 @@ import Foundation
 import StrandAnalytics
 import WhoopStore
 
+/// One of the four nutrition fields every intake source carries, so a read can name the field it wants
+/// without naming a lane.
+enum NutritionField: CaseIterable {
+    case calories, protein, carbs, fat
+
+    init?(key: String) {
+        switch key {
+        case NutritionReads.caloriesKey: self = .calories
+        case NutritionReads.proteinKey: self = .protein
+        case NutritionReads.carbsKey: self = .carbs
+        case NutritionReads.fatKey: self = .fat
+        default: return nil
+        }
+    }
+
+    func value(in day: NutritionDay?) -> Double? {
+        switch self {
+        case .calories: return day?.calories
+        case .protein: return day?.proteinG
+        case .carbs: return day?.carbsG
+        case .fat: return day?.fatG
+        }
+    }
+}
+
 extension StoreReader {
     /// The same Explore precedence on every platform: the daily column, then computed series, then
     /// imported series. The active strap wins within each layer. Explicitly suppressed sleep days stay hidden.
     public func exploreSeries(key: String, source: String, from: String, to: String,
                               dailyRows: [DailyMetric], suppressedSleepWakeDays: Set<String>) async
         -> [(day: String, value: Double)] {
+        // Nutrition is RESOLVED, never read from one lane. Four sources carry the same four fields
+        // (Apple Health, Health Connect, a CSV import, the food log, a typed correction) and
+        // `NutritionReads` is where their order is decided, field by field, never summed. Reading the
+        // catalogue's source alone is how the demo account's seven logged days stood on the Food page and
+        // read as no data at all on the Today tile and on the measure's own page, on both phones
+        // (2026-11-19): the same fact, answered twice, differently. The source argument is immaterial here
+        // by design, because for these keys there is one answer per day and this is where it is given.
+        if let field = NutritionField(key: key) {
+            // Only the field this measure IS: the precedence is decided per field, so the answer for this
+            // one is the same whether the other three were read or not, and the catalogue sweep asks for
+            // each of the four separately.
+            let resolved = await NutritionReads.nutritionByDay(store: store, from: from, to: to,
+                                                               fields: [key])
+            return resolved.keys.sorted().compactMap { day in
+                field.value(in: resolved[day]).map { (day: day, value: $0) }
+            }
+        }
         guard source == "my-whoop" else {
             return Self.oneSkinTempScale(key: key, await series(key: key, source: source, from: from, to: to, suppressedSleepWakeDays: suppressedSleepWakeDays))
         }
