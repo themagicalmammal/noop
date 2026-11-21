@@ -64,4 +64,11 @@ object CoreCache {
 
     fun dailyRows(from: String, to: String, deviceId: String, rev: Long): List<DailyMetric>? =
         get("rows:$from:$to:$deviceId", rev) { CoreDailyRows.rows(from, to, deviceId) }
+
+    /** Today's live Effort (the JNI score over raw HR); keyed by day, resting HR and stored Effort. */
+    fun liveEffort(context: android.content.Context, restingHr: Int?, storedEffort: Double?, rev: Long): Double? =
+        get("liveEffort:${restingHr}:${storedEffort}", rev) {
+            CoreLiveEffort.today(context, restingHr, storedEffort)
+        }
+
 }

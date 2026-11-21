@@ -83,6 +83,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import com.noop.core.CoreGoals
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import com.noop.ui.AppViewModel
 import com.noop.ui.TodayLayoutPrefs
@@ -137,9 +138,9 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
             CoreRead.open(context)
             val from = d.minusDays(7).toString(); val to = d.minusDays(1).toString()
             val baselines = baselineMetrics.mapNotNull { m ->
-                CoreRead.series(m, from, to).map { it.value }.takeIf { it.isNotEmpty() }?.let { m to it.average() }
+                CoreCache.series(m, from, to, coreRevision).map { it.value }.takeIf { it.isNotEmpty() }?.let { m to it.average() }
             }.toMap()
-            TodayModel(d, CoreRead.day(d.toString()), baselines)
+            TodayModel(d, CoreCache.day(d.toString(), coreRevision), baselines)
         }
     }
     val today = com.noop.ui.logicalDayNow()
@@ -399,8 +400,8 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                 value = withContext(Dispatchers.IO) {
                     CoreRead.open(context)
                     val from = shown.minusDays(14).toString(); val to = shown.toString()
-                    CoreRead.series(CoreRead.Metric.Charge, from, to).lastOrNull()?.value to
-                        CoreRead.series(CoreRead.Metric.Rest, from, to).lastOrNull()?.value
+                    CoreCache.series(CoreRead.Metric.Charge, from, to, coreRevision).lastOrNull()?.value to
+                        CoreCache.series(CoreRead.Metric.Rest, from, to, coreRevision).lastOrNull()?.value
                 }
             }
             // Today's Effort as the classic dashboard has always shown it: the live score over today's raw
@@ -410,7 +411,7 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
             val liveEffort by produceState<Double?>(null, shown, coreRevision, model?.day?.effort) {
                 value = if (shown != today) null else withContext(Dispatchers.IO) {
                     CoreRead.open(context)
-                    com.noop.core.CoreLiveEffort.today(context, model?.day?.restingHr, model?.day?.effort)
+                    com.noop.core.CoreCache.liveEffort(context, model?.day?.restingHr, model?.day?.effort, coreRevision)
                 }
             }
             val heroDay = (model?.day ?: CoreRead.Day(shown.toString(), null, null, null, null, null, null, null, null, null,
