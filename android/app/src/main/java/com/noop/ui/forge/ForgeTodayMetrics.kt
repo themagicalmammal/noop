@@ -212,7 +212,7 @@ internal fun rememberKeyTiles(model: TodayModel?, metrics: Collection<KeyMetric>
                 KeyMetric.WEIGHT -> CoreBody.snapshot(context)?.weight?.filter { it.day <= to }?.map { it.day to it.value }
                 KeyMetric.CALORIES -> CoreEnergyDetail.read(context, to, "sevenDay", dismissed)
                     ?.summaries?.mapNotNull { s -> s.total?.let { s.day to it } }
-                else -> metric.series?.let { s -> CoreCache.series(s, "1970-01-01", to, coreRevision).map { it.day to it.value } }
+                else -> metric.series?.let { s -> CoreCache.series(s, date.minusDays(730).toString(), to, coreRevision).map { it.day to it.value } }
             }
             metrics.mapNotNull { m -> history(m)?.let { m to windowedSpark(it, cutoff, windowDays) } }
                 .filter { it.second.size >= 2 }.toMap()
@@ -234,7 +234,7 @@ internal fun rememberKeyTiles(model: TodayModel?, metrics: Collection<KeyMetric>
     // tile with the deviation and only decides which of the two that tile leads with.
     val latestSkinAbs by produceState<Double?>(null, date, latestFallback, coreRevision) {
         value = if (!latestFallback) null else withContext(Dispatchers.IO) {
-            CoreRead.series(CoreRead.Metric.SkinTempAbs, date.minusDays(60).toString(), date.toString()).lastOrNull()?.value
+            CoreCache.series(CoreRead.Metric.SkinTempAbs, date.minusDays(60).toString(), date.toString(), coreRevision).lastOrNull()?.value
         }
     }
     // No row for the day yet (the small hours, a morning before the sync): an empty one the latest values fill.

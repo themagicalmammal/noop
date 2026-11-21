@@ -496,9 +496,10 @@ private fun clock(ts: Long, zone: ZoneId, format: DateTimeFormatter): String =
 private fun DayNaps(night: CoreRead.Night, wakeDay: java.time.LocalDate, zone: ZoneId,
                     onDelete: ((CoreRead.Nap) -> Unit)? = null) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val naps by produceState(emptyList<CoreRead.Nap>(), night.endTs, wakeDay) {
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val naps by produceState(emptyList<CoreRead.Nap>(), night.endTs, wakeDay, coreRevision) {
         val end = wakeDay.plusDays(1).atStartOfDay(zone).toEpochSecond()
-        value = withContext(Dispatchers.IO) { CoreRead.open(context); CoreRead.naps(night.endTs, end) }
+        value = withContext(Dispatchers.IO) { CoreCache.naps(night.endTs, end, coreRevision) }
     }
     if (naps.isEmpty()) return
     val clockFormat = rememberClockFormatter()

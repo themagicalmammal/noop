@@ -52,6 +52,15 @@ import kotlin.math.sin
 /** The canvas reaches past the ring's square so echoes and smoke fade out instead of being cut. */
 private const val OVERSCAN = 1.3f
 
+/** The number each score ring last showed, for the life of the process. A ring is recreated whenever it
+ * scrolls back into view or its tab returns, and its state starts at zero again, so without this the
+ * count-up replayed every time. It now plays once per launch and then only when the value changes. */
+object OrganicScoreShownMemo {
+    private val values = mutableMapOf<String, Double>()
+    fun remember(key: String, value: Double?) { if (value != null) values[key] = value }
+    fun last(key: String): Double? = values[key]
+}
+
 private val unitCircle: List<Pair<Float, Float>> = (0 until OrganicQuality.CONTOUR_SAMPLES).map {
     val a = it.toDouble() / OrganicQuality.CONTOUR_SAMPLES * 2 * PI
     cos(a).toFloat() to sin(a).toFloat()

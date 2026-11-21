@@ -88,6 +88,7 @@ import androidx.compose.ui.unit.dp
 import com.noop.R
 import kotlin.math.roundToInt
 import com.noop.core.CoreRead
+import com.noop.core.CoreCache
 import com.noop.data.DailyMetric
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -282,7 +283,8 @@ internal fun FocusAreaPage(area: FocusArea, viewModel: com.noop.ui.AppViewModel,
     val colors = Forge.colors
     val tint = area.tint()
     val noData = stringResource(R.string.forge_no_data)
-    val series by produceState(emptyList<Pair<FocusMeasure, List<Double>>>(), area) {
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val series by produceState(emptyList<Pair<FocusMeasure, List<Double>>>(), area, coreRevision) {
         value = withContext(Dispatchers.IO) {
             val today = LocalDate.now()
             val from = today.minusDays(90).toString(); val to = today.toString()
@@ -290,7 +292,7 @@ internal fun FocusAreaPage(area: FocusArea, viewModel: com.noop.ui.AppViewModel,
             area.measures().mapNotNull { m ->
                 if (m.key in seen) return@mapNotNull null
                 // Steps from the core's one steps reader and the wearer's chosen source (`StepsSource`), as Today reads.
-                val points = if (m.key == "steps") runCatching { CoreRead.open(context); CoreRead.series(CoreRead.Metric.Steps, from, to).map { it.value } }
+                val points = if (m.key == "steps") runCatching { CoreCache.series(CoreRead.Metric.Steps, from, to, coreRevision).map { it.value } }
                         .getOrDefault(emptyList())
                     else runCatching { viewModel.repo.resolvedSeries(m.key, m.source, from, to, strapDeviceId = viewModel.activeStrapId).points }
                         .getOrDefault(emptyList()).map { it.value }.filter { it.isFinite() }
@@ -365,7 +367,7 @@ internal fun HealthWeekInRings(days: List<DailyMetric>, onOpen: () -> Unit) {
         val from = week.firstOrNull()?.day ?: return@produceState
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
-            CoreRead.series(CoreRead.Metric.Rest, from, week.last().day).associate { it.day to it.value }
+            CoreCache.series(CoreRead.Metric.Rest, from, week.last().day, coreRevision).associate { it.day to it.value }
         }
     }
     if (week.isEmpty()) return
