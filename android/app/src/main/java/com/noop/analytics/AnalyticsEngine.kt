@@ -943,6 +943,33 @@ object AnalyticsEngine {
             funnel = { detectionFunnel = it },
         )
 
+        // Workout-type classification (#414): run the coarse classifier over each detected bout,
+        // emitting one advisory diagnostic line per bout. Pure instrumentation — no score or stored
+        // value changes; the line is routed through strainDiag, which the IntelligenceEngine threads
+        // to the same per-day strap-log recorder as the effort and sleep-detect lines.
+        if (strainDiag != null && workouts.isNotEmpty()) {
+            
+            for (s in workouts) {
+                val features = WorkoutTypeFeatureExtractor.extract(
+                    hr = dayHr ?: hr,
+                    gravity = dayGravity ?: gravity,
+                    steps = daySteps ?: steps,
+                    start = s.start,
+                    end = s.end,
+                    restingHR = restingHRDaily?.toDouble(),
+                    maxHR = effMaxHR,
+                    caloriesKcal = s.caloriesKcal,
+                )
+                if (features != null) {
+                    val pred = WorkoutTypeClassifier.classify(features)
+                    strainDiag(
+                        "workout-class day=$day start=${s.start} end=${s.end} " +
+                        "predicted=${pred.predictedClass.raw} conf=${String.format(java.util.Locale.US, "%.2f", pred.confidence)}"
+                    )
+                }
+            }
+        }
+
         // ── Steps (APPROXIMATE) ───────────────────────────────────────────────
         // step_motion_counter@57 is a CUMULATIVE u16 running counter (it climbs while you move, holds
         // flat when still, and wraps at 65536). The daily total is the SUM of WRAP-AWARE increments of
