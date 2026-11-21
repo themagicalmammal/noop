@@ -129,7 +129,6 @@ internal fun ForgeEnergyDetailPage(onBack: () -> Unit) {
     }
 }
 
-private fun kcalText(v: Double): String = NumberFormat.getIntegerInstance(Locale.getDefault()).format(v.roundToInt())
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
@@ -207,7 +206,7 @@ private fun Hero(s: CoreEnergyDetail.Summary, d: CoreEnergyDetail.Detail, eaten:
             if (isToday && s.projectedLow != null && s.projectedHigh != null) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Icon(Icons.Rounded.Bedtime, null, tint = colors.textSecondary, modifier = Modifier.size(14.dp))
-                    Text(stringResource(R.string.forge_en_tonight, kcalText(s.projectedLow), kcalText(s.projectedHigh)),
+                    Text(stringResource(R.string.forge_en_tonight, whole(s.projectedLow), whole(s.projectedHigh)),
                          style = Forge.type.caption, color = colors.textSecondary)
                 }
             }
@@ -228,8 +227,8 @@ private fun usualLine(total: Double?, usual: Double?): String? {
     val gap = total - usual
     return when {
         kotlin.math.abs(gap) < 50 -> stringResource(R.string.forge_en_usual)
-        gap < 0 -> stringResource(R.string.forge_en_short, kcalText(-gap))
-        else -> stringResource(R.string.forge_en_past, kcalText(gap))
+        gap < 0 -> stringResource(R.string.forge_en_short, whole(-gap))
+        else -> stringResource(R.string.forge_en_past, whole(gap))
     }
 }
 
@@ -291,7 +290,7 @@ private fun EnergyRing(resting: Double?, active: Double?, total: Double?, usual:
                  textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 22.dp))
         } else {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(kcalText(total), style = Forge.type.title1.copy(fontSize = 36.sp, fontWeight = FontWeight.Bold), color = colors.text, maxLines = 1)
+                Text(whole(total), style = Forge.type.title1.copy(fontSize = 36.sp, fontWeight = FontWeight.Bold), color = colors.text, maxLines = 1)
                 Text("kcal", style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = colors.textSecondary)
             }
         }
@@ -311,7 +310,7 @@ private fun Balance(eaten: Double, burned: Double, isToday: Boolean) {
         Row(verticalAlignment = Alignment.Bottom) {
             Text(stringResource(if (isToday) R.string.forge_en_balance_so_far else R.string.forge_en_balance), style = Forge.type.caption,
                  color = colors.textSecondary, modifier = Modifier.weight(1f))
-            Text((if (balance > 0) "+" else if (balance < 0) "−" else "") + kcalText(kotlin.math.abs(balance)) + " kcal",
+            Text((if (balance > 0) "+" else if (balance < 0) "−" else "") + whole(kotlin.math.abs(balance)) + " kcal",
                  style = Forge.type.headline, color = colors.text)
         }
         Canvas(Modifier.fillMaxWidth().height(10.dp).clip(CircleShape)) {
@@ -489,7 +488,7 @@ private fun History(d: CoreEnergyDetail.Detail, series: String, onSeries: (Strin
             Spacer(Modifier.weight(1f))
             Text(shortDay(LocalDate.parse(d.today).minusDays(1).toString()), style = Forge.type.caption, color = colors.textTertiary)
         }
-        if (usual != null) Text(stringResource(R.string.forge_en_usual_day, kcalText(usual)), style = Forge.type.caption,
+        if (usual != null) Text(stringResource(R.string.forge_en_usual_day, whole(usual)), style = Forge.type.caption,
                                 color = colors.textSecondary)
         Text(stringResource(R.string.forge_en_tap_day), style = Forge.type.caption, color = colors.textTertiary)
     }
