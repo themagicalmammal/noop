@@ -6316,6 +6316,14 @@
     <string name="forge_en_today">Today</string>
     <string name="forge_en_yesterday">Yesterday</string>
     <string name="forge_en_title">Energy</string>
+    <string name="forge_adaptive_title">Adaptive expenditure</string>
+    <string name="forge_adaptive_range">%1$s/day</string>
+    <string name="forge_adaptive_window">Window: %1$d days</string>
+    <string name="forge_adaptive_note">"Calculated retrospectively from intake and weight trend. Does not replace or calibrate today's burn."</string>
+    <string name="forge_conf_high">High</string>
+    <string name="forge_conf_building">Building</string>
+    <string name="forge_conf_low">Low</string>
+
     <string name="forge_wk_add">Add workout</string>
     <string name="forge_wk_manage">Manage sessions</string>
     <string name="forge_wk_13">Last 13 weeks</string>

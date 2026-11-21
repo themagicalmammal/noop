@@ -62,6 +62,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.noop.R
+import com.noop.analytics.AdaptiveExpenditureDay
+import com.noop.analytics.AdaptiveExpenditureEngine
+import com.noop.core.CoreBody
 import com.noop.core.CoreEnergyDetail
 import com.noop.core.CoreRead
 import kotlinx.coroutines.Dispatchers
@@ -89,11 +92,21 @@ internal fun ForgeEnergyDetailPage(onBack: () -> Unit) {
     var loaded by remember { mutableStateOf(false) }
     var series by remember { mutableStateOf("burned") }
     var quality by remember { mutableStateOf(false) }
+    var adaptiveEstimate by remember { mutableStateOf<com.noop.analytics.AdaptiveExpenditureEstimate?>(null) }
     LaunchedEffect(day, comparison) {
         detail = withContext(Dispatchers.IO) {
             CoreRead.open(context); CoreEnergyDetail.read(context, day, comparison, dismissedTrainingWorkouts(context))
         }
         loaded = true
+    }
+    LaunchedEffect(detail) {
+        val d = detail ?: return@LaunchedEffect
+        adaptiveEstimate = withContext(Dispatchers.IO) {
+            val body = CoreBody.snapshot(context, days = 45)
+            val weights = body?.weight?.associate { it.day to it.value } ?: emptyMap()
+            val days = buildAdaptiveDays(d.intake, weights)
+            AdaptiveExpenditureEngine.estimate(days)
+        }
     }
     if (quality) {
         androidx.activity.compose.BackHandler { quality = false }
@@ -126,6 +139,42 @@ internal fun ForgeEnergyDetailPage(onBack: () -> Unit) {
         }
         if (d.summaries.isNotEmpty()) History(d, series, onSeries = { series = it }, onDay = { day = it })
         if (s != null) QualityRow(s) { quality = true }
+        adaptiveEstimate?.let { est -> AdaptiveExpenditureCard(est) }
+    }
+}
+
+/** Builds the last 42 days' adaptive-expenditure input rows from intake and weight readings. */
+private fun buildAdaptiveDays(intake: Map<String, Double>, weights: Map<String, Double>): List<AdaptiveExpenditureDay> {
+    val today = LocalDate.now()
+    return (1..42).mapNotNull { offset ->
+        val dayKey = today.minusDays(offset.toLong()).toString()
+        val cal = intake[dayKey]
+        val wgt = weights[dayKey]
+        if (cal == null && wgt == null) null
+        else AdaptiveExpenditureDay(dayKey, cal, wgt)
+    }
+}
+
+/** The retrospective energy-balance estimate, shown when the history can support one. */
+@Composable
+private fun AdaptiveExpenditureCard(est: com.noop.analytics.AdaptiveExpenditureEstimate) {
+    val colors = Forge.colors
+    ForgeCard(Modifier.fillMaxWidth(), contentPadding = ForgeMetrics.space4) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.forge_adaptive_title), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
+                val confLabel = when (est.confidence) {
+                    com.noop.analytics.AdaptiveExpenditureConfidence.HIGH -> stringResource(R.string.forge_conf_high)
+                    com.noop.analytics.AdaptiveExpenditureConfidence.MODERATE -> stringResource(R.string.forge_conf_building)
+                    else -> stringResource(R.string.forge_conf_low)
+                }
+                Text(confLabel, style = Forge.type.caption, color = colors.textSecondary)
+            }
+            val range = "${est.lowerKcal.roundToInt()}–${est.upperKcal.roundToInt()}"
+            Text(stringResource(R.string.forge_adaptive_range, range), style = Forge.type.body, color = colors.textSecondary)
+            Text(stringResource(R.string.forge_adaptive_window, est.windowDays), style = Forge.type.caption, color = colors.textTertiary)
+            Text(stringResource(R.string.forge_adaptive_note), style = Forge.type.caption, color = colors.textTertiary)
+        }
     }
 }
 
