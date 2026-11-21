@@ -6,7 +6,7 @@ import com.noop.ui.cappedFrameLoop
 import com.noop.ui.UnitFormatter
 import com.noop.ui.EffortScale
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -124,16 +124,30 @@ fun OrganicRing(score: Double?, tint: Color, diameter: Dp, metric: OrganicMetric
     }
     val colors = Forge.colors
     val onLight = !colors.dark
-    val model = remember(metric, score == null, score) { OrganicScoreModel.resolve(metric, score) }
+    val still = rememberPoseStill()
+    val covered = LocalForgeCovered.current
+    val clock = remember { mutableDoubleStateOf(0.0) }
+    val animated = !still && !covered
+
+    // The target model this ring wants to show; a morph glides between targets as scores update.
+    val targetModel = remember(metric, score == null, score) { OrganicScoreModel.resolve(metric, score) }
+    val morphState = remember { mutableStateOf(OrganicScoreMorph.settled(targetModel)) }
+    // Retarget when the target changes: from wherever the morph currently is, to the new model.
+    var previousTarget by remember { mutableStateOf(targetModel) }
+    if (previousTarget != targetModel) {
+        val now = clock.doubleValue
+        morphState.value = OrganicScoreMorph.retargeted(morphState.value, targetModel, now, animated)
+        previousTarget = targetModel
+    }
+    // The model to draw: the morph evaluated at the current clock, or the settled target.
+    val model = morphState.value.model(clock.doubleValue)
     val cache = remember(model) { RingCache(OrganicPreparation(model)) }
     val color = if (model.missing && !model.awaitsEffort) colors.missing else tint
-    val still = rememberPoseStill()
-    val clock = remember { mutableDoubleStateOf(0.0) }
+
     // Drawn every frame only while someone can see it: on screen (not scrolled out of the page) and not under a
     // page laid over the tabs. Paused, it keeps its pose and goes on from there; before, an off-screen or covered
     // ring redrew its blurred layers sixty times a second for nobody.
     var onScreen by remember { mutableStateOf(true) }
-    val covered = LocalForgeCovered.current
     if (!still && onScreen && !covered) {
         LaunchedEffect(Unit) {
             // 60 fps, the iOS ring's TimelineView rate. Unbounded, a 120 Hz panel redrew the ring's blurred layers
@@ -172,18 +186,19 @@ fun OrganicRing(score: Double?, tint: Color, diameter: Dp, metric: OrganicMetric
                 val radius = min(size.width, size.height) / OVERSCAN * OrganicScoreModel.BASE_RADIUS_FRACTION.toFloat()
                 val g = (0.05 + glow * 0.16).toFloat()
                 drawCircle(Brush.radialGradient(0f to Color.Transparent, 0.55f to color.copy(alpha = g * 0.25f),
-                                                0.92f to color.copy(alpha = g), 1f to Color.Transparent,
-                                                center = center, radius = radius), radius = radius, center = center)
+                    0.92f to color.copy(alpha = g), 1f to Color.Transparent), radius)
             }
-            // Bloom: the whole band, thick and blurred, behind everything else.
-            if (!model.missing) Canvas(blurred((5 + glow * 9).toFloat())) {
+            // Blurred echoes, each fainter and a touch wider, reaching past the band's own blur.
+            Canvas(blurred(8f)) {
                 val f = cache.at(clock.doubleValue, size)
-                val b = breathe(f)
                 val radius = min(size.width, size.height) / OVERSCAN * OrganicScoreModel.BASE_RADIUS_FRACTION.toFloat()
                 val band = (model.bandHalfWidth * radius).toFloat()
-                val alpha = min(1.0, ((if (onLight) 0.22 else 0.35) + glow * 0.4) * b).toFloat() * soft
-                drawPath(f.primary, color.copy(alpha = alpha),
-                         style = Stroke((band * 2.6f + 4f.pt()) * (0.9f + 0.1f * b.toFloat())))
+                f.echoes.forEachIndexed { i, (path, visibility) ->
+                    val b = breathe(f)
+                    val alpha = (0.16 - i * 0.03) * visibility * b
+                    drawPath(path, color.copy(alpha = alpha.toFloat()),
+                             style = Stroke((band * 2.6f + 4f.pt()) * (0.9f + 0.1f * b.toFloat())))
+                }
             }
             // Echoes, then smoke, then the haze that fills the band.
             Canvas(Modifier.requiredSize(diameter * OVERSCAN)) {
@@ -223,7 +238,7 @@ fun OrganicRing(score: Double?, tint: Color, diameter: Dp, metric: OrganicMetric
                 }
             }
         }
-        ScoreNumber(score, diameter, still, onLight, format)
+        ScoreNumber(score, metric, diameter, still, onLight, format)
     }
 }
 
@@ -246,12 +261,24 @@ private fun DrawScope.drawParticles(f: RingFrame, tint: Color, onLight: Boolean,
 
 /** The score in the middle: counts up to a new value, dark ink with a paper halo on light, a shadow on dark. */
 @Composable
-private fun ScoreNumber(score: Double?, diameter: Dp, still: Boolean, onLight: Boolean, format: (Double) -> String) {
+private fun ScoreNumber(score: Double?, metric: OrganicMetric, diameter: Dp, still: Boolean, onLight: Boolean, format: (Double) -> String) {
     val colors = Forge.colors
-    val shown by animateFloatAsState(
-        targetValue = (score ?: 0.0).toFloat(),
-        animationSpec = if (still) snap() else tween(950, easing = FastOutSlowInEasing), label = "score",
-    )
+    // Animate from the last shown value to the new one. First sight counts up from zero; later sightings
+    // continue from where the number left off, mirroring iOS `roll(to:)` and `OrganicScoreShownMemo`.
+    val memoKey = metric.name
+    val lastShown = OrganicScoreShownMemo.last(memoKey)
+    val animatable = remember(memoKey) { Animatable(if (lastShown != null && lastShown > 0) lastShown.toFloat() else 0f) }
+    LaunchedEffect(score) {
+        val target = score?.toFloat()
+        if (target != null) {
+            OrganicScoreShownMemo.remember(memoKey, score)
+            if (animatable.value != target) {
+                animatable.animateTo(target, animationSpec = if (still) snap()
+                    else tween(950, easing = FastOutSlowInEasing))
+            }
+        }
+    }
+    val shown = animatable.value
     val size = with(LocalDensity.current) { (diameter * 0.27f).toSp() }
     val shadow = if (!onLight) Shadow(Color.Black.copy(alpha = 0.72f), Offset(0f, 2f), 8f)
                  else Shadow(Color.White.copy(alpha = 0.85f), Offset.Zero, 6f)

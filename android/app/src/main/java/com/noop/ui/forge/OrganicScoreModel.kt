@@ -90,6 +90,24 @@ class OrganicScoreModel private constructor(
         min(1.0, max(0.0, intensity.echoLevel - i)).takeIf { it > 0 }
     }
 
+
+    /** Blend two models component-wise (iOS `OrganicScoreVisualModel.interpolated`). */
+    fun interpolated(target: OrganicScoreModel, rawFraction: Double): OrganicScoreModel {
+        val fraction = min(max(rawFraction, 0.0), 1.0)
+        if (fraction >= 1.0) return target
+        fun mix(a: Double, b: Double) = a + (b - a) * fraction
+        val from = intensity
+        val to = target.intensity
+        return OrganicScoreModel(target.metric, target.missing,
+            OrganicIntensity(mix(from.particleDensity, to.particleDensity),
+                              mix(from.waveStrength, to.waveStrength),
+                              mix(from.pulseStrength, to.pulseStrength),
+                              mix(from.glowStrength, to.glowStrength),
+                              mix(from.smokeStrength, to.smokeStrength),
+                              mix(from.echoLevel, to.echoLevel)),
+            target.seed, mix(effortLoad, target.effortLoad))
+    }
+
     companion object {
         const val BASE_RADIUS_FRACTION = 0.37
         const val DEFORMATION_RATIO = 0.19
@@ -245,4 +263,26 @@ class OrganicPreparation(val model: OrganicScoreModel) {
             return OrganicParticle(cos(angle) * radius, sin(angle) * radius, p.size, p.alpha * twinkle)
         }
     }
+}
+
+/** A ~1 s ease-out morph between two visual models, evaluated against the render clock (iOS `OrganicScoreMorph`). */
+class OrganicScoreMorph(val from: OrganicScoreModel, val to: OrganicScoreModel, val start: Double) {
+    companion object {
+        const val DURATION = 0.95
+
+        fun settled(model: OrganicScoreModel) = OrganicScoreMorph(model, model, Double.NEGATIVE_INFINITY)
+
+        fun retargeted(morph: OrganicScoreMorph, target: OrganicScoreModel, time: Double, animated: Boolean): OrganicScoreMorph {
+            if (!animated) return settled(target)
+            return OrganicScoreMorph(morph.model(time), target, time)
+        }
+    }
+
+    fun progress(time: Double): Double {
+        if (!start.isFinite()) return 1.0
+        val t = min(max((time - start) / DURATION, 0.0), 1.0)
+        return 1.0 - Math.pow(1.0 - t, 3.0)
+    }
+
+    fun model(time: Double): OrganicScoreModel = from.interpolated(to, progress(time))
 }
