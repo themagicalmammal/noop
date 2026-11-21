@@ -899,7 +899,7 @@ private fun CatalogMeasureTile(key: String, history: CoreTile.History, today: St
     val factsLine = if (!detailed) null
                     else if (key == "stress") calm?.let { stringResource(R.string.forge_tile_calm_share, (it * 100).roundToInt()) }
                     else rememberFactsLine(key, history, today, unit, calendarAge)
-    ForgeTodayTile(measureIcon(key), tint, measureLabel(key), value, if (key == "stress") "" else unit,
+    ForgeTodayTile(todayWidgetIcon(key), tint, measureLabel(key), value, if (key == "stress") "" else unit,
                    if (detailed) (factsLine ?: change?.summary?.let { summaryLine(it, unit) }) else null, noData, dense, modifier,
                    // The word carries no direction, so a change chip beside it would be two readings of one
                    // thing in two languages.
@@ -951,7 +951,7 @@ private fun WideMeasureCard(key: String?, keyTiles: KeyTiles, history: CoreTile.
     val caption = if (isDayTotal(key)) facts?.weekAverageText?.let {
         stringResource(R.string.forge_tile_a_day, if (unit.isEmpty() || unit.startsWith("/")) it else "$it $unit")
     } else change?.summary?.let { summaryLine(it, unit) }
-    ForgeTodayTile(measureIcon(key.orEmpty()), tint, measureLabel(key.orEmpty()),
+    ForgeTodayTile(todayWidgetIcon(key.orEmpty()), tint, measureLabel(key.orEmpty()),
                    value, unit, caption, noData, dense = false,
                    modifier = modifier, delta = change?.text, deltaTone = change?.tone,
                    // The row-wide form draws the dated chart below instead of the tile's own sparkline:
@@ -1225,7 +1225,7 @@ private fun measureTint(key: String): Color = when (CoreTile.tints[key]) {
     else -> Forge.colors.rest
 }
 
-private fun measureIcon(key: String): ImageVector = when (key) {
+private fun todayWidgetIcon(key: String): ImageVector = when (key) {
     "vo2max_est" -> Icons.Rounded.Air
     "stress" -> Icons.Rounded.Bolt
     "fitness_age" -> Icons.Rounded.Favorite
@@ -1421,7 +1421,7 @@ private fun WidgetGallery(cycleOn: Boolean, onAdd: (TodayWidget) -> Unit, onClos
                 ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
                     keys.forEachIndexed { i, key ->
                         if (i > 0) HubDivider()
-                        GalleryRow(measureIcon(key), measureLabel(key),
+                        GalleryRow(todayWidgetIcon(key), measureLabel(key),
                                    if (key in TodayWidget.WHOLE_ROW_MEASURES) wideSub else measureSub) {
                             onAdd(TodayWidget(kind = TodayWidget.Kind.Measure, key = key))
                         }
