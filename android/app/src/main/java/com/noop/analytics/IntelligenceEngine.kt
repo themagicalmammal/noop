@@ -1445,6 +1445,45 @@ object IntelligenceEngine {
             // floor (no matched sleep) logs nil and the line is skipped. Logging only , no scoring change.
             // Counts/bpm only; no timestamps or PII (the diag sink also scrubs). Byte-identical to Swift.
             for (l in rhrDiagLines(day, res.daily.restingHr, hr, res.sleepSessions)) dayDiag(l)
+            // Sleep vs wake HR contrast (#414): descriptive diagnostic comparing the primary
+            // sleep session's mean HR against the preceding wake window. One advisory line per
+            // night, routed through dayDiag to the same strap-log recorder as the other
+            // sleep diagnostics. No scoring change, no stored value change.
+            res.sleepSessions.firstOrNull()?.let { session ->
+                val EPOCH_SEC = 5L * 60
+                val sleepStart = session.start
+                val sleepEnd = session.end
+                val wakeStart = sleepStart - 2 * 3600L
+                val sleepEpochs = mutableListOf<Double?>()
+                val wakeEpochs = mutableListOf<Double?>()
+                val hrSorted = hr.sortedBy { it.ts }
+                var epochStart = sleepStart
+                while (epochStart + EPOCH_SEC <= sleepEnd) {
+                    val epochEnd = epochStart + EPOCH_SEC
+                    val inEpoch = hrSorted.asSequence().filter { it.ts >= epochStart && it.ts < epochEnd }
+                    val mean = inEpoch.map { it.bpm.toDouble() }.average()
+                    sleepEpochs.add(if (hrSorted.any { it.ts >= epochStart && it.ts < epochEnd }) mean else null)
+                    epochStart += EPOCH_SEC
+                }
+                epochStart = wakeStart
+                while (epochStart + EPOCH_SEC <= sleepStart) {
+                    val epochEnd = epochStart + EPOCH_SEC
+                    val inEpoch = hrSorted.asSequence().filter { it.ts >= epochStart && it.ts < epochEnd }
+                    val mean = inEpoch.map { it.bpm.toDouble() }.average()
+                    wakeEpochs.add(if (hrSorted.any { it.ts >= epochStart && it.ts < epochEnd }) mean else null)
+                    epochStart += EPOCH_SEC
+                }
+                val contrast = SleepHeartRateContrast.evaluate(wakeEpochs, sleepEpochs)
+                contrast?.let { c ->
+                    dayDiag(
+                        "hr-contrast day=$day " +
+                        "sleepMean=${String.format(java.util.Locale.US, "%.1f", c.sleepMeanBpm)} " +
+                        "wakeMean=${String.format(java.util.Locale.US, "%.1f", c.wakeMeanBpm)} " +
+                        "delta=${String.format(java.util.Locale.US, "%.1f", c.sleepMinusWakeBpm)} " +
+                        "reduction=${String.format(java.util.Locale.US, "%.1f", c.sleepReductionPercent)}"
+                    )
+                }
+            }
             // #103/queue-11a: SpO₂ candidate nightly mean. Only computed when the display toggle is ON,
             // and the transform is device-conditional (com.noop.data.DeviceBrandCatalog.isOura, same
             // idiom OuraRespScale.isRingRateStream uses): a WHOOP owner averages the in-band (70–100)
