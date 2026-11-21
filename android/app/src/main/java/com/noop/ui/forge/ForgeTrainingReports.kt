@@ -668,7 +668,6 @@ internal fun strengthUnits(): UnitSystem {
 }
 internal fun sessionDate(ts: Long): String = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
     .withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault()).format(Instant.ofEpochSecond(ts))
-private fun integer(value: Int): String = NumberFormat.getIntegerInstance(Locale.getDefault()).format(value)
 private fun decimal(value: Double, digits: Int): String = NumberFormat.getNumberInstance(Locale.getDefault()).apply {
     maximumFractionDigits = digits; minimumFractionDigits = digits
 }.format(value)

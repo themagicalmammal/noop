@@ -455,8 +455,6 @@ private fun epochDate(epoch: Double): String = if (epoch <= 0) "" else
     java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM).withLocale(Locale.getDefault())
         .format(Instant.ofEpochSecond(epoch.toLong()).atZone(ZoneId.systemDefault()).toLocalDate())
 
-private fun whole(v: Double): String = NumberFormat.getIntegerInstance(Locale.getDefault()).format(v.roundToInt())
-
 /** A long-term value with its unit (`LongTermMetric`): kilometres, minutes, kilograms, beats, a pace per km… */
 @Composable
 private fun levelText(value: Double, metric: String?): String {
