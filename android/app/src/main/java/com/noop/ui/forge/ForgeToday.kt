@@ -2,6 +2,7 @@ package com.noop.ui.forge
 
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Sensors
+import androidx.compose.material.icons.rounded.BatteryFull
 import androidx.compose.ui.draw.clip
 import android.text.format.DateFormat
 import androidx.compose.foundation.Canvas
@@ -988,5 +989,29 @@ private fun FirstRunCard(connected: Boolean, onConnect: () -> Unit) {
             Icon(androidx.compose.material.icons.Icons.AutoMirrored.Rounded.ArrowForward, null, tint = colors.onAccent,
                  modifier = Modifier.size(18.dp))
         }
+    }
+}
+
+/** A circular battery pill: the border ring fills with the charge level; a horizontal battery icon sits inside. */
+@Composable
+internal fun BatteryPill(pct: Double, onClick: () -> Unit) {
+    val colors = Forge.colors
+    val progress = (pct.coerceIn(0.0, 100.0)) / 100.0
+    Box(Modifier.size(32.dp).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.size(32.dp)) {
+            val sw = 2.5f
+            val r = size.width / 2f - sw / 2f
+            val center = Offset(size.width / 2f, size.height / 2f)
+            // Track ring
+            drawCircle(color = colors.inset.copy(alpha = 0.25f), radius = r, center = center)
+            // Progress ring: draw a filled arc at the ring radius
+            val startAngle = -90f
+            val sweepAngle = (progress * 360f).toFloat()
+            val arcTopLeft = Offset(sw / 2f, sw / 2f)
+            val arcSize = androidx.compose.ui.geometry.Size(size.width - sw, size.height - sw)
+            drawArc(color = colors.accent, startAngle = startAngle, sweepAngle = sweepAngle,
+                    useCenter = false, topLeft = arcTopLeft, size = arcSize)
+        }
+        Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(12.dp))
     }
 }
