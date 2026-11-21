@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -115,6 +116,7 @@ fun ForgeRoot(viewModel: AppViewModel) {
             val orderedTabs = visibleTabs.sortedWith(compareBy({ it != tab }, { visibleTabs.indexOf(it) }))
             androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
                 for (t in orderedTabs) {
+                    key(t.name) {
                     val isVisible = (t == tab)
                     val offset = if (isVisible) 0 else (if (visibleTabs.indexOf(t) < visibleTabs.indexOf(tab)) -1 else 1)
                     androidx.compose.foundation.layout.Box(
@@ -140,6 +142,7 @@ fun ForgeRoot(viewModel: AppViewModel) {
                                 }
                             }
                         }
+                    }
                     }
                 }
             }
