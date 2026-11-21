@@ -1,44 +1,44 @@
 {
   "counts": {
-    "fixed": 3,
-    "reported": 10,
+    "fixed": 5,
+    "reported": 2,
     "working": 0
   },
   "decided": [],
   "fixed": [
     {
-      "closed": "2026-11-15",
-      "n": 44,
+      "closed": "2026-11-20",
+      "n": 53,
       "status": "fixed",
-      "title": "testing data on Whoop mg and Android 16"
+      "title": "Android: endless history-sync loop, stale active id after a WHOOP merge, OOM in the strap-log export"
     },
     {
-      "closed": "2026-11-15",
-      "n": 43,
-      "status": "fixed",
-      "title": "Android Strap log and some issues"
-    },
-    {
-      "closed": "2026-11-01",
-      "n": 39,
-      "status": "fixed",
-      "title": "Package appears to be invalid while installing"
-    }
-  ],
-  "generated": "2026-11-18T11:31:06Z",
-  "issues": [
-    {
+      "closed": "2026-11-20",
       "n": 52,
-      "opened": "2026-11-18",
-      "status": "reported",
+      "status": "fixed",
       "title": "Muscle analytics: Strength tab colours no muscle although the list shows clear trends"
     },
     {
+      "closed": "2026-11-20",
       "n": 51,
-      "opened": "2026-11-18",
-      "status": "reported",
+      "status": "fixed",
       "title": "Native training sessions show no HR / Effort in workout lists (grey on Today)"
     },
+    {
+      "closed": "2026-11-20",
+      "n": 48,
+      "status": "fixed",
+      "title": "UI: Syncing bar stops working if I switch to other views"
+    },
+    {
+      "closed": "2026-11-20",
+      "n": 47,
+      "status": "fixed",
+      "title": "Still some problem in workouts"
+    }
+  ],
+  "generated": "2026-11-20T12:45:55Z",
+  "issues": [
     {
       "n": 49,
       "opened": "2026-11-14",
@@ -46,46 +46,10 @@
       "title": "Nap algorithm"
     },
     {
-      "n": 48,
-      "opened": "2026-11-13",
-      "status": "reported",
-      "title": "UI: Syncing bar stops working if I switch to other views"
-    },
-    {
-      "n": 47,
-      "opened": "2026-11-13",
-      "status": "reported",
-      "title": "Still some problem in workouts"
-    },
-    {
-      "n": 46,
-      "opened": "2026-11-09",
-      "status": "reported",
-      "title": "Sync loop"
-    },
-    {
-      "n": 45,
-      "opened": "2026-11-07",
-      "status": "reported",
-      "title": "No charge after 5 nights"
-    },
-    {
       "n": 42,
       "opened": "2026-11-04",
       "status": "reported",
       "title": "Sync, sleep and visual issue"
-    },
-    {
-      "n": 41,
-      "opened": "2026-11-02",
-      "status": "reported",
-      "title": "Effort shows different numbers on different type of dashboard styles"
-    },
-    {
-      "n": 40,
-      "opened": "2026-11-01",
-      "status": "reported",
-      "title": "In your card section when all card redirect to same page"
     }
   ],
   "schema": 1,

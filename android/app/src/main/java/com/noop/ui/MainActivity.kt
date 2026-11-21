@@ -133,13 +133,28 @@ class MainActivity : ComponentActivity() {
         // Load the saved "Card transparency" so every frosted card renders at the chosen opacity from launch.
         CardAppearance.init(this)
 
-        // Demo build only: preload a full synthetic dataset so every screen is populated
-        // out of the box (no strap, no import). No-op once seeded; never runs on the full app.
+        // Demo build only: a second PAIRED device (Polar H10) so the Devices screen shows WHOOP (Active)
+        // beside a paired strap out of the box. No-op once seeded, or if a real pairing exists.
+        //
+        // The DAYS are NOT seeded here. There is one demo account and the core writes it
+        // (`DemoDataset`, through `CoreRead.open`), the same one the iPhone seeds, so the two phones show
+        // the same figures. Until 2026-11-19 this line ran Kotlin's own `DemoSeeder` into the same store
+        // and whichever reached it first won: on screen that evening the iPhone read HRV 67 ms over a
+        // 46-to-108 range and this phone 76 ms over 53 to 105, from what was supposed to be one account.
+        // Both seeders refuse a store that already holds days, so it was never a conflict, only a race —
+        // and a race decides which account the wearer gets.
         if (BuildConfig.ENABLE_DEMO) {
+            // The demo account's body, from the same shared dataset, because a history without a person
+            // leaves the calorie goal, the zones and the body pages with nothing to start from.
+            //
+            // Written HERE, before the first screen composes, and not on a background thread beside the
+            // rest: the tiles read the profile (through the energy plan) the moment they appear, so a
+            // person that lands a moment later arrives after the reading that needed it. On a fresh demo
+            // install the Nutrition tile and the Food page both showed a day with no goal until the next
+            // launch (2026-11-19). It is a prefs write and one store-free call into the core, in a demo
+            // build only, and it runs once because it refuses a profile anybody has filled in.
+            runCatching { DemoPerson.seedIfUnset(applicationContext) }
             lifecycleScope.launch(Dispatchers.IO) {
-                runCatching { DemoSeeder.seedIfEmpty(WhoopRepository.from(applicationContext)) }
-                // Also seed a 2nd PAIRED device (Polar H10) so the Devices screen shows WHOOP (Active)
-                // + a paired strap out of the box. No-op once seeded / if a real pairing exists.
                 runCatching {
                     DemoSeeder.seedDemoDeviceIfNeeded((application as NoopApplication).deviceRegistry)
                 }
@@ -775,8 +790,9 @@ object NoopPrefs {
         of(context).edit().putBoolean(KEY_BUZZ_WHOOP4_WITH_ALARM, enabled).apply()
     }
 
-    /** Launcher-icon preference (v3 "Titanium & Gold"). false = machined-titanium (.IconDefault,
-     *  the default); true = blued/dark-blue titanium (.IconNavy). The actual swap is done by
+    /** Launcher-icon preference (v3 "Titanium & Gold"). false = the Forge mark on stone (.IconDefault,
+     *  the default, iOS's `AppIcon`); true = the gold loop on navy (.IconNavy, iOS's `AppIcon-Navy`).
+     *  The actual swap is done by
      *  enabling exactly one of the two <activity-alias> entries via PackageManager, this bool just
      *  records the user's choice so the App Icon control reflects it across restarts. */
     const val KEY_APP_ICON_NAVY = "noop.appIconNavy"

@@ -29,6 +29,9 @@ struct ForgeSleepView: View {
     @State private var model: SleepModel?
     /// 0 = the latest night; 1 the one before, and so on (the arrows above the tiles).
     @State private var nightOffset = 0
+    /// The night offset whose editor should open once that night is on screen (an add refused for lying on
+    /// top of it).
+    @State private var pendingEdit: Int?
     @State private var shownNight: Night?
     @State private var restByDay: [String: Double] = [:]
     @State private var historyRange: HistoryRange = .week
@@ -74,12 +77,16 @@ struct ForgeSleepView: View {
                         } else if loaded {
                             ForgeTabHero(overline: String(localized: "Last night"),
                                          headline: String(localized: "No night recorded yet"))
+                            // A night the strap missed entirely is exactly when someone needs this, and
+                            // there is no night card below to hang it on.
+                            addSleepRow(endTs: Int(Date().timeIntervalSince1970))
                         }
                         tonightCard
                         SleepUndoStrip(editor: editor)
                         if let model, let night {
                             nightCard(night)
                             naps(night)
+                            addSleepRow(endTs: night.session.endTs)
                             if night.stages.total > 0 { ForgeNightBreakdown(model: model, night: night) }
                             GoalsContextCard(context: .sleep)
                             highlights(model, night: night)
@@ -103,6 +110,25 @@ struct ForgeSleepView: View {
         .overlay { ForgeStatusBarScrim(tab: .sleep) }
         .refreshable { await repo.refresh() }
         .sleepNightEditing(editor)
+        // An add refused for lying on top of a stored sleep offers that sleep. This page browses one night
+        // at a time, so it moves to the night that holds the onset and opens the editor there.
+        .onChange(of: editor.jumpToSleepStart) { target in
+            guard let target else { return }
+            // Cleared FIRST, whatever happens next: a jump dropped because the page had not loaded used to
+            // leave the value set, and `onChange` then never fired again for the same sleep.
+            editor.jumpToSleepStart = nil
+            guard let groups = presentation?.groups,
+                  let index = groups.firstIndex(where: { $0.contains { $0.effectiveStartTs == target } })
+            else { return }
+            // The night in the way is often the one already on screen. Setting the offset it already holds
+            // restarts nothing, so the editor has to be opened here rather than waited for.
+            if index == nightOffset {
+                if let night = shownNight ?? model?.night { editor.edit(night) }
+            } else {
+                pendingEdit = index
+                nightOffset = index
+            }
+        }
         .task(id: revision) {
             let key = revision
             if let p = try? await sleepStore.presentation(repo: repo, revision: key), key == revision {
@@ -114,6 +140,13 @@ struct ForgeSleepView: View {
             restByDay = Dictionary(series.map { ($0.day, $0.value) }, uniquingKeysWith: { _, last in last })
         }
         .task(id: nightOffset) {
+            defer {
+                // The night asked for is on screen now, so the editor can open on it.
+                if pendingEdit == nightOffset, let night = shownNight ?? model?.night {
+                    pendingEdit = nil
+                    editor.edit(night)
+                }
+            }
             guard nightOffset > 0, let presentation else { shownNight = nil; return }
             shownNight = try? await sleepStore.night(offset: nightOffset, presentation: presentation, repo: repo,
                                                      revision: revision)
@@ -262,6 +295,7 @@ struct ForgeSleepView: View {
             if night.stages.total > 0 {
                 // The breakdown below reads the night in full, so the chart opens nothing else.
                 VStack(alignment: .leading, spacing: 10) {
+                        nightFigures(night)
                         Hypnogram(intervals: night.intervals, height: 170, showsStageAxis: true, showsHover: false,
                                   nightStart: night.onsetDate, showsTimeAxis: true, filled: filled, stagePalette: palette)
                             .padding(10)
@@ -294,6 +328,89 @@ struct ForgeSleepView: View {
             }
         }
         .forgeCard(radius: ForgeRadius.card, padding: 16)
+    }
+
+    /// Time in bed, efficiency, and the night in hours: how long asleep and how much of it restorative,
+    /// each against the wearer's usual.
+    ///
+    /// The page had the last two only as percentage rings, and the hours only in the Highlights carousel
+    /// and only when a stage was ten minutes off the usual. A tester asked for them back (2026-11-19):
+    /// the figures were reachable only through Health, Sleep, Sleep details, which is three taps away
+    /// from the page that is about last night. The numbers are `NightSummaryFacts`', the same resolver
+    /// the old screen's "Stage breakdown" header reads, so the two cards cannot state different hours
+    /// for one night.
+    @ViewBuilder private func nightFigures(_ night: Night) -> some View {
+        let facts = NightSummaryFacts.read(
+            night: NightSummaryFacts.Night(inBedMin: night.timeInBed, asleepMin: night.stages.asleep,
+                                           deepMin: night.stages.deep, remMin: night.stages.rem,
+                                           storedEfficiency: night.session.efficiency),
+            days: repo.days)
+        // An Oura night's stages are the ring's own classification, not NOOP's approximation, and the
+        // old screen says so in its own words; a night without the stager's segments gets neither line.
+        let caption = (night.realSegments?.count ?? 0) >= 2
+            ? (repo.activeDeviceIsOura ? String(localized: "raw on-device stages")
+                                       : String(localized: "stages approximate (on-device)"))
+            : nil
+        VStack(alignment: .leading, spacing: 10) {
+            Text(caption.map {
+                String(localized: "\(Self.durationText(facts.inBedMin)) in bed · \(Self.percentText(facts.efficiencyPct)) efficiency · \($0)")
+            } ?? String(localized: "\(Self.durationText(facts.inBedMin)) in bed · \(Self.percentText(facts.efficiencyPct)) efficiency"))
+                .font(ForgeFont.caption)
+                .foregroundStyle(ForgeColor.secondary)
+            HStack(alignment: .top, spacing: 16) {
+                figure(String(localized: "Time asleep"), minutes: facts.asleepMin,
+                       typical: facts.typicalAsleepMin, tint: ForgeColor.text)
+                figure(String(localized: "Restorative sleep"), minutes: facts.restorativeMin,
+                       typical: facts.typicalRestorativeMin,
+                       tint: StrandPalette.sleepStageColor(.rem))
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
+    private func figure(_ label: String, minutes: Double, typical: Double?, tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(Self.durationText(minutes)).font(ForgeFont.figure(26)).foregroundStyle(tint)
+                .lineLimit(1).minimumScaleFactor(0.7)
+            Text(label).font(.system(.caption, weight: .semibold)).foregroundStyle(ForgeColor.text)
+            if let typical {
+                Text("usually \(Self.durationText(typical))")
+                    .font(ForgeFont.caption).foregroundStyle(ForgeColor.secondary)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    /// "8h 13m", worded as the Sleep screen's own breakdown words it.
+    static func durationText(_ minutes: Double) -> String {
+        let m = max(0, Int(minutes.rounded()))
+        if m < 60 { return String(localized: "\(m)m") }
+        return String(localized: "\(m / 60)h \(m % 60)m")
+    }
+
+    static func percentText(_ value: Double?) -> String {
+        value.map { "\(Int($0.rounded()))%" } ?? "—"
+    }
+
+    /// Adding a sleep NOOP never recorded: a night it missed, or a nap. It sits under the night it would
+    /// join, because that is where someone is standing when they notice the gap.
+    private func addSleepRow(endTs: Int) -> some View {
+        Button {
+            let anchor = Date(timeIntervalSince1970: TimeInterval(endTs))
+            let day = Repository.localDayKey(anchor)
+            let hasMain = repo.sleeps.contains {
+                Repository.localDayKey(Date(timeIntervalSince1970: TimeInterval($0.endTs))) == day
+            }
+            editor.startAdding(dayStart: anchor, hasMainSleep: hasMain)
+        } label: {
+            Label("Add a sleep", systemImage: "plus")
+                .font(.system(.subheadline, weight: .medium))
+                .foregroundStyle(ForgeColor.accent)
+                .padding(.horizontal, 14)
+                .frame(minHeight: 40)
+                .background(Capsule().fill(ForgeColor.fill))
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: Naps

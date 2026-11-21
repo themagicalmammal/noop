@@ -2945,6 +2945,11 @@
     <string name="forge_next_night">Next night</string>
     <string name="forge_no_nights">No nights yet. Wear the strap to bed and sync in the morning.</string>
     <string name="forge_in_bed">%1$s in bed · %2$d%% efficiency</string>
+    <string name="forge_sl_in_bed_full">%1$s in bed · %2$d%% efficiency · %3$s</string>
+    <string name="forge_sl_in_bed_only">%1$s in bed</string>
+    <string name="forge_sl_stages_approx">stages approximate (on-device)</string>
+    <string name="forge_sl_stages_raw">raw on-device stages</string>
+    <string name="forge_sl_usually_only">usually %1$s</string>
     <string name="forge_duration_hm">%1$dh %2$02dm</string>
     <string name="forge_night_range">%1$s → %2$s</string>
     <string name="forge_trends_subtitle">The thread of you over time.</string>
@@ -3128,6 +3133,13 @@
     <string name="forge_training_finish_gone">This workout is no longer open. It was either saved already or ended somewhere else.</string>
     <string name="forge_training_finish_failed">The workout could not be saved. Nothing was lost; try again, and if it keeps failing, share your strap log.</string>
     <string name="forge_training_effort">How hard was it? (1 to 10)</string>
+    <string name="forge_fin_title">Finish session</string>
+    <string name="forge_fin_sub">One number for the whole session, so a leg day can be compared with a run.</string>
+    <string name="forge_fin_question">How hard was the whole session? (1 to 10)</string>
+    <string name="forge_fin_note">This is session RPE. Multiplied by the session\'s length it gives session load, the one figure that compares across completely different training.</string>
+    <string name="forge_fin_save">Save session</string>
+    <string name="forge_fin_easy">Easy</string>
+    <string name="forge_fin_allout">All out</string>
     <string name="forge_training_skip">Skip</string>
     <string name="forge_training_save">Save</string>
     <string name="forge_training_routine_name">Routine name</string>
@@ -4775,6 +4787,20 @@
     <string name="forge_as_today">Today</string>
     <string name="forge_as_3days">3 days</string>
     <string name="forge_as_week">This week</string>
+    <string name="forge_as_end">End</string>
+    <string name="forge_as_holds_today">For today</string>
+    <string name="forge_as_holds_until_changed">Until you change it</string>
+    <string name="forge_as_holds_until">Until %1$s</string>
+    <string name="forge_log_status">Status</string>
+    <string name="forge_sl_add_title">Add a sleep</string>
+    <string name="forge_sl_add_blurb">For a night or a nap NOOP did not record. Stages are taken from your data for those hours, so the entry counts from now on.</string>
+    <string name="forge_sl_add_invalid">Those times aren\'t a valid sleep window, so nothing was added.</string>
+    <string name="forge_sl_add_no_raw">The strap has nothing recorded for those hours yet. The sleep will count its length, but it gets no stages and Charge for that day stays empty until the data arrives.</string>
+    <string name="forge_sl_add_anyway">Add it anyway</string>
+    <string name="forge_sl_add_blocked">You already have a sleep from %1$s to %2$s. Two sleeps over the same hours would count those hours twice.</string>
+    <string name="forge_sl_add_edit_that">Edit that sleep</string>
+    <string name="forge_sl_add_row">Add a sleep</string>
+    <string name="forge_sl_add_day">Day it began</string>
     <string name="forge_sl_tap_to_log">Tap to log</string>
     <string name="forge_qa_guardian">Silent Guardian</string>
     <string name="forge_qa_guardian_sub">Quiet strap coaching against today\'s Charge</string>
@@ -7310,7 +7336,7 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="project_report_picture_add">Add a picture</string>
     <string name="project_report_picture_detail">A screenshot of what went wrong says more than a log</string>
     <string name="project_report_picture_remove">Remove the picture</string>
-    <string name="forge_battery_title">Strap Battery</string>
+<string name="forge_battery_title">Strap Battery</string>
     <string name="forge_battery_charge">Charge</string>
     <string name="forge_battery_voltage">Voltage</string>
     <string name="forge_battery_status">Status</string>
@@ -7318,3 +7344,64 @@ Plotting each series as change from its own first reading puts them on one scale
     <string name="forge_battery_not_charging">Not charging</string>
     <string name="forge_battery_firmware">Firmware</string>
     </resources>
+    <string name="forge_tile_week_total">This week %1$s · %2$s a day</string>
+    <string name="forge_tile_a_day">%1$s a day</string>
+    <string name="forge_tile_of_goal_today">%1$s of %2$s today</string>
+    <string name="forge_tile_days_reached">%1$d of %2$d days reached</string>
+    <string name="forge_tile_weighed">Weighed %1$s</string>
+    <string name="forge_tile_weighed_change">Weighed %1$s · %2$s this week</string>
+    <string name="forge_tile_week_average">7-day average %1$s</string>
+    <!-- The kit's strip under a row-wide tile's chart (owner, 2026-11-19): a quiet label over its figure. -->
+    <string name="forge_strip_highest">Highest</string>
+    <string name="forge_strip_lowest">Lowest</string>
+    <string name="forge_strip_week_average">7-day average</string>
+    <string name="forge_strip_this_week">This week</string>
+    <string name="forge_strip_range">Range</string>
+    <string name="forge_strip_over_goal">Over goal</string>
+    <string name="forge_strip_days_logged">Days logged</string>
+    <string name="forge_strip_above_usual">Above usual</string>
+    <string name="forge_strip_left_today">Left today</string>
+    <string name="forge_strip_count">%1$d of %2$d</string>
+    <string name="forge_tile_today">today</string>
+    <string name="forge_tile_yesterday">yesterday</string>
+    <plurals name="forge_tile_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <string name="forge_strip_over_90_days">Over 90 days</string>
+    <string name="forge_tile_over_90_days">%1$s over 90 days</string>
+    <string name="forge_unit_kcal">kcal</string>
+    <string name="forge_sec_heart">Heart</string>
+    <string name="forge_sec_body">Body</string>
+    <string name="forge_sec_food">Food</string>
+    <string name="forge_sec_mind">Mind</string>
+    <string name="forge_g_measure_wide_sub">Wide · its thirty days</string>
+    <string name="forge_m_sleep_debt">Sleep Debt</string>
+    <string name="forge_m_zones13">HR Zones 1-3</string>
+    <string name="forge_m_zones45">HR Zones 4-5</string>
+    <string name="forge_m_body_fat">Body Fat</string>
+    <string name="forge_m_lean_mass">Lean Mass</string>
+    <string name="forge_m_vitality">Vitality</string>
+    <string name="forge_m_body_age">Body Age</string>
+    <string name="forge_m_mood">Mood</string>
+    <string name="forge_tile_years_same">Right at your age</string>
+    <plurals name="forge_tile_years_under">
+        <item quantity="one">%1$d year under your age</item>
+        <item quantity="other">%1$d years under your age</item>
+    </plurals>
+    <plurals name="forge_tile_years_over">
+        <item quantity="one">%1$d year over your age</item>
+        <item quantity="other">%1$d years over your age</item>
+    </plurals>
+    <string name="forge_tile_calm_share">%1$d %% of today calm</string>
+    <string name="forge_nut_title">Nutrition</string>
+    <string name="forge_nut_left">left today</string>
+    <string name="forge_nut_eaten_of">%1$s of %2$s kcal eaten</string>
+    <string name="forge_nut_macros">P %1$d · C %2$d · F %3$d g</string>
+    <string name="forge_nut_macros_goal">P %1$d/%2$d · C %3$d/%4$d · F %5$d/%6$d g</string>
+    <string name="forge_nut_week">This week</string>
+    <string name="forge_g_nutrition_sub">Small · what is left of today</string>
+    <string name="forge_nut_grams">%1$d g</string>
+    <string name="forge_nut_grams_of">%1$d / %2$d g</string>
+</resources>
+

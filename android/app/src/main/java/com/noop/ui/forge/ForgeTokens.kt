@@ -74,7 +74,9 @@ object ForgeTokens {
         const val hairlineWidth: Float = 1f
         const val headerControlReserveWidth: Float = 168f
         const val headerTextFadeWidth: Float = 48f
-        const val heroRadius: Float = 28f
+        const val heroGap: Float = 32f
+        const val heroGapUnderCard: Float = 12f
+        const val heroRadius: Float = 30f
         const val hypnogramBandMinThickness: Float = 14f
         const val indicatorTrackHeight: Float = 8f
         const val keyMetricTileHeight: Float = 122f
@@ -82,7 +84,7 @@ object ForgeTokens {
         const val rowSpacing: Float = 10f
         const val screenHPadding: Float = 16f
         const val screenPadding: Float = 16f
-        const val sectionGap: Float = 14f
+        const val sectionGap: Float = 24f
         const val sourceBadgeHeight: Float = 18f
         const val space1: Float = 4f
         const val space10: Float = 40f
@@ -248,9 +250,6 @@ object ForgeTokens {
         val restColor = ForgeColor(light = 0xFF5856D6, dark = 0xFF5E5CE6)
         val restDeep = ForgeColor(light = 0xFF403DB0, dark = 0xFF4644B8)
         val restGlow = ForgeColor(light = 0xFF5856D6, dark = 0xFF5E5CE6)
-        val chargeInk = ForgeColor(light = 0xFF0E5C4A, dark = 0xFF7FE3B4)
-        val restInk = ForgeColor(light = 0xFF3F3398, dark = 0xFFC2B5FB)
-        val effortInk = ForgeColor(light = 0xFF8C3911, dark = 0xFFB07A)
         val scenicCenter = ForgeColor(light = 0xFFFBF6EA, dark = 0xFF1C2128)
         val scenicEdge = ForgeColor(light = 0xFFEDE6D6, dark = 0xFF121518)
         val scenicStar = ForgeColor(light = 0xFFD8CDB6, dark = 0xFFC8CFD8)
@@ -285,7 +284,6 @@ object ForgeTokens {
         val titaniumMid = ForgeColor(light = 0xFFBBC2C9, dark = 0xFFC9CFD4)
         val titaniumTop = ForgeColor(light = 0xFFDDE1E6, dark = 0xFFF1F3F5)
         val trainingData = ForgeColor(light = 0xFF0E8AA3, dark = 0xFF40C8E0)
-        val trainingAccent = ForgeColor(light = 0xFF248A3D, dark = 0xFF30D158)
         val zone1 = ForgeColor(light = 0xFF8E8E93, dark = 0xFF8E8E93)
         val zone2 = ForgeColor(light = 0xFF30B0C7, dark = 0xFF40C8E0)
         val zone3 = ForgeColor(light = 0xFFFFCC00, dark = 0xFFFFD60A)

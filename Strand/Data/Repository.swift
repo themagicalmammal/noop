@@ -846,6 +846,17 @@ final class Repository: ObservableObject {
         let opened = await task.value
         if let opened { store = opened }
         storeOpenTask = nil
+        #if DEBUG
+        // `--demo-data` writes the shared demo account (`DemoDataset`), the same one Android seeds, so a
+        // screen can be looked at and compared on both phones without a strap. It refuses on a store that
+        // already holds days, and a release build has no such argument.
+        if let opened, CommandLine.arguments.contains("--demo-data") {
+            _ = try? await DemoDataset.seedIfEmpty(store: opened)
+            // A week of meals too, exactly as the core's `seedDemo` writes them for Android. Without it the
+            // demo account ate nothing on this phone and the Nutrition tile was offered on one phone only.
+            _ = await FoodDemoSeed.seedIfEmpty(store: opened)
+        }
+        #endif
         return opened
     }
 
@@ -2161,6 +2172,23 @@ final class Repository: ObservableObject {
         await refresh()
     }
 
+    /// Reads what `ManualSleepPlan` needs and hands it the decision. The RULE is shared with Android
+    /// (one `decide`); only reading the rows differs by platform.
+    func manualSleepPreflight(startTs: Int, endTs: Int) async -> ManualSleepPlan.Outcome {
+        let now = Int(Date().timeIntervalSince1970)
+        guard let store = await ensureStore(),
+              let window = SleepEditGuard.clampedEditWindow(start: startTs, end: endTs, now: now)
+        else { return .invalidWindow }
+        // A day either side, so a night that starts before the window and ends inside it is seen.
+        let existing = (try? await store.sleepSessions(deviceId: computedDeviceId,
+                                                       from: window.start - 86_400, to: window.end + 86_400,
+                                                       limit: 200)) ?? []
+        return ManualSleepPlan.decide(
+            start: startTs, end: endTs, now: now,
+            existing: existing.map { SleepEditGuard.Span(start: $0.effectiveStartTs, end: $0.endTs) },
+            hasRawData: await restageFromRaw(start: window.start, end: window.end) != nil)
+    }
+
     /// Manually ADD a missed sleep session , typically a daytime NAP the detector didn't pick up (#508).
     /// Stages it from the raw streams over `[startTs, endTs]` (exactly the editing path's `restageFromRaw`),
     /// falling back to a single "awake" block when the strap has no dense data there yet , the post-sync
@@ -2168,13 +2196,17 @@ final class Repository: ObservableObject {
     /// separate session row with `userEdited = 1`, so the recompute overlap guard preserves it and it is
     /// NEVER folded into the night's main sleep (which would mislabel awake daytime as light sleep). Purely
     /// additive , `insertManualSleepSession` no-ops if a session already exists at that exact onset.
-    func addManualNap(startTs: Int, endTs: Int) async {
+    /// Returns whether the row is in the store. A caller that dismisses a sheet on success must have an
+    /// answer: a refused write used to be swallowed here, and the only sign of it was the sleep not being
+    /// there afterwards.
+    @discardableResult
+    func addManualNap(startTs: Int, endTs: Int) async -> Bool {
         // #940 belt-and-braces (same rule as editSleepGroupTimes): a manually-added session can't end in
         // the future or invert; a future nap would otherwise own the tab's newest day as an
         // all-awake phantom exactly like the bad edit did. The clamped end is used verbatim.
         guard let store = await ensureStore(),
               let window = SleepEditGuard.clampedEditWindow(
-                  start: startTs, end: endTs, now: Int(Date().timeIntervalSince1970)) else { return }
+                  start: startTs, end: endTs, now: Int(Date().timeIntervalSince1970)) else { return false }
         let (safeStartTs, safeEndTs) = window
         // Stage from raw over the chosen window; fall back to a single awake block when the strap has no
         // dense data there yet (the self-heal re-stages once raw arrives). A nap's efficiency is the asleep
@@ -2182,11 +2214,14 @@ final class Repository: ObservableObject {
         let stagesJSON = await restageFromRaw(start: safeStartTs, end: safeEndTs)
             ?? AnalyticsEngine.encodeStages([StageSegment(start: safeStartTs, end: safeEndTs, stage: "wake")])
         let efficiency = sleepEfficiency(fromStagesJSON: stagesJSON)
-        _ = try? await store.insertManualSleepSession(
+        // Rows inserted, so a write the store refused (0) and one it already held (0, the ON CONFLICT
+        // no-op) are both told apart from a row that is now there.
+        let inserted = (try? await store.insertManualSleepSession(
             deviceId: computedDeviceId, startTs: safeStartTs, endTs: safeEndTs,
-            efficiency: efficiency, stagesJSON: stagesJSON)
+            efficiency: efficiency, stagesJSON: stagesJSON)) ?? 0
         sleepPresentationRevision &+= 1
         await refresh()
+        return inserted > 0
     }
 
     /// Asleep fraction (light+deep+rem ÷ total in-bed) of a segment-array `stagesJSON`, or nil when the
@@ -2681,6 +2716,20 @@ final class Repository: ObservableObject {
     }
 
     // MARK: - Cross-source resolver (PR#196)
+
+    /// One Today tile's history, by the route that measure needs (`StoreReader.tileHistory`): the one step
+    /// resolver for steps, one skin-temperature scale, the gallery's source then any other catalogue source
+    /// for the rest. The same door Android reads through, so the two phones cannot fetch a tile's history
+    /// from different places.
+    func tileHistory(key: String, days: Int, skinTempPrefer: SkinTempDisplay.Kind = .absolute) async -> TileHistory {
+        guard let store = await ensureStore() else { return .none }
+        let now = Date()
+        let from = Self.dayString(now.addingTimeInterval(-Double(days) * 86_400))
+        let to = Self.dayString(now.addingTimeInterval(86_400))
+        return await storeReader(store).tileHistory(key: key, from: from, to: to, dailyRows: self.days,
+                                                    suppressedSleepWakeDays: suppressedSleepWakeDays,
+                                                    skinTempPrefer: skinTempPrefer)
+    }
 
     /// Product-facing daily series for a metric across every COMPATIBLE source, freshest-wins. Use this
     /// on surfaces where the user expects the best available signal (Compare/Insights/Stress/Explore/

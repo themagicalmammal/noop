@@ -36,6 +36,55 @@ public enum CoreCall {
                                       tone: MeasureTileReading.tone(key: key, values: values)?.rawValue,
                                       summary: MeasureTileReading.summary(key: key, values: values)))
         }
+        if op == "tile.facts" {
+            // What a measure tile knows about itself beyond today's figure (`MeasureFacts`), so the week is
+            // averaged once for both phones rather than once per platform.
+            let args = (try? JSONSerialization.jsonObject(with: Data(argsJSON.utf8)) as? [String: Any]) ?? [:]
+            let days = (args["days"] as? [String]) ?? []
+            let values = (args["values"] as? [NSNumber])?.map(\.doubleValue) ?? []
+            let points = zip(days, values).map { MeasureFacts.Point(day: $0, value: $1) }
+            let key = args["key"] as? String ?? ""
+            let facts = MeasureFacts.read(points: points,
+                                          today: args["today"] as? String ?? LogicalDay.key(Date()),
+                                          target: (args["target"] as? NSNumber)?.doubleValue
+                                              ?? MeasureFacts.storedTarget(forKey: key),
+                                          direction: MeasureFacts.direction(forKey: key))
+            // Formatted here as well as computed here: a figure rounded once on each phone is a figure
+            // that can read differently on the two, which is the thing this whole reading exists to stop.
+            func text(_ value: Double?) -> String? {
+                value.map { MeasureTileReading.figure(key: key, value: $0) }
+            }
+            struct Wire: Encodable {
+                let today: Double?, weekAverage: Double?, weekTotal: Double?
+                let lastValue: Double?, lastValueText: String?, lastDay: String?, daysSinceLast: Int?
+                let weekChange: Double?, quarterChange: Double?, target: Double?, targetLeft: Double?
+                let todayText: String?, weekAverageText: String?, weekTotalText: String?
+                let weekChangeText: String?, quarterChangeText: String?, targetLeftText: String?
+                let best: Double?, bestDay: String?, bestText: String?
+                let daysAboveTarget: Int?, weekDaysWithEntry: Int, daysWithEntry: Int
+                let aboveUsualRecently: Int?
+                /// What the row-wide form puts under its chart, chosen and formatted in one place so both
+                /// phones say the same things in the same order (`MeasureFacts.strip`).
+                let strip: [MeasureFacts.StripEntry]
+            }
+            return CoreRead.json(Wire(today: facts.today, weekAverage: facts.weekAverage, weekTotal: facts.weekTotal,
+                                      lastValue: facts.lastValue, lastValueText: text(facts.lastValue),
+                                      lastDay: facts.lastDay,
+                                      daysSinceLast: facts.daysSinceLast, weekChange: facts.weekChange,
+                                      quarterChange: facts.quarterChange,
+                                      target: facts.target, targetLeft: facts.targetLeft,
+                                      todayText: text(facts.today), weekAverageText: text(facts.weekAverage),
+                                      weekTotalText: text(facts.weekTotal),
+                                      weekChangeText: text(facts.weekChange.map(abs)),
+                                      quarterChangeText: text(facts.quarterChange.map(abs)),
+                                      targetLeftText: text(facts.targetLeft),
+                                      best: facts.best, bestDay: facts.bestDay, bestText: text(facts.best),
+                                      daysAboveTarget: facts.daysAboveTarget,
+                                      weekDaysWithEntry: facts.weekDaysWithEntry,
+                                      daysWithEntry: facts.daysWithEntry,
+                                      aboveUsualRecently: facts.aboveUsualRecently,
+                                      strip: MeasureFacts.strip(key: key, facts: facts, values: values)))
+        }
         if op == "momentum.day" {
             return CoreRead.json(["day": LogicalDay.key(Date())])
         }
@@ -124,6 +173,38 @@ public enum CoreCall {
                 store: store, deviceId: string("deviceId"), start: int("start", 0), end: int("end", 0),
                 staging: .init(method: method, motionAwareWake: args["motionAwareWake"] as? Bool ?? false))
             return CoreRead.json(["stages": stages])
+        case "sleep.addSeed":
+            // Where the "add a sleep" pickers open, by the one rule both platforms use.
+            let seed = ManualSleepPlan.seed(
+                dayStart: Date(timeIntervalSince1970: TimeInterval(int("dayStart", Int(Date().timeIntervalSince1970)))),
+                hasMainSleep: args["hasMainSleep"] as? Bool ?? false,
+                now: Date(timeIntervalSince1970: TimeInterval(int("now", Int(Date().timeIntervalSince1970)))))
+            return CoreRead.json(["start": "\(seed.start)", "end": "\(seed.end)"])
+        case "sleep.addPreflight":
+            // What adding a sleep by hand over [start, end] would do, decided by `ManualSleepPlan`, which
+            // the Apple side asks the same question. Android reads the rows through here rather than
+            // keeping its own copy of the rule.
+            guard let (store, _) = ShadowSession.storeAndPath else { return #"{"error":"noStore"}"# }
+            let start = int("start", 0), end = int("end", 0)
+            let now = int("now", Int(Date().timeIntervalSince1970))
+            let computedId = string("computedDeviceId")
+            let rows = (try? await store.sleepSessions(deviceId: computedId,
+                                                       from: start - 86_400, to: end + 86_400, limit: 200)) ?? []
+            let method = SleepStager.Method(rawValue: string("method")) ?? .v2
+            let staged = await EditedSleepHeal.restage(
+                store: store, deviceId: string("deviceId"), start: start, end: end,
+                staging: .init(method: method, motionAwareWake: args["motionAwareWake"] as? Bool ?? false))
+            let outcome = ManualSleepPlan.decide(
+                start: start, end: end, now: now,
+                existing: rows.map { SleepEditGuard.Span(start: $0.effectiveStartTs, end: $0.endTs) },
+                hasRawData: staged != nil)
+            switch outcome {
+            case .ok: return CoreRead.json(["outcome": "ok"])
+            case .noRawData: return CoreRead.json(["outcome": "noRawData"])
+            case .invalidWindow: return CoreRead.json(["outcome": "invalidWindow"])
+            case .blocked(let s, let e):
+                return CoreRead.json(["outcome": "blocked", "start": "\(s)", "end": "\(e)"])
+            }
         case "nap.evaluate":
             // Android's nap review card (CORE-ONLY-PLAN, decision 6): the core's NapDetector over the strap's
             // gravity and heart rate in [from, to], with the wearer's settings.
@@ -231,6 +312,27 @@ public enum CoreCall {
         case "media.cancel": await CoreExerciseMedia.shared.cancel(); return ok(true)
         case "media.disabled": await CoreExerciseMedia.shared.setDisabled(args["disabled"] as? Bool ?? false); return ok(true)
         case "media.delete": return ok(await CoreExerciseMedia.shared.delete())
+        case "tile.units":
+            // The unit each measure is written in, from the one catalogue. Asked once and held, like the
+            // colours. Without it Android's catalogue tiles stood with no unit at all: "91" beside the
+            // iPhone's "91 g", on one account (2026-11-19).
+            // `uniquingKeysWith`, not `uniqueKeysWithValues`: the same measure offered under two gallery
+            // sections is a display question, and a trap inside the core would answer it by taking the
+            // app down on the first tile that asks for its unit.
+            return CoreRead.json(Dictionary(TileMeasures.keys.compactMap { key in
+                MetricCatalog.all.first { $0.key == key }.map { (key, $0.unit) }
+            }, uniquingKeysWith: { first, _ in first }))
+        case "tile.tints":
+            // Which colour each measure is drawn in, by name. The palette is each phone's own; which
+            // measure gets which name is one decision, and it is `TileMeasures.tint`. Asked once and
+            // held, because it never changes while the app runs.
+            return CoreRead.json(Dictionary(TileMeasures.keys.map { ($0, TileMeasures.tint(forKey: $0).rawValue) },
+                                            uniquingKeysWith: { first, _ in first }))
+        case "demo.person":
+            // The demo account's body, from the shared dataset, so the emulator's profile and the
+            // iPhone's hold one person. Kotlin writes it into its own prefs file; the figures are not
+            // its to choose.
+            return CoreRead.json(DemoDataset.person())
         case "prefs.read": return CorePrefs.readJSON()
         case "prefs.write": return ok(CorePrefs.write(key: string("key"), value: args["value"]))
         case "provider.defaults": return CoreRead.json(CoreExerciseProvider.Defaults())
@@ -249,6 +351,12 @@ public enum CoreCall {
         }
         guard let (store, _) = ShadowSession.storeAndPath, let reader = ShadowSession.reader else {
             return #"{"error":"noStore"}"#
+        }
+        if op == "demo.seed" {
+            // The whole demo account, written once and only into a store that has no days of its own, so it
+            // can never overwrite a real one. The caller gates it to a debug build.
+            let wrote = (try? await DemoDataset.seedIfEmpty(store: store)) ?? false
+            return CoreRead.json(["seeded": wrote])
         }
         if op.hasPrefix("input.") || op.hasPrefix("lanes.") { return await CoreUserInputs.run(op, json: argsJSON, store: store) }
         // The coach and the goal screens built on its stores run over the persisted goals (`CoreGoalHost`).
@@ -449,7 +557,8 @@ public enum CoreCall {
                 reader: reader, hrMaxOverride: (args["hrMaxOverride"] as? NSNumber)?.intValue ?? 0,
                 age: (args["age"] as? NSNumber)?.intValue ?? 0,
                 restingHr: (args["restingHr"] as? NSNumber)?.intValue,
-                storedEffort: (args["storedEffort"] as? NSNumber)?.doubleValue)])
+                storedEffort: (args["storedEffort"] as? NSNumber)?.doubleValue,
+                mode: DayCycleMode.persisted(args["dayCycleMode"] as? String))])
         case "read.hasAnyDay":
             // The first-run question, as one boolean: "is there any day at all" (`CoreRead.hasAnyDay`).
             return CoreRead.json(["any": await CoreRead.hasAnyDay(reader: reader)])
@@ -461,6 +570,28 @@ public enum CoreCall {
                                                  actualWhoopSource: string("whoopSource"), from: string("from"), to: string("to"),
                                                  suppressedSleepWakeDays: Set(args["suppressedWakeDays"] as? [String] ?? []))
             return CoreRead.json(CoreRead.ResolvedSeries(r))
+        case "read.tileHistory":
+            // One Today tile's history, by the route that measure needs (`StoreReader.tileHistory`): the one
+            // step resolver for steps, one skin-temperature scale, the gallery's source for the rest. Android
+            // asks for the KEY only and never names a source, so the two phones cannot read a tile's history
+            // from different places — which is how its weight tile came to have no series at all.
+            let key = string("key")
+            // The window comes from the shared table unless the caller names one, so neither phone decides
+            // how much history a tile holds (`TileMeasures.windowDays`).
+            let today = LogicalDay.key(Date())
+            let from = args["from"] as? String
+                ?? MeasureFacts.dayKey(today, minusDays: TileMeasures.windowDays(forKey: key) - 1)
+            let to = args["to"] as? String ?? today
+            let prefer = SkinTempDisplay.Kind(rawValue: string("skinTempPrefer")) ?? .absolute
+            // The merged daily rows are Explore's lowest layer as well as skin temperature's only source, so
+            // every key needs them.
+            let rows = await CoreRead.dailyRows(from: from, to: to, reader: reader)
+            let history = await reader.tileHistory(key: key, from: from, to: to, dailyRows: rows,
+                                                   suppressedSleepWakeDays: Set(args["suppressedWakeDays"] as? [String] ?? []),
+                                                   skinTempPrefer: prefer)
+            struct Wire: Encodable { let days: [String]; let values: [Double]; let skinKind: String? }
+            return CoreRead.json(Wire(days: history.days, values: history.values,
+                                      skinKind: history.skinKind?.rawValue))
         case "read.metricSeries":
             // One source's stored series verbatim, as `WhoopStore.metricSeries` holds it. These stored reads answer
             // `null` when the store throws, so Android reads Room instead of showing an empty list (`stored`).
@@ -500,6 +631,34 @@ public enum CoreCall {
                                                          dismissed: args["dismissedWorkouts"] as? [String] ?? [], reader: reader))
         case "sleep.debt":
             return CoreRead.json(await CoreSleepDebt.read(reader: reader))
+        case "sleep.nightFacts":
+            // What the Sleep page states about one night in figures rather than shares: time in bed,
+            // efficiency, hours asleep and restorative sleep, each against the wearer's usual
+            // (`NightSummaryFacts`). The night's own minutes come from the screen, so the card states the
+            // night it is showing; the usual comes from here, so neither phone keeps its own version of it.
+            func minutes(_ key: String) -> Double { (args[key] as? NSNumber)?.doubleValue ?? 0 }
+            // The stored nights come from the screen, which already holds its day rows, as the Apple
+            // screens pass theirs: the averages are worked out HERE, once, and only their input travels.
+            // Reading them again from the store would have cost a 120-day merge for every night the
+            // wearer pages to, for two averages over thirty sleep totals.
+            func number(_ row: [String: Any], _ key: String) -> Double? { (row[key] as? NSNumber)?.doubleValue }
+            let nights = (args["nights"] as? [[String: Any]] ?? []).map {
+                NightSummaryFacts.NightRow(asleepMin: number($0, "asleepMin"), deepMin: number($0, "deepMin"),
+                                           remMin: number($0, "remMin"))
+            }
+            let facts = NightSummaryFacts.read(
+                night: NightSummaryFacts.Night(inBedMin: minutes("inBedMin"), asleepMin: minutes("asleepMin"),
+                                               deepMin: minutes("deepMin"), remMin: minutes("remMin"),
+                                               storedEfficiency: (args["storedEfficiency"] as? NSNumber)?.doubleValue),
+                nights: nights)
+            struct Wire: Encodable {
+                let inBedMin: Double, asleepMin: Double, restorativeMin: Double
+                let efficiencyPct: Double?, typicalAsleepMin: Double?, typicalRestorativeMin: Double?
+            }
+            return CoreRead.json(Wire(inBedMin: facts.inBedMin, asleepMin: facts.asleepMin,
+                                      restorativeMin: facts.restorativeMin, efficiencyPct: facts.efficiencyPct,
+                                      typicalAsleepMin: facts.typicalAsleepMin,
+                                      typicalRestorativeMin: facts.typicalRestorativeMin))
         case "energy.today":
             guard let s = await CoreEnergyDetail.today(reader: reader, settings: CoreGoalEnergy.settings(args)) else { return "null" }
             return CoreRead.json(s)
@@ -672,6 +831,8 @@ public enum CoreCall {
             let maxHR = (args["maxHR"] as? NSNumber)?.doubleValue ?? Double(StrainScorer.defaultMaxHR())
             return CoreRead.json(await CoreTodayStatus.read(reader: reader, maxHR: maxHR, sex: string("sex"),
                                                             dismissedWorkoutSpans: args["dismissedWorkouts"] as? [String] ?? []))
+        case "today.activity":
+            return CoreRead.json(CoreTodayStatus.activity())
         case "today.setActivity":
             return ok(CoreTodayStatus.setActivity(state: string("state"), duration: string("duration"),
                                                   customUntil: (args["until"] as? NSNumber)?.intValue))

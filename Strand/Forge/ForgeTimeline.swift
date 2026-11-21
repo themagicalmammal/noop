@@ -111,7 +111,17 @@ enum ForgeTimeline {
     /// already admitted by `TimelineFeed.admit` and placed at the moment it first appeared.
     struct Notice: Equatable {
         enum Tone: String { case positive, neutral, caution, critical }
-        enum Action: Equatable { case none, charge, plan, goals, sleep, confirmWake }
+        enum Action: Equatable {
+            case none, charge, plan, goals, sleep, confirmWake
+
+            /// Whether running this action CHANGES something rather than opening a screen.
+            ///
+            /// Only a labelled control may carry one. Today's hint card learned that the hard way: it
+            /// shows a notice's headline and line but not its answers, and a tap on the card body ran the
+            /// first action — so tapping "Still being scored" vouched for the detected wake time, which
+            /// the card never said and the wearer never meant (2026-11-18).
+            var commits: Bool { self == .confirmWake }
+        }
         let key: String
         let date: Date
         let topic: String
@@ -120,6 +130,25 @@ enum ForgeTimeline {
         let detail: String
         var action: Action = .none
         var actionTitle: String? = nil
+        /// A SECOND action, for a notice that offers two honest answers rather than one.
+        ///
+        /// The unsettled-night notice is the case: either the detected wake really was the wake, which
+        /// confirming says, or it was not, which the sleep screen fixes. The classic morning card has
+        /// carried both buttons since it was written; this notice carried only the first, so the same
+        /// state offered different ways out depending on which screen the reader was on.
+        var secondaryAction: Action = .none
+        var secondaryActionTitle: String? = nil
+
+        /// Whether this notice may ask what explains it.
+        ///
+        /// The chips exist to CALM a warning: a raised signal with a known cause stops being a warning.
+        /// They were drawn from the topic alone, and `bodySignals` carries two messages that point in
+        /// opposite directions, so a reader whose HRV had been ABOVE baseline for three days was asked
+        /// whether illness, alcohol, travel or stress explained the good news (reported 2026-11-20 with
+        /// a screenshot). A tone is what separates them, so a tone is what decides.
+        var asksForCause: Bool {
+            topic == TimelineFeed.Topic.bodySignals.rawValue && (tone == .caution || tone == .critical)
+        }
     }
 
     /// The evening report without a coach: Effort against today's target, the sessions, tomorrow's plan,

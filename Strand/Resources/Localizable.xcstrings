@@ -1,6 +1,1786 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%1$@ of %2$@ kcal eaten" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ von %2$@ kcal gegessen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ de %2$@ kcal comidas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ sur %2$@ kcal mangées"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ di %2$@ kcal mangiate"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zjedzono %1$@ z %2$@ kcal"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ de %2$@ kcal comidas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Съедено %1$@ из %2$@ ккал"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已吃 %1$@ / %2$@ 千卡"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已吃 %1$@ / %2$@ 千卡"
+          }
+        }
+      }
+    },
+    "%1$@ of %2$@ today" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ von %2$@ heute"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ of %2$@ today"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ de %2$@ hoy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ sur %2$@ aujourd’hui"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ su %2$@ oggi"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ z %2$@ dzisiaj"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ de %2$@ hoje"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ из %2$@ сегодня"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天 %1$@ / %2$@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天 %1$@ / %2$@"
+          }
+        }
+      }
+    },
+    "%1$lld of %2$lld days reached" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "an %1$lld von %2$lld Tagen erreicht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld days reached"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "alcanzado %1$lld de %2$lld días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "atteint %1$lld jours sur %2$lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "raggiunto %1$lld giorni su %2$lld"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "osiągnięto %1$lld z %2$lld dni"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "alcançado %1$lld de %2$lld dias"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "достигнуто %1$lld из %2$lld дней"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld 天中有 %1$lld 天达成"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$lld 天中有 %1$lld 天達成"
+          }
+        }
+      }
+    },
+    "%@ a day" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ pro Tag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ a day"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ al día"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ par jour"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ al giorno"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ dziennie"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ por dia"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ в день"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每天 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每天 %@"
+          }
+        }
+      }
+    },
+    "Every Today tile at every size, drawn by the views Today uses. Debug builds only." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede Kachel von Heute in jeder Größe, gezeichnet von den Ansichten, die Heute benutzt. Nur in Testbauten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every Today tile at every size, drawn by the views Today uses. Debug builds only."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada ficha de Hoy en todos sus tamaños, dibujada por las vistas que usa Hoy. Solo en compilaciones de prueba."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaque tuile d’Aujourd’hui dans toutes ses tailles, dessinée par les vues qu’Aujourd’hui utilise. Versions de test uniquement."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni riquadro di Oggi in ogni dimensione, disegnato dalle viste che Oggi usa. Solo nelle build di prova."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Każdy kafelek Dziś w każdym rozmiarze, rysowany przez widoki, których używa Dziś. Tylko w kompilacjach testowych."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada mosaico de Hoje em todos os tamanhos, desenhado pelas vistas que Hoje usa. Apenas em compilações de teste."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Каждая плитка «Сегодня» во всех размерах, нарисованная теми же представлениями. Только в отладочных сборках."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“今天”的每张卡片的每种尺寸，由“今天”所用的视图绘制。仅限调试版本。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「今天」的每張卡片的每種尺寸，由「今天」所用的視圖繪製。僅限除錯版本。"
+          }
+        }
+      }
+    },
+    "P %1$@ · C %2$@ · F %3$@ g" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E %1$@ · K %2$@ · F %3$@ g"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P %1$@ · C %2$@ · G %3$@ g"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P %1$@ · G %2$@ · L %3$@ g"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P %1$@ · C %2$@ · G %3$@ g"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "B %1$@ · W %2$@ · T %3$@ g"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P %1$@ · H %2$@ · G %3$@ g"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Б %1$@ · У %2$@ · Ж %3$@ г"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蛋白 %1$@ · 碳水 %2$@ · 脂肪 %3$@ 克"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蛋白 %1$@ · 碳水 %2$@ · 脂肪 %3$@ 克"
+          }
+        }
+      }
+    },
+    "P %1$@/%2$@ · C %3$@/%4$@ · F %5$@/%6$@ g" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E %1$@/%2$@ · K %3$@/%4$@ · F %5$@/%6$@ g"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P %1$@/%2$@ · C %3$@/%4$@ · G %5$@/%6$@ g"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P %1$@/%2$@ · G %3$@/%4$@ · L %5$@/%6$@ g"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P %1$@/%2$@ · C %3$@/%4$@ · G %5$@/%6$@ g"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "B %1$@/%2$@ · W %3$@/%4$@ · T %5$@/%6$@ g"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "P %1$@/%2$@ · H %3$@/%4$@ · G %5$@/%6$@ g"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Б %1$@/%2$@ · У %3$@/%4$@ · Ж %5$@/%6$@ г"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蛋白 %1$@/%2$@ · 碳水 %3$@/%4$@ · 脂肪 %5$@/%6$@ 克"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蛋白 %1$@/%2$@ · 碳水 %3$@/%4$@ · 脂肪 %5$@/%6$@ 克"
+          }
+        }
+      }
+    },
+    "Tile board" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kacheltafel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tile board"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tablero de fichas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tableau des tuiles"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tavola dei riquadri"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tablica kafelków"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Painel de mosaicos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доска плиток"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "卡片总览"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "卡片總覽"
+          }
+        }
+      }
+    },
+    "left today" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "heute übrig"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "queda hoy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "reste aujourd’hui"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "resta oggi"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "zostało dziś"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "falta hoje"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "осталось сегодня"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天还剩"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天還剩"
+          }
+        }
+      }
+    },
+    "Small · what is left of today" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klein · was heute übrig ist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pequeño · lo que queda hoy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Petit · ce qui reste aujourd’hui"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piccolo · quanto resta oggi"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mały · ile zostało dziś"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pequeno · o que falta hoje"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Маленький · сколько осталось сегодня"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "小 · 今天还剩多少"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "小 · 今天還剩多少"
+          }
+        }
+      }
+    },
+    "%@ of today calm" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ des Tages ruhig"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ del día en calma"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ de la journée au calme"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ della giornata calmo"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ dnia spokojnie"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ do dia em calma"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ дня спокойно"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天 %@ 平静"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天 %@ 平靜"
+          }
+        }
+      }
+    },
+    "%lld years under your age" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld year under your age"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld years under your age"
+              }
+            }
+            }
+          }
+        },
+        "de" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld Jahr unter deinem Alter"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld Jahre unter deinem Alter"
+              }
+            }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld año por debajo de tu edad"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld años por debajo de tu edad"
+              }
+            }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld an sous votre âge"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld ans sous votre âge"
+              }
+            }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld anno sotto la tua età"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld anni sotto la tua età"
+              }
+            }
+            }
+          }
+        },
+        "pl" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld rok poniżej twojego wieku"
+              }
+            },
+            "few" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld lata poniżej twojego wieku"
+              }
+            },
+            "many" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld lat poniżej twojego wieku"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld lat poniżej twojego wieku"
+              }
+            }
+            }
+          }
+        },
+        "pt-PT" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld ano abaixo da sua idade"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld anos abaixo da sua idade"
+              }
+            }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "На %lld год моложе возраста"
+              }
+            },
+            "few" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "На %lld года моложе возраста"
+              }
+            },
+            "many" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "На %lld лет моложе возраста"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "На %lld лет моложе возраста"
+              }
+            }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "比实际年龄小 %lld 岁"
+              }
+            }
+            }
+          }
+        },
+        "zh-Hant" : {
+          "variations" : {
+            "plural" : {
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "比實際年齡小 %lld 歲"
+              }
+            }
+            }
+          }
+        }
+      }
+    },
+    "%lld years over your age" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld year over your age"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld years over your age"
+              }
+            }
+            }
+          }
+        },
+        "de" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld Jahr über deinem Alter"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld Jahre über deinem Alter"
+              }
+            }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld año por encima de tu edad"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld años por encima de tu edad"
+              }
+            }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld an au-dessus de votre âge"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld ans au-dessus de votre âge"
+              }
+            }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld anno sopra la tua età"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld anni sopra la tua età"
+              }
+            }
+            }
+          }
+        },
+        "pl" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld rok powyżej twojego wieku"
+              }
+            },
+            "few" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld lata powyżej twojego wieku"
+              }
+            },
+            "many" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld lat powyżej twojego wieku"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld lat powyżej twojego wieku"
+              }
+            }
+            }
+          }
+        },
+        "pt-PT" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld ano acima da sua idade"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "%lld anos acima da sua idade"
+              }
+            }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+            "one" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "На %lld год старше возраста"
+              }
+            },
+            "few" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "На %lld года старше возраста"
+              }
+            },
+            "many" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "На %lld лет старше возраста"
+              }
+            },
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "На %lld лет старше возраста"
+              }
+            }
+            }
+          }
+        },
+        "zh-Hans" : {
+          "variations" : {
+            "plural" : {
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "比实际年龄大 %lld 岁"
+              }
+            }
+            }
+          }
+        },
+        "zh-Hant" : {
+          "variations" : {
+            "plural" : {
+            "other" : {
+              "stringUnit" : {
+                "state" : "translated",
+                "value" : "比實際年齡大 %lld 歲"
+              }
+            }
+            }
+          }
+        }
+      }
+    },
+    "Right at your age" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genau dein Alter"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Justo en tu edad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pile votre âge"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esattamente la tua età"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dokładnie twój wiek"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exatamente a sua idade"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ровно ваш возраст"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正好是实际年龄"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正好是實際年齡"
+          }
+        }
+      }
+    },
+    "Wide · its thirty days" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breit · die dreißig Tage"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancho · sus treinta días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Large · ses trente jours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largo · i suoi trenta giorni"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szeroko · jego trzydzieści dni"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largo · os seus trinta dias"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Широко · его тридцать дней"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "宽 · 三十天"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "寬 · 三十天"
+          }
+        }
+      }
+    },
+    "%@ over 90 days" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ über 90 Tage"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ en 90 días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ sur 90 jours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ in 90 giorni"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ w 90 dniach"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ em 90 dias"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ за 90 дней"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "90 天内 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "90 天內 %@"
+          }
+        }
+      }
+    },
+    "7-day average" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schnitt 7 Tage"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media de 7 días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moyenne sur 7 jours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media 7 giorni"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnia z 7 dni"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Média de 7 dias"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Среднее за 7 дней"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 天平均"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 天平均"
+          }
+        }
+      }
+    },
+    "Over 90 days" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über 90 Tage"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En 90 días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur 90 jours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In 90 giorni"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W 90 dniach"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Em 90 dias"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За 90 дней"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "90 天内"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "90 天內"
+          }
+        }
+      }
+    },
+    "Over goal" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über Ziel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objetivo superado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objectif dépassé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obiettivo superato"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powyżej celu"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meta superada"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выше цели"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "超过目标"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "超過目標"
+          }
+        }
+      }
+    },
+    "Days logged" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tage erfasst"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Días registrados"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jours enregistrés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giorni registrati"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dni z wpisem"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dias registados"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дней с записью"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有记录天数"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有記錄天數"
+          }
+        }
+      }
+    },
+    "Left today" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute übrig"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Queda hoy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reste aujourd’hui"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resta oggi"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zostało dziś"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Falta hoje"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Осталось сегодня"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天还剩"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今天還剩"
+          }
+        }
+      }
+    },
+    "This week %1$@ · %2$@ a day" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Woche %1$@ · %2$@ pro Tag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This week %1$@ · %2$@ a day"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta semana %1$@ · %2$@ al día"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette semaine %1$@ · %2$@ par jour"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa settimana %1$@ · %2$@ al giorno"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W tym tygodniu %1$@ · %2$@ dziennie"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta semana %1$@ · %2$@ por dia"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На этой неделе %1$@ · %2$@ в день"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本周 %1$@ · 每天 %2$@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本週 %1$@ · 每天 %2$@"
+          }
+        }
+      }
+    },
+    "Weighed %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gewogen %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weighed %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesado %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesé %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesato %@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ważenie %@"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesado %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Взвешивание %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "称重于%@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "量測於%@"
+          }
+        }
+      }
+    },
+    "Weighed %1$@ · %2$@ this week" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gewogen %1$@ · %2$@ diese Woche"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weighed %1$@ · %2$@ this week"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesado %1$@ · %2$@ esta semana"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesé %1$@ · %2$@ cette semaine"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesato %1$@ · %2$@ questa settimana"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ważenie %1$@ · %2$@ w tym tygodniu"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesado %1$@ · %2$@ esta semana"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Взвешивание %1$@ · %2$@ за неделю"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "称重于%1$@ · 本周 %2$@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "量測於%1$@ · 本週 %2$@"
+          }
+        }
+      }
+    },
+    "7-day average %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schnitt 7 Tage %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7-day average %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media de 7 días %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moyenne sur 7 jours %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media su 7 giorni %@"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnia z 7 dni %@"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Média de 7 dias %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Среднее за 7 дней %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 天平均 %@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 天平均 %@"
+          }
+        }
+      }
+    },
     "The plan could not be read, or there is none right now." : {
       "localizations" : {
         "de" : {
@@ -2848,7 +4628,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Was deinem Charge hilft"
+            "value" : "Was deiner Charge hilft"
           }
         },
         "es" : {
@@ -3254,7 +5034,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Beantworte ein paar Wochen das Journal, dann siehst du, was deinen Charge bewegt."
+            "value" : "Beantworte ein paar Wochen das Journal, dann siehst du, was deine Charge bewegt."
           }
         },
         "es" : {
@@ -4008,7 +5788,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Breit · die Gewohnheit, die deinen Charge am meisten bewegt"
+            "value" : "Breit · die Gewohnheit, die deine Charge am meisten bewegt"
           }
         },
         "es" : {
@@ -7720,7 +9500,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie gewichtet deine HRV gegenüber deiner persönlichen Basislinie (~55%%), Ruheherzfrequenz (~20%%), Erholungsqualität (~15%%), Atmung (~5%%) und Hauttemperatur-Abweichung (~5%%). Belastung ist eine Herz-Kreislauf-Last von 0-%@, in der jede Minute Herzfrequenz umso mehr zählt, je näher sie an deinem Maximum liegt. Erholung wird aus Bewegung und Herzfrequenz in Schlafphasen eingeteilt. Alles wird hier aus den Rohdaten des Straps berechnet. Es funktioniert für jeden Tag, an dem NOOP Rohdaten gesammelt hat."
+            "value" : "Charge gewichtet deine HRV gegenüber deiner persönlichen Basislinie (~55%%), Ruheherzfrequenz (~20%%), Rest-Qualität (~15%%), Atmung (~5%%) und Hauttemperatur-Abweichung (~5%%). Effort ist eine Herz-Kreislauf-Last von 0-%@, in der jede Minute Herzfrequenz umso mehr zählt, je näher sie an deinem Maximum liegt. Rest wird aus Bewegung und Herzfrequenz in Schlafphasen eingeteilt. Alles wird hier aus den Rohdaten des Straps berechnet. Es funktioniert für jeden Tag, an dem NOOP Rohdaten gesammelt hat."
           }
         },
         "es" : {
@@ -20770,7 +22550,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kraft in der Belastung"
+            "value" : "Kraft im Effort"
           }
         },
         "es" : {
@@ -20828,7 +22608,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Krafteinheiten, die du nach dem Training bewertest, erhöhen die Belastung über deinen Puls hinaus, stärker bei härterer Bewertung und längerer Einheit. Unbewertete Einheiten zählen nicht. An WHOOP abgestimmt, mit einer angenommenen Anstrengung von 7 von 10."
+            "value" : "Krafteinheiten, die du nach dem Training bewertest, erhöhen den Effort über deinen Puls hinaus, stärker bei härterer Bewertung und längerer Einheit. Unbewertete Einheiten zählen nicht. An WHOOP abgestimmt, mit einer angenommenen Effort von 7 von 10."
           }
         },
         "es" : {
@@ -37716,7 +39496,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ Belastung"
+            "value" : "%@ Effort"
           }
         },
         "es" : {
@@ -46408,7 +48188,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@: %2$@ der Energie"
+            "value" : "%1$@: %2$@ der Charge"
           }
         },
         "en" : {
@@ -53510,7 +55290,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld Belastung"
+            "value" : "%lld Effort"
           }
         },
         "es" : {
@@ -57236,7 +59016,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld von %lld Cardio-Einheiten haben einen Belastungswert"
+            "value" : "%lld von %lld Cardio-Einheiten haben einen Effort-Wert"
           }
         },
         "es" : {
@@ -84558,7 +86338,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eine niedrigere Ruheherzfrequenz bedeutet meist eine höhere Energie."
+            "value" : "Eine niedrigere Ruheherzfrequenz bedeutet meist eine höhere Charge."
           }
         },
         "es" : {
@@ -85626,7 +87406,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Einmal täglich ein Hinweis, wenn deine Belastung das untere Ende des heutigen optimalen Bereichs erreicht, berechnet aus deiner Erholung."
+            "value" : "Einmal täglich ein Hinweis, wenn dein Effort das untere Ende des heutigen optimalen Bereichs erreicht, berechnet aus deiner Erholung."
           }
         },
         "es" : {
@@ -85684,7 +87464,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ein geschütztes Training mit nur einem Fingertipp: Der Strap misst Ihre Herzfrequenz im Vergleich zu einem Strap, das auf dem heutigen Charge eingestellt ist, und summt immer nur, um den Kurs zu korrigieren. Stille bedeutet, dass Sie auf dem richtigen Weg sind."
+            "value" : "Ein geschütztes Training mit nur einem Fingertipp: Der Strap misst Ihre Herzfrequenz im Vergleich zu einem Bereich, der auf deine heutige Charge abgestimmt ist, und summt immer nur, um den Kurs zu korrigieren. Stille bedeutet, dass Sie auf dem richtigen Weg sind."
           }
         },
         "en" : {
@@ -86604,7 +88384,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ein Read-Only Plews / Altini am kleinsten Wert während der Änderung deiner nächtlichen HRV: Es zeigt an, ob deine 7-Nächte-HRV-Basislinie über, innerhalb oder unter deinem persönlichen normalen Band liegt. Es ändert nichts anderes - der Energiering ist identisch, ob dieser ein- oder ausgeschaltet ist. Dies ist eine grobe / frühe Prüfung, die noch nicht gegen unterschiedliche reale Daten (n = 1) validiert wurde."
+            "value" : "Ein Read-Only Plews / Altini am kleinsten Wert während der Änderung deiner nächtlichen HRV: Es zeigt an, ob deine 7-Nächte-HRV-Basislinie über, innerhalb oder unter deinem persönlichen normalen Band liegt. Es ändert nichts anderes - der Charge-Ring ist identisch, ob dieser ein- oder ausgeschaltet ist. Dies ist eine grobe / frühe Prüfung, die noch nicht gegen unterschiedliche reale Daten (n = 1) validiert wurde."
           }
         },
         "es" : {
@@ -89283,7 +91063,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ein Trainingswert, unabhängig von deinem Charge-Score."
+            "value" : "Ein Trainingswert, unabhängig von deiner Charge."
           }
         },
         "es" : {
@@ -89691,7 +91471,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eine Uhr misst deine Herzfrequenzvariabilität stichprobenartig, statt sie die ganze Nacht zu streamen, daher braucht dein Energiewert etwa sieben Nächte zum Kalibrieren. Bis dahin zeigt NOOP „braucht mehr Daten“, nie eine geratene Zahl."
+            "value" : "Eine Uhr misst deine Herzfrequenzvariabilität stichprobenartig, statt sie die ganze Nacht zu streamen, daher braucht dein Charge-Wert etwa sieben Nächte zum Kalibrieren. Bis dahin zeigt NOOP „braucht mehr Daten“, nie eine geratene Zahl."
           }
         },
         "es" : {
@@ -91783,7 +93563,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Über Energie"
+            "value" : "Über Charge"
           }
         },
         "es" : {
@@ -110699,7 +112479,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apples eigene Schlafphasen fließen direkt in die Erholung ein. Das ist eine der Stärken der Uhr."
+            "value" : "Apples eigene Schlafphasen fließen direkt in den Rest-Wert ein. Das ist eine der Stärken der Uhr."
           }
         },
         "es" : {
@@ -110757,7 +112537,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apples Schlafphasen sind zuverlässig und fließen direkt in deinen Erholungswert ein."
+            "value" : "Apples Schlafphasen sind zuverlässig und fließen direkt in deinen Rest-Wert ein."
           }
         },
         "es" : {
@@ -112428,7 +114208,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Heute vereinbaren"
+            "value" : "Heute anordnen"
           }
         },
         "es" : {
@@ -112738,7 +114518,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Frage nach deiner Energie, Belastung, Erholung und deinen Workouts, basierend auf deinen eigenen Zahlen."
+            "value" : "Frage nach deiner Charge, Belastung, Erholung und deinen Workouts, basierend auf deinen eigenen Zahlen."
           }
         },
         "es" : {
@@ -120222,7 +122002,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Ø-HF wird wie eingegeben angezeigt. HF-Graph, Zonen und Belastung bleiben aus der aufgezeichneten Sitzung."
+            "value" : "Die Ø-HF wird wie eingegeben angezeigt. HF-Graph, Zonen und Effort bleiben aus der aufgezeichneten Sitzung."
           }
         },
         "es" : {
@@ -123301,7 +125081,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "nur Bar"
+            "value" : "nur Stange"
           }
         },
         "en" : {
@@ -143497,7 +145277,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Cardio-Last vergleicht die letzten sieben Tage mit deinem eigenen Cardio der letzten Zeit. +18 % heißt, die aktuelle Woche lag etwa ein Fünftel über dem Üblichen; das ist ein Vergleich, keine Bewertung.\n\nDie Summe nutzt TRIMP: Trainingszeit, gewichtet nach Herzfrequenzintensität. So zählt eine lockere Stunde anders als eine Stunde nahe der Schwelle.\n\nRuhetage zählen als null. Mehr oder weniger ist nicht automatisch gut oder schlecht; lies die Last daher zusammen mit deiner Energie und deinen eigenen Einheitsbewertungen. Ein Vergleich erscheint, sobald genug Verlauf vorhanden ist."
+            "value" : "Die Cardio-Last vergleicht die letzten sieben Tage mit deinem eigenen Cardio der letzten Zeit. +18 % heißt, die aktuelle Woche lag etwa ein Fünftel über dem Üblichen; das ist ein Vergleich, keine Bewertung.\n\nDie Summe nutzt TRIMP: Trainingszeit, gewichtet nach Herzfrequenzintensität. So zählt eine lockere Stunde anders als eine Stunde nahe der Schwelle.\n\nRuhetage zählen als null. Mehr oder weniger ist nicht automatisch gut oder schlecht; lies die Last daher zusammen mit deiner Charge und deinen eigenen Einheitsbewertungen. Ein Vergleich erscheint, sobald genug Verlauf vorhanden ist."
           }
         },
         "es" : {
@@ -145541,7 +147321,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie"
+            "value" : "Charge"
           }
         },
         "en" : {
@@ -145606,7 +147386,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung –"
+            "value" : "Charge –"
           }
         },
         "en" : {
@@ -145671,7 +147451,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung · %@"
+            "value" : "Charge · %@"
           }
         },
         "en" : {
@@ -145735,7 +147515,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie · %@ Pkt."
+            "value" : "Charge · %@ Pkt."
           }
         },
         "es" : {
@@ -145794,7 +147574,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung · cal"
+            "value" : "Charge · cal"
           }
         },
         "en" : {
@@ -145858,7 +147638,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie · Belastung · Erholung"
+            "value" : "Charge · Effort · Rest"
           }
         },
         "es" : {
@@ -145916,7 +147696,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie (gesamter Verlauf)"
+            "value" : "Charge (gesamter Verlauf)"
           }
         },
         "es" : {
@@ -145974,7 +147754,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie (letztes Jahr)"
+            "value" : "Charge (letztes Jahr)"
           }
         },
         "es" : {
@@ -146032,7 +147812,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Charge / Anstrengung / Ruhe"
+            "value" : "Charge / Effort / Rest"
           }
         },
         "en" : {
@@ -146097,7 +147877,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie %@%%"
+            "value" : "Charge %@%%"
           }
         },
         "es" : {
@@ -146156,7 +147936,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung %lld · %lld bpm%@"
+            "value" : "Charge %lld · %lld bpm%@"
           }
         },
         "en" : {
@@ -146221,7 +148001,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung %lld von 100"
+            "value" : "Charge %lld von 100"
           }
         },
         "en" : {
@@ -146344,7 +148124,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung %lld%@"
+            "value" : "Charge %lld%@"
           }
         },
         "en" : {
@@ -146408,7 +148188,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie → Energie am Folgetag"
+            "value" : "Charge → Charge am Folgetag"
           }
         },
         "es" : {
@@ -146467,7 +148247,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie liefert den Kontext"
+            "value" : "Charge liefert den Kontext"
           }
         },
         "es" : {
@@ -146525,7 +148305,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie-Basislinie wird kalibriert. %1$@, %2$@. %3$@."
+            "value" : "Charge-Basislinie wird kalibriert. %1$@, %2$@. %3$@."
           }
         },
         "en" : {
@@ -146589,7 +148369,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie-Basislinie wird neu kalibriert"
+            "value" : "Charge-Basislinie wird neu kalibriert"
           }
         },
         "es" : {
@@ -146648,7 +148428,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie-Basislinie, HRV und Schlafphasen"
+            "value" : "Charge-Basislinie, HRV und Schlafphasen"
           }
         },
         "es" : {
@@ -146830,7 +148610,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung wird kalibriert"
+            "value" : "Charge wird kalibriert"
           }
         },
         "en" : {
@@ -146895,7 +148675,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung wird kalibriert, mehr Daten nötig"
+            "value" : "Charge wird kalibriert, mehr Daten nötig"
           }
         },
         "en" : {
@@ -146959,7 +148739,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Energie ist niedrig und der Schlaf war konsistent."
+            "value" : "Die Charge ist niedrig und der Schlaf war konsistent."
           }
         },
         "es" : {
@@ -147017,7 +148797,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Energie ist niedrig, aber der Schlaf war zu kurz."
+            "value" : "Die Charge ist niedrig, aber der Schlaf war zu kurz."
           }
         },
         "es" : {
@@ -147075,7 +148855,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Energie ist niedrig."
+            "value" : "Die Charge ist niedrig."
           }
         },
         "es" : {
@@ -147133,7 +148913,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Energie ist stabil und der Schlaf war konsistent."
+            "value" : "Die Charge ist stabil und der Schlaf war konsistent."
           }
         },
         "es" : {
@@ -147191,7 +148971,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Energie ist stabil, aber der Schlaf war zu kurz."
+            "value" : "Die Charge ist stabil, aber der Schlaf war zu kurz."
           }
         },
         "es" : {
@@ -147249,7 +149029,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Energie ist stabil."
+            "value" : "Die Charge ist stabil."
           }
         },
         "es" : {
@@ -147307,7 +149087,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Energie ist stark und der Schlaf war konsistent."
+            "value" : "Die Charge ist stark und der Schlaf war konsistent."
           }
         },
         "es" : {
@@ -147365,7 +149145,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Energie ist stark, aber der Schlaf war zu kurz."
+            "value" : "Die Charge ist stark, aber der Schlaf war zu kurz."
           }
         },
         "es" : {
@@ -147423,7 +149203,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Energie ist stark."
+            "value" : "Die Charge ist stark."
           }
         },
         "es" : {
@@ -147481,7 +149261,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energiemodell"
+            "value" : "Charge-Modell"
           }
         },
         "es" : {
@@ -147540,7 +149320,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung veraltet, zuletzt synchronisiert %@. Öffne NOOP auf dem iPhone."
+            "value" : "Charge veraltet, zuletzt synchronisiert %@. Öffne NOOP auf dem iPhone."
           }
         },
         "en" : {
@@ -147663,7 +149443,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung veraltet · %@"
+            "value" : "Charge veraltet · %@"
           }
         },
         "en" : {
@@ -147785,7 +149565,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energietrend"
+            "value" : "Charge-Trend"
           }
         },
         "es" : {
@@ -147844,7 +149624,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung nicht verfügbar"
+            "value" : "Charge nicht verfügbar"
           }
         },
         "en" : {
@@ -147909,7 +149689,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie gewichtet deine HRV gegenüber deiner persönlichen Basislinie (~55%%), Ruheherzfrequenz (~20%%), Erholungsqualität (~15%%), Atmung (~5%%) und Hauttemperatur-Abweichung (~5%%). Belastung ist eine kardiovaskuläre Last von 0-%@ aus der Zeit in Herzfrequenzzonen. Erholung wird aus Bewegung und Herzfrequenz in Schlafphasen eingeteilt. Alles wird hier aus den Rohdaten des Straps berechnet. Es funktioniert für jeden Tag, an dem NOOP Rohdaten gesammelt hat."
+            "value" : "Charge gewichtet deine HRV gegenüber deiner persönlichen Basislinie (~55%%), Ruheherzfrequenz (~20%%), Rest-Qualität (~15%%), Atmung (~5%%) und Hauttemperatur-Abweichung (~5%%). Effort ist eine kardiovaskuläre Last von 0-%@ aus der Zeit in Herzfrequenzzonen. Rest wird aus Bewegung und Herzfrequenz in Schlafphasen eingeteilt. Alles wird hier aus den Rohdaten des Straps berechnet. Es funktioniert für jeden Tag, an dem NOOP Rohdaten gesammelt hat."
           }
         },
         "en" : {
@@ -147973,7 +149753,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie gewichtet deine HRV gegenüber deiner persönlichen Basislinie (~55%%), Ruheherzfrequenz (~20%%), Erholungsqualität (~15%%), Atmung (~5%%) und Hauttemperaturabweichung (~5%%). Belastung ist eine kardiovaskuläre Belastung von 0–%lld aus der Zeit in Herzfrequenzzonen. Erholung wird aus Bewegung und Herzfrequenz in Schlafphasen eingeteilt. Alles wird hier aus den Rohdaten des Straps berechnet."
+            "value" : "Charge gewichtet deine HRV gegenüber deiner persönlichen Basislinie (~55%%), Ruheherzfrequenz (~20%%), Rest-Qualität (~15%%), Atmung (~5%%) und Hauttemperaturabweichung (~5%%). Effort ist eine kardiovaskuläre Belastung von 0–%lld aus der Zeit in Herzfrequenzzonen. Rest wird aus Bewegung und Herzfrequenz in Schlafphasen eingeteilt. Alles wird hier aus den Rohdaten des Straps berechnet."
           }
         },
         "es" : {
@@ -148032,7 +149812,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Energie gewichtet deine HRV gegenüber deiner persönlichen Basislinie (~55%%), Ruheherzfrequenz (~20%%), Erholungsqualität (~15%%), Atmung (~5%%) und Hauttemperatur-Abweichung (~5%%). Belastung ist eine kardiovaskuläre Last von 0–%@ aus der Zeit in Herzfrequenzzonen. Erholung wird aus Bewegung und Herzfrequenz in Schlafphasen eingeteilt. Alles wird hier aus den Rohdaten des Straps berechnet. Es funktioniert für jeden Tag, an dem NOOP Roh-Streams gesammelt hat."
+            "value" : "Die Charge gewichtet deine HRV gegenüber deiner persönlichen Basislinie (~55%%), Ruheherzfrequenz (~20%%), Rest-Qualität (~15%%), Atmung (~5%%) und Hauttemperatur-Abweichung (~5%%). Effort ist eine kardiovaskuläre Last von 0–%@ aus der Zeit in Herzfrequenzzonen. Rest wird aus Bewegung und Herzfrequenz in Schlafphasen eingeteilt. Alles wird hier aus den Rohdaten des Straps berechnet. Es funktioniert für jeden Tag, an dem NOOP Roh-Streams gesammelt hat."
           }
         },
         "es" : {
@@ -148148,7 +149928,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie, Belastung und Erholung (und wie sie sich von WHOOP unterscheiden)."
+            "value" : "Charge, Effort und Rest (und wie sie sich von WHOOP unterscheiden)."
           }
         },
         "es" : {
@@ -148206,7 +149986,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie, Belastung und Erholung werden auf deinem eigenen Gerät aus deinen Strap-Daten berechnet. Die Energie braucht etwa vier Nächte Schlaf, um deine Basislinie zu lernen (das ist „Kalibrierung“, auf dem Ring als Nächte von 4 gezählt), und wird über deine ersten Wochen immer genauer. Auf einem WHOOP 5 oder MG speichert der Strap wenig Verlauf, dieser Zähler kann also auf 0 von 4 stehen, bis du ihn ein paar Nächte getragen hast. Das ist die Sync-Grenze des Straps, kein Fehler. Bevor es eine Zahl gibt, zeigt NOOP, was es kann, ohne eine zu erfinden."
+            "value" : "Charge, Effort und Rest werden auf deinem eigenen Gerät aus deinen Strap-Daten berechnet. Die Charge braucht etwa vier Nächte Schlaf, um deine Basislinie zu lernen (das ist „Kalibrierung“, auf dem Ring als Nächte von 4 gezählt), und wird über deine ersten Wochen immer genauer. Auf einem WHOOP 5 oder MG speichert der Strap wenig Verlauf, dieser Zähler kann also auf 0 von 4 stehen, bis du ihn ein paar Nächte getragen hast. Das ist die Sync-Grenze des Straps, kein Fehler. Bevor es eine Zahl gibt, zeigt NOOP, was es kann, ohne eine zu erfinden."
           }
         },
         "es" : {
@@ -148265,7 +150045,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie, Belastung und Erholung als Ringe, dazu Live-Herzfrequenz und Strap-Akku auf einen Blick."
+            "value" : "Charge, Effort und Rest als Ringe, dazu Live-Herzfrequenz und Strap-Akku auf einen Blick."
           }
         },
         "en" : {
@@ -148394,7 +150174,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie, Belastung und Erholung werden nach ein paar Nächten Tragen persönlich."
+            "value" : "Charge, Effort und Rest werden nach ein paar Nächten Tragen persönlich."
           }
         },
         "es" : {
@@ -148452,7 +150232,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie, Belastung und Erholung bauen sich über die nächsten Nächte am Handgelenk auf."
+            "value" : "Charge, Effort und Rest bauen sich über die nächsten Nächte am Handgelenk auf."
           }
         },
         "es" : {
@@ -148511,7 +150291,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie, Belastung, Erholung, HRV, Ruhe- und Live-Herzfrequenz sowie Strap-Akku auf einen Blick."
+            "value" : "Charge, Effort, Rest, HRV, Rest- und Live-Herzfrequenz sowie Strap-Akku auf einen Blick."
           }
         },
         "es" : {
@@ -148633,7 +150413,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie: Wie gut bist du erholt?"
+            "value" : "Charge: Wie gut bist du erholt?"
           }
         },
         "es" : {
@@ -152097,7 +153877,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wähle, wie Distanzen, Gewichte, Größen, Temperaturen und Belastung angezeigt werden. Deine Daten werden immer gleich gespeichert. Das ändert nur die Anzeige."
+            "value" : "Wähle, wie Distanzen, Gewichte, Größen, Temperaturen und Effort angezeigt werden. Deine Daten werden immer gleich gespeichert. Das ändert nur die Anzeige."
           }
         },
         "es" : {
@@ -171685,7 +173465,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aktuelle Energie"
+            "value" : "Aktuelle Charge"
           }
         },
         "es" : {
@@ -180667,7 +182447,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Standard: Schritte und laufende Anstrengung starten am Anfang des erkannten Hauptschlafs. Nickerchen starten keinen neuen Tag; fehlende Schlafdauer wird auf Mitternacht vor Ort zurückgesetzt."
+            "value" : "Standard: Schritte und laufende Effort starten am Anfang des erkannten Hauptschlafs. Nickerchen starten keinen neuen Tag; fehlende Schlafdauer wird auf Mitternacht vor Ort zurückgesetzt."
           }
         },
         "es" : {
@@ -199454,7 +201234,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung"
+            "value" : "Effort"
           }
         },
         "en" : {
@@ -199577,7 +201357,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung (0–100)"
+            "value" : "Effort (0–100)"
           }
         },
         "es" : {
@@ -199822,7 +201602,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung %@."
+            "value" : "Effort %@."
           }
         },
         "es" : {
@@ -199940,7 +201720,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung ist die aus Herzfrequenz und Zeit gemessene Herz-Kreislauf-Last. Eine harte Krafteinheit kann über ihre Herzfrequenzreaktion beitragen, Sätze und Kilogramm werden aber nicht noch einmal addiert.\n\nKraft und Cardio bleiben getrennt, weil sie keine verlässliche gemeinsame Einheit haben. Die Energie liefert den Erholungskontext, den beide Lasten teilen."
+            "value" : "Effort ist die aus Herzfrequenz und Zeit gemessene Herz-Kreislauf-Last. Eine harte Krafteinheit kann über ihre Herzfrequenzreaktion beitragen, Sätze und Kilogramm werden aber nicht noch einmal addiert.\n\nKraft und Cardio bleiben getrennt, weil sie keine verlässliche gemeinsame Einheit haben. Die Charge liefert den Erholungskontext, den beide Lasten teilen."
           }
         },
         "es" : {
@@ -199999,7 +201779,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung im Zeitverlauf"
+            "value" : "Effort im Zeitverlauf"
           }
         },
         "es" : {
@@ -200058,7 +201838,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung im Zeitverlauf: Basis gegenüber zuletzt"
+            "value" : "Effort im Zeitverlauf: Basis gegenüber zuletzt"
           }
         },
         "es" : {
@@ -200116,7 +201896,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastungsskala"
+            "value" : "Effort-Skala"
           }
         },
         "es" : {
@@ -200174,7 +201954,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung · %@"
+            "value" : "Effort · %@"
           }
         },
         "es" : {
@@ -200232,7 +202012,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung: exponentielle Intensitätsskala"
+            "value" : "Effort: exponentielle Intensitätsskala"
           }
         },
         "en" : {
@@ -200296,7 +202076,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung: Wie stark hat dein Herz gearbeitet?"
+            "value" : "Effort: Wie stark hat dein Herz gearbeitet?"
           }
         },
         "es" : {
@@ -205053,7 +206833,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schätzung aus der heutigen Belastung, deinem typischen Schlaf und deiner Erholungs-Basislinie aus %lld Nächten, keine Messung. Deine echte Energie wird aus der HRV von morgen berechnet, wenn du aufwachst."
+            "value" : "Schätzung aus der heutigen Belastung, deinem typischen Schlaf und deiner Erholungs-Basislinie aus %lld Nächten, keine Messung. Deine echte Charge wird aus der HRV von morgen berechnet, wenn du aufwachst."
           }
         },
         "es" : {
@@ -209312,7 +211092,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Exaktes Modell unbekannt. Zeigt, was jede WHOOP kann. * auf Gerät geschätzter Wert · keine SPO₂ % off der Gurte (importiere eine WHOOP-CSV-Datei dafür)."
+            "value" : "Exaktes Modell unbekannt. Zeigt, was jede WHOOP kann. * auf Gerät geschätzter Wert · keine SPO₂ % off der Straps (importiere eine WHOOP-CSV-Datei dafür)."
           }
         },
         "es" : {
@@ -232977,7 +234757,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gehabt"
+            "value" : "Getrunken"
           }
         },
         "es" : {
@@ -237492,7 +239272,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Herzfrequenzvariabilität als Motor hinter deinem Energiewert."
+            "value" : "Herzfrequenzvariabilität als Motor hinter deinem Charge-Wert."
           }
         },
         "es" : {
@@ -241174,7 +242954,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Geschichte bleibt unter der ursprünglichen Frage, so dass WHOOP-Importe immer noch Schlange stehen."
+            "value" : "Der Verlauf bleibt unter der ursprünglichen Frage gespeichert, sodass WHOOP-Importe weiterhin korrekt zugeordnet werden."
           }
         },
         "es" : {
@@ -243981,7 +245761,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "So wird Energie berechnet"
+            "value" : "So wird Charge berechnet"
           }
         },
         "en" : {
@@ -244045,7 +245825,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "So wird Energie berechnet. Die Methode hinter dem Wert."
+            "value" : "So wird Charge berechnet. Die Methode hinter dem Wert."
           }
         },
         "es" : {
@@ -244104,7 +245884,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "So werden Energie, Belastung und Erholung berechnet, und so unterscheiden sie sich von WHOOP."
+            "value" : "So werden Charge, Effort und Rest berechnet, und so unterscheiden sie sich von WHOOP."
           }
         },
         "es" : {
@@ -244162,7 +245942,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie eng eine gute Nacht der Energie am nächsten Morgen folgt."
+            "value" : "Wie eng eine gute Nacht der Charge am nächsten Morgen folgt."
           }
         },
         "es" : {
@@ -244662,7 +246442,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "So wird Belastung berechnet"
+            "value" : "So wird Effort berechnet"
           }
         },
         "en" : {
@@ -245600,7 +247380,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie viel Herz-Kreislauf-Arbeit die letzten 7 Tage im Vergleich zu deinem eigenen 28-Tage-Niveau verlangt haben. Es ist ein Prozentsatz, kein Score: +18 % bedeutet, dass die letzte Woche etwa ein Fünftel über deinem üblichen Niveau lag.\n\nDas Signal ist die Belastung, aus Herzfrequenz und Zeit in Intensitätszonen mittels TRIMP abgeleitet. Bewegungszeit bleibt getrennt, weil 60 lockere Minuten und 60 Minuten an der Schwelle gleich lang, aber kardiovaskulär sehr verschieden sind.\n\nRuhetage zählen als Null. Keine Richtung ist allein gut oder schlecht: Eine höhere Woche kann geplanter Aufbau oder zu viel sein. Energie und deine Einheitsbewertung liefern diesen Kontext. Die Anzeige bleibt leer, bis zwei Wochen Verlauf vorliegen."
+            "value" : "Wie viel Herz-Kreislauf-Arbeit die letzten 7 Tage im Vergleich zu deinem eigenen 28-Tage-Niveau verlangt haben. Es ist ein Prozentsatz, kein Score: +18 % bedeutet, dass die letzte Woche etwa ein Fünftel über deinem üblichen Niveau lag.\n\nDas Signal ist der Effort, aus Herzfrequenz und Zeit in Intensitätszonen mittels TRIMP abgeleitet. Bewegungszeit bleibt getrennt, weil 60 lockere Minuten und 60 Minuten an der Schwelle gleich lang, aber kardiovaskulär sehr verschieden sind.\n\nRuhetage zählen als Null. Keine Richtung ist allein gut oder schlecht: Eine höhere Woche kann geplanter Aufbau oder zu viel sein. Charge und deine Einheitsbewertung liefern diesen Kontext. Die Anzeige bleibt leer, bis zwei Wochen Verlauf vorliegen."
           }
         },
         "es" : {
@@ -245723,7 +247503,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie viel Krafttraining diese Woche im Vergleich zu deinem eigenen Niveau der letzten vier Wochen verlangt hat. Es ist ein Prozentsatz, kein Score: +18 % bedeutet etwa ein Fünftel über deinem üblichen Niveau.\n\nGrundlage sind ARBEITSSÄTZE, gewichtet nach Nähe zum Muskelversagen – dieselbe Gewichtung wie in der Muskelkarte. Zehn lockere Sätze sind nicht zehn harte.\n\nBewusst keine Tonnage: Sätze × Wiederholungen × Kilo bewertet 4 × 10 mit 100 kg höher als 5 × 3 mit 180 kg, obwohl die Dreier schwerer, näher am Limit und erholungsintensiver sein können. Tonnage bleibt daher eine Statistik.\n\nKeine Richtung ist allein gut oder schlecht. Mehr als üblich kann Aufbau oder Überlastung sein; die Last allein unterscheidet das nicht. Energie liefert den Kontext."
+            "value" : "Wie viel Krafttraining diese Woche im Vergleich zu deinem eigenen Niveau der letzten vier Wochen verlangt hat. Es ist ein Prozentsatz, kein Score: +18 % bedeutet etwa ein Fünftel über deinem üblichen Niveau.\n\nGrundlage sind ARBEITSSÄTZE, gewichtet nach Nähe zum Muskelversagen – dieselbe Gewichtung wie in der Muskelkarte. Zehn lockere Sätze sind nicht zehn harte.\n\nBewusst keine Tonnage: Sätze × Wiederholungen × Kilo bewertet 4 × 10 mit 100 kg höher als 5 × 3 mit 180 kg, obwohl die Dreier schwerer, näher am Limit und erholungsintensiver sein können. Tonnage bleibt daher eine Statistik.\n\nKeine Richtung ist allein gut oder schlecht. Mehr als üblich kann Aufbau oder Überlastung sein; die Last allein unterscheidet das nicht. Charge liefert den Kontext."
           }
         },
         "es" : {
@@ -245781,7 +247561,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie viel der Energie eines Tages in den nächsten hinüberträgt."
+            "value" : "Wie viel der Charge eines Tages in den nächsten hinüberträgt."
           }
         },
         "es" : {
@@ -246614,7 +248394,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "So wird Erholung berechnet"
+            "value" : "So wird Rest berechnet"
           }
         },
         "en" : {
@@ -249266,7 +251046,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie entwickelt sich meine Energie?"
+            "value" : "Wie entwickelt sich meine Charge?"
           }
         },
         "es" : {
@@ -249447,7 +251227,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "HF %@ · Belastung %@"
+            "value" : "HF %@ · Effort %@"
           }
         },
         "es" : {
@@ -250854,7 +252634,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "HRV ↔ Energie"
+            "value" : "HRV ↔ Charge"
           }
         },
         "es" : {
@@ -256057,7 +257837,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Importiere deinen Krafttrainings-Verlauf aus einem Hevy-CSV-Export oder einem Liftosaur-JSON-Export. Jedes Workout wird eine Kraftsitzung mit einer Trainingsvolumen-Schätzung (Gewicht × Wiederholungen). Es ist eine Volumenzahl, keine gemessene Belastung. Sie ändert nie deine Belastung."
+            "value" : "Importiere deinen Krafttrainings-Verlauf aus einem Hevy-CSV-Export oder einem Liftosaur-JSON-Export. Jedes Workout wird eine Kraftsitzung mit einer Trainingsvolumen-Schätzung (Gewicht × Wiederholungen). Es ist eine Volumenzahl, keine gemessene Belastung. Sie ändert nie deinen Effort."
           }
         },
         "es" : {
@@ -266106,7 +267886,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keep working"
+            "value" : "Weiter daran arbeiten"
           }
         },
         "es" : {
@@ -268753,7 +270533,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Letzte Energie-Aufschlüsselung"
+            "value" : "Letzte Charge-Aufschlüsselung"
           }
         },
         "es" : {
@@ -274006,7 +275786,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Angeführt von deiner Herzfrequenzvariabilität (HRV) gegenüber deiner persönlichen Basislinie, plus Ruheherzfrequenz, Erholung der letzten Nacht, Atemfrequenz und einem Hauttemperatur-Signal (ein frühes Zeichen für Krankheit oder Überlastung). Höhere HRV gegenüber deiner Basislinie bedeutet mehr Energie. NOOP braucht zuerst ein paar Nächte, um deine Basislinie zu lernen. Bis dahin siehst du „Kalibrierung“."
+            "value" : "Angeführt von deiner Herzfrequenzvariabilität (HRV) gegenüber deiner persönlichen Basislinie, plus Ruheherzfrequenz, Rest der letzten Nacht, Atemfrequenz und einem Hauttemperatur-Signal (ein frühes Zeichen für Krankheit oder Überlastung). Höhere HRV gegenüber deiner Basislinie bedeutet mehr Charge. NOOP braucht zuerst ein paar Nächte, um deine Basislinie zu lernen. Bis dahin siehst du „Kalibrierung“."
           }
         },
         "es" : {
@@ -276356,7 +278136,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Krafttraining ergänzt Volumen und Satzzahlen. Deine Belastung ändert es nie – die wird weiterhin aus der Herzfrequenz gemessen."
+            "value" : "Krafttraining ergänzt Volumen und Satzzahlen. Deine Effort ändert es nie – die wird weiterhin aus der Herzfrequenz gemessen."
           }
         },
         "en" : {
@@ -276420,7 +278200,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Kraftzahlen werden aus den Sätzen oben berechnet. Die Belastung bleibt aus der Herzfrequenz gemessen und wird nie aus Gewichten und Wiederholungen abgeleitet."
+            "value" : "Die Kraftzahlen werden aus den Sätzen oben berechnet. Die Effort bleibt aus der Herzfrequenz gemessen und wird nie aus Gewichten und Wiederholungen abgeleitet."
           }
         },
         "en" : {
@@ -279340,7 +281120,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Live-Gerätedaten über Bluetooth FTMS. Kein Schlaf, keine Erholung, keine Hauttemperatur, kein SpO₂. Belastung braucht die Herzfrequenz des Geräts; ohne sie protokolliert die Sitzung nur die Gerätemetriken."
+            "value" : "Live-Gerätedaten über Bluetooth FTMS. Kein Schlaf, keine Erholung, keine Hauttemperatur, kein SpO₂. Effort braucht die Herzfrequenz des Geräts; ohne sie protokolliert die Sitzung nur die Gerätemetriken."
           }
         },
         "es" : {
@@ -282638,7 +284418,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erfasse oben Verhaltensweisen. Nach ein paar Tagen mit Antworten stuft NOOP ein, wie jedes davon deine Energie, HRV und Erholung bewegt. Der Import eines WHOOP-Exports (der sein Tagebuch enthält) füllt den Verlauf sofort rückwirkend."
+            "value" : "Erfasse oben Verhaltensweisen. Nach ein paar Tagen mit Antworten stuft NOOP ein, wie jedes davon deine Charge, HRV und Erholung bewegt. Der Import eines WHOOP-Exports (der sein Tagebuch enthält) füllt den Verlauf sofort rückwirkend."
           }
         },
         "es" : {
@@ -332765,7 +334545,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Dynamik bleibt ruhig, wenn nichts Wertes passiert. Trage den Gürtel und protokolliere deinen Tag, dann wird alles aufgezeichnet."
+            "value" : "Die Dynamik bleibt ruhig, wenn nichts Wertes passiert. Trage den Strap und protokolliere deinen Tag, dann wird alles aufgezeichnet."
           }
         },
         "es" : {
@@ -336196,7 +337976,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bewegt euch sowieso"
+            "value" : "Trotzdem verschieben"
           }
         },
         "es" : {
@@ -340069,7 +341849,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Benötigt %1$lld+ aufeinanderfolgende Tage mit Belastung, um zu starten. Bisher %2$lld."
+            "value" : "Benötigt %1$lld+ aufeinanderfolgende Tage mit Effort, um zu starten. Bisher %2$lld."
           }
         },
         "es" : {
@@ -346653,7 +348433,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Noch keine Cardio-Last. Belastung baut sich auf, sobald deine Herzfrequenz in deine Belastungszone steigt (etwa 50 % deiner Herzfrequenzreserve). Ein ruhiger Tag liest sich ehrlich nahe null."
+            "value" : "Noch keine Cardio-Last. Effort baut sich auf, sobald deine Herzfrequenz in deine Effort-Zone steigt (etwa 50 % deiner Herzfrequenzreserve). Ein ruhiger Tag liest sich ehrlich nahe null."
           }
         },
         "es" : {
@@ -347008,7 +348788,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Noch keine Energie-Aufschlüsselung"
+            "value" : "Noch keine Charge-Aufschlüsselung"
           }
         },
         "es" : {
@@ -347066,7 +348846,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kein Brustgurt? Kein Problem. NOOP kann allein mit deiner Apple Watch laufen. Es liest die Daten deiner Uhr über Apple Health und berechnet deine Energie, Erholung, Belastung und dein Fitnessalter direkt hier auf deinem Telefon. Alles bleibt auf dem Gerät."
+            "value" : "Kein Brustgurt? Kein Problem. NOOP kann allein mit deiner Apple Watch laufen. Es liest die Daten deiner Uhr über Apple Health und berechnet deine Charge, Rest, Effort und dein Fitnessalter direkt hier auf deinem Telefon. Alles bleibt auf dem Gerät."
           }
         },
         "es" : {
@@ -349736,7 +351516,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Noch kein Puls. Zonen und Belastung starten mit dem ersten Wert."
+            "value" : "Noch kein Puls. Zonen und Effort starten mit dem ersten Wert."
           }
         },
         "es" : {
@@ -351032,7 +352812,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kein Gewicht aufgezeichnet noch"
+            "value" : "Noch keine Belastung aufgezeichnet"
           }
         },
         "es" : {
@@ -356804,7 +358584,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keine brauchbare Herzfrequenzaufzeichnung in diesem Zeitraum, daher beruht dies auf der gespeicherten Belastung"
+            "value" : "Keine brauchbare Herzfrequenzaufzeichnung in diesem Zeitraum, daher beruht dies auf der gespeicherten Effort"
           }
         },
         "en" : {
@@ -359477,7 +361257,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NOOP kann allein mit einer Apple Watch laufen, kein Brustgurt nötig. Die Uhr ist der Sensor; NOOP übernimmt das Denken auf deinem Telefon und berechnet Energie, Erholung, Belastung und dein Fitnessalter aus deinen Health-Daten, alles auf dem Gerät."
+            "value" : "NOOP kann allein mit einer Apple Watch laufen, kein Brustgurt nötig. Die Uhr ist der Sensor; NOOP übernimmt das Denken auf deinem Telefon und berechnet Charge, Rest, Effort und dein Fitnessalter aus deinen Health-Daten, alles auf dem Gerät."
           }
         },
         "es" : {
@@ -359652,7 +361432,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NOOP-Energie"
+            "value" : "NOOP-Charge"
           }
         },
         "es" : {
@@ -360686,7 +362466,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NOOP gibt dir drei Tageswerte (Energie, Belastung und Erholung), jeweils auf einer Skala von 0–100. Sie entstehen aus den Rohsignalen deines Straps mit veröffentlichter, begutachteter Sportwissenschaft und werden vollständig auf deinem Gerät berechnet. Es sind NICHT WHOOPs Werte: Wir haben WHOOPs private Algorithmen nicht und tun auch nicht so. Sie zielen mit offener Wissenschaft auf dieselben drei Fragen, folgen WHOOPs Werten also meist in der Richtung, stimmen aber nicht Zahl für Zahl überein. Und genau das ist der Punkt."
+            "value" : "NOOP gibt dir drei Tageswerte (Charge, Effort und Rest), jeweils auf einer Skala von 0–100. Sie entstehen aus den Rohsignalen deines Straps mit veröffentlichter, begutachteter Sportwissenschaft und werden vollständig auf deinem Gerät berechnet. Es sind NICHT WHOOPs Werte: Wir haben WHOOPs private Algorithmen nicht und tun auch nicht so. Sie zielen mit offener Wissenschaft auf dieselben drei Fragen, folgen WHOOPs Werten also meist in der Richtung, stimmen aber nicht Zahl für Zahl überein. Und genau das ist der Punkt."
           }
         },
         "es" : {
@@ -362498,7 +364278,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NOOP berechnet deine Energie, Belastung und Erholung selbst: auf dem Gerät, keine Cloud."
+            "value" : "NOOP berechnet deine Charge, Belastung und Erholung selbst: auf dem Gerät, keine Cloud."
           }
         },
         "es" : {
@@ -363397,7 +365177,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NOOP will not close the goal for you. Confirm it only if this measurement means the goal is complete to you."
+            "value" : "NOOP schließt das Ziel nicht automatisch ab. Bestätige es nur, wenn dieser Messwert für dich bedeutet, dass das Ziel erreicht ist."
           }
         },
         "es" : {
@@ -363896,7 +365676,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NOOPs eigene Energie, Belastung und Erholung, berechnet auf deinem Gerät nach veröffentlichten Methoden."
+            "value" : "NOOPs eigene Charge, Effort und Rest, berechnet auf deinem Gerät nach veröffentlichten Methoden."
           }
         },
         "es" : {
@@ -379449,7 +381229,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "An: Ladung, Erholung, HRV und Workouts gehen an den Anbieter, jedes Workout mit Sportart, Dauer, Distanz und Herzfrequenz."
+            "value" : "An: Charge, Erholung, HRV und Workouts gehen an den Anbieter, jedes Workout mit Sportart, Dauer, Distanz und Herzfrequenz."
           }
         },
         "en" : {
@@ -379513,7 +381293,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "An: Deine Energie, Erholung, HRV und Workouts werden für maßgeschneidertes Coaching mit dem Anbieter geteilt."
+            "value" : "An: Deine Charge, Erholung, HRV und Workouts werden für maßgeschneidertes Coaching mit dem Anbieter geteilt."
           }
         },
         "es" : {
@@ -383679,7 +385459,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Öffne NOOP in der Nähe des Gurtes und lass die WHOOP 5/MG-Geschichte synchronisieren. Die Schrittschätzung und Kalibrierung werden später, wenn genügend Bewegungsdaten vorliegen; das alte R22-Experiment ist nicht nötig."
+            "value" : "Öffne NOOP in der Nähe des Straps und lass die WHOOP 5/MG-Geschichte synchronisieren. Die Schrittschätzung und Kalibrierung werden später, wenn genügend Bewegungsdaten vorliegen; das alte R22-Experiment ist nicht nötig."
           }
         },
         "es" : {
@@ -384769,7 +386549,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ladung im Detail öffnen"
+            "value" : "Charge im Detail öffnen"
           }
         },
         "en" : {
@@ -384833,7 +386613,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung im Detail öffnen"
+            "value" : "Effort im Detail öffnen"
           }
         },
         "en" : {
@@ -384955,7 +386735,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erholung im Detail öffnen"
+            "value" : "Rest im Detail öffnen"
           }
         },
         "en" : {
@@ -397525,7 +399305,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wähle ein Wearable-Signal (Ruhe-HF, HRV, Schlaf, Energie, Gewicht …), um es gegen diesen Marker zu stellen. NOOP mittelt das Signal über die %@ vor jeder Messung."
+            "value" : "Wähle ein Wearable-Signal (Ruhe-HF, HRV, Schlaf, Charge, Gewicht …), um es gegen diesen Marker zu stellen. NOOP mittelt das Signal über die %@ vor jeder Messung."
           }
         },
         "es" : {
@@ -401997,7 +403777,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Speist Energie, Belastung, Erholung und Schlaf"
+            "value" : "Speist Charge, Effort, Rest und Schlaf"
           }
         },
         "es" : {
@@ -402055,7 +403835,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Speist Energie, Belastung, Erholung, Schlaf + Gesundheitsmonitor"
+            "value" : "Speist Charge, Effort, Rest, Schlaf + Gesundheitsmonitor"
           }
         },
         "es" : {
@@ -402113,7 +403893,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Speist jetzt Belastung; Energie und Erholung, sobald genug Nächte und die Dekodierung bestätigt sind"
+            "value" : "Speist jetzt Effort; Charge und Rest, sobald genug Nächte und die Dekodierung bestätigt sind"
           }
         },
         "es" : {
@@ -402171,7 +403951,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Speist Erholung, Belastung, Fitnessalter und Schritte sowie Energie, sobald die Basislinie kalibriert ist"
+            "value" : "Speist Rest, Effort, Fitnessalter und Schritte sowie Charge, sobald die Basislinie kalibriert ist"
           }
         },
         "es" : {
@@ -402229,7 +404009,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Speist die Live-Konsole + Belastung. Keine Energie, keine Erholung, kein Schlaf"
+            "value" : "Speist die Live-Konsole + Effort. Keine Charge, keine Rest, kein Schlaf"
           }
         },
         "es" : {
@@ -408983,7 +410763,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Leises Strap-Coaching gegen den heutigen Charge"
+            "value" : "Leises Strap-Coaching gegen die heutige Charge"
           }
         },
         "en" : {
@@ -409968,7 +411748,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eingestuft, mit Zeitversatz: welche deiner Gewohnheiten deine Energie wirklich bewegen, plus deine persönliche Alkohol-/Koffein-Dosis-Wirkung."
+            "value" : "Eingestuft, mit Zeitversatz: welche deiner Gewohnheiten deine Charge wirklich bewegen, plus deine persönliche Alkohol-/Koffein-Dosis-Wirkung."
           }
         },
         "es" : {
@@ -411131,7 +412911,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verankert jede Basislinie, die in die Energie einfließt, neu an deinen letzten Nächten. Kein gespeicherter Tag wird gelöscht."
+            "value" : "Verankert jede Basislinie, die in die Charge einfließt, neu an deinen letzten Nächten. Kein gespeicherter Tag wird gelöscht."
           }
         },
         "es" : {
@@ -417186,7 +418966,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie-Basislinie neu kalibrieren"
+            "value" : "Charge-Basislinie neu kalibrieren"
           }
         },
         "es" : {
@@ -417244,7 +419024,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deine Energie-Basislinie neu kalibrieren?"
+            "value" : "Deine Charge-Basislinie neu kalibrieren?"
           }
         },
         "es" : {
@@ -420324,7 +422104,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zeichnet ein Live-Geräte-Workout auf, Belastung aus der HF bewertet, wenn das Gerät sie meldet"
+            "value" : "Zeichnet ein Live-Geräte-Workout auf, Effort aus der HF bewertet, wenn das Gerät sie meldet"
           }
         },
         "es" : {
@@ -421183,7 +422963,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erholung / Energie"
+            "value" : "Erholung / Charge"
           }
         },
         "es" : {
@@ -422723,7 +424503,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Erholung, NOOPs Energiewert, wird von deiner Herzfrequenzvariabilität gegenüber deiner persönlichen Basislinie angeführt. Ein Brustgurt streamt Schlag-zu-Schlag-Daten die ganze Nacht dicht, er kann diese Basislinie also schnell lernen. Eine Apple Watch misst HRV dagegen stichprobenartig, eine Handvoll Messungen über den Tag plus nachts – das Signal ist echt, aber dünner."
+            "value" : "Die Erholung, NOOPs Charge-Wert, wird von deiner Herzfrequenzvariabilität gegenüber deiner persönlichen Basislinie angeführt. Ein Brustgurt streamt Schlag-zu-Schlag-Daten die ganze Nacht dicht, er kann diese Basislinie also schnell lernen. Eine Apple Watch misst HRV dagegen stichprobenartig, eine Handvoll Messungen über den Tag plus nachts – das Signal ist echt, aber dünner."
           }
         },
         "es" : {
@@ -427758,7 +429538,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Name des Unternehmens"
+            "value" : "Eintrag umbenennen"
           }
         },
         "es" : {
@@ -427880,7 +429660,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Umbenennung..."
+            "value" : "Umbenennung…"
           }
         },
         "es" : {
@@ -428781,7 +430561,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ersetzt die Layout-Ansicht der heutigen Schaltfläche. Wechseln kannst du jederzeit — jeder Stil zeigt die gleichen Live-Daten von deinem Gürtel."
+            "value" : "Ersetzt die Layout-Ansicht der heutigen Schaltfläche. Wechseln kannst du jederzeit — jeder Stil zeigt die gleichen Live-Daten von deinem Strap."
           }
         },
         "es" : {
@@ -430968,7 +432748,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erholung"
+            "value" : "Rest"
           }
         },
         "en" : {
@@ -431212,7 +432992,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ruhe %llds"
+            "value" : "Rest %llds"
           }
         },
         "es" : {
@@ -431270,7 +433050,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ruhe ↔ Energie"
+            "value" : "Rest ↔ Charge"
           }
         },
         "es" : {
@@ -431328,7 +433108,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ruhe-Basislinie"
+            "value" : "Rest-Basislinie"
           }
         },
         "es" : {
@@ -431817,7 +433597,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Ruhe ist die heutige Session."
+            "value" : "Die Rest ist die heutige Session."
           }
         },
         "es" : {
@@ -431939,7 +433719,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ruhequalität"
+            "value" : "Rest-Qualität"
           }
         },
         "es" : {
@@ -432299,7 +434079,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erholung: Wie erholsam war dein Schlaf?"
+            "value" : "Rest: Wie erholsam war dein Schlaf?"
           }
         },
         "es" : {
@@ -432659,7 +434439,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Startet den etwa 4-nächtigen Aufbau für Energie und deine HRV-Basislinie ab heute Nacht neu. Nutze es, wenn eine schlechte erste Woche deine Basislinie verzerrt hat. Dein Verlauf bleibt."
+            "value" : "Startet den etwa 4-nächtigen Aufbau für Charge und deine HRV-Basislinie ab heute Nacht neu. Nutze es, wenn eine schlechte erste Woche deine Basislinie verzerrt hat. Dein Verlauf bleibt."
           }
         },
         "es" : {
@@ -433270,7 +435050,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ruhe-HF ↔ Energie"
+            "value" : "Ruhe-HF ↔ Charge"
           }
         },
         "es" : {
@@ -445660,7 +447440,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bewertet die Belastung mit einer exponentiellen Intensitätskurve (Banister-TRIMP) statt der voreingestellten Herzfrequenzzonen (Edwards). Die Voreinstellung zählt nichts unter der Hälfte deiner Herzfrequenzreserve, sodass eine Stunde Krafttraining – bei der sich harte Sätze mit den Pausen ausmitteln – nahezu null ergeben kann. Die exponentielle Kurve hat keine Untergrenze und gewichtet kurze, harte Belastungen deutlich stärker. Bewertet deine Historie neu; beide Skalen erreichen dasselbe Maximum. Standardmäßig aus."
+            "value" : "Bewertet den Effort mit einer exponentiellen Intensitätskurve (Banister-TRIMP) statt der voreingestellten Herzfrequenzzonen (Edwards). Die Voreinstellung zählt nichts unter der Hälfte deiner Herzfrequenzreserve, sodass eine Stunde Krafttraining – bei der sich harte Sätze mit den Pausen ausmitteln – nahezu null ergeben kann. Die exponentielle Kurve hat keine Untergrenze und gewichtet kurze, harte Belastungen deutlich stärker. Bewertet deine Historie neu; beide Skalen erreichen dasselbe Maximum. Standardmäßig aus."
           }
         },
         "en" : {
@@ -447406,7 +449186,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sieh, wie Energie, Belastung und Erholung berechnet werden und wie sie sich von WHOOP unterscheiden."
+            "value" : "Sieh, wie Charge, Effort und Rest berechnet werden und wie sie sich von WHOOP unterscheiden."
           }
         },
         "es" : {
@@ -447991,7 +449771,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sieh, was deine Energie geprägt hat"
+            "value" : "Sieh, was deine Charge geprägt hat"
           }
         },
         "es" : {
@@ -451304,7 +453084,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung der Einheit aus Herzfrequenz und Intensität im Zeitverlauf, abgeleitet aus TRIMP."
+            "value" : "Effort der Einheit aus Herzfrequenz und Intensität im Zeitverlauf, abgeleitet aus TRIMP."
           }
         },
         "es" : {
@@ -463511,7 +465291,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schlaf / Ruhe"
+            "value" : "Schlaf / Rest"
           }
         },
         "es" : {
@@ -463569,7 +465349,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schlaf & Ruhe"
+            "value" : "Schlaf & Rest"
           }
         },
         "es" : {
@@ -466203,7 +467983,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schlafstabilität: Erholung schwankte von Nacht zu Nacht um ±%@ Punkte."
+            "value" : "Schlafstabilität: Rest schwankte von Nacht zu Nacht um ±%@ Punkte."
           }
         },
         "es" : {
@@ -482260,7 +484040,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schritte, aktive Energie und erfasste Workouts fließen in die Belastung ein. Dicht und verlässlich."
+            "value" : "Schritte, aktive Energie und erfasste Workouts fließen in den Effort ein. Dicht und verlässlich."
           }
         },
         "es" : {
@@ -482318,7 +484098,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schritte, aktive Energie und erfasste Workouts fließen in deine Belastung ein. Dicht und verlässlich."
+            "value" : "Schritte, aktive Energie und erfasste Workouts fließen in deinen Effort ein. Dicht und verlässlich."
           }
         },
         "es" : {
@@ -488350,7 +490130,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Kraft-Last vergleicht die letzten sieben Tage mit deinem eigenen Krafttraining der letzten Zeit. +18 % heißt, die aktuelle Woche lag etwa ein Fünftel über dem Üblichen; das ist ein Vergleich, keine Bewertung.\n\nDie Summe nutzt Arbeitssätze und gewichtet Sätze stärker, die näher am Muskelversagen waren. So zählen zehn leichte Sätze nicht gleich viel wie zehn harte.\n\nDas Volumen in Kilogramm bleibt als eigene Kennzahl sichtbar. Es dient nicht als Last, weil Training mit vielen Wiederholungen mehr Tonnage ergeben kann, ohne die härtere Einheit zu sein.\n\nMehr oder weniger ist nicht automatisch gut oder schlecht. Lies die Last zusammen mit deinem Fortschritt und deiner Energie."
+            "value" : "Die Kraft-Last vergleicht die letzten sieben Tage mit deinem eigenen Krafttraining der letzten Zeit. +18 % heißt, die aktuelle Woche lag etwa ein Fünftel über dem Üblichen; das ist ein Vergleich, keine Bewertung.\n\nDie Summe nutzt Arbeitssätze und gewichtet Sätze stärker, die näher am Muskelversagen waren. So zählen zehn leichte Sätze nicht gleich viel wie zehn harte.\n\nDas Volumen in Kilogramm bleibt als eigene Kennzahl sichtbar. Es dient nicht als Last, weil Training mit vielen Wiederholungen mehr Tonnage ergeben kann, ohne die härtere Einheit zu sein.\n\nMehr oder weniger ist nicht automatisch gut oder schlecht. Lies die Last zusammen mit deinem Fortschritt und deiner Charge."
           }
         },
         "es" : {
@@ -492654,7 +494434,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Supporting activities"
+            "value" : "Unterstützende Aktivitäten"
           }
         },
         "es" : {
@@ -501443,7 +503223,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deshalb beginnt eine Watch-Only-Energie mit \"Kalibrieren\". NOOP benötigt etwa sieben Nächte deiner HRV, um zu erfahren, wie normal für dich aussieht. Bis es sie hat, hält es die Punktzahl zurück, anstatt zu erraten. Sobald die Basislinie festgelegt ist, erscheint deine Energie mit ihrem Vertrauen auf der gleichen 0-100-Skala wie ein Strap."
+            "value" : "Deshalb beginnt eine Watch-Only-Charge mit \"Kalibrieren\". NOOP benötigt etwa sieben Nächte deiner HRV, um zu erfahren, wie normal für dich aussieht. Bis es sie hat, hält es die Punktzahl zurück, anstatt zu erraten. Sobald die Basislinie festgelegt ist, erscheint deine Charge mit ihrem Vertrauen auf der gleichen 0-100-Skala wie ein Strap."
           }
         },
         "es" : {
@@ -501502,7 +503282,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deshalb startet eine Nur-Uhr-Energie als „Kalibrierung“. NOOP braucht etwa sieben Nächte deiner HRV, um zu lernen, was für dich normal ist. Bis dahin hält es den Wert zurück, statt zu raten. Sobald die Basislinie steht, erscheint deine Energie mit ihrer Konfidenz, auf derselben Skala von 0–100 wie bei einem Strap."
+            "value" : "Deshalb startet eine Nur-Uhr-Charge als „Kalibrierung“. NOOP braucht etwa sieben Nächte deiner HRV, um zu lernen, was für dich normal ist. Bis dahin hält es den Wert zurück, statt zu raten. Sobald die Basislinie steht, erscheint deine Charge mit ihrer Konfidenz, auf derselben Skala von 0–100 wie bei einem Strap."
           }
         },
         "es" : {
@@ -501881,7 +503661,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der Durchschnitt oben wurde bearbeitet. Graph, Zonen und Belastung bleiben aus der aufgezeichneten Sitzung."
+            "value" : "Der Durchschnitt oben wurde bearbeitet. Graph, Zonen und Effort bleiben aus der aufgezeichneten Sitzung."
           }
         },
         "es" : {
@@ -504575,7 +506355,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Anstrengung, die Ihre Herzfrequenz diese Woche verdient hat – die Herz-Kreislauf-Seite, bewusst getrennt von Ihrem Krafttraining.\n\nDas Heben von Volumen wird nie zur Anstrengung. Eine schwere Trainingseinheit erhöht Ihre Herzfrequenz und diese liegt bereits in diesem Bereich; Die Sätze und Kilos werden nicht addiert.\n\nSie werden nicht addiert, da zwischen ihnen kein ehrlicher Wechselkurs besteht. Bewegte Tonnen und Herzfrequenzminuten messen unterschiedliche Dinge an verschiedenen Geweben, und die Kombination dieser Werte zu einer Trainingsbelastungszahl würde die Erfindung der Umrechnung erfordern. Sie teilen sich tatsächlich ein Wiederherstellungsbudget – und NOOP hat bereits die Zahl dafür. Bei der Ladung treffen die beiden aufeinander, denn sie wird anhand dessen gemessen, was Ihr Körper nach dem Tragen beider zurückmeldet."
+            "value" : "Der Effort, den deine Herzfrequenz diese Woche verdient hat, die Herz-Kreislauf-Seite, bewusst getrennt von deinem Krafttraining.\n\nHebevolumen wird nie zum Effort. Eine schwere Einheit hebt deine Herzfrequenz, und die steckt schon in dieser Zahl; Sätze und Kilos kommen nicht obendrauf.\n\nSie kommen nicht obendrauf, weil es zwischen ihnen keinen ehrlichen Wechselkurs gibt. Bewegte Tonnen und Herzfrequenzminuten messen unterschiedliche Dinge an verschiedenen Geweben, und sie zu einer Trainingsbelastungszahl zu verrechnen hieße, die Umrechnung zu erfinden. Was sie wirklich teilen, ist ein Erholungsbudget, und die Zahl dafür hat NOOP schon. Bei der Charge treffen die beiden aufeinander, denn sie wird daran gemessen, was dein Körper zurückmeldet, nachdem er beides getragen hat."
           }
         },
         "es" : {
@@ -504634,7 +506414,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der Einsatz, den dein Herz heute erzielt hat – die kardiale Seite, klar getrennt von deinem Krafttraining.\n\nDer Aufnahmelauf wird niemals zu einem Einsatz. Eine intensive Session hebt deine Herzfrequenz, und diese Herzfrequenz steht bereits in dieser Zahl; die Sets und Kilo werden nicht hinzugefügt. Die Darstellung der beiden Werte nebeneinander zeigt dir, welche Belastung eine Woche tatsächlich mit sich gebracht hat."
+            "value" : "Der Effort, den deine Herzfrequenz diese Woche verdient hat, die Herz-Kreislauf-Seite, bewusst getrennt von deinem Krafttraining.\n\nHebevolumen wird nie zum Effort. Eine intensive Session hebt deine Herzfrequenz, und diese Herzfrequenz steht bereits in dieser Zahl; die Sets und Kilo werden nicht hinzugefügt. Die Darstellung der beiden Werte nebeneinander zeigt dir, welche Belastung eine Woche tatsächlich mit sich gebracht hat."
           }
         },
         "es" : {
@@ -512855,7 +514635,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "These show execution, not proof that the outcome itself was reached."
+            "value" : "Diese zeigen die Ausführung, sind aber kein Beweis dafür, dass das Ziel selbst erreicht wurde."
           }
         },
         "es" : {
@@ -513926,7 +515706,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das baut sich aus dem Strap auf, während er synchronisiert. Belastung und Erholung erscheinen, nachdem du ihn getragen und eine Nacht geschlafen hast. Die Energie braucht etwa vier Nächte Schlaf, um deine Basislinie zu lernen (bis dahin siehst du „Kalibrierung“), und wird über deine ersten Wochen immer genauer. Auf einem WHOOP 5 oder MG speichert der Strap wenig Verlauf, der Nachtzähler kann also langsam steigen oder auf 0 von 4 stehen, bis du ihn ein paar Nächte getragen hast. Das ist seine Sync-Grenze, kein Fehler. Importiere deinen WHOOP-Export, um die Wartezeit zu überspringen."
+            "value" : "Das baut sich aus dem Strap auf, während er synchronisiert. Effort und Erholung erscheinen, nachdem du ihn getragen und eine Nacht geschlafen hast. Die Charge braucht etwa vier Nächte Schlaf, um deine Basislinie zu lernen (bis dahin siehst du „Kalibrierung“), und wird über deine ersten Wochen immer genauer. Auf einem WHOOP 5 oder MG speichert der Strap wenig Verlauf, der Nachtzähler kann also langsam steigen oder auf 0 von 4 stehen, bis du ihn ein paar Nächte getragen hast. Das ist seine Sync-Grenze, kein Fehler. Importiere deinen WHOOP-Export, um die Wartezeit zu überspringen."
           }
         },
         "es" : {
@@ -514351,7 +516131,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dies löscht jede geplante Bandprotokoll- und Rohdaten-Erfassungsdatei, die NOOP gespeichert hat. Dies kann nicht rückgängig gemacht werden."
+            "value" : "Dies löscht jede geplante Strap-Protokoll- und Rohdaten-Erfassungsdatei, die NOOP gespeichert hat. Dies kann nicht rückgängig gemacht werden."
           }
         },
         "es" : {
@@ -516548,7 +518328,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das ist deine durchschnittliche Energie in der gewählten Woche, derselbe Wert wie überall sonst in NOOP.\n\nLies ihn zusammen mit Kraft- und Cardio-Last. Hohe Trainingslast bei stabiler Energie erzählt etwas anderes als hohe Last bei sinkender Energie."
+            "value" : "Das ist deine durchschnittliche Charge in der gewählten Woche, derselbe Wert wie überall sonst in NOOP.\n\nLies ihn zusammen mit Kraft- und Cardio-Last. Hohe Trainingslast bei stabiler Charge erzählt etwas anderes als hohe Last bei sinkender Charge."
           }
         },
         "es" : {
@@ -518158,7 +519938,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das startet den etwa 4-nächtigen Aufbau für Energie und deine HRV-Basislinie neu. Dein Verlauf bleibt."
+            "value" : "Das startet den etwa 4-nächtigen Aufbau für Charge und deine HRV-Basislinie neu. Dein Verlauf bleibt."
           }
         },
         "es" : {
@@ -518216,7 +519996,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das startet den etwa 4-nächtigen Aufbau für Energie und deine HRV-Basislinie neu. Dein Verlauf bleibt. Nutze es, wenn eine schlechte erste Woche, etwa krank getragen, deine Basislinie verzerrt hat."
+            "value" : "Das startet den etwa 4-nächtigen Aufbau für Charge und deine HRV-Basislinie neu. Dein Verlauf bleibt. Nutze es, wenn eine schlechte erste Woche, etwa krank getragen, deine Basislinie verzerrt hat."
           }
         },
         "es" : {
@@ -518570,7 +520350,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der Beitrag dieser Sitzung zur Tages-Belastung, wie während des Workouts erfasst."
+            "value" : "Der Beitrag dieser Sitzung zur Tages-Effort, wie während des Workouts erfasst."
           }
         },
         "es" : {
@@ -526753,7 +528533,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie von morgen"
+            "value" : "Charge von morgen"
           }
         },
         "es" : {
@@ -526811,7 +528591,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie-Schätzung für morgen %1$lld plus/minus %2$lld"
+            "value" : "Charge-Schätzung für morgen %1$lld plus/minus %2$lld"
           }
         },
         "en" : {
@@ -537454,7 +539234,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Undo"
+            "value" : "Rückgängig"
           }
         },
         "es" : {
@@ -558675,7 +560455,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Was deine Energie geprägt hat"
+            "value" : "Was deine Charge geprägt hat"
           }
         },
         "es" : {
@@ -566065,7 +567845,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Warum ist deine Ladung heute niedrig?"
+            "value" : "Warum ist deine Charge heute niedrig?"
           }
         },
         "es" : {
@@ -575170,7 +576950,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Du wachst voraussichtlich mit etwa %1$lld ± %2$lld Energie auf, wenn du heute Nacht ungefähr %3$@ schläfst."
+            "value" : "Du wachst voraussichtlich mit etwa %1$lld ± %2$lld Charge auf, wenn du heute Nacht ungefähr %3$@ schläfst."
           }
         },
         "en" : {
@@ -575677,7 +577457,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Du bist verbunden. NOOP liest jetzt deine Apple-Watch-Daten. Dein Energiewert kalibriert etwa in der ersten Woche, dann pendelt er sich ein."
+            "value" : "Du bist verbunden. NOOP liest jetzt deine Apple-Watch-Daten. Dein Charge-Wert kalibriert etwa in der ersten Woche, dann pendelt er sich ein."
           }
         },
         "es" : {
@@ -576999,7 +578779,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ihre durchschnittliche Ladung in dieser Woche – die gleiche Ladung wie überall sonst in NOOP, kein neuer Punktestand.\n\nLesen Sie es neben den Kraft- und Anstrengungszahlen. Diese beiden können nicht addiert werden – es gibt keine gemeinsame Einheit zwischen gehobenen Tonnen und Herzfrequenzminuten – aber sie werden von einem Körper mit einem Erholungsbudget getragen, und diese Zahl spiegelt beides wider. Eine Woche mit hoher Auslastung und sinkender Ladung unterscheidet sich von einer Woche mit hoher Auslastung und konstanter Ladung, und dieser Vergleich ist der Grund dafür, dass alle drei zusammenpassen."
+            "value" : "Deine durchschnittliche Charge in dieser Woche, dieselbe Charge wie überall sonst in NOOP, kein neuer Punktestand.\n\nLies sie neben den Kraft- und Effort-Zahlen. Diese beiden können nicht addiert werden – es gibt keine gemeinsame Einheit zwischen gehobenen Tonnen und Herzfrequenzminuten – aber sie werden von einem Körper mit einem Erholungsbudget getragen, und diese Zahl spiegelt beides wider. Eine Woche mit hoher Last und sinkender Charge ist eine andere als eine mit hoher Last und stabiler Charge, und dieser Vergleich ist der Grund, warum alle drei zusammenstehen."
           }
         },
         "es" : {
@@ -579004,7 +580784,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deine Energie (Erholung) auf dem Zifferblatt, mit Belastung und Erholung in der rechteckigen Karte."
+            "value" : "Deine Charge (Erholung) auf dem Zifferblatt, mit Effort und Rest in der rechteckigen Karte."
           }
         },
         "es" : {
@@ -579126,7 +580906,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dein Energiewert lernt mit der Zeit eine persönliche Basislinie aus deiner Herzfrequenzvariabilität, Ruheherzfrequenz und weiteren Signalen. Wenn eine schlechte erste Woche sie verzerrt hat, kannst du sie ab heute Nacht neu lernen lassen. Dein Verlauf bleibt."
+            "value" : "Dein Charge-Wert lernt mit der Zeit eine persönliche Basislinie aus deiner Herzfrequenzvariabilität, Ruheherzfrequenz und weiteren Signalen. Wenn eine schlechte erste Woche sie verzerrt hat, kannst du sie ab heute Nacht neu lernen lassen. Dein Verlauf bleibt."
           }
         },
         "es" : {
@@ -582044,7 +583824,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deine Live-Herzfrequenz funktioniert bereits vom Strap, und Energie, Belastung und Erholung bauen sich daraus über die nächsten Nächte am Handgelenk auf und werden genauer, während er deine Basislinie lernt. Willst du deinen vollen Verlauf sofort? Importiere deinen WHOOP-Export unter „Datenquellen“, und er füllt sich in etwa einer Minute rückwirkend."
+            "value" : "Deine Live-Herzfrequenz funktioniert bereits vom Strap, und Charge, Belastung und Erholung bauen sich daraus über die nächsten Nächte am Handgelenk auf und werden genauer, während er deine Basislinie lernt. Willst du deinen vollen Verlauf sofort? Importiere deinen WHOOP-Export unter „Datenquellen“, und er füllt sich in etwa einer Minute rückwirkend."
           }
         },
         "es" : {
@@ -582843,7 +584623,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your measured target appears reached"
+            "value" : "Dein gemessenes Ziel scheint erreicht zu sein"
           }
         },
         "es" : {
@@ -588817,7 +590597,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dein WHOOP 5.0/MG sendt einen auf dem Gürtel basierenden SpO₂-Prozentsatz (das @82-Kandidaten-Byte) alle Sekunden — eine 8-Nächte-Unabhängigkeit validiert ihn mit corr +0,99 gegenüber der WHOOP-App, aber zwei Nächte auf dem ursprünglichen Testgerät in die entgegengesetzte Richtung, daher ist die Gerät-/Firmware-Varianz ungeklärt. Ein Oura-Ring zeigt auf Drahtniveau einen hohen SpO₂ (über 100% o bei einem Viertel bis zur Hälfte der Messungen bei einer sauberen Nacht); stattdessen wird der Durchschnitt des Rings pro Stichprobe mit einer Begrenzung von 100% f angezeigt, was den Wert der Oura-App in allen bisher überprüfbaren vollen Nächten so weitgehend entspricht, wie es bisher überprüft wurde, auch wenn nur wenige Nächte. Wenn du dies aktiviert machst, erscheint in der Blutoxygen-Karte „Gürtel-Schätzung (nicht bestätigt)“, falls keine kalibrierte Eingabe vorliegt. Es beeinflusst weder die Erholungs- noch die Krankheitsbewertung. Bei WHOOP 4.0 gibt es keinen @82-Stream, daher hat dies dort keine Wirkung."
+            "value" : "Dein WHOOP 5.0/MG sendt einen auf dem Strap basierenden SpO₂-Prozentsatz (das @82-Kandidaten-Byte) alle Sekunden — eine 8-Nächte-Unabhängigkeit validiert ihn mit corr +0,99 gegenüber der WHOOP-App, aber zwei Nächte auf dem ursprünglichen Testgerät in die entgegengesetzte Richtung, daher ist die Gerät-/Firmware-Varianz ungeklärt. Ein Oura-Ring zeigt auf Drahtniveau einen hohen SpO₂ (über 100% o bei einem Viertel bis zur Hälfte der Messungen bei einer sauberen Nacht); stattdessen wird der Durchschnitt des Rings pro Stichprobe mit einer Begrenzung von 100% f angezeigt, was den Wert der Oura-App in allen bisher überprüfbaren vollen Nächten so weitgehend entspricht, wie es bisher überprüft wurde, auch wenn nur wenige Nächte. Wenn du dies aktiviert machst, erscheint in der Blutoxygen-Karte „Strap-Schätzung (nicht bestätigt)“, falls keine kalibrierte Eingabe vorliegt. Es beeinflusst weder die Erholungs- noch die Krankheitsbewertung. Bei WHOOP 4.0 gibt es keinen @82-Stream, daher hat dies dort keine Wirkung."
           }
         },
         "es" : {
@@ -610056,7 +611836,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastungsmodell"
+            "value" : "Effort-Modell"
           }
         },
         "es" : {
@@ -612898,7 +614678,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Energie-Basislinie zurücksetzen"
+            "value" : "Charge-Basislinie zurücksetzen"
           }
         },
         "es" : {
@@ -612956,7 +614736,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Startet den Aufbau von Energie und HRV-Basislinie ab heute Nacht neu, das dauert etwa 4 Nächte. Nutze das, wenn eine schlechte erste Woche, etwa Tragen während einer Krankheit, die Basislinie verzogen hat. Dein Verlauf bleibt."
+            "value" : "Startet den Aufbau von Charge und HRV-Basislinie ab heute Nacht neu, das dauert etwa 4 Nächte. Nutze das, wenn eine schlechte erste Woche, etwa Tragen während einer Krankheit, die Basislinie verzogen hat. Dein Verlauf bleibt."
           }
         },
         "es" : {
@@ -619800,7 +621580,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "**Belastung ohne Live-Herzfrequenz.** Ein Workout, das ohne Verbindung zum Strap aufgezeichnet wurde, bekommt seine Belastung aus der Herzfrequenz des Straps, sobald er synchronisiert."
+            "value" : "**Effort ohne Live-Herzfrequenz.** Ein Workout, das ohne Verbindung zum Strap aufgezeichnet wurde, bekommt seine Effort aus der Herzfrequenz des Straps, sobald er synchronisiert."
           }
         },
         "es" : {
@@ -622000,7 +623780,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "**Eine neue Basislinie gilt überall.** Nach „Energie-Basislinie neu kalibrieren“ vergleichen Momentum, die Kennzahlen-Kacheln und Stress mit der neuen Basislinie statt mit den alten Nächten."
+            "value" : "**Eine neue Basislinie gilt überall.** Nach „Charge-Basislinie neu kalibrieren“ vergleichen Momentum, die Kennzahlen-Kacheln und Stress mit der neuen Basislinie statt mit den alten Nächten."
           }
         },
         "es" : {
@@ -622778,7 +624558,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Belastung neu kalibriert"
+            "value" : "Effort neu kalibriert"
           }
         },
         "es" : {
@@ -622836,7 +624616,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "**Belastung neu kalibriert.** Eine Kurve, angepasst an 3.760 Workouts, die 15 Personen geteilt haben. Ein ruhiger Tag summiert sich nicht mehr zu einem mittleren, hartes Training zählt mehr."
+            "value" : "**Effort neu kalibriert.** Eine Kurve, angepasst an 3.760 Workouts, die 15 Personen geteilt haben. Ein ruhiger Tag summiert sich nicht mehr zu einem mittleren, hartes Training zählt mehr."
           }
         },
         "es" : {
@@ -625762,7 +627542,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Noch kein Effort"
+            "value" : "Noch keine Effort"
           }
         },
         "es" : {
@@ -646058,7 +647838,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld Einheiten · Energie am nächsten Morgen"
+            "value" : "%lld Einheiten · Charge am nächsten Morgen"
           }
         },
         "es" : {
@@ -647392,7 +649172,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Solche Einheiten bewegen die Energie am nächsten Morgen kaum."
+            "value" : "Solche Einheiten bewegen die Charge am nächsten Morgen kaum."
           }
         },
         "es" : {
@@ -647450,7 +649230,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Solche Einheiten kosten am nächsten Morgen meist etwa %lld Energiepunkte."
+            "value" : "Solche Einheiten kosten am nächsten Morgen meist etwa %lld Charge-Punkte."
           }
         },
         "es" : {
@@ -647508,7 +649288,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Solche Einheiten heben die Energie am nächsten Morgen meist um etwa %lld Punkte."
+            "value" : "Solche Einheiten heben die Charge am nächsten Morgen meist um etwa %lld Punkte."
           }
         },
         "es" : {
@@ -662580,7 +664360,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Cardiolast vergleicht die letzten sieben Tage mit deinem eigenen Cardio der letzten Zeit. +18 % heißt, die laufende Woche lag etwa ein Fünftel über dem Üblichen; es ist ein Vergleich, keine Note.\n\nHinter dem Vergleich zählt jede Einheit danach, wie lange sie dauerte und wie schwer dein Herz darin arbeitete, eine leichte Stunde zählt also weniger als eine Stunde nahe deiner Grenze.\n\nRuhetage zählen als null. Höher oder niedriger ist nicht von sich aus gut oder schlecht, lies die Last also neben der Ladung und deinen eigenen Bewertungen. Ein Vergleich erscheint, sobald genug Verlauf da ist."
+            "value" : "Die Cardiolast vergleicht die letzten sieben Tage mit deinem eigenen Cardio der letzten Zeit. +18 % heißt, die laufende Woche lag etwa ein Fünftel über dem Üblichen; es ist ein Vergleich, keine Note.\n\nHinter dem Vergleich zählt jede Einheit danach, wie lange sie dauerte und wie schwer dein Herz darin arbeitete, eine leichte Stunde zählt also weniger als eine Stunde nahe deiner Grenze.\n\nRuhetage zählen als null. Höher oder niedriger ist nicht von sich aus gut oder schlecht, lies die Last also neben der Charge und deinen eigenen Bewertungen. Ein Vergleich erscheint, sobald genug Verlauf da ist."
           }
         },
         "es" : {
@@ -676981,6 +678761,1030 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "這幾週達成了「%@」的計畫，或接近達成。"
+          }
+        }
+      }
+    },
+    "Data up to %@, still coming in." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data up to %@, still coming in."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daten bis %@, kommt noch herein."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datos hasta las %@, siguen llegando."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Données jusqu'à %@, la suite arrive."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dados até às %@, continuam a chegar."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane do %@, wciąż przychodzą."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dati fino a %@, stanno ancora arrivando."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данные до %@, ещё поступают."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据到 %@，仍在接收。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "資料到 %@，仍在接收。"
+          }
+        }
+      }
+    },
+    "Data up to %@. The strap hasn't handed over the rest yet." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data up to %@. The strap hasn't handed over the rest yet."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daten bis %@. Der Strap hat den Rest noch nicht abgegeben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datos hasta las %@. La correa todavía no ha entregado el resto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Données jusqu'à %@. La sangle n'a pas encore livré le reste."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dados até às %@. A bracelete ainda não entregou o resto."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dane do %@. Pasek nie przekazał jeszcze reszty."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dati fino a %@. La fascia non ha ancora consegnato il resto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данные до %@. Устройство ещё не отдало остальное."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "数据到 %@。手环还没有交出余下的部分。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "資料到 %@。錶帶還沒交出剩下的部分。"
+          }
+        }
+      }
+    },
+    "If that's not right, today's recovery is off — and so would any plan built on it be." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If that's not right, today's recovery is off — and so would any plan built on it be."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stimmt das nicht, ist die heutige Erholung falsch. Jeder Plan darauf auch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si no es correcto, la recuperación de hoy está mal, y cualquier plan basado en ella también."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si ce n'est pas exact, la récupération du jour est fausse, et tout plan bâti dessus aussi."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se não estiver certo, a recuperação de hoje está errada, e qualquer plano nela baseado também."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeśli to nieprawda, dzisiejsza regeneracja jest błędna, a z nią każdy plan na niej oparty."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se non è corretto, il recupero di oggi è sbagliato, e con esso ogni piano costruito su di esso."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если это не так, сегодняшнее восстановление неверно, как и любой план на его основе."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果不对，今天的恢复就是错的，基于它的任何计划也是。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果不對，今天的恢復就是錯的，基於它的任何計畫也是。"
+          }
+        }
+      }
+    },
+    "Still being scored" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Still being scored"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auswertung läuft"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todavía se está evaluando"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyse en cours"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ainda a ser avaliado"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocena jeszcze trwa"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valutazione ancora in corso"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка ещё идёт"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仍在评估中"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仍在評估中"
+          }
+        }
+      }
+    },
+    "Add a sleep" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a sleep"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlaf nachtragen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir un sueño"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter un sommeil"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar um sono"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj sen"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi un sonno"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить сон"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "补记睡眠"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "補記睡眠"
+          }
+        }
+      }
+    },
+    "Add it anyway" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add it anyway"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trotzdem eintragen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadirlo igualmente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter quand même"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar mesmo assim"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj mimo to"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungilo comunque"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всё равно добавить"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仍然添加"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仍然新增"
+          }
+        }
+      }
+    },
+    "Edit that sleep" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit that sleep"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diesen Schlaf bearbeiten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar ese sueño"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier ce sommeil"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Editar esse sono"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edytuj ten sen"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifica quel sonno"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Изменить тот сон"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑那段睡眠"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編輯那段睡眠"
+          }
+        }
+      }
+    },
+    "For a night or a nap NOOP did not record. Stages are taken from your data for those hours, so the entry counts from now on." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For a night or a nap NOOP did not record. Stages are taken from your data for those hours, so the entry counts from now on."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für eine Nacht oder ein Nickerchen, das NOOP nicht aufgezeichnet hat. Die Stadien kommen aus deinen Daten für diese Stunden, der Eintrag zählt ab sofort."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para una noche o una siesta que NOOP no registró. Las fases salen de tus datos de esas horas, así que la entrada cuenta desde ahora."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour une nuit ou une sieste que NOOP n'a pas enregistrée. Les phases viennent de tes données sur ces heures, l'entrée compte dès maintenant."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para uma noite ou uma sesta que o NOOP não registou. As fases vêm dos teus dados dessas horas, por isso a entrada conta a partir de agora."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dla nocy lub drzemki, której NOOP nie zarejestrował. Fazy pochodzą z twoich danych z tych godzin, więc wpis liczy się od teraz."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per una notte o un pisolino che NOOP non ha registrato. Le fasi vengono dai tuoi dati di quelle ore, quindi la voce conta da ora."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для ночи или дневного сна, который NOOP не записал. Стадии берутся из ваших данных за эти часы, запись учитывается сразу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用于 NOOP 未记录的一夜或小睡。睡眠阶段取自你在那段时间的数据，记录即刻生效。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用於 NOOP 未記錄的一夜或小睡。睡眠階段取自你在那段時間的資料，記錄即刻生效。"
+          }
+        }
+      }
+    },
+    "For today" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For today"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für heute"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por hoy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour aujourd'hui"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por hoje"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na dziś"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per oggi"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На сегодня"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅限今天"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "僅限今天"
+          }
+        }
+      }
+    },
+    "The strap has nothing recorded for those hours yet. The sleep will count its length, but it gets no stages and Charge for that day stays empty until the data arrives." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The strap has nothing recorded for those hours yet. The sleep will count its length, but it gets no stages and Charge for that day stays empty until the data arrives."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Strap hat für diese Stunden noch nichts aufgezeichnet. Die Länge zählt, Stadien gibt es keine, und Charge bleibt für diesen Tag leer, bis die Daten da sind."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La pulsera aún no tiene nada registrado en esas horas. El sueño contará su duración, pero no tendrá fases y Charge de ese día seguirá vacío hasta que lleguen los datos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le bracelet n'a encore rien enregistré sur ces heures. Le sommeil comptera sa durée, mais sans phases, et Charge restera vide ce jour-là jusqu'à l'arrivée des données."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A pulseira ainda não tem nada registado nessas horas. O sono conta a duração, mas fica sem fases, e o Charge desse dia continua vazio até os dados chegarem."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opaska nie ma jeszcze nic zapisanego z tych godzin. Sen policzy swoją długość, ale bez faz, a Charge tego dnia pozostanie pusty, dopóki dane nie dotrą."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il bracciale non ha ancora nulla registrato in quelle ore. Il sonno conterà la sua durata, ma senza fasi, e Charge per quel giorno resta vuoto finché i dati non arrivano."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За эти часы у ремешка пока нет записей. Длительность засчитается, стадий не будет, а Charge за этот день останется пустым, пока данные не придут."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手环在那段时间还没有任何记录。睡眠会计入时长，但没有阶段，当天的 Charge 也会一直为空，直到数据到达。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手環在那段時間還沒有任何記錄。睡眠會計入時長，但沒有階段，當天的 Charge 也會一直為空，直到資料到達。"
+          }
+        }
+      }
+    },
+    "Those times aren't a valid sleep window, so nothing was added." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Those times aren't a valid sleep window, so nothing was added."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Zeiten ergeben kein gültiges Schlaffenster, es wurde nichts eingetragen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esas horas no forman una ventana de sueño válida, no se añadió nada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces heures ne forment pas une fenêtre de sommeil valable, rien n'a été ajouté."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Essas horas não formam uma janela de sono válida, não foi adicionado nada."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te godziny nie tworzą poprawnego okna snu, nic nie zostało dodane."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quegli orari non formano una finestra di sonno valida, non è stato aggiunto nulla."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это не корректное окно сна, ничего не добавлено."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这些时间不是有效的睡眠区间，没有添加任何内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這些時間不是有效的睡眠區間，沒有新增任何內容。"
+          }
+        }
+      }
+    },
+    "Until you change it" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Until you change it"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bis du es änderst"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hasta que lo cambies"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jusqu'à ce que tu le changes"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Até o alterares"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopóki tego nie zmienisz"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finché non lo cambi"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока не измените"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "直到你更改"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "直到你更改"
+          }
+        }
+      }
+    },
+    "You already have a sleep from %@. Two sleeps over the same hours would count those hours twice." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You already have a sleep from %@. Two sleeps over the same hours would count those hours twice."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du hast schon einen Schlaf von %@. Zwei Schläfe über denselben Stunden würden diese Stunden doppelt zählen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya tienes un sueño de %@. Dos sueños sobre las mismas horas las contarían dos veces."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu as déjà un sommeil de %@. Deux sommeils sur les mêmes heures les compteraient deux fois."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Já tens um sono das %@. Dois sonos sobre as mesmas horas contariam essas horas duas vezes."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masz już sen od %@. Dwa sny w tych samych godzinach policzyłyby je dwa razy."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hai già un sonno dalle %@. Due sonni sulle stesse ore le conterebbero due volte."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вас уже есть сон %@. Два сна на одни и те же часы учтут их дважды."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你已经有一段 %@ 的睡眠。同一段时间记录两次会被重复计算。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你已經有一段 %@ 的睡眠。同一段時間記錄兩次會被重複計算。"
+          }
+        }
+      }
+    },
+    "%lld of 10" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of 10"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld von 10"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld de 10"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld sur 10"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld de 10"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld z 10"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld su 10"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld из 10"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 中的 %lld"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 中的 %lld"
+          }
+        }
+      }
+    },
+    "All out" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All out"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volle Kraft"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A tope"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À fond"
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No máximo"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na maksa"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al massimo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На максимум"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全力"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全力"
+          }
+        }
+      }
+    },
+    "Adding this sleep failed. Nothing was changed; try again." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adding this sleep failed. Nothing was changed; try again."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Nachtragen hat nicht geklappt. Es wurde nichts geändert, versuch es nochmal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo añadir este sueño. No se cambió nada, inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'ajout de ce sommeil a échoué. Rien n'a été modifié, réessaie."
+          }
+        },
+        "pt-PT" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível adicionar este sono. Nada foi alterado, tenta de novo."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się dodać tego snu. Nic nie zostało zmienione, spróbuj ponownie."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è stato possibile aggiungere questo sonno. Non è stato cambiato nulla, riprova."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось добавить этот сон. Ничего не изменено, попробуйте ещё раз."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这段睡眠没有添加成功。没有任何改动，请再试一次。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這段睡眠沒有新增成功。沒有任何改動，請再試一次。"
           }
         }
       }
