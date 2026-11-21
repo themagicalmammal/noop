@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.sp
 import com.noop.R
 import com.noop.analytics.Baselines
 import com.noop.analytics.VitalBands
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import com.noop.ui.AppViewModel
 import com.noop.ui.DashboardCard
@@ -364,12 +365,15 @@ private fun ScoreRing(score: Double?, color: Color, stroke: androidx.compose.ui.
 /** "Your trends": the shown day's three values beside a 14-day line each (iOS `trendsCard`). */
 @Composable
 internal fun DashboardTrendsCard(date: LocalDate, isToday: Boolean, effortFormat: (Double) -> String, onOpen: () -> Unit) {
+    val context = LocalContext.current
     val colors = Forge.colors
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     val from = date.minusDays(13)
-    val series by produceState<Map<CoreRead.Metric, List<CoreRead.Point>>>(emptyMap(), date) {
+    val series by produceState<Map<CoreRead.Metric, List<CoreRead.Point>>>(emptyMap(), date, coreRevision) {
         value = withContext(Dispatchers.IO) {
+            CoreRead.open(context)
             listOf(CoreRead.Metric.Charge, CoreRead.Metric.Effort, CoreRead.Metric.Rest)
-                .associateWith { CoreRead.series(it, from.toString(), date.toString()) }
+                .associateWith { CoreCache.series(it, from.toString(), date.toString(), coreRevision) }
         }
     }
     fun last(m: CoreRead.Metric) = series[m]?.lastOrNull { it.day == date.toString() }?.value
@@ -751,9 +755,10 @@ internal fun ForgeStyledDashboard(
             DashboardDay(day, isToday, date, weight, kcal, banked("fitness_age"), banked("vo2max_est"), banked("vitality"))
         }
     }
-    val history by produceState(emptyList<CoreRead.Day>(), date) {
+    val historyRev by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val history by produceState(emptyList<CoreRead.Day>(), date, historyRev) {
         value = withContext(Dispatchers.IO) {
-            (1..14).mapNotNull { CoreRead.day(date.minusDays(it.toLong()).toString()) }
+            (1..14).mapNotNull { CoreCache.day(date.minusDays(it.toLong()).toString(), historyRev) }
         }
     }
     val stepGoal = remember(revision) { CorePrefs.read(context).optInt(CorePrefs.STEP_GOAL, 0) }

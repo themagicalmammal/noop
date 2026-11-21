@@ -35,6 +35,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.noop.R
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import com.noop.ui.KeyMetric
 import kotlinx.coroutines.Dispatchers
@@ -134,7 +135,7 @@ internal fun TodayChangesForge(onOpen: () -> Unit, strapId: String = "my-whoop")
             CoreRead.open(context)
             val from = today.minusDays(14).toString()
             val series = ChangeSummary.measures.associateWith { m ->
-                m.metric?.let { CoreRead.series(it, from, today.toString()).associate { p -> p.day to p.value } }
+                m.metric?.let { CoreCache.series(it, from, today.toString(), coreRevision).associate { p -> p.day to p.value } }
                     ?: runCatching {
                         com.noop.core.CoreResolvedSeries.read(m.key!!, m.source!!, from, today.toString(), strapId)?.points
                             ?.associate { it.day to it.value }

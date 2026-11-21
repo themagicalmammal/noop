@@ -92,6 +92,7 @@ import androidx.compose.ui.unit.dp
 import com.noop.R
 import com.noop.core.CoreDietPlan
 import com.noop.core.CoreEnergyPlan
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import com.noop.core.CoreStress
 import com.noop.core.CoreTile
@@ -480,7 +481,7 @@ internal fun ForgeTodayWidgetArea(model: TodayModel?, viewModel: AppViewModel, w
     // The sleep tile's 30 nights, as iOS draws its trend.
     val sleepTrend by produceState(emptyList<Double>(), date, widgets.any { it.key == TodayWidget.SLEEP_KEY }, coreRevision) {
         value = if (widgets.none { it.key == TodayWidget.SLEEP_KEY }) emptyList() else withContext(Dispatchers.IO) {
-            CoreRead.series(CoreRead.Metric.SleepMinutes, date.minusDays(29).toString(), date.toString()).map { it.value / 60 }
+            CoreCache.series(CoreRead.Metric.SleepMinutes, date.minusDays(29).toString(), date.toString(), coreRevision).map { it.value / 60 }
         }
     }
     // The measures whose two-column form says a fact about the wearer's own recent past rather than the
@@ -510,7 +511,7 @@ internal fun ForgeTodayWidgetArea(model: TodayModel?, viewModel: AppViewModel, w
     val sleepMinutes by produceState<Double?>(null, date, widgets.any { it.key == TodayWidget.SLEEP_KEY }, coreRevision) {
         value = if (widgets.none { it.key == TodayWidget.SLEEP_KEY }) null else withContext(Dispatchers.IO) {
             val end = date.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
-            CoreRead.nights(end - 3 * 86_400, end).maxByOrNull { it.endTs }?.minutes
+            CoreCache.nights(end - 3 * 86_400, end, coreRevision).maxByOrNull { it.endTs }?.minutes
                 ?.let { m -> (m["light"] ?: 0.0) + (m["deep"] ?: 0.0) + (m["rem"] ?: 0.0) }?.takeIf { it > 0 }
         }
     }
@@ -1511,7 +1512,7 @@ private fun LiveHeartTile(viewModel: AppViewModel, showsCurve: Boolean, dense: B
         value = if (!showsCurve) emptyList() else withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val from = java.time.LocalDate.now().atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
-            CoreRead.heartRate(from, System.currentTimeMillis() / 1000).map { it.bpm }
+            CoreCache.heartRate(from, System.currentTimeMillis() / 1000, coreRevision).map { it.bpm }
         }
     }
     val curve = if (!showsCurve) null else (if (samples.size >= 2) samples.toList() else banked).takeIf { it.size >= 2 }

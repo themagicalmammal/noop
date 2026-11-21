@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.noop.R
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -50,7 +51,7 @@ internal fun TodayLastNightForge(onOpen: () -> Unit, compact: TileSize? = null) 
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val now = System.currentTimeMillis() / 1000
-            CoreRead.nights(now - 3 * 86_400, now + 86_400).maxByOrNull { it.endTs }
+            CoreCache.nights(now - 3 * 86_400, now + 86_400, coreRevision).maxByOrNull { it.endTs }
         }
     }
     val m = night?.minutes.orEmpty()

@@ -298,7 +298,7 @@ internal fun ForgeRestPage(viewModel: AppViewModel, rest: Double?, onBack: () ->
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val now = System.currentTimeMillis() / 1000
-            CoreRead.nights(now - 3 * 86_400, now + 86_400).maxByOrNull { it.endTs }
+            CoreCache.nights(now - 3 * 86_400, now + 86_400, coreRevision).maxByOrNull { it.endTs }
         }
     }
     val model by produceState<com.noop.ui.SleepModel?>(null, coreRevision, recentDays) {

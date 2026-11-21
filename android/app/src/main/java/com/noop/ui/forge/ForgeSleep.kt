@@ -269,8 +269,8 @@ fun ForgeSleepScreen(padding: PaddingValues, width: ForgeWidth, viewModel: com.n
                     Text(stringResource(RestWord.of(rest)), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
                          color = Forge.colors.rest)
                     // Who supplied the night's inputs, a pill under the verdict as on iOS (`restHero`'s source badge).
-                    val sources by produceState(emptyList<String>(), wakeDay) {
-                        value = withContext(Dispatchers.IO) { wakeDay?.let { CoreRead.day(it.toString())?.heroSource }.orEmpty() }
+                    val sources by produceState(emptyList<String>(), wakeDay, coreRevision) {
+                        value = withContext(Dispatchers.IO) { wakeDay?.let { CoreCache.day(it.toString(), coreRevision)?.heroSource }.orEmpty() }
                     }
                     heroSourceLabel(sources)?.let { label ->
                         Spacer(Modifier.height(ForgeMetrics.space3))

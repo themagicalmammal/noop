@@ -667,6 +667,7 @@ internal fun HeartCard(viewModel: AppViewModel, date: LocalDate, live: Boolean) 
     val colors = Forge.colors
     val context = LocalContext.current
     val bpm by viewModel.bpm.collectAsState()
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     val liveTrace = remember { mutableStateListOf<Int>() }
     LaunchedEffect(viewModel) {
         viewModel.bpm.collect { value ->
@@ -674,12 +675,12 @@ internal fun HeartCard(viewModel: AppViewModel, date: LocalDate, live: Boolean) 
         }
     }
     var day by remember(date) { mutableStateOf<List<CoreRead.HeartPoint>>(emptyList()) }
-    LaunchedEffect(date) {
+    LaunchedEffect(date, coreRevision) {
         val zone = java.time.ZoneId.systemDefault()
         val from = date.atStartOfDay(zone).toEpochSecond()
         day = withContext(Dispatchers.IO) {
             CoreRead.open(context)
-            CoreRead.heartRate(from, from + 86_400 - 1)
+            CoreCache.heartRate(from, from + 86_400 - 1, coreRevision)
         }
     }
     val streaming = live && bpm != null

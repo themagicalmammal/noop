@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -634,11 +635,12 @@ internal fun ForgeMetricTrendPage(metric: CoreRead.Metric, titleRes: Int, unit: 
 @Composable
 internal fun ForgeHostedTrend(metric: CoreRead.Metric) {
     val context = LocalContext.current
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     var points by remember { mutableStateOf<List<CoreRead.Point>>(emptyList()) }
-    LaunchedEffect(metric) {
+    LaunchedEffect(metric, coreRevision) {
         points = withContext(Dispatchers.IO) {
             CoreRead.open(context)
-            CoreRead.series(metric, LocalDate.now().minusDays(29).toString(), LocalDate.now().toString())
+            CoreCache.series(metric, LocalDate.now().minusDays(29).toString(), LocalDate.now().toString(), coreRevision)
         }
     }
     val colors = Forge.colors

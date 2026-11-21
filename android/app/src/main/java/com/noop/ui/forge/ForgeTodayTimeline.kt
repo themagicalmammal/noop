@@ -71,6 +71,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.rotate
 import com.noop.R
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import com.noop.data.WorkoutRow
 import com.noop.ui.AppViewModel
@@ -284,15 +285,15 @@ internal fun ForgeTodayTimeline(viewModel: AppViewModel, onSleep: () -> Unit, on
         val end = System.currentTimeMillis() / 1000
         withContext(Dispatchers.IO) {
             CoreRead.open(context)
-            nights = CoreRead.nights(end - 3 * 86_400, end)
-            naps = CoreRead.naps(end - 3 * 86_400, end)
+            nights = CoreCache.nights(end - 3 * 86_400, end, coreRevision)
+            naps = CoreCache.naps(end - 3 * 86_400, end, coreRevision)
             val today = java.time.LocalDate.now()
             meals = listOf(today.minusDays(1), today).flatMap { com.noop.core.CoreFood.day(it.toString())?.meals.orEmpty() }
             ecgs = com.noop.core.CoreEcg.readings().orEmpty()
             val tomorrowKey = java.time.LocalDate.now().plusDays(1).toString()
             tomorrowPlan = runCatching { com.noop.core.CoreCoach.plan(com.noop.ui.UnitPrefs.effortScale(context).raw) }.getOrNull()
                 ?.agreed?.firstOrNull { it.day == tomorrowKey }
-            todayRow = CoreRead.day(com.noop.ui.logicalDayNow(ZoneId.systemDefault()).toString())
+            todayRow = CoreCache.day(com.noop.ui.logicalDayNow(ZoneId.systemDefault()).toString(), coreRevision)
             catchUp = "sleepCatchUp" in TodayHints.lastMomentumKinds
             // The coach's notes while the coach is on, as iOS's rail reads them; the hint's own note is left out below.
             coachNotes = if (com.noop.ui.BottomBarStyleStore.coachEnabled) runCatching { com.noop.core.CoreCoach.notes() }.getOrDefault(emptyList())
