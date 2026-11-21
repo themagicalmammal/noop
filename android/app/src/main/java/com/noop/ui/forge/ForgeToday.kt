@@ -89,6 +89,7 @@ import com.noop.ui.AppViewModel
 import com.noop.ui.TodayLayoutPrefs
 import com.noop.ui.TodaySection
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -137,9 +138,11 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
         model = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val from = d.minusDays(7).toString(); val to = d.minusDays(1).toString()
-            val baselines = baselineMetrics.mapNotNull { m ->
-                CoreCache.series(m, from, to, coreRevision).map { it.value }.takeIf { it.isNotEmpty() }?.let { m to it.average() }
-            }.toMap()
+            // Load baselines in parallel: each metric's series is an independent JNI call.
+            val baselineDeferreds = baselineMetrics.map { m ->
+                async { m to CoreCache.series(m, from, to, coreRevision).map { it.value }.takeIf { it.isNotEmpty() }?.let { it.average() } }
+            }
+            val baselines = baselineDeferreds.mapNotNull { it.await()?.let { (metric, avg) -> avg?.let { metric to it } } }.toMap()
             TodayModel(d, CoreCache.day(d.toString(), coreRevision), baselines)
         }
     }
