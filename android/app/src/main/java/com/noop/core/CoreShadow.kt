@@ -24,7 +24,38 @@ object CoreShadow {
     @Volatile private var started = false
     private val revision = MutableStateFlow(0L)
     val dataRevision = revision.asStateFlow()
-    fun noteDataChanged() { revision.update { it + 1 } }
+
+    /**
+     * Notifies subscribers that the core's data has changed. Rapid successive calls (a sync
+     * writing many rows, an import, a pass finishing) coalesce into one revision bump after
+     * [DEBOUNCE_MS] of quiet, so screens watching [dataRevision] re-read once the dust
+     * settles instead of on every row.
+     */
+    fun noteDataChanged() {
+        synchronized(lock) {
+            lastChangeAt = System.currentTimeMillis()
+            if (debounceThread == null) {
+                debounceThread = Thread {
+                    var done = false
+                    while (!done) {
+                        Thread.sleep(50)
+                        synchronized(lock) {
+                            val quiet = System.currentTimeMillis() - lastChangeAt
+                            if (quiet >= DEBOUNCE_MS) {
+                                revision.update { it + 1 }
+                                debounceThread = null
+                                done = true
+                            }
+                        }
+                    }
+                }.apply { isDaemon = true; start() }
+            }
+        }
+    }
+    private const val DEBOUNCE_MS = 500L
+    private val lock = Any()
+    @Volatile private var lastChangeAt = 0L
+    private var debounceThread: Thread? = null
 
     /**
      * Opens the core's store and starts the session once per process; after that, re-points the running session

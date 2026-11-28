@@ -5,6 +5,7 @@ import android.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -211,5 +212,5 @@ object CoreDb {
     }
 
     /** A query re-read whenever the store changed (`CoreShadow.dataRevision`), as Room's observed queries. */
-    fun <T> observe(read: suspend () -> T): Flow<T> = CoreShadow.dataRevision.map { read() }.flowOn(Dispatchers.IO)
+    fun <T> observe(read: suspend () -> T): Flow<T> = CoreShadow.dataRevision.debounce(500).map { read() }.flowOn(Dispatchers.IO)
 }

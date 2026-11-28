@@ -193,6 +193,19 @@ class WhoopConnectionService : Service() {
      */
     private var lastBatteryAlertKey: Pair<Int?, Boolean?>? = null
 
+    // SharedPreferences read caches: the service ticks far faster than these values change.
+    // Each is refreshed on a 30s wall-clock gate, not per-tick.
+    private var cachedIllnessWatch: Boolean = false
+    private var illnessWatchCachedAtMs: Long = 0L
+    private var lastIllnessAlertKey: String? = null
+
+    private var cachedAlarmEnabled: Boolean = false
+    private var cachedAlarmDeadlineMs: Long = 0L
+    private var cachedAlarmWindowStartMs: Long = 0L
+    private var alarmConfigCachedAtMs: Long = 0L
+
+    private val CACHE_REFRESH_MS: Long = 30_000L
+
     /** The user's LEARNED habitual midsleep (local seconds-of-day), cached for the battery
      *  night-guard. null = cold start (< [com.noop.analytics.SleepStageTotals.HABITUAL_MIN_DAYS]
      *  nights), which is what makes `BatteryEstimator.bedtimeAlert` stay silent instead of testing
@@ -376,7 +389,13 @@ class WhoopConnectionService : Service() {
                         // The preference remains part of the per-tick cache key, so toggling the opt-out
                         // still takes effect on the next live-state emission without re-running the
                         // evaluation while the value is unchanged.
-                        illnessEnabled = NoopPrefs.illnessWatch(this@WhoopConnectionService),
+                        illnessEnabled = if (System.currentTimeMillis() - illnessWatchCachedAtMs > CACHE_REFRESH_MS) {
+                            cachedIllnessWatch = NoopPrefs.illnessWatch(this@WhoopConnectionService)
+                            illnessWatchCachedAtMs = System.currentTimeMillis()
+                            cachedIllnessWatch
+                        } else {
+                            cachedIllnessWatch
+                        },
                         restTraits = restTraits,
                     ),
                 )
@@ -396,10 +415,16 @@ class WhoopConnectionService : Service() {
                 // for an alert that never transitioned. Reporting the clear ones is what lets the next
                 // genuine transition be recognised.
                 if (dayState.days.size >= 14) {
-                    IllnessAlertNotifier.onEvaluated(this@WhoopConnectionService,
-                        dayState.illness?.let {
-                            IllnessAlertNotifier.withWindow(this@WhoopConnectionService, it, dayState.days)
-                        })
+                    val alertKey = dayState.illness?.let {
+                        IllnessAlertNotifier.withWindow(this@WhoopConnectionService, it, dayState.days)
+                    }?.toString() ?: "clear"
+                    if (alertKey != lastIllnessAlertKey) {
+                        lastIllnessAlertKey = alertKey
+                        IllnessAlertNotifier.onEvaluated(this@WhoopConnectionService,
+                            dayState.illness?.let {
+                                IllnessAlertNotifier.withWindow(this@WhoopConnectionService, it, dayState.days)
+                            })
+                    }
                 }
                 // Evaluated only when (SoC, charging) actually MOVES — see [lastBatteryAlertKey]. Both policies
                 // are once-per-crossing and persisted, so re-running them on an unchanged pair can only repeat
@@ -623,7 +648,14 @@ class WhoopConnectionService : Service() {
                 .map { it.heartRate ?: 0 }
                 .conflate()
                 .collect { hr ->
-                    if (!store.enabled || store.scheduledDeadlineMs <= 0L) {
+                    // Refresh the cached alarm config at most once per 30s (wall-clock gate).
+                    if (System.currentTimeMillis() - alarmConfigCachedAtMs > CACHE_REFRESH_MS) {
+                        cachedAlarmEnabled = store.enabled
+                        cachedAlarmDeadlineMs = store.scheduledDeadlineMs
+                        cachedAlarmWindowStartMs = store.scheduledWindowStartMs
+                        alarmConfigCachedAtMs = System.currentTimeMillis()
+                    }
+                    if (!cachedAlarmEnabled || cachedAlarmDeadlineMs <= 0L) {
                         // Disarmed while we were inside the window. SmartAlarmReceiver zeroes the
                         // edges before re-arming, and an explicit disable zeroes them for good, so
                         // without this the end-of-window line is simply lost — and a window line with
@@ -641,7 +673,7 @@ class WhoopConnectionService : Service() {
                         return@collect
                     }
                     val now = System.currentTimeMillis()
-                    val inWindow = now in store.scheduledWindowStartMs until store.scheduledDeadlineMs
+                    val inWindow = now in cachedAlarmWindowStartMs until cachedAlarmDeadlineMs
                     if (inWindow && !inAlarmWindow) {
                         sleepWatcher.reset()   // fresh night
                         loggedAlarmWindowHr = false
@@ -674,7 +706,7 @@ class WhoopConnectionService : Service() {
                     if (!inWindow) return@collect
                     if (hr > 0 && !loggedAlarmWindowHr) {
                         loggedAlarmWindowHr = true
-                        val mins = (store.scheduledDeadlineMs - now) / 60_000L
+                        val mins = (cachedAlarmDeadlineMs - now) / 60_000L
                         ble.externalLog("Smart alarm: in wake window with live HR $hr bpm, deadline in $mins min")
                     }
                     if (sleepWatcher.shouldWake(hr)) {
