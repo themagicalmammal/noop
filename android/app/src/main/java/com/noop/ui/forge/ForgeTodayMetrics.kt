@@ -38,6 +38,7 @@ import com.noop.core.CoreBody
 import com.noop.core.CoreCoach
 import com.noop.core.CoreEnergyDetail
 import com.noop.core.CoreRead
+import com.noop.core.CoreCache
 import com.noop.ui.KeyMetric
 import com.noop.ui.KeyMetricPrefs
 import com.noop.ui.TemperatureUnit
@@ -45,6 +46,7 @@ import com.noop.ui.UnitPrefs
 import com.noop.ui.UnitSystem
 import com.noop.ui.UnitFormatter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.util.Locale
@@ -198,30 +200,40 @@ internal fun rememberKeyTiles(model: TodayModel?, metrics: Collection<KeyMetric>
     // The logical day, as Today's own date (#144): past midnight the evening's row is still today's.
     val date = model?.date ?: com.noop.ui.logicalDayNow()
     val isToday = date == com.noop.ui.logicalDayNow()
+    // Track the current revision without making produceState depend on it: a revision bump no longer
+    // restarts the tile loaders (and their empty initial state). CoreCache still uses it for freshness.
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val currentRev = remember { androidx.compose.runtime.mutableStateOf(coreRevision) }
+    androidx.compose.runtime.SideEffect { currentRev.value = coreRevision }
     // Weight and today's burn come from their own stores, read only while their tile is chosen.
     val weightKg by produceState<Double?>(null, date, metrics) {
         value = if (KeyMetric.WEIGHT !in metrics) null else withContext(Dispatchers.IO) {
-            CoreBody.snapshot(context)?.weight?.lastOrNull { it.day <= date.toString() }?.value
+            CoreCache.bodySnapshot(context, currentRev.value)?.weight?.lastOrNull { it.day <= date.toString() }?.value
         }
     }
     val energyTotal by produceState<Double?>(null, date, metrics) {
         value = if (KeyMetric.CALORIES !in metrics || !isToday) null else withContext(Dispatchers.IO) {
-            CoreEnergyDetail.today(context, dismissedTrainingWorkouts(context))?.total
+            CoreCache.energyToday(context, dismissedTrainingWorkouts(context), currentRev.value)?.total
         }
     }
-    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-    val sparks by produceState<Map<KeyMetric, List<Double>>>(emptyMap(), date, metrics, detailed, windowDays, coreRevision) {
+    val sparks by produceState<Map<KeyMetric, List<Double>>>(emptyMap(), date, metrics, detailed, windowDays) {
         value = if (!detailed) emptyMap() else withContext(Dispatchers.IO) {
             val cutoff = date.minusDays(windowDays - 1L).toString(); val to = date.toString()
-            // The whole history up to the day, so a sparse series can fall back to its latest measurements.
             val dismissed = if (KeyMetric.CALORIES in metrics) dismissedTrainingWorkouts(context) else emptyList()
             fun history(metric: KeyMetric): List<Pair<String, Double>>? = when (metric) {
                 KeyMetric.WEIGHT -> CoreBody.snapshot(context)?.weight?.filter { it.day <= to }?.map { it.day to it.value }
                 KeyMetric.CALORIES -> CoreEnergyDetail.read(context, to, "sevenDay", dismissed)
                     ?.summaries?.mapNotNull { s -> s.total?.let { s.day to it } }
-                else -> metric.series?.let { s -> CoreRead.series(s, "1970-01-01", to).map { it.day to it.value } }
+                // Dense metrics only need the window; fall back to full history when sparse.
+                else -> metric.series?.let { s ->
+                    val windowed = CoreCache.series(s, cutoff, to, currentRev.value)
+                    if (windowed.size >= 2) windowed.map { it.day to it.value }
+                    else CoreCache.series(s, date.minusDays(730).toString(), to, currentRev.value).map { it.day to it.value }
+                }
             }
-            metrics.mapNotNull { m -> history(m)?.let { m to windowedSpark(it, cutoff, windowDays) } }
+            // Load each metric's history in parallel: the JNI calls are independent.
+            val deferreds = metrics.map { m -> async { m to history(m) } }
+            deferreds.mapNotNull { it.await().let { (metric, hist) -> hist?.let { metric to windowedSpark(it, cutoff, windowDays) } } }
                 .filter { it.second.size >= 2 }.toMap()
         }
     }
@@ -229,19 +241,25 @@ internal fun rememberKeyTiles(model: TodayModel?, metrics: Collection<KeyMetric>
     // With [latestFallback] (the new design's tiles, as iOS's `ForgeMeasureWidget` reads `values.last`), a measure
     // the day has no value for yet shows its latest one, so the small hours and a morning before the sync read a
     // figure, not "No data yet".
-    val latest by produceState<Map<KeyMetric, Double>>(emptyMap(), date, metrics, latestFallback, coreRevision) {
+    val latest by produceState<Map<KeyMetric, Double>>(emptyMap(), date, metrics, latestFallback) {
         value = if (!latestFallback) emptyMap() else withContext(Dispatchers.IO) {
             val to = date.toString()
-            metrics.mapNotNull { m ->
-                m.series?.let { s -> CoreRead.series(s, date.minusDays(60).toString(), to).lastOrNull()?.let { m to it.value } }
-            }.toMap()
+            // Seven days is enough to find the latest value; sixty loaded far more than needed.
+            val deferreds = metrics.map { m ->
+                async {
+                    val last = m.series?.let { s -> CoreCache.series(s, date.minusDays(7).toString(), to, currentRev.value).lastOrNull() }
+                    last?.let { m to it.value }
+                }
+            }
+            deferreds.mapNotNull { it.await() }.toMap()
         }
     }
     // The wrist temperature's own latest, since it is not a Key Metric of its own: it shares the skin
     // tile with the deviation and only decides which of the two that tile leads with.
-    val latestSkinAbs by produceState<Double?>(null, date, latestFallback, coreRevision) {
+    val latestSkinAbs by produceState<Double?>(null, date, latestFallback) {
         value = if (!latestFallback) null else withContext(Dispatchers.IO) {
-            CoreRead.series(CoreRead.Metric.SkinTempAbs, date.minusDays(60).toString(), date.toString()).lastOrNull()?.value
+            // Seven days is enough to find the latest value; sixty loaded far more than needed.
+            CoreCache.series(CoreRead.Metric.SkinTempAbs, date.minusDays(7).toString(), date.toString(), currentRev.value).lastOrNull()?.value
         }
     }
     // No row for the day yet (the small hours, a morning before the sync): an empty one the latest values fill.

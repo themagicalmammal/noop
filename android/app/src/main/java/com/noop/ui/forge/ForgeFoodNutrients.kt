@@ -1,6 +1,8 @@
 package com.noop.ui.forge
 
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -156,7 +158,7 @@ private fun NutrientLine(key: String, value: Double, reference: Double?, atMost:
                     androidx.compose.material3.Icon(Icons.Rounded.Error, null, tint = Forge.colors.effort, modifier = Modifier.size(14.dp))
                 }
                 Spacer(Modifier.weight(1f))
-                Text(nutrientAmount(value, key), style = Forge.type.bodyNumber, color = Forge.colors.text)
+                Text(nutrientAmount(value, key), style = Forge.type.bodyNumber.copy(fontWeight = FontWeight.Bold), color = Forge.colors.text)
                 if (reference != null) {
                     Spacer(Modifier.width(4.dp))
                     Text(stringResource(if (atMost) R.string.food_max_amount else R.string.food_of_amount, nutrientAmount(reference, key)),
@@ -197,11 +199,11 @@ internal fun ForgeFoodNutrientsPage(week: CoreFood.NutrientReport, day: CoreFood
             }
         }
         foodNutrientGroups.forEach { (title, keys) ->
-            Text(stringResource(title), style = Forge.type.title2, color = Forge.sceneInk.text,
+            Text(stringResource(title), style = Forge.type.headline, color = Forge.sceneInk.text,
                  modifier = Modifier.padding(top = ForgeMetrics.space3))
             ForgeCard(Modifier.fillMaxWidth()) {
                 keys.mapNotNull { key -> report.rows.firstOrNull { it.nutrient == key } }.forEachIndexed { index, row ->
-                    if (index > 0) androidx.compose.material3.HorizontalDivider(color = Forge.colors.divider)
+                    if (index > 0) ForgeDivider()
                     val estimated = row.estimatedShare + row.modelShare
                     val tint = when (row.status) {
                         "attention" -> Forge.colors.effort
@@ -285,11 +287,11 @@ private fun FoodRecommendationsDialog(report: CoreFood.NutrientReport, onDismiss
 @Composable
 internal fun NutrientBadge(key: String) {
     val tint = nutrientTint(key, Forge.colors.dark)
-    Box(Modifier.size(32.dp).background(tint.copy(alpha = 0.16f), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+    Box(Modifier.size(32.dp).background(Brush.verticalGradient(0f to tint.lerpTowards(Color.White, 0.45f), 1f to tint.lerpTowards(Color(0xFF1A1A2E), 0.35f)), RoundedCornerShape(24)), contentAlignment = Alignment.Center) {
         when (val mark = nutrientMark(key)) {
             is androidx.compose.ui.graphics.vector.ImageVector ->
-                androidx.compose.material3.Icon(mark, contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
-            else -> Text(mark.toString(), style = Forge.type.caption.copy(fontWeight = FontWeight.Bold), color = tint)
+                androidx.compose.material3.Icon(mark, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+            else -> Text(mark.toString(), style = Forge.type.caption.copy(fontWeight = FontWeight.Bold), color = Color.White)
         }
     }
 }

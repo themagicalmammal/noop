@@ -1,4 +1,6 @@
 package com.noop.ui.forge
+import com.noop.ui.AppleHealthScreen
+import com.noop.ui.MiBandScreen
 
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
@@ -227,6 +229,9 @@ enum class ForgeSettingsSub(val titleRes: Int, val cards: Set<ClassicSettingsCar
     Charge(R.string.l10n_settings_screen_charge_d4e1aee4, cards = setOf(ClassicSettingsCard.Charge)),
     BackupSync(R.string.l10n_settings_screen_automatic_backups_8a772f3c),
     DataSources(R.string.nav_data_sources),
+    AppleHealth(R.string.forge_ds_apple_health_title),
+    MiBand(R.string.forge_ds_mi_band_title),
+    ValuesBySource(R.string.forge_ds_values_by_source_title),
     SelfHostedPush(R.string.nav_self_hosted_push),
     Storage(R.string.fsp5_storage_title),
     HowNoopWorks(R.string.l10n_settings_screen_how_noop_works_3396b27a, closes = true),
@@ -688,6 +693,9 @@ private fun SubScreen(sub: ForgeSettingsSub, viewModel: AppViewModel, onBack: ()
             DevicesSourcesSettings(onOpen)
         }
         ForgeSettingsSub.FusedRecord -> ValuesBySourcePage(viewModel, onBack, stringResource(sub.titleRes))
+        ForgeSettingsSub.AppleHealth -> Hosted(stringResource(sub.titleRes), onBack) { AppleHealthScreen(viewModel) }
+        ForgeSettingsSub.MiBand -> Hosted(stringResource(sub.titleRes), onBack) { MiBandScreen(viewModel) }
+        ForgeSettingsSub.ValuesBySource -> ValuesBySourcePage(viewModel, onBack, stringResource(sub.titleRes))
         ForgeSettingsSub.HowNoopWorks -> Hosted(stringResource(sub.titleRes), onBack) { HowNoopWorksScreen(onClose = onBack) }
         ForgeSettingsSub.ScoringGuide -> Hosted(stringResource(sub.titleRes), onBack) { ScoringGuideScreen(onClose = onBack) }
         ForgeSettingsSub.HowScores -> HowScoresPage(viewModel, onBack, stringResource(sub.titleRes))

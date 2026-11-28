@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 import android.graphics.ImageDecoder
 import androidx.compose.ui.graphics.asImageBitmap
 import android.graphics.drawable.AnimatedImageDrawable
@@ -14,6 +16,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
@@ -39,12 +44,16 @@ fun ForgeExerciseMediaSettings(onClose: () -> Unit) {
     var failed by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var presentation by remember { mutableStateOf(NoopPrefs.of(context).getString("training.mediaPresentation", "large") ?: "large") }
-    LaunchedEffect(revision) {
-        do {
-            info = withContext(Dispatchers.IO) { CoreExerciseMedia.info(context) }
-            val running = info?.state in listOf("downloading", "installing")
-            if (running) delay(1_000)
-        } while (running)
+    // Lifecycle-gated: a hidden panel shouldn't be polling media state while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner, revision) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            do {
+                info = withContext(Dispatchers.IO) { CoreExerciseMedia.info(context) }
+                val running = info?.state in listOf("downloading", "installing")
+                if (running) delay(1_000)
+            } while (running)
+        }
     }
     fun change(block: () -> Boolean) = scope.launch {
         busy = true; failed = false
@@ -93,7 +102,7 @@ fun ForgeExerciseMediaSettings(onClose: () -> Unit) {
             if (!current.withdrawn) Row(Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.forge_media_disable), style = Forge.type.subhead,
                     color = Forge.colors.text, modifier = Modifier.weight(1f))
-                Switch(current.disabled, enabled = !busy, colors = forgeSwitchColors(), onCheckedChange = { value -> change { CoreExerciseMedia.setDisabled(context, value); true } })
+                ToggleCheckbox(current.disabled, enabled = !busy, onCheckedChange = { value -> change { CoreExerciseMedia.setDisabled(context, value); true } })
             }
             if (!current.disabled && !current.withdrawn && current.state !in listOf("downloading", "installing")) {
                 TextButton(enabled = !busy, onClick = { disclosure = true }) { Text(stringResource(R.string.forge_media_download)) }

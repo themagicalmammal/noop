@@ -22,7 +22,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +46,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ShowChart
+import androidx.compose.material.icons.rounded.TrendingUp
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.ChevronLeft
@@ -67,6 +72,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.ui.unit.Dp
 import com.noop.R
 import com.noop.core.CoreRead
+import com.noop.core.CoreCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -130,9 +136,10 @@ fun ForgeTrendsScreen(padding: PaddingValues, width: ForgeWidth, viewModel: com.
     LaunchedEffect(Unit) {
         series = withContext(Dispatchers.IO) {
             CoreRead.open(context)
+            val rev = com.noop.core.CoreShadow.dataRevision.value
             val today = LocalDate.now()
             listOf(CoreRead.Metric.Charge, CoreRead.Metric.Effort, CoreRead.Metric.Rest, CoreRead.Metric.Hrv,
-                   CoreRead.Metric.RestingHr).associateWith { CoreRead.series(it, "2000-01-01", today.toString()) }
+                   CoreRead.Metric.RestingHr).associateWith { CoreCache.series(it, "2000-01-01", today.toString(), rev) }
         }
     }
     val today = LocalDate.now()
@@ -145,7 +152,10 @@ fun ForgeTrendsScreen(padding: PaddingValues, width: ForgeWidth, viewModel: com.
     ) {
         Column(Modifier.padding(top = ForgeMetrics.space4)) {
             // Opened as a page (from Health) it heads itself with a back arrow, as every page does; as a tab, plainly.
-            if (onBack != null) PageTitle(stringResource(R.string.nav_trends), onBack)
+            if (onBack != null) PageTitle(stringResource(R.string.nav_trends), onBack,
+                trailing = {
+                    GradientCircleIcon(Icons.Rounded.ShowChart, Forge.colors.charge, 32.dp)
+                })
             else Text(stringResource(R.string.nav_trends), style = Forge.type.title1, color = Forge.sceneInk.text)
             Text(stringResource(R.string.forge_trends_subtitle), style = Forge.type.subhead, color = Forge.sceneInk.secondary)
         }
@@ -492,17 +502,6 @@ private fun changeColor(change: Int, higherIsBetter: Boolean?): Color = when {
 
 private fun signed(change: Int) = if (change > 0) "+$change%" else "$change%"
 
-@Composable
-private fun AverageRing(labelRes: Int, stats: TrendStats, tint: Color, higherIsBetter: Boolean?, metric: OrganicMetric,
-                        format: (Double) -> String = WHOLE_NUMBER) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(stringResource(labelRes).uppercase(), style = Forge.type.overline, color = tint, maxLines = 1)
-        OrganicRing(stats.average, tint, 96.dp, metric, format = format)
-        val change = stats.change
-        Text(change?.let(::signed) ?: " ", style = Forge.type.captionNumber,
-             color = change?.let { changeColor(it, higherIsBetter) } ?: Forge.colors.textTertiary, maxLines = 1)
-    }
-}
 
 @Composable
 private fun TrendCard(titleRes: Int, unit: String, stats: TrendStats, days: Int, tint: Color, higherIsBetter: Boolean,
@@ -604,8 +603,9 @@ internal fun ForgeMetricTrendPage(metric: CoreRead.Metric, titleRes: Int, unit: 
     LaunchedEffect(metric) {
         points = withContext(Dispatchers.IO) {
             CoreRead.open(context)
+            val rev = com.noop.core.CoreShadow.dataRevision.value
             val today = LocalDate.now()
-            CoreRead.series(metric, today.minusDays(179).toString(), today.toString())
+            CoreCache.series(metric, today.minusDays(179).toString(), today.toString(), rev)
         }
     }
     SettingsColumn {
@@ -631,11 +631,19 @@ internal fun ForgeMetricTrendPage(metric: CoreRead.Metric, titleRes: Int, unit: 
 @Composable
 internal fun ForgeHostedTrend(metric: CoreRead.Metric) {
     val context = LocalContext.current
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     var points by remember { mutableStateOf<List<CoreRead.Point>>(emptyList()) }
-    LaunchedEffect(metric) {
+    var trLoadedRev by remember { mutableStateOf(coreRevision) }
+    val trReloadRev = remember { mutableStateOf(0L) }
+    SideEffect {
+        if (coreRevision - trLoadedRev >= 50) trReloadRev.value = coreRevision
+    }
+    LaunchedEffect(metric, trReloadRev.value) {
+        trLoadedRev = coreRevision
+        val rev = coreRevision
         points = withContext(Dispatchers.IO) {
             CoreRead.open(context)
-            CoreRead.series(metric, LocalDate.now().minusDays(29).toString(), LocalDate.now().toString())
+            CoreCache.series(metric, LocalDate.now().minusDays(29).toString(), LocalDate.now().toString(), rev)
         }
     }
     val colors = Forge.colors

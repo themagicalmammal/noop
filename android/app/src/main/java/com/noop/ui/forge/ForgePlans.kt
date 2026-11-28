@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,7 +32,6 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -536,7 +537,7 @@ internal fun ForgePlanBuilder(onBack: () -> Unit, onSaved: (String) -> Unit) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.forge_plan_run_for_weeks), style = Forge.type.subhead,
                          color = Forge.colors.text, modifier = Modifier.weight(1f))
-                    Switch(checked = hasBlock, onCheckedChange = { hasBlock = it })
+                    ToggleCheckbox(checked = hasBlock, onCheckedChange = { hasBlock = it })
                 }
                 if (hasBlock) {
                     HubDivider()
@@ -678,7 +679,7 @@ internal fun ForgePlanEditor(plan: CorePlans.Plan?, onClose: () -> Unit) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.forge_plan_run_for_weeks), style = Forge.type.subhead,
                      color = Forge.colors.text, modifier = Modifier.weight(1f))
-                Switch(checked = hasBlock, onCheckedChange = { hasBlock = it })
+                ToggleCheckbox(checked = hasBlock, onCheckedChange = { hasBlock = it })
             }
             if (hasBlock) {
                 HubDivider()

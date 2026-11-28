@@ -16,7 +16,7 @@ import com.noop.ui.NoopPrefs
  * Fork (DX23876), Forge parity 2026-11: the "New design (preview)" switch, the twin of iOS's `ForgeDesignPrefs`.
  * **On by default since 2026-11-18**, as on iOS: the owner decided the new design ships to everyone, and
  * [flipOnce] carries over the installs that had it off. The switch stays, so anyone can go back to the shipped
- * Forge tabs (Today, Trends, Training, Sleep, More). Same key as iOS, so the choice reads the same on both.
+ * Forge tabs. Same key as iOS, so the choice reads the same on both.
  *
  * `--ez new_design true|false` on the launch intent overrides it for emulator checks in a debug build, without
  * writing the switch, as `--new-design` does on iOS.
@@ -88,7 +88,7 @@ object ForgeDesign {
         com.noop.ingest.DebugHealthConnectSeed.seedIfRequested(context, intent)
     }
 
-    /** Set by a tab header's magnifier: the More page it opens puts the cursor in its search field, once. */
+    /** Set by a tab header's magnifier: puts the cursor in its search field, once. */
     var focusSearch by mutableStateOf(false)
 
     /** Set by Today's "What changed" card: the Health tab it selects opens Trends over itself, once. */
@@ -101,43 +101,22 @@ object ForgeDesign {
 
     /**
      * The tabs in the bar, in order. The new design follows iOS's `RootTabView` (Today, Training, Nutrition, Sleep,
-     * Health); the coach sits in each page's header instead of a tab (owner, 2026-11-21: an iPhone shows five). The
-     * shipped one keeps Trends and More. Pure, so the two rosters are tested.
+     * Health); the coach sits in each page's header instead of a tab (owner, 2026-11-21: an iPhone shows five).
+     * Pure, so the rosters are tested.
      */
     @Suppress("UNUSED_PARAMETER")
     fun tabs(newDesign: Boolean, coachEnabled: Boolean): List<ForgeTab> =
         if (newDesign) listOf(ForgeTab.Today, ForgeTab.Training, ForgeTab.Nutrition, ForgeTab.Sleep, ForgeTab.Health)
-        else listOf(ForgeTab.Today, ForgeTab.Trends, ForgeTab.Training, ForgeTab.Sleep, ForgeTab.More)
+        else listOf(ForgeTab.Today, ForgeTab.Trends, ForgeTab.Training, ForgeTab.Sleep)
 }
 
-/**
- * In the new design everything the More tab held lives behind the profile button, as iOS's `RootTabView` puts it:
- * a tab header's profile (and Today's strap battery) open the More page over the tabs. Null in the shipped design,
- * where the profile opens Settings and More is a tab.
- */
-val LocalForgeOpenMore = androidx.compose.runtime.compositionLocalOf<(() -> Unit)?> { null }
 
 /** Opens the new design's Settings over the tabs, as iOS's profile photo does (`ForgeSettingsView`); null in the shipped design. */
 val LocalForgeOpenSettings = androidx.compose.runtime.compositionLocalOf<(() -> Unit)?> { null }
 
-/**
- * The More page over the tabs, with its own search, profile, strap and every page it lists.
- *
- * A layer of its own over the tabs, not a [ForgeOverlayPage]: the overlay host holds one page, and the pages More
- * opens (Analysis, Health & Body, Tools, Settings) are overlay pages themselves. As an overlay page More was
- * replaced by the first of them, which then lost its own caller and closed both, leaving the profile dead.
- */
-@androidx.compose.runtime.Composable
-internal fun ForgeMoreOverlay(viewModel: com.noop.ui.AppViewModel, onDismiss: () -> Unit) {
-    androidx.compose.foundation.layout.Box(
-        androidx.compose.ui.Modifier.fillMaxSize()
-            // Takes every touch, so nothing reaches the tab underneath.
-            .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } } }
-    ) {
-        ForgeSceneBackdrop(ForgeBackdrop.Sky) {
-            androidx.activity.compose.BackHandler(onBack = onDismiss)
-            // The system bars' insets, as the tab's Scaffold supplied them: empty padding drew the title under the clock.
-            ForgeMoreScreen(WindowInsets.systemBars.asPaddingValues(), viewModel)
-        }
-    }
-}
+/** Opens the dedicated search overlay from a tab header magnifier, as iOS pushes `ForgeRoute.search`; null in the shipped design. */
+val LocalForgeOpenSearch = androidx.compose.runtime.compositionLocalOf<(() -> Unit)?> { null }
+/** Opens the battery screen over the tabs, as iOS pushes `TabRoute.battery`; null in the shipped design. */
+val LocalForgeOpenBattery = androidx.compose.runtime.compositionLocalOf<(() -> Unit)?> { null }
+
+

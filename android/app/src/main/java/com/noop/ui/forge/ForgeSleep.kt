@@ -223,15 +223,16 @@ fun ForgeSleepScreen(padding: PaddingValues, width: ForgeWidth, viewModel: com.n
     // (`restHero` over `sleepNightTopBackground`, then `canvasSheet`).
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding)) {
         // The new design's header over the night, as iOS's `ForgeLargeHeader(title: "Sleep")`.
-        LocalForgeOpenMore.current?.let { openMore ->
+        val openSettings = LocalForgeOpenSettings.current
+        if (openSettings != null) {
             Box(Modifier.padding(horizontal = ForgeMetrics.screenPadding)) {
-                TabHeader(stringResource(R.string.nav_sleep), onProfile = LocalForgeOpenSettings.current ?: openMore, onSearch = rememberOpenSearch(),
+                TabHeader(stringResource(R.string.nav_sleep), onProfile = { openSettings() }, onSearch = rememberOpenSearch(),
                           coach = CoachPage("sleep", wakeDay?.toString()), viewModel = viewModel)
             }
         }
         // The new design pages the nights in one line under the tab header, as iOS's `nightNavigator`; the shipped
         // design keeps its own titled header over the scene.
-        if (LocalForgeOpenMore.current != null) NightNavigator(night, isLatest = i == nights.lastIndex, zone,
+        if (LocalForgeOpenSettings.current != null) NightNavigator(night, isLatest = i == nights.lastIndex, zone,
                canBack = i > 0, canForward = i in 0 until nights.lastIndex,
                onBack = { index = i - 1 }, onForward = { index = i + 1 })
         else Header(night, isLatest = i == nights.lastIndex, zone,
@@ -253,7 +254,7 @@ fun ForgeSleepScreen(padding: PaddingValues, width: ForgeWidth, viewModel: com.n
             val rest = wakeDay?.let { model?.restByDay?.get(it.toString()) }
             // The new design's summary, as iOS's `summaryTiles`: Rest and the night's sleep, each with its week; the
             // navigator above already carries the clock span, so the asleep and woke card stays in the shipped design.
-            if (LocalForgeOpenMore.current != null) {
+            if (LocalForgeOpenSettings.current != null) {
                 SleepSummaryTiles(night, rest, model, need, onRest = { restValue = rest; restPage = true },
                                   onDuration = { durationPage = CoreRead.Metric.SleepMinutes })
                 // While the coach is on, the night goes to it in one tap, as iOS's button under the tiles.

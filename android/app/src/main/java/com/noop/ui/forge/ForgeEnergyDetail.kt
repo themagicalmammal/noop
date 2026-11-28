@@ -51,6 +51,8 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.automirrored.rounded.DirectionsWalk
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
@@ -65,6 +67,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.noop.R
+import com.noop.analytics.AdaptiveExpenditureDay
+import com.noop.analytics.AdaptiveExpenditureEngine
+import com.noop.core.CoreBody
 import com.noop.core.CoreEnergyDetail
 import com.noop.core.CoreRead
 import kotlinx.coroutines.Dispatchers
@@ -92,6 +97,7 @@ internal fun ForgeEnergyDetailPage(onBack: () -> Unit) {
     var loaded by remember { mutableStateOf(false) }
     var series by remember { mutableStateOf("burned") }
     var quality by remember { mutableStateOf(false) }
+    var adaptiveEstimate by remember { mutableStateOf<com.noop.analytics.AdaptiveExpenditureEstimate?>(null) }
     var scale by remember { mutableStateOf<CoreEnergyPlan.Scale?>(null) }
     var scaleRevision by remember { mutableStateOf(0) }
     LaunchedEffect(day, comparison, scaleRevision) {
@@ -99,6 +105,15 @@ internal fun ForgeEnergyDetailPage(onBack: () -> Unit) {
             CoreRead.open(context); CoreEnergyDetail.read(context, day, comparison, dismissedTrainingWorkouts(context))
         }
         loaded = true
+    }
+    LaunchedEffect(detail) {
+        val d = detail ?: return@LaunchedEffect
+        adaptiveEstimate = withContext(Dispatchers.IO) {
+            val body = CoreBody.snapshot(context, days = 45)
+            val weights = body?.weight?.associate { it.day to it.value } ?: emptyMap()
+            val days = buildAdaptiveDays(d.intake, weights)
+            AdaptiveExpenditureEngine.estimate(days)
+        }
     }
     LaunchedEffect(scaleRevision) {
         scale = withContext(Dispatchers.IO) { CoreEnergyPlan.scale(context, dismissedTrainingWorkouts(context)) }
@@ -114,9 +129,12 @@ internal fun ForgeEnergyDetailPage(onBack: () -> Unit) {
     }
     SettingsColumn {
         // The explaining picture in the title row, as iOS's Energy page carries it in its toolbar.
-        PageTitle(stringResource(R.string.forge_en_title), onBack) {
+        PageTitle(stringResource(R.string.forge_en_title), onBack, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.LocalFireDepartment, accentAIcon = Icons.Rounded.Bolt,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.forgeEnergyActive.resolve(), size = 72,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
             ExplainerInfoButton(R.string.forge_ex_energy_title, R.string.forge_ex_energy_text) { ExplainerEnergyBars() }
-        }
+        })
         val d = detail
         if (d == null) {
             if (!loaded) Text(stringResource(R.string.forge_goals_loading), style = Forge.type.body, color = Forge.sceneInk.secondary)
@@ -136,10 +154,45 @@ internal fun ForgeEnergyDetailPage(onBack: () -> Unit) {
         }
         if (d.summaries.isNotEmpty()) History(d, series, onSeries = { series = it }, onDay = { day = it })
         if (s != null) QualityRow(s) { quality = true }
+        adaptiveEstimate?.let { est -> AdaptiveExpenditureCard(est) }
     }
 }
 
-private fun kcalText(v: Double): String = NumberFormat.getIntegerInstance(Locale.getDefault()).format(v.roundToInt())
+/** Builds the last 42 days' adaptive-expenditure input rows from intake and weight readings. */
+private fun buildAdaptiveDays(intake: Map<String, Double>, weights: Map<String, Double>): List<AdaptiveExpenditureDay> {
+    val today = LocalDate.now()
+    return (1..42).mapNotNull { offset ->
+        val dayKey = today.minusDays(offset.toLong()).toString()
+        val cal = intake[dayKey]
+        val wgt = weights[dayKey]
+        if (cal == null && wgt == null) null
+        else AdaptiveExpenditureDay(dayKey, cal, wgt)
+    }
+}
+
+/** The retrospective energy-balance estimate, shown when the history can support one. */
+@Composable
+private fun AdaptiveExpenditureCard(est: com.noop.analytics.AdaptiveExpenditureEstimate) {
+    val colors = Forge.colors
+    ForgeCard(Modifier.fillMaxWidth(), contentPadding = ForgeMetrics.space4) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.forge_adaptive_title), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
+                val confLabel = when (est.confidence) {
+                    com.noop.analytics.AdaptiveExpenditureConfidence.HIGH -> stringResource(R.string.forge_conf_high)
+                    com.noop.analytics.AdaptiveExpenditureConfidence.MODERATE -> stringResource(R.string.forge_conf_building)
+                    else -> stringResource(R.string.forge_conf_low)
+                }
+                Text(confLabel, style = Forge.type.caption, color = colors.textSecondary)
+            }
+            val range = "${est.lowerKcal.roundToInt()}–${est.upperKcal.roundToInt()}"
+            Text(stringResource(R.string.forge_adaptive_range, range), style = Forge.type.body, color = colors.textSecondary)
+            Text(stringResource(R.string.forge_adaptive_window, est.windowDays), style = Forge.type.caption, color = colors.textTertiary)
+            Text(stringResource(R.string.forge_adaptive_note), style = Forge.type.caption, color = colors.textTertiary)
+        }
+    }
+}
+
 
 /** iOS `ForgeScaleCard`: the scale against the strap, its proposal, the correction in use, or what is still missing. */
 @Composable
@@ -215,7 +268,7 @@ private fun DayStepper(d: CoreEnergyDetail.Detail, onDay: (String) -> Unit) {
         }
         Spacer(Modifier.weight(1f))
         val spoken = stringResource(R.string.forge_join_dot, stringResource(R.string.forge_en_choose_date), label)
-        Row(Modifier.clip(CircleShape).background(colors.surface).clickable(role = Role.Button) { picking = true }
+        Row(Modifier.clip(RoundedCornerShape(18.dp)).background(colors.surface).clickable(role = Role.Button) { picking = true }
                 .semantics { contentDescription = spoken }.padding(horizontal = 14.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(label, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
@@ -274,7 +327,7 @@ private fun Hero(s: CoreEnergyDetail.Summary, d: CoreEnergyDetail.Detail, eaten:
             if (isToday && s.projectedLow != null && s.projectedHigh != null) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Icon(Icons.Rounded.Bedtime, null, tint = colors.textSecondary, modifier = Modifier.size(14.dp))
-                    Text(stringResource(R.string.forge_en_tonight, kcalText(s.projectedLow), kcalText(s.projectedHigh)),
+                    Text(stringResource(R.string.forge_en_tonight, whole(s.projectedLow), whole(s.projectedHigh)),
                          style = Forge.type.caption, color = colors.textSecondary)
                 }
             }
@@ -303,8 +356,8 @@ private fun usualLine(total: Double?, usual: Double?): String? {
     val gap = total - usual
     return when {
         kotlin.math.abs(gap) < 50 -> stringResource(R.string.forge_en_usual)
-        gap < 0 -> stringResource(R.string.forge_en_short, kcalText(-gap))
-        else -> stringResource(R.string.forge_en_past, kcalText(gap))
+        gap < 0 -> stringResource(R.string.forge_en_short, whole(-gap))
+        else -> stringResource(R.string.forge_en_past, whole(gap))
     }
 }
 
@@ -326,7 +379,7 @@ private fun Figure(color: Color, title: String, value: Double?, modifier: Modifi
     val colors = Forge.colors
     Column(modifier.clip(RoundedCornerShape(10.dp)).background(colors.canvas).padding(vertical = 12.dp),
            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(value?.let(::kcalText) ?: "–", style = Forge.type.title2.copy(fontWeight = FontWeight.Bold), color = colors.text, maxLines = 1)
+        Text(value?.let(::kcalText) ?: "–", style = Forge.type.figure.copy(fontSize = 22.sp), color = colors.text, maxLines = 1)
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Box(Modifier.size(8.dp).clip(CircleShape).background(color))
             Text(title, style = Forge.type.caption, color = colors.textSecondary, maxLines = 1)
@@ -369,7 +422,7 @@ private fun EnergyRing(resting: Double?, everyday: Double?, active: Double?, tot
                  textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 22.dp))
         } else {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(kcalText(total), style = Forge.type.title1.copy(fontSize = 36.sp, fontWeight = FontWeight.Bold), color = colors.text, maxLines = 1)
+                Text(whole(total), style = Forge.type.title1.copy(fontSize = 36.sp, fontWeight = FontWeight.Bold), color = colors.text, maxLines = 1)
                 Text("kcal", style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = colors.textSecondary)
             }
         }
@@ -389,7 +442,7 @@ private fun Balance(eaten: Double, burned: Double, isToday: Boolean) {
         Row(verticalAlignment = Alignment.Bottom) {
             Text(stringResource(if (isToday) R.string.forge_en_balance_so_far else R.string.forge_en_balance), style = Forge.type.caption,
                  color = colors.textSecondary, modifier = Modifier.weight(1f))
-            Text((if (balance > 0) "+" else if (balance < 0) "−" else "") + kcalText(kotlin.math.abs(balance)) + " kcal",
+            Text((if (balance > 0) "+" else if (balance < 0) "−" else "") + whole(kotlin.math.abs(balance)) + " kcal",
                  style = Forge.type.headline, color = colors.text)
         }
         Canvas(Modifier.fillMaxWidth().height(10.dp).clip(CircleShape)) {
@@ -451,9 +504,7 @@ private fun PartRow(icon: androidx.compose.ui.graphics.vector.ImageVector, tint:
     val colors = Forge.colors
     Row(Modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.space4, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Box(Modifier.size(32.dp).clip(CircleShape).background(tint.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
-            Icon(icon, null, tint = tint, modifier = Modifier.size(16.dp))
-        }
+        GradientCircleIcon(icon, tint, 26.dp)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(title, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text,
@@ -484,9 +535,7 @@ private fun EmptyCard(isToday: Boolean) {
     val tint = ForgeTokens.StrandPalette.forgeEnergyActive.resolve()
     ForgeCard(Modifier.fillMaxWidth(), contentPadding = ForgeMetrics.space4) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Box(Modifier.size(48.dp).clip(CircleShape).background(tint.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
-                Icon(Icons.Rounded.LocalFireDepartment, null, tint = tint)
-            }
+            GradientCircleIcon(Icons.Rounded.LocalFireDepartment, tint, 38.dp)
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(stringResource(if (isToday) R.string.forge_en_nothing_today else R.string.forge_en_nothing_day),
                      style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
@@ -584,7 +633,7 @@ private fun History(d: CoreEnergyDetail.Detail, series: String, onSeries: (Strin
             Spacer(Modifier.weight(1f))
             Text(shortDay(LocalDate.parse(d.today).minusDays(1).toString()), style = Forge.type.caption, color = colors.textTertiary)
         }
-        if (usual != null) Text(stringResource(R.string.forge_en_usual_day, kcalText(usual)), style = Forge.type.caption,
+        if (usual != null) Text(stringResource(R.string.forge_en_usual_day, whole(usual)), style = Forge.type.caption,
                                 color = colors.textSecondary)
         Text(stringResource(R.string.forge_en_tap_day), style = Forge.type.caption, color = colors.textTertiary)
     }
@@ -597,9 +646,7 @@ private fun QualityRow(s: CoreEnergyDetail.Summary, onOpen: () -> Unit) {
     val tint = confidenceColor(s.confidence)
     ForgeCard(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onOpen), contentPadding = ForgeMetrics.space4) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Box(Modifier.size(36.dp).clip(CircleShape).background(tint.copy(alpha = 0.14f)), contentAlignment = Alignment.Center) {
-                Icon(Icons.Rounded.VerifiedUser, null, tint = tint, modifier = Modifier.size(18.dp))
-            }
+            GradientCircleIcon(Icons.Rounded.VerifiedUser, tint, 28.dp)
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.forge_en_quality), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
                 Text(s.compactLine ?: s.sourceLabel, style = Forge.type.caption, color = colors.textSecondary, maxLines = 2)
@@ -657,7 +704,7 @@ private fun RateChart(points: List<CoreEnergyDetail.Point>, bands: List<CoreEner
                       comparison: List<CoreEnergyDetail.Point>) {
     val energy = ForgeTokens.Color.systemOrange.resolve()
     val reference = Forge.colors.textTertiary
-    val bandColor = energy.copy(alpha = 0.14f)
+    val bandColor = energy.copy(alpha = 0.16f)
     Canvas(Modifier.fillMaxWidth().height(160.dp)) {
         val day = 86_400.0
         val top = (points + comparison).maxOfOrNull { it.kcalPerMinute }?.coerceAtLeast(1.0) ?: 1.0

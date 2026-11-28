@@ -185,7 +185,7 @@ fun ForgeSceneBackdrop(kind: ForgeBackdrop, modifier: Modifier = Modifier, conte
     val fullScene = !image && kind != ForgeBackdrop.Canvas && ForgeBackground.dayCycle && ForgeBackground.behindCards
     // The new design draws pushed pages on the plain canvas, as iOS's `ForgeBackground` (the sky is Today's own).
     val plain = !image && (!ForgeBackground.dayCycle || kind == ForgeBackdrop.Canvas ||
-                           (kind == ForgeBackdrop.Sky && ForgeDesign.preview))
+                           (kind == ForgeBackdrop.Sky))
     val sceneHeight = if (fullScene) SCENE_BEHIND_CARDS_HEIGHT else SCENE_HEIGHT
     val sceneHeightPx = with(density) { sceneHeight.toPx() }
     val washStops = remember(colors.canvas) {

@@ -569,7 +569,7 @@ internal fun DeletedSleepWindows(viewModel: AppViewModel) {
         ForgeCard(Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.forge_se_windows_sub), style = Forge.type.caption, color = colors.textSecondary)
             windows.forEach { w ->
-                Box(Modifier.fillMaxWidth().padding(vertical = ForgeMetrics.space2).height(ForgeMetrics.hairline).background(colors.divider))
+                ForgeDivider(topSpacing = ForgeMetrics.space2, bottomSpacing = ForgeMetrics.space2)
                 Text(stringResource(R.string.l10n_sleep_screen_deleted_sleep_window_range_7bc5f027,
                                     Instant.ofEpochSecond(w.startTs).atZone(zone).format(stamp),
                                     Instant.ofEpochSecond(w.endTs).atZone(zone).format(stamp)),

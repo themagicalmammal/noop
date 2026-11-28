@@ -1271,7 +1271,6 @@ private fun amount(value: Double, metric: String): String = amount(LocalContext.
 private fun amount(context: Context, value: Double, metric: String): String =
     "${number(context, value, metric)} ${unit(context, metric)}"
 
-private fun whole(value: Double): String = NumberFormat.getIntegerInstance(Locale.getDefault()).format(value.roundToInt())
 
 @Composable
 private fun progressText(goal: CoreGoals.Period): String = progressText(LocalContext.current, goal)

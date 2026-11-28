@@ -173,13 +173,13 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
         }
     }
     val selectTab = LocalForgeTabSelect.current
-    val openMore = LocalForgeOpenMore.current
     val openSettings = LocalForgeOpenSettings.current
+    val openBattery = LocalForgeOpenBattery.current
     if (quickActions) {
         ForgeQuickActionSheet(viewModel, onDismiss = { quickActions = false }) { action ->
             quickActions = false
             when (action) {
-                QuickAction.Battery -> openMore?.invoke() ?: selectTab(ForgeTab.More)
+                QuickAction.Battery -> openBattery?.invoke()
                 QuickAction.Live -> more.push(MoreRoute.Dest(MoreDest.Live))
                 QuickAction.Workout -> startWorkout = true
                 QuickAction.Journal -> more.push(MoreRoute.Dest(MoreDest.Journal))
@@ -366,7 +366,7 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
                             onWorkout = { if (viewModel.activeWorkout.value != null) liveWorkout = true else startWorkout = true },
                             workoutRunning = viewModel.activeWorkout.collectAsState().value != null,
                             onCustomize = { editingWidgets = true }, viewModel = viewModel,
-                            onBattery = { openMore?.invoke() ?: selectTab(ForgeTab.More) })
+                            onBattery = { openBattery?.invoke() })
             // The running-import banner moved to `ForgePullToRefresh`, which wraps all four tabs a source
             // feeds: it used to hang on Today alone, and the page an import was started from is not the
             // page the wearer waits on.
@@ -468,8 +468,8 @@ fun ForgeTodayScreen(padding: PaddingValues, width: ForgeWidth, viewModel: AppVi
             val updateStore = remember { com.noop.ui.UpdateStore.from(context) }
             val coachOn = com.noop.ui.NoopPrefs.coachEnabled(context) && com.noop.ui.CoachTodayPrefs.shown(context)
             DashboardHeader(shown, isToday = shown == today,
-                            battery = live.batteryPct?.let { stringResource(R.string.forge_percent, kotlin.math.round(it).toInt()) },
-                            unread = updateStore.unreadCount, onBattery = { selectTab(ForgeTab.More) },
+                            batteryPct = live.batteryPct,
+                            unread = updateStore.unreadCount, onBattery = { openBattery?.invoke() },
                             onQuickActions = { quickActions = true }, onUpdates = { updatesOpen = true },
                             onCoach = if (coachOn) ({ more.push(MoreRoute.Dest(MoreDest.Coach)) }) else null,
                             onArrange = { arranging = style }, onPickDay = { dayPicker = true })

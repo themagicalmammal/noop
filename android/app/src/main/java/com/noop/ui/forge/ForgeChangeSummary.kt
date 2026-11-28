@@ -26,6 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +38,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.noop.R
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import com.noop.ui.KeyMetric
 import kotlinx.coroutines.Dispatchers
@@ -128,13 +132,15 @@ internal fun TodayChangesForge(onOpen: () -> Unit, strapId: String = "my-whoop")
     val context = LocalContext.current
     val colors = Forge.colors
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
     val today = com.noop.ui.logicalDayNow()
-    val rows by produceState<List<ChangeSummary.Row>?>(null, coreRevision, today) {
+    val rows by produceState<List<ChangeSummary.Row>?>(null, today) {
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val from = today.minusDays(14).toString()
             val series = ChangeSummary.measures.associateWith { m ->
-                m.metric?.let { CoreRead.series(it, from, today.toString()).associate { p -> p.day to p.value } }
+                m.metric?.let { CoreCache.series(it, from, today.toString(), trackedRev.value).associate { p -> p.day to p.value } }
                     ?: runCatching {
                         com.noop.core.CoreResolvedSeries.read(m.key!!, m.source!!, from, today.toString(), strapId)?.points
                             ?.associate { it.day to it.value }
@@ -192,13 +198,10 @@ internal fun TodayChangesForge(onOpen: () -> Unit, strapId: String = "my-whoop")
         }
         val moved = list.filter { it.verdict == ChangeSummary.Verdict.Better || it.verdict == ChangeSummary.Verdict.Worse }.take(3)
         moved.forEachIndexed { i, row ->
-            if (i > 0) Box(Modifier.padding(start = 40.dp).fillMaxWidth().height(0.5.dp).background(colors.divider))
+            if (i > 0) ForgeDivider(startPadding = 40.dp)
             val tint = row.measure.tile?.tileTint() ?: colors.rest
             Row(Modifier.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(28.dp).background(tint.copy(alpha = 0.16f), RoundedCornerShape(7.dp)), contentAlignment = Alignment.Center) {
-                    Icon(row.measure.tile?.icon ?: Icons.Rounded.Bedtime, contentDescription = null,
-                         tint = tint, modifier = Modifier.size(16.dp))
-                }
+                GradientSquircleIcon(row.measure.tile?.icon ?: Icons.Rounded.Bedtime, tint, 22.dp)
                 Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                     Text(measureName(row.measure), style = Forge.type.subhead.copy(fontWeight = FontWeight.Medium), color = colors.text, maxLines = 1)
                     Text(stringResource(R.string.forge_ch_from_to, valueText(row.measure, row.before, effortFormat),

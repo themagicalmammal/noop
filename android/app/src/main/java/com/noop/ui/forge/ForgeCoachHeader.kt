@@ -68,10 +68,10 @@ internal fun ForgeHeaderCoachButton(kind: String, day: String?) {
         }
     }
     val label = stringResource(R.string.nav_coach)
-    Box(Modifier.size(ForgeMetrics.minHitTarget).clickable(role = Role.Button, onClickLabel = label) { open(CoachPage(kind, day)) },
+    Box(Modifier.size(28.dp).clickable(role = Role.Button, onClickLabel = label) { open(CoachPage(kind, day)) },
         contentAlignment = Alignment.Center) {
         // A round button like its neighbours (the strap, the plus, the search), as iOS's glass circle.
-        HeaderCircle { Icon(Icons.Rounded.AutoAwesome, contentDescription = label, tint = Forge.sceneInk.text, modifier = Modifier.size(18.dp)) }
+        HeaderCircle { Icon(Icons.Rounded.AutoAwesome, contentDescription = label, tint = Forge.sceneInk.text, modifier = Modifier.size(20.dp)) }
         if (unseen) {
             Box(Modifier.align(Alignment.TopEnd).offset(x = (-4).dp, y = 4.dp).size(9.dp)
                     .background(Forge.colors.accent, CircleShape))
@@ -83,7 +83,7 @@ internal fun ForgeHeaderCoachButton(kind: String, day: String?) {
 @Composable
 internal fun HeaderCircle(content: @Composable () -> Unit) {
     val colors = Forge.colors
-    Box(Modifier.size(36.dp).background(colors.heroFill, CircleShape).border(1.dp, colors.heroBorder, CircleShape),
+    Box(Modifier.size(28.dp).background(colors.heroFill, CircleShape),
         contentAlignment = Alignment.Center) { content() }
 }
 

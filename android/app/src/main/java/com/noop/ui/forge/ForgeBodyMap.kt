@@ -242,9 +242,7 @@ object ForgeBodyStyle {
      */
     @Composable fun scale(): List<Color> {
         val teal = ForgeTokens.StrandPalette.trainingData.resolve()
-        return if (ForgeDesign.preview) listOf(Forge.colors.border, teal.copy(alpha = 0.45f), teal)
-               else listOf(Forge.colors.border, ForgeTokens.StrandPalette.metricCyan.resolve(),
-                           Forge.colors.accent, ForgeTokens.StrandPalette.effortColor.resolve())
+        return listOf(Forge.colors.border, teal.copy(alpha = 0.45f), teal)
     }
     @Composable fun fatigueScale() = listOf(Forge.colors.border, ForgeTokens.StrandPalette.statusWarning.resolve(),
                                             ForgeTokens.StrandPalette.effortColor.resolve())

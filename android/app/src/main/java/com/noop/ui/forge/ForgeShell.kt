@@ -55,7 +55,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.rounded.KingBed
 import androidx.compose.material.icons.rounded.Restaurant
@@ -75,12 +74,11 @@ enum class ForgeTab(val labelRes: Int, val icon: ImageVector, val backdrop: Forg
     Health(R.string.nav_health, Icons.Rounded.FavoriteBorder, ForgeBackdrop.Canvas, Icons.Rounded.Favorite),
     /** The food log one tap away (owner, 2026-11-21), as iOS's Nutrition tab. */
     Nutrition(R.string.food_title, Icons.Rounded.Restaurant, ForgeBackdrop.Canvas),
-    More(R.string.nav_more, Icons.Rounded.MoreHoriz, ForgeBackdrop.Sky),
     /** The coach in its own place, as iOS's search-role tab: a round button beside the bar, only while it is on. */
     Coach(R.string.nav_coach, Icons.Rounded.AutoAwesome, ForgeBackdrop.Sky);
 
     /** The bar's glyph: the new design takes iOS's tab symbols (sun, runner, moon, heart). */
-    val glyph: ImageVector get() = if (ForgeDesign.preview) newIcon else icon
+    val glyph: ImageVector get() = newIcon
 }
 
 /** How wide the window is, by the Compose window size class breakpoints (600 and 840 dp). */
@@ -106,15 +104,11 @@ fun ForgeShell(screen: @Composable (tab: ForgeTab, padding: PaddingValues, width
     // A tab the other design does not have (Health, Trends, More, Coach) reads as Today when the switch flips.
     val shown = ForgeDesign.tabs(ForgeDesign.preview, com.noop.ui.BottomBarStyleStore.coachEnabled)
     val tab = if (chosen in shown) chosen else ForgeTab.Today
-    // A jump to More (the battery, the devices) opens the More page in the new design, which has no More tab;
-    // any other tab the bar does not show leaves the selection as it is instead of falling back to Today.
-    val openMore = LocalForgeOpenMore.current
     // The coach has no tab in the new design: every "ask the coach" that selected it opens the coach sheet.
     val openCoach = LocalForgeOpenCoach.current
     val select: (ForgeTab) -> Unit = { t ->
         when {
             t in shown -> chosen = t
-            t == ForgeTab.More -> openMore?.invoke()
             t == ForgeTab.Coach -> openCoach?.invoke(null)
         }
     }
@@ -149,7 +143,9 @@ val LocalForgeTabSelect = androidx.compose.runtime.staticCompositionLocalOf<(For
 @Composable
 private fun Content(tab: ForgeTab, width: ForgeWidth, extra: PaddingValues,
                     screen: @Composable (ForgeTab, PaddingValues, ForgeWidth) -> Unit) {
-    Box(Modifier.fillMaxSize().statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
+    // The coach chat keeps a sliver of top padding so its header does not press the status bar.
+    val pad = if (tab == ForgeTab.Coach) Modifier.padding(top = 5.dp) else Modifier.statusBarsPadding()
+    Box(Modifier.fillMaxSize().then(pad), contentAlignment = Alignment.TopCenter) {
         Box(Modifier.widthIn(max = ForgeMetrics.maxContentWidth).fillMaxHeight()) {
             screen(tab, extra, width)
         }
@@ -204,9 +200,9 @@ private fun TabItem(tab: ForgeTab, selected: Boolean, modifier: Modifier, onClic
             .clickable(role = Role.Tab, onClick = onClick).padding(vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // SF Symbols' dumbbell lies flat; Material's stands at an angle, so it turns back by 45° to match.
+        // iOS glyphs are upright; no rotation needed.
         Icon(tab.glyph, contentDescription = null, tint = tint,
-             modifier = Modifier.size(26.dp).then(if (tab == ForgeTab.Training) Modifier.rotate(-45f) else Modifier))
+             modifier = Modifier.size(26.dp))
         Spacer(Modifier.height(2.dp))
         Text(stringResource(tab.labelRes), style = Forge.type.caption.copy(fontWeight = FontWeight.Medium), color = tint,
              maxLines = 1, overflow = TextOverflow.Ellipsis)

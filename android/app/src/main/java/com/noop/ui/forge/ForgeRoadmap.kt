@@ -430,11 +430,11 @@ internal fun ProblemsSection(onOpenTestCentre: () -> Unit, onOpenTracker: () -> 
         HubRow(Icons.Rounded.BugReport, ForgeTokens.Color.systemTeal.resolve(),
                stringResource(R.string.project_log_myself),
                stringResource(if (page.canWrite) R.string.project_log_long_way
-                              else R.string.project_log_only_way), onOpenTestCentre)
+                              else R.string.project_log_only_way), onClick = onOpenTestCentre)
         HubDivider()
         HubRow(Icons.Rounded.OpenInNew, ForgeTokens.Color.systemGray.resolve(),
                stringResource(R.string.forge_roadmap_tracker),
-               stringResource(R.string.forge_roadmap_tracker_detail), onOpenTracker)
+               stringResource(R.string.forge_roadmap_tracker_detail), onClick = onOpenTracker)
     }
 }
 

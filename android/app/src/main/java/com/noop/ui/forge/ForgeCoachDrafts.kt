@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,7 +29,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -441,7 +442,7 @@ internal fun GoalDraftReviewPage(proposalId: String, onClose: () -> Unit) {
 private fun ToggleLine(title: String, on: Boolean, onChange: (Boolean) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(title, style = Forge.type.subhead, color = Forge.colors.text, modifier = Modifier.weight(1f))
-        Switch(checked = on, onCheckedChange = onChange, colors = forgeSwitchColors())
+        ToggleCheckbox(checked = on, onCheckedChange = onChange)
     }
 }
 
@@ -481,9 +482,9 @@ private fun WarningLine(text: String) {
 
 @Composable
 private fun Pill(label: String, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Text(label, style = Forge.type.caption, color = if (selected) Forge.colors.accent else Forge.colors.text,
+    Text(label, style = Forge.type.caption, color = if (selected) Forge.colors.onAccent else Forge.colors.text,
          modifier = modifier.clip(RoundedCornerShape(10.dp))
-             .background(if (selected) Forge.colors.accent.copy(alpha = 0.14f) else Forge.colors.inset)
+             .background(if (selected) Forge.colors.accent else Forge.colors.inset)
              .clickable(role = Role.Button, onClick = onClick).padding(horizontal = 10.dp, vertical = 8.dp))
 }
 

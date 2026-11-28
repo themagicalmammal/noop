@@ -15,11 +15,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.ChatBubble
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -35,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.noop.R
 import com.noop.core.CoreCoach
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import com.noop.core.CoreTraining
 import com.noop.data.WorkoutRow
@@ -60,17 +67,19 @@ internal fun ForgeWeekPlanPage(viewModel: AppViewModel, onBack: () -> Unit, onSc
     val workouts by viewModel.workouts.collectAsState()
     val effortFormat = rememberEffortFormat()
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
     data class Planned(val label: String, val effort: Double?)
     data class Loaded(val week: List<CoreTraining.PlannedDay>, val routines: Map<String, String>, val plan: List<CoreCoach.PlanRow>,
                       val effort: Map<String, Double>)
     val rest = stringResource(R.string.forge_wp_rest_day)
-    val loaded by produceState<Loaded?>(null, coreRevision) {
+    val loaded by produceState<Loaded?>(null) {
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val snap = runCatching { CoreTraining.snapshot(dismissedTrainingWorkouts(context), days = 14) }.getOrNull()
             val plan = runCatching { CoreCoach.plan(UnitPrefs.effortScale(context).raw) }.getOrNull()
             val today = LocalDate.now()
-            val effort = CoreRead.series(CoreRead.Metric.Effort, today.minusDays(8).toString(), today.plusDays(7).toString())
+            val effort = CoreCache.series(CoreRead.Metric.Effort, today.minusDays(8).toString(), today.plusDays(7).toString(), trackedRev.value)
                 .associate { it.day to it.value }
             Loaded(snap?.week.orEmpty(), snap?.routines.orEmpty().associate { it.id to it.title },
                    plan?.let { it.pending + it.agreed + it.recent }.orEmpty(), effort)
@@ -90,7 +99,11 @@ internal fun ForgeWeekPlanPage(viewModel: AppViewModel, onBack: () -> Unit, onSc
         return coach + routines
     }
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_tr_week_plan), onBack)
+        PageTitle(stringResource(R.string.forge_tr_week_plan), onBack, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.CalendarMonth, accentAIcon = Icons.Rounded.Check,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.Color.systemBlue.resolve(), size = 72,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         // Effort per day: filled for what was done, dashed for a day still to come with a target.
         ForgeCard(Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.Bottom) {
@@ -128,7 +141,7 @@ internal fun ForgeWeekPlanPage(viewModel: AppViewModel, onBack: () -> Unit, onSc
         SleepSectionTitle(stringResource(R.string.forge_wr_this_week))
         ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
             days.forEachIndexed { i, d ->
-                if (i > 0) Box(Modifier.padding(start = 72.dp).fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+                if (i > 0) ForgeDivider(startPadding = 72.dp)
                 val doneRows = done(d); val plan = planned(d)
                 val past = d.isBefore(today)
                 val title = if (doneRows.isNotEmpty()) doneRows.joinToString(", ") { com.noop.ui.WorkoutEditing.displaySport(it.sport) }
@@ -159,7 +172,7 @@ internal fun ForgeWeekPlanPage(viewModel: AppViewModel, onBack: () -> Unit, onSc
                     }
                     tag?.let { (t, c) ->
                         Text(t, style = Forge.type.caption.copy(fontWeight = FontWeight.SemiBold), color = c,
-                             modifier = Modifier.background(c.copy(alpha = 0.14f), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp))
+                             modifier = Modifier.background(c.copy(alpha = 0.16f), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp))
                     }
                 }
             }
@@ -170,10 +183,8 @@ internal fun ForgeWeekPlanPage(viewModel: AppViewModel, onBack: () -> Unit, onSc
         }
         if (onAsk != null) {
             val prompt = stringResource(R.string.forge_wp_coach_prompt)
-            Text(stringResource(R.string.forge_wp_coach), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.onAccent,
-                 textAlign = TextAlign.Center,
-                 modifier = Modifier.fillMaxWidth().background(colors.accent, CircleShape).clickable(role = Role.Button) { onAsk(prompt) }
-                     .padding(vertical = 12.dp))
+            ForgeChip(stringResource(R.string.forge_wp_coach), icon = Icons.Rounded.ChatBubble, prominent = true,
+                      onClick = { onAsk(prompt) })
         }
         Spacer(Modifier.height(ForgeMetrics.space6))
     }

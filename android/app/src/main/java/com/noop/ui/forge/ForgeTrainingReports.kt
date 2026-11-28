@@ -300,26 +300,14 @@ fun ForgeCardioPage(onClose: () -> Unit) {
                 statement = statement)
         }
         ReportNote(stringResource(R.string.forge_report_rolling_through, shortDate(r.selection.readingDay)))
-        val forge = ForgeDesign.preview
         // The new design puts the load chart under the hero and the week's figures in one card, as iOS's `forgeBody`.
-        if (forge) {
             ReportLoadChart(r.ratios, TrainingLane.Cardio)
             CardioWeekFigures(r, units)
-        } else {
-            ReportFacts(listOf(
-                stringResource(R.string.forge_report_sessions) to integer(r.weekSessions),
-                stringResource(R.string.forge_report_duration) to minutes(r.minutes),
-                stringResource(R.string.forge_report_distance) to UnitFormatter.distanceFromMeters(r.distanceM, units)))
-            ReportNote(stringResource(R.string.forge_report_distance_coverage, r.sessionsWithDistance, r.weekSessions))
-        }
         if (r.averageHr != null || r.charge != null) ForgeCard(Modifier.fillMaxWidth()) {
             r.averageHr?.let { ReportFact(stringResource(R.string.forge_report_average_hr), "${integer(it.roundToInt())} bpm") }
             r.charge?.let { ReportFact(stringResource(R.string.forge_report_charge), integer(it.roundToInt())) }
         }
-        if (!forge) {
-            ReportLoadChart(r.ratios, TrainingLane.Cardio)
-            TrainingHistoryButton { history = true }
-        }
+
         // A week with no time in zones shows no zone card, as iOS's `intensityCard` does. It used to
         // print "no usable heart-rate trace, so cardiovascular load is not estimated", which is the
         // headline card's sentence about a different thing, said a second time further down.
@@ -376,7 +364,6 @@ fun ForgeCardioPage(onClose: () -> Unit) {
                 }
                 ReportNote(stringResource(R.string.forge_report_heart_cost_method))
             }
-            if (ForgeDesign.preview) {
                 // As iOS's `forgeBests`: farthest and longest first, then the fastest per distance band, each a tile row
                 // with its day under the title and the figure at the end.
                 fun open(best: CoreTrainingReports.Best) { detail = r.sessions.firstOrNull { it.startTs == best.startTs && it.sport == best.sport } }
@@ -393,55 +380,23 @@ fun ForgeCardioPage(onClose: () -> Unit) {
                         CardioBestRow(Icons.Rounded.Bolt, distanceBandName(band), shortDate(best.day), value) { detail = session }
                     }
                 }
-            } else {
-            if (progress.paceBests.isNotEmpty()) {
-                    ReportHeading(stringResource(if (ForgeDesign.preview) R.string.forge_cd_bests else R.string.forge_report_bests))
-                    progress.paceBests.toSortedMap().forEach { (band, best) ->
-                        val session = r.sessions.firstOrNull { it.startTs == best.startTs && it.sport == best.sport }
-                        val value = if (progress.metric == "speed") UnitFormatter.speedFromKilometersPerHour(session?.speedKmh, units) ?: "—"
-                            else reportPace(best.value, progress.modality, units)
-                        ReportRow(distanceBandName(band), "$value · ${shortDate(best.day)}") { detail = session }
-                    }
-                }
-                progress.farthest?.let { best ->
-                    ReportRow(stringResource(if (ForgeDesign.preview) R.string.forge_cd_farthest else R.string.forge_report_distance),
-                              "${UnitFormatter.distanceFromMeters(best.value, units)} · ${shortDate(best.day)}") {
-                        detail = r.sessions.firstOrNull { it.startTs == best.startTs && it.sport == best.sport }
-                    }
-                }
-                progress.longest?.let { best ->
-                    ReportRow(stringResource(if (ForgeDesign.preview) R.string.forge_cd_longest else R.string.forge_report_duration),
-                              "${minutes(best.value / 60)} · ${shortDate(best.day)}") {
-                        detail = r.sessions.firstOrNull { it.startTs == best.startTs && it.sport == best.sport }
-                    }
-                }
+
             }
-            }
-        if (forge) {
-            // As iOS's `forgeSessions`: one heading and card per family, each session a tile row that opens it.
-            listOf("endurance", "conditioning", "other").forEach { family ->
-                val sessions = r.sessions.filter { (it.family.takeIf { f -> f == "endurance" || f == "conditioning" } ?: "other") == family }
-                if (sessions.isNotEmpty()) {
-                    TrainingSectionHead(familyName(family), null)
-                    ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
-                        sessions.take(8).forEachIndexed { i, session ->
-                            CardioSessionRow(session, units, divider = i > 0) { detail = session }
-                        }
+        // As iOS's `forgeSessions`: one heading and card per family, each session a tile row that opens it.
+        listOf("endurance", "conditioning", "other").forEach { family ->
+            val sessions = r.sessions.filter { (it.family.takeIf { f -> f == "endurance" || f == "conditioning" } ?: "other") == family }
+            if (sessions.isNotEmpty()) {
+                TrainingSectionHead(familyName(family), null)
+                ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
+                    sessions.take(8).forEachIndexed { i, session ->
+                        CardioSessionRow(session, units, divider = i > 0) { detail = session }
                     }
                 }
-            }
-            TrainingHistoryButton { history = true }
-            Spacer(Modifier.height(ForgeMetrics.space4))
-            return@SettingsColumn
-        }
-        OverlineHeader(stringResource(R.string.forge_report_recent_sessions), rangeLabel(r.selection.days))
-        if (r.sessions.isEmpty()) ForgeCard(Modifier.fillMaxWidth()) { ReportNote(stringResource(R.string.forge_no_data)) }
-        r.sessions.groupBy { it.family }.forEach { (family, sessions) ->
-            ForgeCard(Modifier.fillMaxWidth()) {
-                ReportHeading(familyName(family))
-                sessions.take(10).forEach { session -> ReportRow(session.sport, sessionDate(session.startTs)) { detail = session } }
             }
         }
+        TrainingHistoryButton { history = true }
+        Spacer(Modifier.height(ForgeMetrics.space4))
+        return@SettingsColumn
         Spacer(Modifier.height(ForgeMetrics.space4))
     }
 }
@@ -496,7 +451,7 @@ private fun androidx.compose.foundation.layout.RowScope.CardioFigure(value: Stri
 @Composable
 private fun CardioSessionRow(session: CoreTrainingReports.CardioSession, units: UnitSystem, divider: Boolean, onOpen: () -> Unit) {
     val colors = Forge.colors
-    if (divider) Box(Modifier.padding(start = 68.dp).fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+    if (divider) ForgeDivider(startPadding = 68.dp)
     val context = LocalContext.current
     val bpmAvg: (Int) -> String = { context.getString(R.string.forge_cd_bpm_avg, it) }
     val parts = buildList {
@@ -669,7 +624,6 @@ internal fun strengthUnits(): UnitSystem {
 }
 internal fun sessionDate(ts: Long): String = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
     .withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault()).format(Instant.ofEpochSecond(ts))
-private fun integer(value: Int): String = NumberFormat.getIntegerInstance(Locale.getDefault()).format(value)
 private fun decimal(value: Double, digits: Int): String = NumberFormat.getNumberInstance(Locale.getDefault()).apply {
     maximumFractionDigits = digits; minimumFractionDigits = digits
 }.format(value)

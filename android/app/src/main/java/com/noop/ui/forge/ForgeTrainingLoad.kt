@@ -128,38 +128,14 @@ fun ForgeTrainingLoadPage(onClose: () -> Unit, onStrength: (() -> Unit)? = null,
     SettingsColumn {
         PageTitle(stringResource(R.string.forge_tl_title), onClose)
         // iOS writes the subtitle in the shipped design only (`classicOnlySubtitle`).
-        if (!ForgeDesign.preview) Text(stringResource(R.string.forge_tl_subtitle), style = Forge.type.subhead,
-                                       color = Forge.sceneInk.secondary, modifier = Modifier.padding(horizontal = ForgeMetrics.space1))
         if (!loaded) return@SettingsColumn
         if (o == null) return@SettingsColumn
-        if (ForgeDesign.preview) {
-            // The new design as iOS's `forgeBody`: where the week stands, what is left of it, how it got here and
-            // what it builds toward.
-            ForgeStandingCard(o, onStrength, onCardio)
-            RoomCard(o)
-            MaturityLine(o)
-            // iOS's `duplicateReviewCard`: two records that may be one session, answered here.
-            SameSessionCard(o.ambiguous) { merge ->
-                scope.launch {
-                    withContext(Dispatchers.IO) { com.noop.core.CoreTrainingLoad.decidePair(o.ambiguous.map { it.id }, merge) }
-                    com.noop.core.CoreShadow.noteDataChanged()
-                    reload++
-                }
-            }
-            SustainedCard(o)
-            ForgeHistoryCard(o)
-            ShapeCard(o)
-            ForgeDevelopment(o) { detail = it }
-            StrengthDevelopment(o)
-            CardioDevelopment(o)
-            TrainingHistoryButton { history = true }
-            LoadExplainers(o) { detail = it }
-            return@SettingsColumn
-        }
-        HeroLanes(o)
-        StatementCard(o)
+        // The new design as iOS's `forgeBody`: where the week stands, what is left of it, how it got here and
+        // what it builds toward.
+        ForgeStandingCard(o, onStrength, onCardio)
         RoomCard(o)
         MaturityLine(o)
+        // iOS's `duplicateReviewCard`: two records that may be one session, answered here.
         SameSessionCard(o.ambiguous) { merge ->
             scope.launch {
                 withContext(Dispatchers.IO) { com.noop.core.CoreTrainingLoad.decidePair(o.ambiguous.map { it.id }, merge) }
@@ -168,9 +144,14 @@ fun ForgeTrainingLoadPage(onClose: () -> Unit, onStrength: (() -> Unit)? = null,
             }
         }
         SustainedCard(o)
-        SummaryGrid(o) { detail = it }
+        ForgeHistoryCard(o)
+        ShapeCard(o)
+        ForgeDevelopment(o) { detail = it }
         StrengthDevelopment(o)
         CardioDevelopment(o)
+        TrainingHistoryButton { history = true }
+        LoadExplainers(o) { detail = it }
+        return@SettingsColumn
         ShapeCard(o)
         TrainingHistoryButton { history = true }
         LoadExplainers(o) { detail = it }
@@ -202,10 +183,10 @@ private fun ForgeStandingCard(o: CoreTrainingLoad.Output, onStrength: (() -> Uni
         Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space3)) {
             ForgeLaneRow(TrainingLane.Strength, o.strength, o.strengthVerdict, strengthFigure(o.strength),
                          strengthEvidence(o.strength), strengthCaveat(o), provisionalNote(o) ?: capNote(o.strength), onStrength)
-            Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+            ForgeDivider()
             ForgeLaneRow(TrainingLane.Cardio, o.cardio, o.cardioVerdict, cardioFigure(o.cardio), cardioEvidence(o.cardio),
                          cardioCaveat(o), capNote(o.cardio), onCardio)
-            Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+            ForgeDivider()
             Row(verticalAlignment = Alignment.Top) {
                 StatusBadge(a.icon, a.color, 32.dp)
                 Spacer(Modifier.width(ForgeMetrics.space2))
@@ -284,7 +265,7 @@ private fun ForgeHistoryCard(o: CoreTrainingLoad.Output) {
         ForgeCard(Modifier.fillMaxWidth()) {
             LoadRatioChart(o.ratios.map { it.day }, o.ratios.map { it.strength }, o.ratios.map { it.cardio })
             Spacer(Modifier.height(ForgeMetrics.space3))
-            Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(Forge.colors.divider))
+            ForgeDivider()
             Spacer(Modifier.height(ForgeMetrics.space3))
             StatusHistoryStrip(o.history.map { Triple(it.day, it.strength, it.cardio) })
             Spacer(Modifier.height(ForgeMetrics.space2))
@@ -318,7 +299,7 @@ private fun ForgeDevelopment(o: CoreTrainingLoad.Output, open: (LoadDetail) -> U
 @Composable
 private fun DevelopmentRow(icon: ImageVector, tint: Color, title: String, subtitle: String, onClick: () -> Unit) {
     val colors = Forge.colors
-    Box(Modifier.padding(start = 68.dp).fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+    ForgeDivider(startPadding = 68.dp)
     Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick)
             .padding(horizontal = ForgeMetrics.space4, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(40.dp).background(tint, RoundedCornerShape(11.dp)), contentAlignment = Alignment.Center) {
@@ -529,36 +510,7 @@ private fun TintedCard(tint: Color, content: @Composable ColumnScope.() -> Unit)
            verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space2), content = content)
 }
 
-@Composable
-private fun StatementCard(o: CoreTrainingLoad.Output) {
-    val a = advice(o)
-    TintedCard(a.color) {
-        Text(stringResource(R.string.forge_tl_what_it_means).uppercase(), style = Forge.type.overline,
-             color = Forge.colors.textSecondary)
-        Row(verticalAlignment = Alignment.Top) {
-            StatusBadge(a.icon, a.color, 40.dp)
-            Spacer(Modifier.width(ForgeMetrics.space2))
-            Text(a.text, style = Forge.type.subhead, color = Forge.colors.text, modifier = Modifier.weight(1f))
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
-            VerdictTile(stringResource(R.string.forge_th_strength), o.strengthVerdict, o.strength, Modifier.weight(1f))
-            VerdictTile(stringResource(R.string.forge_tl_cardio), o.cardioVerdict, o.cardio, Modifier.weight(1f))
-        }
-    }
-}
 
-@Composable
-private fun VerdictTile(title: String, verdict: CoreTrainingLoad.Verdict?, lane: CoreTrainingLoad.Lane, modifier: Modifier) {
-    Column(modifier.background(Forge.colors.inset, RoundedCornerShape(14.dp)).padding(horizontal = 12.dp, vertical = 9.dp),
-           verticalArrangement = Arrangement.spacedBy(1.dp)) {
-        Text(title, style = Forge.type.caption, color = Forge.colors.textSecondary)
-        Text(verdictLabel(verdict), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
-             color = Forge.colors.text, maxLines = 1)
-        lane.percent?.let { Text(signedPercent(it), style = Forge.type.captionNumber, color = Forge.colors.textSecondary) }
-    }
-}
-
-// MARK: - Room, maturity, overload
 
 @Composable
 private fun RoomCard(o: CoreTrainingLoad.Output) {
@@ -713,50 +665,6 @@ private fun comparison(value: Double): String = stringResource(when {
 private fun sessionText(l: CoreTrainingLoad.Lane): String =
     if (l.measuredCount <= 0) "—" else stringResource(R.string.forge_tl_au, l.sevenDayTotal.roundToInt())
 
-@Composable
-private fun sessionQuota(l: CoreTrainingLoad.Lane): String? =
-    if (l.possibleCount > 0) stringResource(R.string.forge_tl_sessions_rated, l.measuredCount, l.possibleCount) else null
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun SummaryGrid(o: CoreTrainingLoad.Output, open: (LoadDetail) -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.gap)) {
-        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.gap)) {
-            SummaryTile(Icons.Rounded.ShowChart, TrainingTint.positive, stringResource(R.string.forge_tl_adaptation),
-                        modifier = Modifier.weight(1f).fillMaxHeight(), onClick = { open(LoadDetail.Adaptation) }) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    AdaptationMini(TrainingLane.Strength, o.strengthAdaptation)
-                    AdaptationMini(TrainingLane.Cardio, o.cardioAdaptation)
-                }
-            }
-            SummaryTile(Icons.Rounded.Bedtime, recoveryTint(o), stringResource(R.string.forge_tl_recovery),
-                        detail = recoverySummary(o), modifier = Modifier.weight(1f).fillMaxHeight(), onClick = { open(LoadDetail.Recovery) }) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space2),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    RecoveryDot(o, stringResource(R.string.forge_tl_hrv), "hrv")
-                    RecoveryDot(o, stringResource(R.string.forge_tl_rhr), "rhr")
-                    RecoveryDot(o, stringResource(R.string.forge_tl_breathing), "respRate")
-                }
-            }
-        }
-        Row(Modifier.height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.gap)) {
-            SummaryTile(Icons.Rounded.CalendarMonth, TrainingTint.cyan, stringResource(R.string.forge_tl_last_8_weeks),
-                        modifier = Modifier.weight(1f).fillMaxHeight(), onClick = { open(LoadDetail.History) }) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    HistoryMini(TrainingLane.Strength, o.history.takeLast(8).map { it.strength })
-                    HistoryMini(TrainingLane.Cardio, o.history.takeLast(8).map { it.cardio })
-                }
-            }
-            val s = o.session
-            val detail = listOfNotNull(
-                s.percent?.let { signedPercent(it) + " · " + comparison(it) } ?: stringResource(R.string.forge_tl_needs_two_weeks),
-                sessionQuota(s)).joinToString("\n")
-            SummaryTile(Icons.Rounded.HowToReg, TrainingTint.cyan, stringResource(R.string.forge_tl_session_load),
-                        headline = sessionText(s), detail = detail, modifier = Modifier.weight(1f),
-                        onClick = { open(LoadDetail.Session) })
-        }
-    }
-}
 
 @Composable
 private fun AdaptationMini(lane: TrainingLane, state: String) {
@@ -770,30 +678,6 @@ private fun AdaptationMini(lane: TrainingLane, state: String) {
     }
 }
 
-@Composable
-private fun RecoveryDot(o: CoreTrainingLoad.Output, title: String, key: String) {
-    val read = key in o.readOnLatestNight
-    val flagging = key in o.flaggingOnLatestNight
-    val color = if (!read) Forge.colors.textTertiary else if (flagging) TrainingTint.warning else TrainingTint.positive
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(7.dp).background(color, CircleShape))
-        Spacer(Modifier.width(4.dp))
-        Text(title, style = Forge.type.caption, color = Forge.colors.textSecondary, maxLines = 1)
-    }
-}
-
-@Composable
-private fun HistoryMini(lane: TrainingLane, bands: List<String?>) {
-    val color = lane.color
-    Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
-        Icon(lane.icon, contentDescription = null, tint = color, modifier = Modifier.size(14.dp))
-        bands.forEach { band ->
-            val alpha = when (band) { "below" -> 0.3f; "usual" -> 0.55f; "higher" -> 0.8f; "muchHigher" -> 1f; else -> 0f }
-            Box(Modifier.weight(1f).height(14.dp).background(
-                if (band == null) Forge.colors.inset else color.copy(alpha = alpha), RoundedCornerShape(3.dp)))
-        }
-    }
-}
 
 // MARK: - Development
 
@@ -858,12 +742,12 @@ private fun CardioDevelopment(o: CoreTrainingLoad.Output) {
         }
         o.exerciseVO2max?.let {
             Spacer(Modifier.height(ForgeMetrics.space3))
-            androidx.compose.material3.HorizontalDivider(color = Forge.colors.border.copy(alpha = 0.5f), thickness = ForgeMetrics.hairline)
+            ForgeDivider()
             Spacer(Modifier.height(ForgeMetrics.space3))
             ExerciseVO2maxRow(it)
         }
         Spacer(Modifier.height(ForgeMetrics.space3))
-        androidx.compose.material3.HorizontalDivider(color = Forge.colors.border.copy(alpha = 0.5f), thickness = ForgeMetrics.hairline)
+        ForgeDivider()
         Spacer(Modifier.height(ForgeMetrics.space3))
         EvidenceRow(o)
     }
@@ -955,7 +839,7 @@ private fun ShapeCard(o: CoreTrainingLoad.Output) {
     LoadSection(stringResource(R.string.forge_tl_shape), stringResource(R.string.forge_tl_spread_ramp)) { ForgeCard(Modifier.fillMaxWidth()) {
         ShapeRow(Icons.Rounded.FitnessCenter, stringResource(R.string.forge_th_strength), o.strength)
         Spacer(Modifier.height(ForgeMetrics.space3))
-        androidx.compose.material3.HorizontalDivider(color = Forge.colors.border.copy(alpha = 0.5f), thickness = ForgeMetrics.hairline)
+        ForgeDivider()
         Spacer(Modifier.height(ForgeMetrics.space3))
         ShapeRow(Icons.Rounded.Favorite, stringResource(R.string.forge_tl_cardiovascular), o.cardio)
         Spacer(Modifier.height(ForgeMetrics.space3))
@@ -1070,8 +954,7 @@ private fun LoadDetailPage(o: CoreTrainingLoad.Output, d: LoadDetail, onClose: (
                        R.string.forge_tl_sources to R.string.forge_tl_method_sources).forEachIndexed { i, (t, d) ->
                     if (i > 0) {
                         Spacer(Modifier.height(ForgeMetrics.space3))
-                        androidx.compose.material3.HorizontalDivider(color = Forge.colors.border.copy(alpha = 0.5f),
-                                                                    thickness = ForgeMetrics.hairline)
+                        ForgeDivider()
                         Spacer(Modifier.height(ForgeMetrics.space3))
                     }
                     Text(stringResource(t), style = Forge.type.headline, color = Forge.colors.text)

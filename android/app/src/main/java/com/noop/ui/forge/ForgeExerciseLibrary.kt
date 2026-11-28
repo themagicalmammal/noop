@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -324,7 +326,7 @@ private fun GroupedRows(rows: List<Pair<ImageVector, Pair<String, () -> Unit>>>)
     val colors = Forge.colors
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(ForgeMetrics.groupedRadius)).background(colors.surface)) {
         rows.forEachIndexed { index, (icon, entry) ->
-            if (index > 0) Box(Modifier.padding(start = 52.dp).fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider.copy(alpha = 0.4f)))
+            if (index > 0) ForgeDivider(startPadding = 52.dp)
             Row(Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget).clickable(role = Role.Button, onClick = entry.second)
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -357,8 +359,7 @@ internal fun LibraryRow(row: CoreTrainingLibrary.Row, subtitle: String, favorite
     Column(Modifier.fillMaxWidth().clip(groupedShape(index, count)).background(colors.surface)) {
         // The separator meets the title, so its inset follows the row's own leading geometry rather
         // than a number that was right while the picture was 48dp.
-        if (index > 0) Box(Modifier.padding(start = libraryRowTextInset).fillMaxWidth()
-            .height(ForgeMetrics.hairline).background(colors.divider.copy(alpha = 0.4f)))
+        if (index > 0) ForgeDivider(startPadding = libraryRowTextInset)
         Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onOpen)
                 .padding(horizontal = libraryRowPadding, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -425,7 +426,7 @@ private fun ExerciseMediaCard(onOpen: () -> Unit) {
 }
 
 @Composable
-private fun FilterDivider() = Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(Forge.colors.divider.copy(alpha = 0.4f)))
+private fun FilterDivider() = ForgeDivider()
 
 /** One line of iOS's filter menu: the facet on the left, its value on the right, the choices in a menu. */
 @Composable
@@ -614,7 +615,7 @@ private fun CustomExercisePage(catalog: CoreTrainingLibrary.Catalog, onClose: ()
             }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.forge_library_unilateral), style = Forge.type.subhead, color = Forge.colors.text, modifier = Modifier.weight(1f))
-                Switch(unilateral, { unilateral = it }, colors = forgeSwitchColors(), enabled = !saving && mode != "duration" && mode != "distance_duration")
+                ToggleCheckbox(unilateral, { unilateral = it }, enabled = !saving && mode != "duration" && mode != "distance_duration")
             }
         }
         ForgeCard(Modifier.fillMaxWidth()) {

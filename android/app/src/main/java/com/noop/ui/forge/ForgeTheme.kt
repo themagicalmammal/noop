@@ -3,11 +3,21 @@ package com.noop.ui.forge
 import com.noop.ui.AppearancePrefs
 import com.noop.ui.AppearanceMode
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -39,11 +49,12 @@ data class ForgeColors(
     val dark: Boolean,
     val canvas: Color, val surface: Color, val surfaceTop: Color, val inset: Color,
     val border: Color, val divider: Color,
-    val text: Color, val textSecondary: Color, val textTertiary: Color,
+    val text: Color, val textSecondary: Color, val textSecondaryOnPicture: Color, val textTertiary: Color,
+    val fill: Color,
     val onDark: Color, val onDarkSecondary: Color, val onDarkTertiary: Color,
     val heroFill: Color, val heroBorder: Color,
-    val accent: Color,
-    val charge: Color, val effort: Color, val rest: Color, val missing: Color,
+    val accent: Color, val trainingAccent: Color,
+    val charge: Color, val chargeInk: Color, val effort: Color, val rest: Color, val restInk: Color, val effortInk: Color, val missing: Color,
     val recoveryStops: List<Pair<Float, Color>>,
     val sleepDeep: Color, val sleepLight: Color, val sleepRem: Color, val sleepAwake: Color,
     val heart: Color,
@@ -57,9 +68,9 @@ data class ForgeColors(
 
 @Immutable
 data class ForgeType(
-    val title1: TextStyle, val title2: TextStyle, val headline: TextStyle, val body: TextStyle,
+    val title1: TextStyle, val title2: TextStyle, val headerTitle: TextStyle, val figure: TextStyle, val headline: TextStyle, val body: TextStyle,
     val bodyNumber: TextStyle, val subhead: TextStyle, val caption: TextStyle, val captionNumber: TextStyle,
-    val footnote: TextStyle, val overline: TextStyle, val heroNumber: TextStyle,
+    val footnote: TextStyle, val overline: TextStyle, val heroNumber: TextStyle, val foodFigure: TextStyle,
 )
 
 private fun ForgeColor.pick(dark: Boolean) = Color(if (dark) this.dark else this.light)
@@ -147,6 +158,7 @@ object ForgeAccent {
 private object ForgeText {
     val primary = ForgeColor(light = 0xFF000000, dark = 0xFFFFFFFF)
     val secondary = ForgeColor(light = 0xD83C3C43, dark = 0xB8EBEBF5)
+    val secondaryOnPicture = ForgeColor(light = 0xB8000000, dark = 0xC7FFFFFF)
     val tertiary = ForgeColor(light = 0xC43C3C43, dark = 0x94EBEBF5)
 }
 
@@ -163,12 +175,17 @@ fun forgeColors(dark: Boolean, newDesign: Boolean = ForgeDesign.preview,
     canvas = chrome(Chrome.canvas, c.canvas), surface = chrome(Chrome.surface, c.surface), surfaceTop = chrome(Chrome.surfaceTop, c.surfaceTop),
     inset = chrome(Chrome.inset, c.inset), border = chrome(Chrome.border, c.border), divider = chrome(Chrome.divider, c.divider),
     text = chrome(Chrome.primaryText, ForgeText.primary), textSecondary = chrome(Chrome.secondaryText, ForgeText.secondary),
+    textSecondaryOnPicture = chrome(ForgeColor(0xFF3C3C43, 0xFFEBEBF5), ForgeText.secondaryOnPicture),
     textTertiary = chrome(Chrome.tertiaryText, ForgeText.tertiary),
+    fill = ForgeColor(0x21767680, 0x42767680).pick(dark),
     onDark = P.onDarkPrimary.pick(dark), onDarkSecondary = P.onDarkSecondary.pick(dark),
     onDarkTertiary = P.onDarkTertiary.pick(dark),
     heroFill = P.heroFill.pick(dark), heroBorder = P.heroBorder.pick(dark),
     accent = (c.accent?.takeIf { newDesign } ?: (if (newDesign) ForgeAccent.pair() else ForgeTokens.Color.systemBlue)).pick(dark),
-    charge = P.chargeColor.pick(dark), effort = P.organicEffort.pick(dark), rest = P.organicRest.pick(dark),
+    trainingAccent = P.trainingAccent.pick(dark),
+    charge = P.chargeColor.pick(dark), chargeInk = P.chargeInk.pick(dark), effort = P.organicEffort.pick(dark), rest = P.organicRest.pick(dark),
+    restInk = P.restInk.pick(dark),
+    effortInk = P.effortInk.pick(dark),
     missing = P.organicMissing.pick(dark),
     // The Signature style's recovery ramp, the stops `StrandPalette.recoveryStops` gives the score ring.
     recoveryStops = listOf(
@@ -243,9 +260,9 @@ internal fun nutrientTint(key: String, dark: Boolean): Color = when (key) {
 }.pick(dark)
 
 /**
- * The faces standing in for Apple's, which may not ship outside Apple's platforms: Nunito where iOS uses SF Pro
- * Rounded (titles, the hero numbers, tile values) and Inter where it uses SF Pro (everything else). Both are under
- * the SIL Open Font License (`assets/licenses/`), each one variable file set to every weight.
+ * Typography faces. Linotte is the default text face, a static font family covering Light to Heavy.
+ * Nunito stands in for Apple's SF Pro Rounded on titles, hero numbers, and tile values. Linotte is
+ * free for personal use; Nunito is under the SIL Open Font License (`assets/licenses/`).
  */
 @OptIn(ExperimentalTextApi::class)
 private fun variable(res: Int) = FontFamily((100..900 step 100).map { w ->
@@ -253,7 +270,13 @@ private fun variable(res: Int) = FontFamily((100..900 step 100).map { w ->
 })
 
 private val roundedFamily = variable(R.font.nunito)
-private val textFamily = variable(R.font.inter)
+private val textFamily = FontFamily(
+    Font(R.font.linotte_light, FontWeight.Light),
+    Font(R.font.linotte_regular, FontWeight.Normal),
+    Font(R.font.linotte_semibold, FontWeight.SemiBold),
+    Font(R.font.linotte_bold, FontWeight.Bold),
+    Font(R.font.linotte_heavy, FontWeight.Black),
+)
 
 private fun ForgeFont.style(color: Color = Color.Unspecified) = TextStyle(
     fontSize = size.sp, fontWeight = FontWeight(weight), color = color,
@@ -262,12 +285,15 @@ private fun ForgeFont.style(color: Color = Color.Unspecified) = TextStyle(
 
 val forgeType = ForgeType(
     title1 = ForgeTokens.StrandFont.title1.style(), title2 = ForgeTokens.StrandFont.title2.style(),
+    headerTitle = ForgeTokens.StrandFont.title2.style(color = Color.Unspecified).copy(fontFamily = roundedFamily),
+    figure = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Medium, fontFamily = roundedFamily),
     headline = ForgeTokens.StrandFont.headline.style(), body = ForgeTokens.StrandFont.body.style(),
     bodyNumber = ForgeTokens.StrandFont.bodyNumber.style(), subhead = ForgeTokens.StrandFont.subhead.style(),
     caption = ForgeTokens.StrandFont.caption.style(), captionNumber = ForgeTokens.StrandFont.captionNumber.style(),
     footnote = ForgeTokens.StrandFont.footnote.style(),
     overline = ForgeTokens.StrandFont.overline.style().copy(letterSpacing = ForgeTokens.StrandFont.overlineTracking.sp),
     heroNumber = ForgeTokens.StrandFont.heroNumber.style(),
+    foodFigure = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.SemiBold, fontFamily = roundedFamily),
 )
 
 /** Spacing and shapes in dp, from the same tokens. */
@@ -276,9 +302,10 @@ object ForgeMetrics {
     val cardPadding = ForgeTokens.NoopMetrics.cardPadding.dp
     // The new design (preview) uses Apple's tight grouped corners, as iOS's `ForgeRadius.card` (14): 22 and 17 read
     // as soft and bubbly beside it. The shipped Forge keeps its tokens.
-    val cardRadius: Dp get() = if (ForgeDesign.preview) NEW_DESIGN_CARD_RADIUS else ForgeTokens.NoopMetrics.cardRadius.dp
-    val groupedRadius: Dp get() = if (ForgeDesign.preview) NEW_DESIGN_CARD_RADIUS else ForgeTokens.NoopMetrics.groupedRadius.dp
+    val cardRadius: Dp get() = NEW_DESIGN_CARD_RADIUS
+    val groupedRadius: Dp get() = NEW_DESIGN_INNER_RADIUS
     private val NEW_DESIGN_CARD_RADIUS = 14.dp
+    private val NEW_DESIGN_INNER_RADIUS = 10.dp
     val heroRadius = ForgeTokens.NoopMetrics.heroRadius.dp
     val gap = ForgeTokens.NoopMetrics.gap.dp
     val sectionGap = ForgeTokens.NoopMetrics.sectionGap.dp
@@ -349,4 +376,33 @@ fun ForgeTheme(dark: Boolean = forgeDark(), content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalForgeColors provides colors) {
         MaterialTheme(colorScheme = material, typography = forgeTypography, content = content)
     }
+}
+
+/** The reference divider: a hairline Box in `colors.divider`, as drawn in SleepTonightCard. */
+@Composable
+internal fun ForgeDivider(
+    modifier: Modifier = Modifier,
+    startPadding: Dp = 0.dp,
+    endPadding: Dp = 0.dp,
+    topSpacing: Dp = 0.dp,
+    bottomSpacing: Dp = 0.dp,
+) {
+    val colors = Forge.colors
+    if (topSpacing > 0.dp) Spacer(Modifier.height(topSpacing))
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .then(modifier)
+            .height(ForgeMetrics.hairline)
+    ) {
+        Spacer(Modifier.width(startPadding))
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .background(colors.divider.copy(alpha = 0.3f))
+        )
+        Spacer(Modifier.width(endPadding))
+    }
+    if (bottomSpacing > 0.dp) Spacer(Modifier.height(bottomSpacing))
 }

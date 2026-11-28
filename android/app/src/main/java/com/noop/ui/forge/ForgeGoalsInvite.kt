@@ -47,8 +47,6 @@ import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Locale
 
-private fun whole(value: Double): String = NumberFormat.getIntegerInstance(Locale.getDefault()).format(Math.round(value))
-
 /** Whether the wearer has any goal Today's card would show (`GoalsTodaySection.hasAnyGoal`). */
 internal fun CoreGoals.Output.hasAnyGoal(): Boolean =
     period.isNotEmpty() || longTerm.isNotEmpty() || today.isNotEmpty()

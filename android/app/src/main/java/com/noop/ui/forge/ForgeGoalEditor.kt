@@ -165,7 +165,7 @@ internal fun GoalEditorPage(goalId: String, onClose: (saved: Boolean) -> Unit) {
                         }
                     }
                 }
-                Spacer(Modifier.fillMaxWidth().height(1.dp).background(colors.divider))
+                ForgeDivider()
                 Field(l["personal"].orEmpty(), d.motivation, l["personalHint"].orEmpty()) { edit(d.copy(motivation = it)) }
                 SwitchRow(l["share"].orEmpty(), if (d.share) l["shareOn"].orEmpty() else l["shareOff"].orEmpty(), d.share,
                           enabled = d.motivation.isNotBlank()) { edit(d.copy(share = it)) }

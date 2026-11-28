@@ -26,7 +26,6 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.RemoveCircle
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -180,7 +179,7 @@ internal fun EditorGroup(title: String?, footer: String?, content: @Composable C
 
 @Composable
 private fun RowRule() {
-    HorizontalDivider(color = Forge.colors.divider.copy(alpha = 0.5f), modifier = Modifier.padding(start = 60.dp))
+    ForgeDivider(startPadding = 60.dp)
 }
 
 /**

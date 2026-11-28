@@ -70,6 +70,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.noop.ui.CardAppearance
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.fillMaxHeight
 
 /**
  * A card as the iOS screens draw it (`NoopCardChrome` with iOS's quiet edges and quiet rims): an opaque raised
@@ -162,13 +164,10 @@ fun MetricTile(icon: ImageVector, tint: Color, label: String, value: String?, un
                modifier: Modifier = Modifier, delta: String? = null, below: (@Composable () -> Unit)? = null) {
     val colors = Forge.colors
     val newDesignTile = ForgeDesign.preview
-    ForgeCard(modifier, contentPadding = 14.dp) {
+    ForgeCard(modifier, contentPadding = ForgeMetrics.cardPadding) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // iOS's `TodayMetricTile`: a round plate at 13 % of the tint.
-            Box(Modifier.size(30.dp).background(tint.copy(alpha = 0.13f), CircleShape),
-                contentAlignment = Alignment.Center) {
-                Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
-            }
+            // The metric's icon, tinted but with no plate behind it, as iOS's `ForgeMetricTile` draws it.
+            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(ForgeMetrics.space2 + ForgeMetrics.space1))
             // Two lines before it gives way: a longer name ("Effort this week", German "Blutsauerstoff") reads whole
             // instead of ending in an ellipsis in a half-width tile.
@@ -240,10 +239,8 @@ private const val MIN_TILE_SCALE = 0.6f
 @Composable
 fun SectionHeader(text: String, modifier: Modifier = Modifier) {
     // The new design heads its sections as iOS's ForgeSectionTitle (`ForgeFont.section`, 20 pt bold), in sentence case.
-    if (ForgeDesign.preview) Text(text, style = Forge.type.title2, color = Forge.colors.text,
-                                  modifier = modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.space1))
-    else Text(text.uppercase(), style = Forge.type.overline, color = Forge.colors.textSecondary,
-              modifier = modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.space1))
+    Text(text, style = Forge.type.title2, color = Forge.colors.text,
+         modifier = modifier.fillMaxWidth().padding(top = 12.dp, start = ForgeMetrics.space1, end = ForgeMetrics.space1))
 }
 
 /**
@@ -314,6 +311,38 @@ fun ForgeOverlayPage(onDismiss: () -> Unit, content: @Composable () -> Unit) {
     }
 }
 
+/** A circular gradient icon: vertical gradient from a lighter tint at top to the base color at bottom,
+ * with a white glyph at 55 % of the plate, as the focus-area icons. */
+@Composable
+internal fun GradientCircleIcon(icon: ImageVector, tint: Color, size: Dp, glyphFraction: Float = 0.55f) {
+    GradientIcon(icon, tint, size, glyphFraction, CircleShape)
+}
+
+/** A rounded-square gradient icon, same gradient treatment as [GradientCircleIcon] but with squircle corners. */
+@Composable
+internal fun GradientSquircleIcon(icon: ImageVector, tint: Color, size: Dp, glyphFraction: Float = 0.55f) {
+    GradientIcon(icon, tint, size, glyphFraction, RoundedCornerShape((size.value * 0.24f).dp))
+}
+
+@Composable
+private fun GradientIcon(icon: ImageVector, tint: Color, size: Dp, glyphFraction: Float, shape: RoundedCornerShape) {
+    val topColor = tint.lerpTowards(Color.White, 0.45f)
+    val bottomColor = tint.lerpTowards(Color(0xFF1A1A2E), 0.35f)
+    Box(
+        modifier = Modifier
+            .size(size)
+            .background(Brush.verticalGradient(0f to topColor, 1f to bottomColor), shape),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size((size.value * glyphFraction).dp)
+        )
+    }
+}
+
 /** The tone of a [ForgeBadgePill], as iOS's `ForgeBadge.Tone`. */
 internal enum class ForgeBadgeTone { Good, Attention, Neutral }
 
@@ -322,12 +351,12 @@ internal enum class ForgeBadgeTone { Good, Attention, Neutral }
 internal fun ForgeBadgePill(text: String, tone: ForgeBadgeTone) {
     val colors = Forge.colors
     val (ink, wash) = when (tone) {
-        ForgeBadgeTone.Good -> colors.charge to colors.charge.copy(alpha = 0.14f)
-        ForgeBadgeTone.Attention -> colors.effort to colors.effort.copy(alpha = 0.14f)
-        ForgeBadgeTone.Neutral -> colors.textSecondary to colors.inset
+        ForgeBadgeTone.Good -> colors.chargeInk to colors.charge.copy(alpha = 0.16f)
+        ForgeBadgeTone.Attention -> colors.effortInk to colors.effort.copy(alpha = 0.16f)
+        ForgeBadgeTone.Neutral -> colors.textSecondary to colors.fill
     }
     Text(text, style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = ink, maxLines = 1,
-         modifier = Modifier.background(wash, CircleShape).padding(horizontal = 10.dp, vertical = 3.dp))
+         modifier = Modifier.background(wash, RoundedCornerShape(50)).padding(horizontal = 8.dp, vertical = 4.dp))
 }
 
 /**
@@ -340,7 +369,7 @@ internal fun ForgeTrendTile(label: String, value: String?, unit: String, trend: 
                             axisLabels: List<String>? = null, onClick: (() -> Unit)? = null) {
     val colors = Forge.colors
     ForgeCard(modifier.let { if (onClick != null) it.clickable(role = Role.Button, onClick = onClick) else it },
-              contentPadding = 16.dp) {
+              contentPadding = 12.dp) {
         Column(Modifier.heightIn(min = 100.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(label, style = Forge.type.footnote.copy(fontWeight = FontWeight.Medium), color = colors.textSecondary,
                  maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -349,7 +378,7 @@ internal fun ForgeTrendTile(label: String, value: String?, unit: String, trend: 
                 if (value != null) withStyle(Forge.type.footnote.toSpanStyle().copy(color = colors.textSecondary)) {
                     append(" " + unit)
                 }
-            }, style = Forge.type.title1, color = colors.text, maxLines = 1)
+            }, style = Forge.type.figure, color = colors.text, maxLines = 1)
             val line = trend?.takeIf { value != null && it.size > 1 }
             if (line != null) TrendArea(line, tint) else Spacer(Modifier.height(30.dp))
             if (line != null && axisLabels != null) Row(Modifier.fillMaxWidth().clearAndSetSemantics { }) {
@@ -383,6 +412,62 @@ private fun TrendArea(values: List<Double>, tint: Color) {
                  style = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
+/** iOS `ForgeMetricTile`: the label, the figure with its unit, day bars or a trend line, and a badge. */
+@Composable
+internal fun ForgeMetricTile(label: String, value: String?, unit: String?, tint: Color,
+                              bars: List<Double>? = null, trend: List<Double>? = null,
+                              modifier: Modifier = Modifier, badge: Pair<String, ForgeBadgeTone>? = null,
+                              axisLabels: List<String>? = null, onClick: (() -> Unit)? = null,
+                              minHeight: Dp = 132.dp, icon: androidx.compose.ui.graphics.vector.ImageVector? = null) {
+    val colors = Forge.colors
+    val hasBars = bars != null && bars.any { it > 0 }
+    ForgeCard(modifier.let { if (onClick != null) it.clickable(role = Role.Button, onClick = onClick) else it },
+              contentPadding = 12.dp) {
+        Column(Modifier.heightIn(min = minHeight), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                if (icon != null) {
+                    MetricSquircleIcon(icon, tint, false)
+                    Spacer(Modifier.width(6.dp))
+                }
+                Text(label, style = Forge.type.footnote.copy(fontWeight = FontWeight.Medium), color = colors.textSecondary,
+                     maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+            }
+            Text(buildAnnotatedString {
+                withStyle(Forge.type.figure.toSpanStyle()) { append(value ?: "–") }
+                if (value != null && unit != null) withStyle(Forge.type.footnote.toSpanStyle().copy(color = colors.textSecondary)) {
+                    append(" " + unit)
+                }
+            }, style = Forge.type.figure, color = colors.text, maxLines = 1)
+            when {
+                hasBars -> MetricTileBars(bars!!, tint)
+                value != null && trend != null && trend.size > 1 -> TrendArea(trend, tint)
+                else -> Spacer(Modifier.height(30.dp))
+            }
+            if (axisLabels != null && (hasBars || (trend != null && trend.size > 1))) Row(Modifier.fillMaxWidth().clearAndSetSemantics { }) {
+                axisLabels.forEach { l ->
+                    Text(l, style = Forge.type.caption, color = colors.textTertiary, textAlign = TextAlign.Center,
+                         modifier = Modifier.weight(1f))
+                }
+            }
+            badge?.let { (text, tone) -> ForgeBadgePill(text, tone) }
+        }
+    }
+}
+
+/** Day bars, as iOS's `ForgeMetricTile(bars:)`: the last non-zero bar full strength, the others at 45 %. */
+@Composable
+private fun MetricTileBars(values: List<Double>, tint: Color) {
+    val top = values.maxOrNull()?.takeIf { it > 0 } ?: 1.0
+    val lastNonZero = values.indexOfLast { it > 0 }
+    Row(Modifier.fillMaxWidth().height(30.dp), horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.Bottom) {
+        values.forEachIndexed { i, v ->
+            Box(Modifier.weight(1f).fillMaxHeight(((v / top).toFloat()).coerceIn(0.08f, 1f))
+                    .background(tint.copy(alpha = if (i == lastNonZero) 1f else 0.45f), RoundedCornerShape(3.dp)))
+        }
+    }
+}
+
 
 /** iOS `ForgeDirection`: which way a figure moves its score, an arrow with "raises", "lowers" or "neutral". */
 @Composable
@@ -394,7 +479,122 @@ internal fun ForgeDirection(delta: Int) {
         else -> Triple(androidx.compose.material.icons.Icons.Rounded.Remove, R.string.forge_dir_neutral, colors.textSecondary)
     }
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        androidx.compose.material3.Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(12.dp))
+        androidx.compose.material3.Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
         Text(stringResource(word), style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = tint, maxLines = 1)
     }
 }
+
+/** iOS `ForgeChip`: a capsule button with optional icon and prominence, as the coach chips and prompts draw them. */
+@Composable
+internal fun ForgeChip(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+                       prominent: Boolean = false, onClick: () -> Unit) {
+    val colors = Forge.colors
+    val ink = if (prominent) colors.accent else colors.text
+    Box(
+        Modifier.clickable(role = Role.Button, onClick = onClick)
+            .heightIn(min = 36.dp)
+            .background(colors.fill, androidx.compose.foundation.shape.RoundedCornerShape(50))
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (icon != null) {
+                androidx.compose.material3.Icon(icon, contentDescription = null, tint = ink, modifier = Modifier.size(16.dp))
+            }
+            Text(title, style = Forge.type.subhead.copy(fontWeight = FontWeight.Medium), color = ink, maxLines = 1)
+        }
+    }
+}
+
+
+
+/** iOS `ForgeZoneBar`: heart-rate zones of a session as one bar with each zone's name and minutes underneath. */
+@Composable
+internal fun ForgeZoneBar(percents: List<Double>, minutes: Double) {
+    val colors = Forge.colors
+    val total = maxOf(percents.sum(), 1.0)
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(Modifier.fillMaxWidth().height(7.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            percents.forEachIndexed { i, p ->
+                Box(Modifier.weight(((p / total)).toFloat().coerceAtLeast(0.01f)).fillMaxHeight()
+                    .background(com.noop.ui.Palette.hrZoneColor(i + 1), RoundedCornerShape(50)))
+            }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            percents.forEachIndexed { i, p ->
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                    Text(ctx.getString(zoneStringRes(i + 1)), style = Forge.type.caption.copy(fontSize = 9.sp), color = colors.textSecondary, maxLines = 1)
+                    Text(((minutes * p / total)).toInt().toString(), style = Forge.type.caption.copy(fontWeight = FontWeight.Medium), color = colors.textSecondary)
+                }
+            }
+        }
+    }
+}
+
+private fun zoneStringRes(zone: Int): Int = when (zone) {
+    1 -> R.string.lw_zn_recovery
+    2 -> R.string.lw_zn_fatburn
+    3 -> R.string.lw_zn_aerobic
+    4 -> R.string.lw_zn_threshold
+    else -> R.string.lw_zn_max
+}
+
+/**
+ * The coach picture, as iOS's `CoachPicture`: a symbol large on a glowing disc in a given colour, with one
+ * small accent motif top-right. Drawn, not a file, so it follows light and dark and every size. The three
+ * sizes match iOS's `CoachPictureSize`: small (56), medium (72), large (96).
+ */
+@Composable
+fun CoachPicture(
+    mainIcon: ImageVector,
+    accentAIcon: ImageVector,
+    accentBIcon: ImageVector,
+    tint: androidx.compose.ui.graphics.Color,
+    size: Int = 56,
+    modifier: Modifier = Modifier,
+) {
+    val s = size.dp
+    Box(
+        modifier = modifier.size(s),
+    ) {
+        // A faint halo behind the disc, not a glow (iOS: blur radius side*0.12, scale 0.95).
+        Canvas(Modifier.size(s)) {
+            drawCircle(color = tint.copy(alpha = 0.14f), radius = size * 0.55f * 0.95f)
+        }
+        // The disc itself, 78% of the size, with a soft shadow below (iOS: shadow radius side*0.05, y side*0.03).
+        Canvas(Modifier.size(s)) {
+            val r = size * 0.39f
+            val c = size / 2f
+            drawCircle(color = tint.copy(alpha = 0.22f), radius = r,
+                center = androidx.compose.ui.geometry.Offset(c, c + size * 0.03f))
+            drawCircle(color = tint, radius = r, center = androidx.compose.ui.geometry.Offset(c, c))
+        }
+        // Main symbol, large and white, centred (iOS: size side*0.34, with subtle shadow).
+        Icon(
+            imageVector = mainIcon,
+            contentDescription = null,
+            tint = androidx.compose.ui.graphics.Color.White,
+            modifier = Modifier.size((size * 0.34).dp).align(Alignment.Center),
+        )
+        // Accent A only (iOS does not render accentB): a small filled motif on a surface circle,
+        // offset top-right from centre (iOS: x side*0.33, y -side*0.30).
+        val accentSize = size * 0.27
+        Box(
+            modifier = Modifier
+                .size(accentSize.dp)
+                .align(Alignment.TopEnd)
+                .clip(CircleShape)
+                .background(androidx.compose.ui.graphics.Color(0xFFFAFAFA)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = accentAIcon,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size((size * 0.15).dp),
+            )
+        }
+    }
+}
+
