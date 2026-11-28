@@ -23,6 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.noop.R
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -46,11 +49,13 @@ internal fun TodayLastNightForge(onOpen: () -> Unit, compact: TileSize? = null) 
     val context = LocalContext.current
     val colors = Forge.colors
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-    val night by produceState<CoreRead.Night?>(null, coreRevision) {
+    val lastNightRev = remember { androidx.compose.runtime.mutableStateOf(coreRevision) }
+    androidx.compose.runtime.SideEffect { lastNightRev.value = coreRevision }
+    val night by produceState<CoreRead.Night?>(null) {
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val now = System.currentTimeMillis() / 1000
-            CoreRead.nights(now - 3 * 86_400, now + 86_400).maxByOrNull { it.endTs }
+            CoreCache.nights(now - 3 * 86_400, now + 86_400, lastNightRev.value).maxByOrNull { it.endTs }
         }
     }
     val m = night?.minutes.orEmpty()

@@ -35,11 +35,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -85,7 +90,13 @@ internal fun TodayTonightForge(viewModel: AppViewModel, onOpen: () -> Unit, comp
     val wakeBase by viewModel.phoneAlarmTargetMinutes.collectAsState()
     val overrides by viewModel.phoneAlarmDayOverrides.collectAsState()
     var now by remember { androidx.compose.runtime.mutableLongStateOf(System.currentTimeMillis() / 1000) }
-    LaunchedEffect(Unit) { while (true) { delay(60_000); now = System.currentTimeMillis() / 1000 } }
+    // Lifecycle-gated: a hidden card shouldn't be ticking the clock while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) { delay(60_000); now = System.currentTimeMillis() / 1000 }
+        }
+    }
     val need = remember(now) { WindDownStore.from(context).sleepNeedMinutes }
     val zone = ZoneId.systemDefault()
     val tomorrow = java.time.Instant.ofEpochSecond(now).atZone(zone).toLocalDate().plusDays(1)
@@ -107,7 +118,7 @@ internal fun TodayTonightForge(viewModel: AppViewModel, onOpen: () -> Unit, comp
     ForgeCard(Modifier.fillMaxWidth().clickable(onClick = onOpen)) {
         WidgetHead(stringResource(R.string.forge_w_tonight))
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(bed.format(clock), style = Forge.type.title1.copy(fontSize = 28.sp, fontWeight = FontWeight.SemiBold),
+            Text(bed.format(clock), style = Forge.type.figure.copy(fontSize = 28.sp),
                  color = colors.text)
             Text(stringResource(R.string.forge_tn_in_bed), style = Forge.type.subhead, color = colors.textSecondary,
                  modifier = Modifier.padding(start = 8.dp, bottom = 4.dp))
@@ -163,7 +174,9 @@ internal fun TodayWeekPlanForge(viewModel: AppViewModel, onOpen: () -> Unit) {
             .filter { it >= start && it <= start.plusDays(6) }.toSet()
     }
     val scale = remember { com.noop.ui.UnitPrefs.effortScale(context).raw }
-    val planned by produceState(emptySet<LocalDate>(), coreRevision, start) {
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
+    val planned by produceState(emptySet<LocalDate>(), start) {
         value = withContext(Dispatchers.IO) {
             runCatching {
                 CoreRead.open(context)
@@ -245,8 +258,10 @@ internal fun TodayNextSessionForge(onOpenTraining: () -> Unit) {
     val colors = Forge.colors
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
     val today = com.noop.ui.logicalDayNow()
-    val loaded by produceState<Pair<List<NextDay>, Map<String, String>>?>(null, coreRevision, today) {
+    val loaded by produceState<Pair<List<NextDay>, Map<String, String>>?>(null, today) {
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val s = com.noop.core.CoreTraining.snapshot(days = 14) ?: return@withContext emptyList<NextDay>() to emptyMap()
@@ -362,10 +377,7 @@ internal fun TodayWhatWorksForge(viewModel: AppViewModel, onOpen: () -> Unit) {
                     val tint = if (pct >= 0) colors.charge else colors.effort
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(Modifier.size(24.dp).background(colors.accent.copy(alpha = 0.16f), RoundedCornerShape(6.dp)),
-                                contentAlignment = Alignment.Center) {
-                                Icon(Icons.Rounded.EditNote, contentDescription = null, tint = colors.accent, modifier = Modifier.size(14.dp))
-                            }
+                            GradientSquircleIcon(Icons.Rounded.EditNote, colors.accent, 20.dp)
                             Text(r.behavior, style = Forge.type.footnote.copy(fontWeight = FontWeight.Medium), color = colors.text,
                                  maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                  modifier = Modifier.weight(1f).padding(horizontal = 8.dp))
@@ -373,7 +385,7 @@ internal fun TodayWhatWorksForge(viewModel: AppViewModel, onOpen: () -> Unit) {
                                  style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
                         }
                         androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth().height(6.dp)
-                                .background(colors.textSecondary.copy(alpha = 0.14f), CircleShape)) {
+                                .background(colors.inset, CircleShape)) {
                             val half = maxWidth / 2
                             val width = maxOf(4.dp, half * (kotlin.math.abs(pct) / widest).toFloat())
                             Box(Modifier.padding(start = half).width(1.dp).height(6.dp).background(colors.textSecondary.copy(alpha = 0.4f)))

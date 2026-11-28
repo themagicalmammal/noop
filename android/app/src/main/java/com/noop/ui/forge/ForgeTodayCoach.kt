@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,7 +62,13 @@ internal fun ForgeTodayCoach(viewModel: com.noop.ui.AppViewModel) {
     var identity by remember { mutableStateOf<CoreCoach.Identity?>(null) }
     // Read again after each analysis pass, as the rest of Today does.
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-    LaunchedEffect(coreRevision) {
+    var ccLoadedRev by remember { mutableStateOf(coreRevision) }
+    val ccReloadRev = remember { mutableStateOf(0L) }
+    SideEffect {
+        if (coreRevision - ccLoadedRev >= 50) ccReloadRev.value = coreRevision
+    }
+    LaunchedEffect(ccReloadRev.value) {
+        ccLoadedRev = coreRevision
         withContext(Dispatchers.IO) { CoreRead.open(context); card = CoreCoach.todayCard(); identity = CoreCoach.identity() }
     }
     var page by rememberSaveable { mutableStateOf<String?>(null) }
@@ -105,7 +112,7 @@ internal fun ForgeTodayCoach(viewModel: com.noop.ui.AppViewModel) {
  * and Live from its action row opening over it and Back returning to it.
  */
 @Composable
-internal fun ForgeCoachChatPages(viewModel: com.noop.ui.AppViewModel, title: String, onBack: () -> Unit) {
+internal fun ForgeCoachChatPages(viewModel: com.noop.ui.AppViewModel, title: String, onBack: () -> Unit, padStatusBars: Boolean = true, isActive: Boolean = true) {
     var sub by rememberSaveable { mutableStateOf<String?>(null) }
     when (sub) {
         "breathe" -> {

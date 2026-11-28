@@ -23,7 +23,6 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Functions
 import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -96,7 +95,7 @@ internal fun ChargeBreakdownSheet(viewModel: AppViewModel, onHowCalculated: (() 
                 if (drivers.isEmpty()) {
                     Text(stringResource(R.string.forge_cb_none), style = Forge.type.headline, color = Forge.colors.text)
                 } else Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    HorizontalDivider(color = Forge.colors.divider)
+                    ForgeDivider()
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(stringResource(R.string.forge_cb_section).uppercase(), style = Forge.type.overline,
                              color = Forge.colors.textSecondary, modifier = Modifier.weight(1f))
@@ -147,7 +146,7 @@ private fun ConfidenceTierChip(tier: ScoreConfidence) {
         ScoreConfidence.BUILDING -> R.string.forge_cb_est to ForgeTokens.StrandPalette.statusWarning.resolve()
         ScoreConfidence.CALIBRATING -> R.string.forge_cb_cal to Forge.colors.textTertiary
     }
-    Row(Modifier.background(color.copy(alpha = 0.14f), RoundedCornerShape(50)).border(1.dp, color.copy(alpha = 0.35f), RoundedCornerShape(50))
+    Row(Modifier.background(color.copy(alpha = 0.16f), RoundedCornerShape(50)).border(1.dp, color.copy(alpha = 0.35f), RoundedCornerShape(50))
             .padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Box(Modifier.size(7.dp).background(color, CircleShape))

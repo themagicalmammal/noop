@@ -169,7 +169,7 @@ private fun BurnBar(label: String, kcal: Double, top: Double, tint: Color) {
             Text(kcalText(kcal) + " kcal", style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
         }
         androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth().height(8.dp)
-                .background(colors.inset, androidx.compose.foundation.shape.CircleShape)) {
+                .background(tint.copy(alpha = 0.24f), androidx.compose.foundation.shape.CircleShape)) {
             androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth((kcal / top).toFloat().coerceIn(0f, 1f)).height(8.dp)
                     .background(tint, androidx.compose.foundation.shape.CircleShape))
         }

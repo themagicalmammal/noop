@@ -88,8 +88,8 @@ import kotlin.math.roundToInt
 /** A headline over a group of cards, as iOS's `ForgeSectionTitle`. */
 @Composable
 internal fun SleepSectionTitle(text: String) {
-    // iOS `ForgeFont.section`: 20 pt bold.
-    Text(text, style = Forge.type.title2, color = Forge.colors.text, modifier = Modifier.padding(horizontal = ForgeMetrics.space1))
+    // iOS `ForgeFont.section`: 20 pt bold, with `.padding(.horizontal, 4).padding(.top, 12)`.
+    Text(text, style = Forge.type.title2, color = Forge.colors.text, modifier = Modifier.padding(horizontal = ForgeMetrics.space1).padding(top = ForgeMetrics.space3))
 }
 
 /** Tomorrow's wake time from the phone alarm, with its per-day override (`Calendar.DAY_OF_WEEK`, Sunday 1). */
@@ -114,23 +114,21 @@ internal fun SleepTonightCard(viewModel: AppViewModel, need: Double, onOpen: () 
     val clock = rememberClockFormatter()
     ForgeCard(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onOpen)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).background(colors.rest.copy(alpha = 0.15f), CircleShape), contentAlignment = Alignment.Center) {
-                Icon(Icons.Rounded.Bedtime, contentDescription = null, tint = colors.rest, modifier = Modifier.size(20.dp))
-            }
+            GradientCircleIcon(Icons.Rounded.Bedtime, colors.rest, 32.dp)
             Spacer(Modifier.width(ForgeMetrics.space3))
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Text(stringResource(R.string.forge_sl_tonight), style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold),
                      color = colors.text)
                 Text(stringResource(R.string.forge_sl_full_recovery), style = Forge.type.caption, color = colors.textSecondary)
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(bed.format(clock), style = Forge.type.title1.copy(fontSize = 26.sp, fontWeight = FontWeight.SemiBold),
-                     color = colors.rest, maxLines = 1)
+                Text(bed.format(clock), style = Forge.type.figure.copy(fontSize = 26.sp),
+                     color = colors.restInk, maxLines = 1)
                 Text(stringResource(R.string.forge_sl_bedtime_word), style = Forge.type.caption, color = colors.textSecondary)
             }
         }
         Spacer(Modifier.height(ForgeMetrics.space3))
-        Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+        ForgeDivider()
         Spacer(Modifier.height(ForgeMetrics.space3))
         Text(stringResource(R.string.forge_sl_need_alarm, TodayTimeline.hoursMinutes(need), wake.format(clock)),
              style = Forge.type.subhead, color = colors.textSecondary)
@@ -179,11 +177,11 @@ internal fun SleepNightCard(night: CoreRead.Night, isLatest: Boolean, zone: Zone
                  style = Forge.type.caption, color = colors.textSecondary, maxLines = 1)
             // The same editor the full Sleep screen opened, here in place (iOS `nightCard`'s pencil).
             if (onEdit != null) androidx.compose.material3.IconButton(onClick = onEdit) {
-                Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.forge_sl_edit_times), tint = colors.rest,
+                Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.forge_sl_edit_times), tint = colors.restInk,
                      modifier = Modifier.size(20.dp))
             }
         }
-        Spacer(Modifier.height(ForgeMetrics.space3))
+        Spacer(Modifier.height(10.dp))
         val parts = stageParts(night)
         if (!hasStageMinutes(night)) {
             Text(stringResource(R.string.forge_sl_no_stages), style = Forge.type.body, color = colors.textSecondary)
@@ -200,7 +198,7 @@ internal fun SleepNightCard(night: CoreRead.Night, isLatest: Boolean, zone: Zone
             Spacer(Modifier.weight(1f))
             Text(at(night.endTs), style = Forge.type.caption, color = colors.textTertiary)
         }
-        Spacer(Modifier.height(ForgeMetrics.space3))
+        Spacer(Modifier.height(10.dp))
         }
         // The night's make-up as one bar, in the lanes' own stage colours.
         val total = parts.sumOf { it.minutes }.coerceAtLeast(1.0)
@@ -219,7 +217,7 @@ internal fun SleepNightCard(night: CoreRead.Night, isLatest: Boolean, zone: Zone
                 }
             }
         }
-        Spacer(Modifier.height(ForgeMetrics.space3))
+        Spacer(Modifier.height(10.dp))
         Row(Modifier.fillMaxWidth()) {
             parts.forEach { p ->
                 Column(Modifier.weight(1f).semantics(mergeDescendants = true) { }) {
@@ -302,7 +300,7 @@ private fun StageLanes(night: CoreRead.Night) {
         Triple("deep", colors.sleepDeep, R.string.forge_stage_deep),
     )
     val step = colors.textTertiary.copy(alpha = 0.5f)
-    Row(Modifier.fillMaxWidth().height(150.dp).background(colors.inset.copy(alpha = 0.45f), RoundedCornerShape(10.dp))
+    Row(Modifier.fillMaxWidth().height(170.dp).background(colors.inset.copy(alpha = 0.45f), RoundedCornerShape(10.dp))
             .padding(10.dp).clearAndSetSemantics { }) {
         Column(Modifier.fillMaxHeight().padding(end = ForgeMetrics.space2)) {
             lanes.forEach { (_, _, name) ->
@@ -425,10 +423,10 @@ internal fun SleepShaped(night: CoreRead.Night, model: com.noop.ui.SleepModel?, 
                 }
             }
             if (rings.isNotEmpty() && rest.isNotEmpty()) {
-                Box(Modifier.fillMaxWidth().padding(vertical = ForgeMetrics.space3).height(ForgeMetrics.hairline).background(colors.divider))
+                ForgeDivider(topSpacing = ForgeMetrics.space3, bottomSpacing = ForgeMetrics.space3)
             }
             rest.forEachIndexed { i, r ->
-                if (i > 0) Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+                if (i > 0) ForgeDivider()
                 ShapedRow(r)
             }
         }
@@ -459,7 +457,7 @@ private fun ShareRing(r: Shaped, modifier: Modifier) {
                 }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(r.value.roundToInt().toString(), style = Forge.type.title2.copy(fontSize = 22.sp, fontWeight = FontWeight.SemiBold),
+                Text(r.value.roundToInt().toString(), style = Forge.type.figure.copy(fontSize = 22.sp),
                      color = colors.text, maxLines = 1)
                 Text("%", style = Forge.type.caption.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold), color = colors.textSecondary)
             }
@@ -538,20 +536,16 @@ internal fun SleepHighlights(night: CoreRead.Night, model: com.noop.ui.SleepMode
                 val item = items[i]
                 Column(Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(Modifier.size(38.dp).background(colors.rest.copy(alpha = 0.15f), CircleShape), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Rounded.Schedule, contentDescription = null, tint = colors.rest, modifier = Modifier.size(18.dp))
-                        }
+                        GradientCircleIcon(Icons.Rounded.Schedule, colors.rest, 30.dp)
                         Spacer(Modifier.width(ForgeMetrics.space3))
                         Column(Modifier.weight(1f)) {
-                            Text(item.title, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
+                            Text(item.title, style = Forge.type.headline, color = colors.text)
                             Text(item.detail, style = Forge.type.caption, color = colors.textSecondary)
                         }
-                        val tone = if (item.more) colors.charge else colors.effort
-                        Text(stringResource(if (item.more) R.string.forge_sl_more else R.string.forge_sl_less),
-                             style = Forge.type.caption.copy(fontWeight = FontWeight.SemiBold), color = tone,
-                             modifier = Modifier.background(tone.copy(alpha = 0.14f), CircleShape).padding(horizontal = 10.dp, vertical = 4.dp))
+                        ForgeBadgePill(stringResource(if (item.more) R.string.forge_sl_more else R.string.forge_sl_less),
+                                       if (item.more) ForgeBadgeTone.Good else ForgeBadgeTone.Attention)
                     }
-                    Spacer(Modifier.height(ForgeMetrics.space3))
+                    Spacer(Modifier.height(10.dp))
                     Text(stringResource(R.string.forge_sl_n_of, i + 1, items.size), style = Forge.type.caption, color = colors.textTertiary)
                 }
             }
@@ -701,7 +695,7 @@ internal fun SleepHistory(days: List<DailyMetric>, need: Double) {
             }
             Spacer(Modifier.height(ForgeMetrics.space3))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                repeat(3) { Box(Modifier.padding(end = 2.dp).size(3.dp).background(colors.rest, CircleShape)) }
+                repeat(3) { Box(Modifier.padding(end = 2.dp).size(3.dp).background(colors.restInk, CircleShape)) }
                 Spacer(Modifier.width(4.dp))
                 Text(stringResource(R.string.forge_sl_need, TodayTimeline.hoursMinutes(need)), style = Forge.type.caption,
                      color = colors.textSecondary)
@@ -726,7 +720,7 @@ internal fun SleepAlarms(viewModel: AppViewModel, onOpen: () -> Unit) {
         ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
             AlarmRow(Icons.Rounded.Alarm, stringResource(R.string.forge_sl_smart_alarm),
                      stringResource(R.string.forge_sl_smart_alarm_sub, wake.format(clock)), onOpen)
-            Box(Modifier.padding(start = 56.dp).fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+            ForgeDivider(startPadding = 56.dp, endPadding = ForgeMetrics.space4)
             AlarmRow(Icons.Rounded.Bedtime, stringResource(R.string.forge_sl_bedtime), reminder, onOpen)
         }
     }
@@ -738,12 +732,10 @@ private fun AlarmRow(icon: ImageVector, title: String, subtitle: String, onClick
     Row(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick).padding(horizontal = ForgeMetrics.space4, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically) {
         // iOS `ForgeRow` (not compact): the symbol in the tint on a round wash of it, the title semibold.
-        Box(Modifier.size(38.dp).background(colors.rest.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription = null, tint = colors.rest, modifier = Modifier.size(18.dp))
-        }
+        GradientCircleIcon(icon, colors.rest, 30.dp)
         Spacer(Modifier.width(ForgeMetrics.space3))
         Column(Modifier.weight(1f)) {
-            Text(title, style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
+            Text(title, style = Forge.type.headline, color = colors.text)
             Text(subtitle, style = Forge.type.footnote, color = colors.textSecondary, maxLines = 2)
         }
         Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = colors.textTertiary,

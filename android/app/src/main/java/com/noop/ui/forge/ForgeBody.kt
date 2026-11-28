@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -16,7 +19,6 @@ import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
@@ -159,7 +161,7 @@ private fun RowScope.TodayFigure(value: String?, label: String, day: String?) {
 @Composable
 private fun BodyMeasureButton(onClick: () -> Unit) {
     val colors = Forge.colors
-    Row(Modifier.fillMaxWidth().heightIn(min = 46.dp).background(colors.accent, CircleShape)
+    Row(Modifier.fillMaxWidth().heightIn(min = 46.dp).background(colors.accent, RoundedCornerShape(50))
             .clickable(role = Role.Button, onClick = onClick),
         horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Rounded.AddCircle, contentDescription = null, tint = colors.onAccent, modifier = Modifier.size(18.dp))
@@ -185,7 +187,7 @@ private fun BodyDevelopmentCard(b: CoreBody.Snapshot, window: Int, onWindow: (In
         Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
             BodyCardHead(stringResource(R.string.body_what_changed), R.string.body_info_dev_title, R.string.body_info_dev)
             ForgeSegmented(listOf(stringResource(R.string.body_3_weeks), stringResource(R.string.body_6_weeks),
-                                  stringResource(R.string.body_3_months)), window, Modifier.fillMaxWidth(), onWindow)
+                                  stringResource(R.string.body_3_months)), window, Modifier.fillMaxWidth()) { onWindow(it) }
             if (b.growingSites > 0 || b.shrinkingSites > 0) {
                 val gainLeads = b.growingSites >= b.shrinkingSites
                 val lead = if (gainLeads) b.growingSites else b.shrinkingSites
@@ -202,7 +204,7 @@ private fun BodyDevelopmentCard(b: CoreBody.Snapshot, window: Int, onWindow: (In
                      style = Forge.type.subhead, color = colors.textSecondary)
             }
             if (b.changes.isNotEmpty()) {
-                Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+                ForgeDivider()
                 val scale = maxOf(b.changes.maxOf { kotlin.math.abs(it.deltaCm) }, 0.5)
                 b.changes.forEach { ChangeRow(it, scale) }
             }
@@ -323,7 +325,7 @@ private fun BodyFatCard(b: CoreBody.Snapshot) {
             }
             val bySource = b.bodyFat.groupBy { it.source }.toSortedMap()
             if (bySource.isNotEmpty()) {
-                Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+                ForgeDivider()
                 bySource.forEach { (source, points) ->
                     val newest = points.last()
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -362,7 +364,7 @@ private fun BodyComparisonCard(b: CoreBody.Snapshot, range: Int, onRange: (Int) 
         Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
             BodyCardHead(stringResource(R.string.body_change_since), R.string.body_info_cmp_title, R.string.body_info_cmp)
             ForgeSegmented(listOf(stringResource(R.string.body_3_months), stringResource(R.string.body_1_year),
-                                  stringResource(R.string.body_all)), range, Modifier.fillMaxWidth(), onRange)
+                                  stringResource(R.string.body_all)), range, Modifier.fillMaxWidth()) { onRange(it) }
             if (series.isEmpty()) {
                 Text(stringResource(R.string.body_chart_empty), style = Forge.type.subhead, color = colors.textSecondary)
                 return@Column
@@ -617,11 +619,11 @@ private fun BodyRemindersCard() {
                     Text(stringResource(R.string.body_weekly), style = Forge.type.body, color = colors.text)
                     Text(stringResource(R.string.body_weekly_note), style = Forge.type.caption, color = colors.textSecondary)
                 }
-                Switch(checked = weekly, onCheckedChange = { set(it, false) }, colors = forgeSwitchColors())
+                ToggleCheckbox(checked = weekly, onCheckedChange = { set(it, false) })
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.body_daily), style = Forge.type.body, color = colors.text, modifier = Modifier.weight(1f))
-                Switch(checked = daily, onCheckedChange = { set(it, true) }, colors = forgeSwitchColors())
+                ToggleCheckbox(checked = daily, onCheckedChange = { set(it, true) })
             }
             if (denied) Text(stringResource(R.string.body_reminder_denied), style = Forge.type.caption,
                              color = ForgeTokens.Color.systemOrange.resolve())

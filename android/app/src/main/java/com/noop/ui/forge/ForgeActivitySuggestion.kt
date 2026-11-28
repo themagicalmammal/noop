@@ -170,25 +170,23 @@ private fun SuggestionCard(r: CoreActivity.Result, item: CoreActivity.Item, more
                            onLater: () -> Unit, onOther: () -> Unit, onAnswer: (String, String?) -> Unit) {
     val colors = Forge.colors
     val tint = colors.effort
+    // Compact, as iOS's new-design Today draws it: the minutes inline with the title and the detail line
+    // in place of the hero number.
     ForgeCard(Modifier.fillMaxWidth()) {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Icon(icon(item.likelyKind), contentDescription = null, tint = tint,
-                     modifier = Modifier.size(30.dp).clip(CircleShape).background(tint.copy(alpha = 0.16f)).padding(6.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                GradientCircleIcon(icon(item.likelyKind), tint, 22.dp)
                 val title = titleOf(r, item)
-                Text(title, style = Forge.type.headline, color = colors.text, modifier = Modifier.weight(1f))
+                Text(title, style = Forge.type.headline, color = colors.text)
+                Text("${item.minutes} " + r.label("min"), style = Forge.type.headline, color = tint)
+                Spacer(Modifier.weight(1f))
                 Icon(Icons.Rounded.Close, contentDescription = r.label("later"), tint = colors.textTertiary,
                      modifier = Modifier.size(28.dp).clip(CircleShape).clickable(role = Role.Button, onClick = onLater).padding(5.dp))
             }
-            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(item.minutes.toString(), style = Forge.type.heroNumber.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Light),
-                     color = colors.text)
-                Text(r.label("min"), style = Forge.type.subhead, color = colors.textSecondary,
-                     modifier = Modifier.padding(bottom = 6.dp))
-            }
             // "Today, 18:54 to 19:30 · avg 106 bpm": the span and the effort in one secondary line.
             val avg = item.avgBpm?.let { " · " + fill(r.label("avg"), emptyList(), it.toLong()) }.orEmpty()
-            Text(whenLine(r, item) + avg, style = Forge.type.footnote, color = colors.textSecondary)
+            Text(whenLine(r, item) + avg, style = Forge.type.footnote, color = colors.textSecondary,
+                 maxLines = 2)
             // One row of three compact answers, as on iOS: save as the most likely kind, the rest behind one menu,
             // "Not training" to discard it for good.
             val likely = item.likelyKind
@@ -210,7 +208,7 @@ private fun SuggestionCard(r: CoreActivity.Result, item: CoreActivity.Item, more
                         androidx.compose.material3.DropdownMenuItem(
                             text = { Text(r.label("housework")) },
                             onClick = { menu = false; onAnswer("housework", null) })
-                        androidx.compose.material3.HorizontalDivider()
+                        ForgeDivider()
                         androidx.compose.material3.DropdownMenuItem(
                             text = { Text(r.label("adjust")) },
                             onClick = { menu = false; onOther() })
@@ -262,7 +260,7 @@ internal fun ForgeActivityInboxSection() {
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Icon(icon(item.likelyKind), contentDescription = null, tint = colors.effort.copy(alpha = if (open) 1f else 0.6f),
-                     modifier = Modifier.size(28.dp).clip(CircleShape).background(colors.effort.copy(alpha = 0.14f)).padding(6.dp))
+                     modifier = Modifier.size(28.dp).clip(CircleShape).background(colors.effort.copy(alpha = 0.15f)).padding(6.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     val title = titleOf(r, item)
                     Text(title, style = Forge.type.subhead, color = if (open) colors.text else colors.textSecondary)

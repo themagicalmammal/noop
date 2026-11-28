@@ -227,9 +227,6 @@ fun shortDate(day: String): String = runCatching {
     LocalDate.parse(day).format(DateTimeFormatter.ofPattern("d MMM", Locale.getDefault()))
 }.getOrDefault(day)
 
-fun mediumDate(day: String): String = runCatching {
-    LocalDate.parse(day).format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault()))
-}.getOrDefault(day)
 
 // MARK: - Badges and surfaces
 
@@ -442,8 +439,7 @@ fun ExplainerRows(items: List<ExplainerItem>, onOpen: (ExplainerItem) -> Unit) {
              modifier = Modifier.padding(horizontal = ForgeMetrics.space1))
         ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
             items.forEachIndexed { i, item ->
-                if (i > 0) androidx.compose.material3.HorizontalDivider(color = Forge.colors.border.copy(alpha = 0.5f),
-                    thickness = ForgeMetrics.hairline, modifier = Modifier.padding(start = 56.dp))
+                if (i > 0) ForgeDivider(startPadding = 56.dp)
                 Row(Modifier.fillMaxWidth().clickable { onOpen(item) }.padding(ForgeMetrics.space3),
                     verticalAlignment = Alignment.CenterVertically) {
                     StatusBadge(item.icon, TrainingTint.cyan, 32.dp)
@@ -466,8 +462,7 @@ fun ExplainerRows(items: List<ExplainerItem>, onOpen: (ExplainerItem) -> Unit) {
 fun OverlineHeader(title: String, overline: String) {
     Column(Modifier.padding(horizontal = ForgeMetrics.space1), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // The new design drops the kicker and writes the heading small and semibold, as iOS's `SectionHeader`.
-        if (!ForgeDesign.preview) Text(overline.uppercase(), style = Forge.type.overline, color = Forge.sceneInk.secondary)
-        Text(title, style = if (ForgeDesign.preview) Forge.type.headline else Forge.type.title2, color = Forge.sceneInk.text)
+        Text(title, style = Forge.type.headline, color = Forge.sceneInk.text)
     }
 }
 

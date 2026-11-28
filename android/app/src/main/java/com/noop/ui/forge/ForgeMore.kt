@@ -32,9 +32,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -212,21 +210,4 @@ private fun DeviceRow(viewModel: AppViewModel, onClick: () -> Unit) {
              }, onClick = onClick)
 }
 
-@Composable
-private fun MoreRow(icon: ImageVector, tint: Color, title: String, detail: String, onClick: () -> Unit) {
-    val colors = Forge.colors
-    Row(
-        Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget).clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = ForgeMetrics.cardPadding, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
-        Spacer(Modifier.width(ForgeMetrics.space4))
-        Column(Modifier.weight(1f)) {
-            Text(title, style = Forge.type.headline, color = colors.text)
-            Text(detail, style = Forge.type.subhead, color = colors.textSecondary)
-        }
-        Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = colors.textTertiary)
-    }
-}
 

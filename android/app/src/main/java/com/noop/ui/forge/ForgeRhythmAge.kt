@@ -1,5 +1,9 @@
 package com.noop.ui.forge
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.WbTwilight
+import androidx.compose.material.icons.rounded.Timeline
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -58,7 +62,10 @@ internal fun ForgeRhythmAgePage(onBack: () -> Unit) {
     }
     val actualAge = remember { ProfileStore.from(context).age }
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_rhythm_title), onBack)
+        PageTitle(stringResource(R.string.forge_rhythm_title), onBack,
+            trailing = {
+                GradientCircleIcon(Icons.Rounded.WbTwilight, Forge.colors.charge, 32.dp)
+            })
         val o = output
         if (o == null) {
             Text(stringResource(if (loaded) R.string.forge_rhythm_empty else R.string.forge_goals_loading),

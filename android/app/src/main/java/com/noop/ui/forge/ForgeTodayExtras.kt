@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,11 +75,6 @@ internal fun TodayWorkoutsForge(viewModel: AppViewModel, compact: TileSize? = nu
     val workouts by viewModel.workouts.collectAsState()
     if (compact != null) { LatestWorkoutTile(workouts, compact); return }
     if (ForgeDesign.preview) { LatestWorkoutCard(workouts); return }
-    Classic {
-        Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
-            com.noop.ui.TodayWorkoutsSection(workouts) { }
-        }
-    }
 }
 
 @Composable
@@ -150,17 +146,6 @@ internal fun TodayCycleForge(viewModel: AppViewModel) {
         if (page) ForgeCycleOverlay(viewModel, logFirst, onDismiss = { page = false; logFirst = false })
         return
     }
-    Classic {
-        com.noop.ui.MenstrualCycleHomeCard(enabled = enabled, result = v5?.cycle, starts = starts,
-            onSetUp = { viewModel.setCycleTrackingEnabled(true); tracker = true },
-            onOpen = { tracker = true }, onLogToday = { viewModel.logPeriodStart() })
-    }
-    val cycle = v5?.cycle
-    if (tracker && cycle != null) Classic {
-        com.noop.ui.CycleTrackerDialog(result = cycle, starts = starts, onLog = viewModel::logPeriodStart,
-            onDelete = viewModel::deletePeriodStart, onDeleteAll = viewModel::deleteAllPeriodStarts,
-            onDismiss = { tracker = false })
-    }
 }
 
 @Composable
@@ -190,7 +175,13 @@ internal fun TodayTrainingLoadForge(onOpenAll: () -> Unit) {
     var output by remember { mutableStateOf<CoreTrainingLoad.Output?>(null) }
     // Read again after each analysis pass, so a workout synced while Today stays open shows in the lanes.
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-    LaunchedEffect(coreRevision) {
+    var exLoadedRev by remember { mutableStateOf(coreRevision) }
+    val exReloadRev = remember { mutableStateOf(0L) }
+    SideEffect {
+        if (coreRevision - exLoadedRev >= 50) exReloadRev.value = coreRevision
+    }
+    LaunchedEffect(exReloadRev.value) {
+        exLoadedRev = coreRevision
         output = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val profile = ProfileStore.from(context)
@@ -277,21 +268,27 @@ private fun LatestWorkoutCard(workouts: List<com.noop.data.WorkoutRow>) {
             val locale = java.util.Locale.getDefault()
             val day = start.format(java.time.format.DateTimeFormatter.ofPattern(
                 android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMM"), locale))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(40.dp).background(forgeSportTint(row.sport), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
-                    Icon(com.noop.ui.sportIcon(row.sport), contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
-                }
-                Spacer(Modifier.width(ForgeMetrics.space3))
-                Column(Modifier.weight(1f)) {
-                    Text(com.noop.ui.WorkoutEditing.displaySport(row.sport), style = Forge.type.headline, color = colors.text, maxLines = 1)
-                    Text(stringResource(R.string.forge_lw_when, day, clockText(row.startTs), stringResource(R.string.forge_tw_min, minutes)),
-                         style = Forge.type.caption, color = colors.textSecondary, maxLines = 1)
-                }
-                row.strain?.let { e ->
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(effortFormat(e), style = Forge.type.title2, color = colors.text)
-                        Text(stringResource(R.string.forge_effort), style = Forge.type.caption, color = colors.textSecondary)
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(40.dp).background(forgeSportTint(row.sport), RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                        Icon(com.noop.ui.sportIcon(row.sport), contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
                     }
+                    Spacer(Modifier.width(ForgeMetrics.space3))
+                    Column(Modifier.weight(1f)) {
+                        Text(com.noop.ui.WorkoutEditing.displaySport(row.sport), style = Forge.type.headline, color = colors.text, maxLines = 1)
+                        Text(stringResource(R.string.forge_lw_when, day, clockText(row.startTs), stringResource(R.string.forge_tw_min, minutes)),
+                             style = Forge.type.caption, color = colors.textSecondary, maxLines = 1)
+                    }
+                    row.strain?.let { e ->
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(effortFormat(e), style = Forge.type.title2, color = colors.text)
+                            Text(stringResource(R.string.forge_effort), style = Forge.type.caption, color = colors.textSecondary)
+                        }
+                    }
+                }
+                // Where the effort went: the heart-rate zones of the session, when it stored them.
+                com.noop.ui.parseZonePercents(row.zonesJSON)?.let { zones ->
+                    ForgeZoneBar(zones, (row.durationS ?: (row.endTs - row.startTs).coerceAtLeast(0).toDouble()) / 60.0)
                 }
             }
         }

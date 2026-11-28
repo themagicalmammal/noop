@@ -37,11 +37,15 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MedicalServices
 import androidx.compose.material.icons.rounded.Psychology
+import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.SentimentSatisfied
 import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material.icons.rounded.WaterDrop
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -50,6 +54,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -141,7 +146,9 @@ internal fun rememberCycle(viewModel: AppViewModel, reload: Int, learning: Boole
     val enabled by viewModel.cycleTrackingEnabled.collectAsState()
     val starts by viewModel.periodStarts.collectAsState()
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-    val loaded by produceState<CycleLoaded?>(null, enabled, starts, coreRevision, reload, learning, showFertile) {
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
+    val loaded by produceState<CycleLoaded?>(null, enabled, starts, reload, learning, showFertile) {
         if (!enabled) { value = null; return@produceState }
         value = withContext(Dispatchers.IO) {
             val out = runCatching { CoreCycle.read(context, showFertile, learning, dismissedTrainingWorkouts(context)) }.getOrNull()
@@ -190,7 +197,11 @@ internal fun ForgeCyclePage(viewModel: AppViewModel, onBack: () -> Unit, startLo
         }
     }
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_cy_title), onBack)
+        PageTitle(stringResource(R.string.forge_cy_title), onBack, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.WaterDrop, accentAIcon = Icons.Rounded.Bedtime,
+                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.cycleFertile, size = 72,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         if (!enabled) {
             CycleOptIn(onTurnOn = { viewModel.setCycleTrackingEnabled(true) }, showFertile = false)
             return@SettingsColumn
@@ -206,7 +217,7 @@ internal fun ForgeCyclePage(viewModel: AppViewModel, onBack: () -> Unit, startLo
                 Spacer(Modifier.height(ForgeMetrics.space3))
                 val hint = stringResource(R.string.forge_cy_how_the_fertile_days_are)
                 Row(Modifier.fillMaxWidth().heightIn(min = ForgeMetrics.minHitTarget)
-                        .background(colors.cycleFertile.copy(alpha = 0.14f), RoundedCornerShape(22.dp))
+                        .background(colors.cycleFertile.copy(alpha = 0.16f), RoundedCornerShape(22.dp))
                         .clickable(role = Role.Button, onClickLabel = hint) { sub = CycleSub.Fertile }
                         .padding(horizontal = ForgeMetrics.space4, vertical = ForgeMetrics.space2),
                     verticalAlignment = Alignment.CenterVertically) {
@@ -325,9 +336,7 @@ private fun CycleLogRow(onLog: () -> Unit) {
                       contentPadding = ForgeMetrics.space2) {
                 Column(Modifier.fillMaxWidth().heightIn(min = 72.dp), horizontalAlignment = Alignment.CenterHorizontally,
                        verticalArrangement = Arrangement.Center) {
-                    Box(Modifier.size(40.dp).background(tint.copy(alpha = 0.14f), CircleShape), contentAlignment = Alignment.Center) {
-                        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
-                    }
+                    GradientCircleIcon(icon, tint, 32.dp)
                     Spacer(Modifier.height(6.dp))
                     Text(label, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text, maxLines = 1)
                 }
@@ -440,9 +449,7 @@ private fun CycleTopicCard(topic: CycleTopic, phase: CyclePhase, snap: CycleSnap
     val tint = phase.color()
     ForgeCard(Modifier.width(250.dp).heightIn(min = 190.dp).fillMaxHeight().clickable(role = Role.Button, onClick = onClick)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).background(tint.copy(alpha = 0.14f), CircleShape), contentAlignment = Alignment.Center) {
-                Icon(topic.icon, contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
-            }
+            GradientCircleIcon(topic.icon, tint, 32.dp)
             Spacer(Modifier.width(10.dp))
             Text(stringResource(topic.title), style = Forge.type.headline, color = colors.text)
         }
@@ -476,9 +483,7 @@ private fun CycleTopicPage(topic: CycleTopic, phase: CyclePhase, snap: CycleSnap
                  style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = colors.surface,
                  modifier = Modifier.background(tint, CircleShape).padding(horizontal = ForgeMetrics.space3, vertical = 6.dp))
             Spacer(Modifier.height(10.dp))
-            Box(Modifier.size(84.dp).background(tint.copy(alpha = 0.14f), CircleShape), contentAlignment = Alignment.Center) {
-                Icon(topic.icon, contentDescription = null, tint = tint, modifier = Modifier.size(40.dp))
-            }
+            GradientCircleIcon(topic.icon, tint, 50.dp)
             Spacer(Modifier.height(10.dp))
             Text(stringResource(topic.title), style = Forge.type.title1, color = colors.text)
         }
@@ -637,7 +642,7 @@ private fun CycleCalendar(snap: CycleSnapshot) {
                     val styled = when {
                         isToday -> base.background(colors.text, CircleShape)
                         period -> base.background(colors.cyclePeriod, CircleShape)
-                        fertile -> base.background(colors.cycleFertile.copy(alpha = 0.28f), CircleShape)
+                        fertile -> base.background(colors.cycleFertile.copy(alpha = 0.24f), CircleShape)
                         likely -> base.border(1.5.dp, colors.cyclePeriod, CircleShape)
                         else -> base
                     }
@@ -739,7 +744,11 @@ private fun CycleFertilePage(snap: CycleSnapshot, onBack: () -> Unit, onLog: () 
     val colors = Forge.colors
     val f = snap.fertile
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_cy_fertile_days), onBack)
+        PageTitle(stringResource(R.string.forge_cy_fertile_days), onBack, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.AutoAwesome, accentAIcon = Icons.Rounded.Favorite,
+                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.cycleFertile, size = 72,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         ForgeCard(Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.Top) {
                 Icon(Icons.Rounded.Warning, contentDescription = null, tint = colors.effort, modifier = Modifier.size(20.dp))

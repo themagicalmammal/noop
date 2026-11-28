@@ -9,6 +9,8 @@ import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.HourglassBottom
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.WbTwilight
@@ -44,6 +46,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -91,8 +94,21 @@ internal fun ForgeAgeLessPage(onBack: () -> Unit, onOpenRhythm: () -> Unit = {})
         output = withContext(Dispatchers.IO) { CoreRead.open(context); CoreAgeLess.snapshot(context) }
         loaded = true
     }
+    var showAbout by remember { mutableStateOf(false) }
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_ageless_title), onBack)
+        PageTitle(
+            stringResource(R.string.forge_ageless_title),
+            onBack,
+            trailing = {
+                GradientCircleIcon(Icons.Rounded.HourglassBottom, Forge.colors.charge, 32.dp)
+                IconButton(onClick = { showAbout = true }) {
+                    Icon(Icons.Rounded.Info, stringResource(R.string.forge_ageless_about), tint = Forge.colors.textSecondary)
+                }
+            }
+        )
+        if (showAbout) {
+            ForgeAgeLessAboutSheet(onDismiss = { showAbout = false })
+        }
         val weeks = output?.weeks.orEmpty()
         if (weeks.isEmpty()) {
             AgelessCard {
@@ -116,7 +132,7 @@ internal fun ForgeAgeLessPage(onBack: () -> Unit, onOpenRhythm: () -> Unit = {})
         }
         ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
             HubRow(Icons.Rounded.WbTwilight, Forge.colors.charge, stringResource(R.string.forge_al_rhythm),
-                   stringResource(R.string.forge_al_rhythm_sub), onOpenRhythm)
+                   stringResource(R.string.forge_al_rhythm_sub), onClick = onOpenRhythm)
         }
         Text(stringResource(R.string.forge_al_beta), style = Forge.type.caption, color = Forge.colors.textTertiary,
              modifier = Modifier.padding(horizontal = ForgeMetrics.space1))
@@ -305,7 +321,7 @@ private fun DomainsCard(week: CoreAgeLess.Week) {
     ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
         Column(Modifier.padding(horizontal = 14.dp, vertical = 4.dp)) {
             week.domains.forEachIndexed { i, d ->
-                if (i > 0) Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+                if (i > 0) ForgeDivider()
                 val (icon, tint) = when (d.domain) {
                     "sleep" -> Icons.Rounded.Bedtime to colors.rest
                     "activity" -> Icons.AutoMirrored.Rounded.DirectionsWalk to ForgeTokens.StrandPalette.metricAmber.resolve()

@@ -16,6 +16,8 @@ import com.noop.R
 import com.noop.core.CoreRead
 import com.noop.core.CoreGoals
 import com.noop.core.CoreTrainingSession
+import com.noop.analytics.LiftMetrics
+import com.noop.data.LiftMuscle
 import com.noop.ui.ProfileStore
 import com.noop.ui.UnitFormatter
 import com.noop.ui.UnitPrefs
@@ -170,12 +172,52 @@ fun ForgeTrainingSessionDetailPage(id: String, onClose: () -> Unit) {
                 exercise.notes?.takeIf { it.isNotBlank() }?.let { ReportNote(it) }
             }
         } }
+        sessionLiftRows(s).takeIf { it.any { r -> r.reps != null && r.reps != 0 } }?.let { rows ->
+            val counts = LiftMetrics.muscleCounts(rows.filter { LiftMetrics.isPerformed(it.reps) })
+            if (counts.fractional.isNotEmpty()) {
+                OverlineHeader(stringResource(R.string.forge_session_muscle_counts),
+                    stringResource(R.string.forge_session_muscle_counts_subtitle))
+                ForgeCard(Modifier.fillMaxWidth()) {
+                    counts.fractional.keys.sortedBy { LiftMuscle.entries.indexOf(it) }.forEach { muscle ->
+                        ReportFact(hevyMuscleName(muscle.name),
+                            "${counts.fractional[muscle]?.let { "%.1f".format(it) } ?: "0"} sets")
+                    }
+                    ReportNote(stringResource(R.string.forge_session_muscle_counts_note))
+                }
+            }
+        }
         s.notes?.takeIf { it.isNotBlank() }?.let { note ->
             OverlineHeader(stringResource(R.string.forge_session_notes), stringResource(R.string.forge_session_log))
             ForgeCard(Modifier.fillMaxWidth()) { ReportNote(note) }
         }
         if (s.groups.isNotEmpty()) ReportNote(stringResource(R.string.forge_session_estimate_note))
     }
+}
+
+/** Build [LiftMetrics.Row]s from the core's parsed groups, so the metrics computed here are the
+ * same ones iOS computes from its raw rows. Only strength sessions carry set-level reps and weight,
+ * so cardio and mixed sessions yield an empty list and the muscle section stays out. */
+internal fun sessionLiftRows(output: CoreTrainingSession.Output): List<LiftMetrics.Row> {
+    val rows = ArrayList<LiftMetrics.Row>()
+    var ord = 0
+    for (group in output.groups) {
+        for (exercise in group) {
+            if (exercise.kind != "strength") continue
+            for (set in exercise.sets) {
+                rows.add(LiftMetrics.Row(
+                    ord = ord++,
+                    exercise = exercise.title,
+                    isWarmup = set.type == "warmup",
+                    weightKg = set.weightKg,
+                    reps = set.reps,
+                    rpe = set.rpe,
+                    primaryMuscle = LiftMuscle.fromRaw(exercise.primary),
+                    secondaryMuscles = exercise.secondary.mapNotNull(LiftMuscle::fromRaw),
+                ))
+            }
+        }
+    }
+    return rows
 }
 
 @Composable

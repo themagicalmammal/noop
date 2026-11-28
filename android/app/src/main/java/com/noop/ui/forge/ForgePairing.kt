@@ -1,5 +1,7 @@
 package com.noop.ui.forge
 
+import com.noop.ui.ToggleCheckbox
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +30,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -140,7 +141,7 @@ fun ForgePairing(viewModel: AppViewModel, onClose: () -> Unit, onOtherDevice: ()
                                      style = Forge.type.subhead, color = colors.textSecondary)
                             }
                             Spacer(Modifier.width(ForgeMetrics.space4))
-                            Switch(checked = replaces, onCheckedChange = { replaces = it })
+                            ToggleCheckbox(checked = replaces, onCheckedChange = { replaces = it })
                         }
                     }
                 }
@@ -178,10 +179,7 @@ private fun ChoiceCard(icon: ImageVector, tint: Color, title: String, detail: St
     val colors = Forge.colors
     ForgeCard(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(44.dp).background(tint.copy(alpha = 0.16f), RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center) {
-                Icon(icon, contentDescription = null, tint = tint)
-            }
+            GradientSquircleIcon(icon, tint, 34.dp)
             Spacer(Modifier.width(ForgeMetrics.space4))
             Column(Modifier.weight(1f)) {
                 Text(title, style = Forge.type.headline, color = colors.text)

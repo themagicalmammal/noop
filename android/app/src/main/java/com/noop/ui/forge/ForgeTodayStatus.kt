@@ -252,9 +252,7 @@ internal fun ActivityStatusSheet(current: String, onDismiss: () -> Unit, onApply
                         .background(if (picked == c.raw) tint.copy(alpha = 0.10f) else Color.Transparent, RoundedCornerShape(12.dp))
                         .padding(ForgeMetrics.space3),
                     verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(32.dp).background(tint.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
-                        Icon(c.icon, null, tint = tint, modifier = Modifier.size(18.dp))
-                    }
+                    GradientCircleIcon(c.icon, tint, 26.dp)
                     Spacer(Modifier.width(ForgeMetrics.space3))
                     Column(Modifier.weight(1f)) {
                         Text(stringResource(c.title), style = Forge.type.headline, color = colors.text)

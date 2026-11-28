@@ -1,5 +1,9 @@
 package com.noop.ui.forge
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CalendarMonth
+import androidx.compose.material.icons.rounded.ShowChart
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +26,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -37,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.noop.R
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import com.noop.ui.AppViewModel
 import com.noop.ui.EffortScale
@@ -96,16 +103,18 @@ internal fun ForgeWeeklyReportPage(viewModel: AppViewModel, onBack: () -> Unit, 
     val effortMax = if (scale == EffortScale.WHOOP) 21.0 else 100.0
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     val workouts by viewModel.workouts.collectAsState()
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
     data class Loaded(val weeks: Pair<ForgeWeekly.Week, ForgeWeekly.Week>?, val needMin: Double)
-    val loaded by produceState(Loaded(null, 480.0), coreRevision) {
+    val loaded by produceState(Loaded(null, 480.0)) {
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val today = LocalDate.now()
             val from = today.minusDays(21).toString(); val to = today.toString()
-            fun map(m: CoreRead.Metric) = CoreRead.series(m, from, to).associate { it.day to it.value }
+            fun map(m: CoreRead.Metric) = CoreCache.series(m, from, to, trackedRev.value).associate { it.day to it.value }
             val charge = map(CoreRead.Metric.Charge); val effort = map(CoreRead.Metric.Effort); val rest = map(CoreRead.Metric.Rest)
             val sleep = map(CoreRead.Metric.SleepMinutes); val steps = map(CoreRead.Metric.Steps)
-            // The training week starts where Training's does: Monday (Android never stores another start).
+            // The training week starts where Training's does: Monday (Android: Monday).
             val weeks = ForgeWeekly.weeks(today, DayOfWeek.MONDAY) { d ->
                 ForgeWeekly.DayValues(charge[d], effort[d], rest[d], sleep[d], steps[d])
             }
@@ -118,7 +127,10 @@ internal fun ForgeWeeklyReportPage(viewModel: AppViewModel, onBack: () -> Unit, 
     val dayMonth = DateTimeFormatter.ofPattern(android.text.format.DateFormat.getBestDateTimePattern(locale, "dMMM"), locale)
     fun narrow(key: String) = runCatching { LocalDate.parse(key).dayOfWeek.getDisplayName(TextStyle.NARROW, locale) }.getOrDefault("")
     SettingsColumn {
-        PageTitle(null, onBack)
+        PageTitle(null, onBack,
+            trailing = {
+                GradientCircleIcon(Icons.Rounded.CalendarMonth, Forge.colors.accent, 32.dp)
+            })
         val first = LocalDate.parse(thisWeek.days.first()); val last = LocalDate.parse(thisWeek.days.last())
         Column(Modifier.padding(horizontal = ForgeMetrics.space1)) {
             Text(stringResource(R.string.forge_wr_range, first.format(dayMonth), last.format(dayMonth)).uppercase(locale),
@@ -127,7 +139,7 @@ internal fun ForgeWeeklyReportPage(viewModel: AppViewModel, onBack: () -> Unit, 
                  style = Forge.type.title1, color = Forge.sceneInk.text)
         }
         // The coach's weekly review on top when there is one this week (iOS `weeklyNote`), else "Your week".
-        val review by produceState<com.noop.core.CoreCoach.Note?>(null, coreRevision) {
+        val review by produceState<com.noop.core.CoreCoach.Note?>(null) {
             value = if (onAsk == null) null else withContext(Dispatchers.IO) {
                 runCatching { com.noop.core.CoreCoach.notes(days = 7).firstOrNull { it.origin == "weeklyReview" } }.getOrNull()
             }

@@ -1,5 +1,6 @@
 package com.noop.ui.forge
 
+import com.noop.core.CoreCache
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -44,6 +46,8 @@ import com.noop.ui.AppViewModel
 import com.noop.ui.EffortScale
 import com.noop.ui.UnitFormatter
 import com.noop.ui.UnitPrefs
+import com.noop.ui.NoopPrefs
+import com.noop.analytics.Baselines
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -114,7 +118,7 @@ internal fun ScoreDailyChart(points: List<Pair<String, Double>>, maxValue: Doubl
                     fun y(v: Double) = (size.height - v / maxValue * size.height).toFloat()
                     ticks.forEach { t -> drawLine(colors.divider, Offset(0f, y(t)), Offset(size.width, y(t)), strokeWidth = 0.5.dp.toPx()) }
                     bands.forEachIndexed { i, b ->
-                        if (b != null) drawRect(tint.copy(alpha = 0.18f), Offset(i * slot, y(b.endInclusive)),
+                        if (b != null) drawRect(tint.copy(alpha = 0.24f), Offset(i * slot, y(b.endInclusive)),
                                                 Size(slot, y(b.start) - y(b.endInclusive)))
                     }
                     if (bars) {
@@ -224,12 +228,14 @@ internal fun ForgeEffortPage(viewModel: AppViewModel, effortStored: Double?, cha
     val todays = workouts.filter { java.time.Instant.ofEpochSecond(it.startTs).atZone(ZoneId.systemDefault()).toLocalDate() == today }
         .sortedByDescending { it.startTs }
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-    val days by produceState(emptyList<Triple<String, Double, Double?>>(), coreRevision) {
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
+    val days by produceState(emptyList<Triple<String, Double, Double?>>()) {
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val from = today.minusDays(30).toString(); val to = today.toString()
-            val charges = CoreRead.series(CoreRead.Metric.Charge, from, to).associate { it.day to it.value }
-            CoreRead.series(CoreRead.Metric.Effort, from, to).takeLast(14).map { Triple(it.day, it.value, charges[it.day]) }
+            val charges = CoreCache.series(CoreRead.Metric.Charge, from, to, trackedRev.value).associate { it.day to it.value }
+            CoreCache.series(CoreRead.Metric.Effort, from, to, trackedRev.value).takeLast(14).map { Triple(it.day, it.value, charges[it.day]) }
         }
     }
     val sentence = if (effortStored != null && target != null) {
@@ -254,7 +260,7 @@ internal fun ForgeEffortPage(viewModel: AppViewModel, effortStored: Double?, cha
             } else ForgeCard(Modifier.fillMaxWidth()) {
                 val clock = rememberClockFormatter()
                 todays.forEachIndexed { i, row ->
-                    if (i > 0) Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+                    if (i > 0) ForgeDivider()
                     val minutes = ((row.durationS ?: (row.endTs - row.startTs).toDouble()) / 60).toInt()
                     // Each session opens itself, as iOS's rows push `ForgeRoute.workout`.
                     Row(Modifier.fillMaxWidth().clickable(role = androidx.compose.ui.semantics.Role.Button) { openWorkout = row }
@@ -291,20 +297,22 @@ internal fun ForgeRestPage(viewModel: AppViewModel, rest: Double?, onBack: () ->
     val colors = Forge.colors
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     val recentDays by viewModel.recentDays.collectAsState()
-    val night by produceState<CoreRead.Night?>(null, coreRevision) {
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
+    val night by produceState<CoreRead.Night?>(null) {
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val now = System.currentTimeMillis() / 1000
-            CoreRead.nights(now - 3 * 86_400, now + 86_400).maxByOrNull { it.endTs }
+            CoreCache.nights(now - 3 * 86_400, now + 86_400, trackedRev.value).maxByOrNull { it.endTs }
         }
     }
-    val model by produceState<com.noop.ui.SleepModel?>(null, coreRevision, recentDays) {
+    val model by produceState<com.noop.ui.SleepModel?>(null, recentDays) {
         value = withContext(Dispatchers.IO) { runCatching { nightDetailModel(viewModel, recentDays) }.getOrNull() }
     }
-    val days by produceState(emptyList<Pair<String, Double>>(), coreRevision) {
+    val days by produceState(emptyList<Pair<String, Double>>()) {
         value = withContext(Dispatchers.IO) {
             val today = LocalDate.now()
-            CoreRead.series(CoreRead.Metric.Rest, today.minusDays(30).toString(), today.toString()).takeLast(14).map { it.day to it.value }
+            CoreCache.series(CoreRead.Metric.Rest, today.minusDays(30).toString(), today.toString(), trackedRev.value).takeLast(14).map { it.day to it.value }
         }
     }
     val clock = rememberClockFormatter()
@@ -329,7 +337,7 @@ internal fun ForgeRestPage(viewModel: AppViewModel, rest: Double?, onBack: () ->
                      style = Forge.type.title2, color = Forge.sceneInk.text, modifier = Modifier.padding(horizontal = ForgeMetrics.space1))
                 ForgeCard(Modifier.fillMaxWidth()) {
                     factors.forEachIndexed { i, (label, metric) ->
-                        if (i > 0) Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+                        if (i > 0) ForgeDivider()
                         val latest = metric.latest; val typical = metric.typical
                         val delta = if (latest != null && typical != null) {
                             if (latest - typical >= 2) 1 else if (latest - typical <= -2) -1 else 0
@@ -373,6 +381,18 @@ internal fun ForgeChargePage(viewModel: AppViewModel, onBack: () -> Unit, onHist
     val baselines = remember(inputs, row) { row?.let { inputs?.resolve(it.day) } }
     val drivers = remember(baselines, row, traits) { com.noop.ui.recoveryChargeDrivers(baselines, row, traits) }
     val tier = remember(baselines, row) { com.noop.ui.chargeConfidenceTier(baselines, row) }
+    // The nights remaining while the baseline is still learning, from the same fold the Charge ring rides.
+    val calibNights = remember(recent, row) {
+        if (tier == com.noop.analytics.ScoreConfidence.CALIBRATING) {
+            val hrvEpoch = NoopPrefs.of(context).getLong(Baselines.hrvBaselineEpochKey, 0L).toDouble()
+            com.noop.ui.recoveryCalibrationNights(
+                recent.map { it.avgHrv }, recent.map { it.day },
+                row?.recovery != null, hrvEpoch
+            )
+        } else {
+            null
+        }
+    }
     // Each driver's usual range from the 30 nights before the shown one, placed by the shared core.
     val ranges by produceState(emptyMap<com.noop.analytics.ChargeDriverLabel, com.noop.core.CoreChargeRange.Range>(), row, recent) {
         value = withContext(Dispatchers.IO) {
@@ -393,11 +413,13 @@ internal fun ForgeChargePage(viewModel: AppViewModel, onBack: () -> Unit, onHist
         }
     }
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-    val days by produceState(emptyList<Pair<String, Double>>(), coreRevision) {
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
+    val days by produceState(emptyList<Pair<String, Double>>()) {
         value = withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val now = LocalDate.now()
-            CoreRead.series(CoreRead.Metric.Charge, now.minusDays(30).toString(), now.toString()).takeLast(14).map { it.day to it.value }
+            CoreCache.series(CoreRead.Metric.Charge, now.minusDays(30).toString(), now.toString(), trackedRev.value).takeLast(14).map { it.day to it.value }
         }
     }
     val format = rememberEffortFormat()
@@ -434,7 +456,7 @@ internal fun ForgeChargePage(viewModel: AppViewModel, onBack: () -> Unit, onHist
             }
             ForgeCard(Modifier.fillMaxWidth()) {
                 drivers.forEachIndexed { i, d ->
-                    if (i > 0) Box(Modifier.fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+                    if (i > 0) ForgeDivider()
                     val range = ranges[d.label]
                     val decimals = if (d.label == com.noop.analytics.ChargeDriverLabel.HEART_RATE_VARIABILITY ||
                                        d.label == com.noop.analytics.ChargeDriverLabel.RESTING_HEART_RATE) 0 else 1
@@ -463,6 +485,15 @@ internal fun ForgeChargePage(viewModel: AppViewModel, onBack: () -> Unit, onHist
                     WhyRow(driverLabel(d.label), value, d.deltaPoints.coerceIn(-1, 1), usual,
                            range?.let { it.position to null }, range?.let { it.bandLow..it.bandHigh })
                 }
+            }
+        } else if (tier == com.noop.analytics.ScoreConfidence.CALIBRATING && calibNights != null) {
+            Column(Modifier.padding(horizontal = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(R.string.forge_ch_calibrating),
+                     style = Forge.type.subhead.copy(fontWeight = FontWeight.Medium), color = Forge.sceneInk.secondary)
+                val nights = calibNights.coerceAtLeast(0)
+                Text(if (nights == 1) stringResource(R.string.forge_ch_night_to_go)
+                     else stringResource(R.string.forge_ch_nights_to_go, nights),
+                     style = Forge.type.title2.copy(fontWeight = FontWeight.Bold), color = Forge.sceneInk.text)
             }
         }
         // While the coach is on, the one question iOS offers here.

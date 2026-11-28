@@ -15,13 +15,13 @@ import kotlinx.coroutines.launch
 /**
  * Fork (DX23876), Android plan E-3: the Forge app, shown by `NoopRoot` after the terms and onboarding gates with
  * the app's view model. They are the default; More switches to the classic screens for what they do not cover
- * yet, and the classic Settings switch back. `--ez forge_ui true|false` on the launch intent sets the choice too.
+ * yet. `--ez forge_ui true|false` on the launch intent sets the choice too.
  */
 object ForgeUi {
     private const val PREFS = "forge"
     private const val KEY = "ui"
     const val EXTRA = "forge_ui"
-    /** The Forge screens are the app (E-3f); More switches to the classic screens and their Settings back. */
+    /** The Forge screens are the app (E-3f). */
     const val DEFAULT = true
 
     fun enabled(context: Context, intent: Intent?): Boolean {
@@ -55,8 +55,11 @@ fun ForgeRoot(viewModel: AppViewModel) {
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     androidx.compose.runtime.LaunchedEffect(coreRevision) { viewModel.loadWorkouts() }
     // Settings and pairing open over the tabs in the same window (`ForgeOverlayHost`).
-    var moreOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     var settingsOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var batteryOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var searchOpen by androidx.compose.runtime.mutableStateOf(false)
+    val moreNav = rememberMoreNavigator()
+    var searchSettingsPage by androidx.compose.runtime.mutableStateOf<ForgeSettingsPage?>(null)
     // The coach sheet (owner, 2026-11-21): the new design's coach lives in each page's header, not in a tab.
     var coachOpen by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     val coachScope = androidx.compose.runtime.rememberCoroutineScope()
@@ -70,11 +73,11 @@ fun ForgeRoot(viewModel: AppViewModel) {
         } else null
     ForgeOverlayHost {
         androidx.compose.runtime.CompositionLocalProvider(
-            LocalForgeOpenMore provides (if (ForgeDesign.preview) ({ moreOpen = true }) else null),
             LocalForgeOpenSettings provides (if (ForgeDesign.preview) ({ settingsOpen = true }) else null),
+            LocalForgeOpenBattery provides (if (ForgeDesign.preview) ({ batteryOpen = true }) else null),
             LocalForgeOpenCoach provides openCoach,
-            // The tabs lie under the More page while it is open.
-            LocalForgeCovered provides (LocalForgeCovered.current || (moreOpen && ForgeDesign.preview))) {
+            LocalForgeOpenSearch provides (if (ForgeDesign.preview) ({ searchOpen = true }) else null),
+            LocalForgeCovered provides LocalForgeCovered.current) {
         ForgeShell { tab, padding, width ->
             // A weight widget's tap: Today pushes the weight page, so the shell moves there first.
             val openWeight by com.noop.widget.WeightNavigation.open.collectAsState()
@@ -95,7 +98,6 @@ fun ForgeRoot(viewModel: AppViewModel) {
                 ForgeTab.Health -> ForgePullToRefresh(viewModel) { ForgeHealthTab(padding, width, viewModel) }
                 ForgeTab.Training -> ForgePullToRefresh(viewModel) { ForgeTrainingScreen(padding, viewModel) }
                 ForgeTab.Sleep -> ForgePullToRefresh(viewModel) { ForgeSleepScreen(padding, width, viewModel) }
-                ForgeTab.More -> ForgeMoreScreen(padding, viewModel)
                 // The food log in its own tab (owner, 2026-11-21); leaving it returns to Today, as the coach's tab.
                 ForgeTab.Nutrition -> {
                     val select = LocalForgeTabSelect.current
@@ -109,16 +111,42 @@ fun ForgeRoot(viewModel: AppViewModel) {
             }
         }
         }
-        androidx.compose.animation.AnimatedVisibility(moreOpen && ForgeDesign.preview,
-            enter = androidx.compose.animation.slideInHorizontally { it } + androidx.compose.animation.fadeIn(),
-            exit = androidx.compose.animation.slideOutHorizontally { it } + androidx.compose.animation.fadeOut()) {
-            ForgeMoreOverlay(viewModel, onDismiss = { moreOpen = false })
-        }
-        // The profile photo's Settings; its search field opens the one search on the More page, as iOS's does.
+        // The profile photo's Settings; its search field opens the settings search.
         if (settingsOpen && ForgeDesign.preview) {
             ForgeOverlayPage(onDismiss = { settingsOpen = false }) {
                 ForgeSettings(viewModel, onClose = { settingsOpen = false },
-                              onSearch = { settingsOpen = false; ForgeDesign.focusSearch = true; moreOpen = true })
+                              onSearch = { settingsOpen = false })
+            }
+        }
+        // The search overlay opens over the tabs, as iOS pushes ForgeRoute.search.
+        if (searchOpen && ForgeDesign.preview) {
+            ForgeSearchOverlay(
+                viewModel = viewModel,
+                onDismiss = { searchOpen = false },
+                onOpenDest = { dest ->
+                    searchOpen = false
+                    if (dest == MoreDest.Settings) settingsOpen = true
+                    else moreNav.push(MoreRoute.Dest(dest))
+                },
+                onOpenSettingsPage = { page ->
+                    searchOpen = false
+                    searchSettingsPage = page
+                },
+            )
+        }
+        // A settings page opened from search: open settings directly to it.
+        if (searchSettingsPage != null && ForgeDesign.preview) {
+            val page = searchSettingsPage!!
+            ForgeOverlayPage(onDismiss = { searchSettingsPage = null }) {
+                ForgeSettings(viewModel, initialPage = page, onClose = { searchSettingsPage = null }, onSearch = null)
+            }
+        }
+        // The MoreDest screens opened from search, shown over the tabs.
+        MoreOverlay(moreNav, viewModel, onOpenSettings = { settingsOpen = true })
+        // The battery screen opens over the tabs, as iOS pushes `TabRoute.battery`.
+        if (batteryOpen && ForgeDesign.preview) {
+            ForgeOverlayPage(onDismiss = { batteryOpen = false }) {
+                ForgeBatteryScreen(viewModel, onClose = { batteryOpen = false }, onOpenDevices = { batteryOpen = false })
             }
         }
         // In the new design the coach sits in each main page's header and opens as a sheet, as on iOS; the floating

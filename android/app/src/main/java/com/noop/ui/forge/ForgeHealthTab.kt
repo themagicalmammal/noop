@@ -144,8 +144,8 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
             .padding(horizontal = ForgeMetrics.screenPadding),
         verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space3),
     ) {
-        val openMore = LocalForgeOpenMore.current
-        val openSettings = LocalForgeOpenSettings.current ?: openMore
+        
+        val openSettings = LocalForgeOpenSettings.current
         TabHeader(stringResource(R.string.nav_health), onProfile = { openSettings?.invoke() ?: run { settingsOpen = true } },
                   coach = CoachPage("health", LocalDate.now().toString()), viewModel = viewModel,
                   onSearch = rememberOpenSearch())
@@ -359,7 +359,7 @@ fun ForgeHealthTab(padding: PaddingValues, width: ForgeWidth, viewModel: AppView
 internal fun TabHeader(title: String, onProfile: () -> Unit, onSearch: (() -> Unit)? = null, coach: CoachPage? = null,
                       subtitle: String? = null, viewModel: com.noop.ui.AppViewModel? = null) {
     val locale = Locale.getDefault()
-    Row(Modifier.fillMaxWidth().padding(top = ForgeMetrics.space4), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().padding(top = ForgeMetrics.space4), horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space3), verticalAlignment = Alignment.CenterVertically) {
         Text(
             buildAnnotatedString {
                 withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(title) }
@@ -372,32 +372,29 @@ internal fun TabHeader(title: String, onProfile: () -> Unit, onSearch: (() -> Un
             style = Forge.type.title2, color = Forge.sceneInk.text, maxLines = 1, modifier = Modifier.weight(1f),
         )
         // The strap's ring on every tab, as iOS's `ForgeLargeHeader`; it opens what Today's ring opens.
-        val openMore = LocalForgeOpenMore.current
-        if (viewModel != null && openMore != null) TodayHeaderBattery(viewModel, openMore)
+        
+        val openBattery = LocalForgeOpenBattery.current
+        if (viewModel != null && openBattery != null) TodayHeaderBattery(viewModel, openBattery)
         // The coach left of the search, as iOS's `ForgeCoachButton` (owner, 2026-11-21).
         if (coach != null) ForgeHeaderCoachButton(coach.kind, coach.day)
         // The magnifier before the profile, as iOS's `ForgeSearchButton` in each tab's header.
         if (onSearch != null) {
-            Box(Modifier.size(ForgeMetrics.minHitTarget).clickable(role = Role.Button, onClick = onSearch),
+            Box(Modifier.size(28.dp).clickable(role = Role.Button, onClick = onSearch),
                 contentAlignment = Alignment.Center) {
                 HeaderCircle {
                     Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.forge_more_search),
                          tint = Forge.sceneInk.text, modifier = Modifier.size(18.dp))
                 }
             }
-            Spacer(Modifier.size(ForgeMetrics.space1))
         }
-        ProfileAvatar(size = 36.dp, contentDescription = stringResource(R.string.forge_qa_profile_settings),
+        ProfileAvatar(size = 28.dp, contentDescription = stringResource(R.string.forge_qa_profile_settings),
                       modifier = Modifier.clickable(role = Role.Button, onClick = onProfile))
     }
 }
 
-/** The magnifier's action in the new design: the More page, its search focused. Null in the shipped design. */
+/** The search magnifier: opens the Forge search overlay when in preview mode. */
 @Composable
-internal fun rememberOpenSearch(): (() -> Unit)? {
-    val openMore = LocalForgeOpenMore.current ?: return null
-    return { ForgeDesign.focusSearch = true; openMore() }
-}
+internal fun rememberOpenSearch(): (() -> Unit)? = LocalForgeOpenSearch.current
 
 /** A section's title above its card, as iOS's `ForgeSectionHeading`: bold, sentence case. */
 @Composable

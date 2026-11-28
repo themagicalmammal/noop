@@ -728,7 +728,7 @@ private fun DietAdviceCard(items: List<CoreDietPlan.Advice>, onTake: (CoreDietPl
                         }
                     }
                 }
-                if (i < items.lastIndex) androidx.compose.material3.HorizontalDivider(color = colors.divider)
+                if (i < items.lastIndex) ForgeDivider()
             }
         }
     }
@@ -794,7 +794,7 @@ internal fun ForgeDietProteinPage(a: CoreDietPlan.AdviceReport, onBack: () -> Un
                         }
                         Text(stringResource(R.string.food_grams_value, f.grams.toString()), style = Forge.type.headline, color = colors.text)
                     }
-                    if (i < a.proteinFoods.lastIndex) androidx.compose.material3.HorizontalDivider(color = colors.divider)
+                    if (i < a.proteinFoods.lastIndex) ForgeDivider()
                 }
             }
         }

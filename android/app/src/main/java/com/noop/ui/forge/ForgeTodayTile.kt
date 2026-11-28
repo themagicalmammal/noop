@@ -2,6 +2,7 @@ package com.noop.ui.forge
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
@@ -63,10 +66,7 @@ internal fun ForgeTodayTile(icon: ImageVector, tint: Color, label: String, value
             Column(Modifier.fillMaxWidth().padding(horizontal = if (dense) 12.dp else 14.dp, vertical = if (dense) 11.dp else 12.dp),
                    verticalArrangement = Arrangement.spacedBy(if (dense) 5.dp else 6.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(if (dense) 26.dp else 30.dp).background(tint.copy(alpha = 0.13f), CircleShape),
-                        contentAlignment = Alignment.Center) {
-                        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(if (dense) 13.dp else 15.dp))
-                    }
+                    MetricSquircleIcon(icon, tint, dense)
                     Spacer(Modifier.width(if (dense) 6.dp else 8.dp))
                     ShrinkText(label, (if (dense) Forge.type.caption else Forge.type.footnote).copy(fontWeight = FontWeight.SemiBold),
                                colors.textSecondary, minScale = 0.72f, modifier = Modifier.weight(1f))
@@ -100,6 +100,49 @@ internal fun ForgeTodayTile(icon: ImageVector, tint: Color, label: String, value
         }
         overlay?.invoke()
     }
+}
+
+
+/**
+ * A squircle icon plate: a rounded square (24% corner radius) with a vertical gradient from a lighter
+ * tint at the top to a deeper tint at the bottom, the metric glyph centred and sized at 60% of the
+ * plate. The plate gives each metric its own colour field without shouting — the glyph reads white
+ * against the gradient, so the metric's identity comes from the shape of the colour, not a flat tint.
+ */
+@Composable
+internal fun MetricSquircleIcon(icon: ImageVector, tint: Color, dense: Boolean) {
+    val iconSize = if (dense) 14.dp else 16.dp
+    Box(contentAlignment = Alignment.Center) {
+        // Outer glow: larger, semi-transparent tint-colored icon
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = tint.copy(alpha = 0.4f),
+            modifier = Modifier.size(iconSize + 6.dp)
+        )
+        // Inner glow: medium glow layer
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = tint.copy(alpha = 0.6f),
+            modifier = Modifier.size(iconSize + 3.dp)
+        )
+        // Main icon glyph in bright white
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(iconSize)
+        )
+    }
+}
+
+/** Blend [this] color toward [target] by [fraction] (0 = this, 1 = target). */
+internal fun Color.lerpTowards(target: Color, fraction: Float): Color {
+    val r = (red + (target.red - red) * fraction)
+    val g = (green + (target.green - green) * fraction)
+    val b = (blue + (target.blue - blue) * fraction)
+    return Color(r, g, b)
 }
 
 /** The change chip: green, yellow or red by what the move means for the body (`MeasureTileReading`), grey without. */

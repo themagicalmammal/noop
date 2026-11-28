@@ -20,6 +20,8 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Accessibility
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Speed
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -46,6 +48,13 @@ import com.noop.ui.NoopPrefs
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+
 
 /** The three views of the muscle analytics surface (`MuscleAnalyticsSurface.Mode`). */
 enum class MuscleMode(val label: Int, val question: Int, val method: Int, val empty: Int) {
@@ -59,27 +68,72 @@ private const val FIGURE_KEY = "training.bodyFigure"
 
 /**
  * A segmented control as iOS draws `.pickerStyle(.segmented)`: an inset track with the chosen segment raised on a
- * white thumb.
+ * white thumb. [enabled] marks per-option availability — a disabled segment stays visible (dimmed, not clickable) so
+ * the control can teach that an option exists before it is usable. [accessibilityLabel] names the whole group.
  */
 @Composable
-fun ForgeSegmented(options: List<String>, selected: Int, modifier: Modifier = Modifier, onSelect: (Int) -> Unit) {
+fun ForgeSegmented(
+    options: List<String>,
+    selected: Int,
+    modifier: Modifier = Modifier,
+    enabled: (Int) -> Boolean = { true },
+    accessibilityLabel: String? = null,
+    onSelect: (Int) -> Unit,
+) {
     val colors = Forge.colors
-    Row(modifier.height(32.dp).background(colors.inset, RoundedCornerShape(9.dp)).padding(2.dp)) {
+    Row(
+        modifier = modifier
+            .selectableGroup()
+            .then(if (accessibilityLabel != null) Modifier.semantics { contentDescription = accessibilityLabel } else Modifier)
+            .height(32.dp)
+            .background(colors.inset, RoundedCornerShape(9.dp))
+            .padding(2.dp),
+    ) {
         options.forEachIndexed { i, label ->
             val chosen = i == selected
+            val itemEnabled = enabled(i)
             Box(Modifier.weight(1f).fillMaxWidthHeight()
                     .then(if (chosen) Modifier.shadow(2.dp, RoundedCornerShape(7.dp))
                               .background(if (colors.dark) colors.surfaceTop else Color.White, RoundedCornerShape(7.dp))
                           else Modifier)
-                    .clickable { onSelect(i) },
+                    .selectable(
+                        selected = chosen,
+                        enabled = itemEnabled,
+                        role = Role.Tab,
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = { onSelect(i) },
+                    ),
                 contentAlignment = Alignment.Center) {
                 Text(label, style = Forge.type.subhead.copy(fontWeight = if (chosen) FontWeight.SemiBold else FontWeight.Normal),
-                     color = colors.text, maxLines = 1)
+                     color = if (!itemEnabled) colors.textTertiary.copy(alpha = 0.45f) else colors.text, maxLines = 1)
             }
         }
     }
 }
-
+/**
+ * Generic-value Forge segmented control: keeps the value-based API (no manual index juggling) while rendering
+ * the Forge segmented style. Mirrors the old SegmentedPillControl call sites.
+ */
+@Composable
+fun <T> ForgeSegmentedValues(
+    items: List<T>,
+    selection: T,
+    label: (T) -> String,
+    onSelect: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: (T) -> Boolean = { true },
+    accessibilityLabel: String? = null,
+) {
+    ForgeSegmented(
+        options = items.map { label(it) },
+        selected = items.indexOf(selection).coerceAtLeast(0),
+        modifier = modifier,
+        onSelect = { i -> items[i].let(onSelect) },
+        enabled = { i -> enabled(items[i]) },
+        accessibilityLabel = accessibilityLabel,
+    )
+}
 private fun Modifier.fillMaxWidthHeight(): Modifier = this.then(Modifier.fillMaxWidth()).then(Modifier.height(28.dp))
 
 /**
@@ -270,6 +324,9 @@ fun MuscleAnalyticsPage(muscles: CoreTraining.MuscleAnalytics, onClose: () -> Un
     }
     SettingsColumn {
         PageTitle(stringResource(R.string.forge_th_muscle_analytics), onClose, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.FitnessCenter, accentAIcon = Icons.Rounded.Bolt,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 72,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
             androidx.compose.material3.TextButton(onClick = onClose) {
                 Text(stringResource(R.string.forge_th_done), color = Forge.colors.charge,
                      style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold))

@@ -26,9 +26,6 @@ object ForgeTokens {
         val systemTeal = ForgeColor(light = 0xFF30B0C7, dark = 0xFF40C8E0)
         val systemYellow = ForgeColor(light = 0xFFFFCC00, dark = 0xFFFFD60A)
     }
-    object MuscleLoadMap {
-        const val aspect: Float = 0.5f
-    }
     object NoopButtonMetrics {
         const val cornerRadius: Float = 14f
         const val hPadding: Float = 18f
@@ -180,9 +177,12 @@ object ForgeTokens {
         val chargeBright = ForgeColor(light = 0xFF6FDB8E, dark = 0xFF7BE89E)
         val chargeColor = ForgeColor(light = 0xFF34C759, dark = 0xFF30D158)
         val chargeDeep = ForgeColor(light = 0xFF238A45, dark = 0xFF1F7A3D)
+        val chargeInk = ForgeColor(light = 0xFF0E5C4A, dark = 0xFF7FE3B4)
         val effortBright = ForgeColor(light = 0xFFFFB454, dark = 0xFFFFC670)
+        val trainingAccent = ForgeColor(light = 0xFF248A3D, dark = 0xFF30D158)
         val effortColor = ForgeColor(light = 0xFFFF9500, dark = 0xFFFF9F0A)
         val effortDeep = ForgeColor(light = 0xFFC97400, dark = 0xFFD68200)
+        val effortInk = ForgeColor(light = 0xFF8C3911, dark = 0xFFB07A)
         val energyActive = ForgeColor(light = 0xFF4FA300, dark = 0xFFA6FF00)
         val energyEveryday = ForgeColor(light = 0xFF5FBFD0, dark = 0xFF9AF2F8)
         val energyHighlight = ForgeColor(light = 0xFF6AB80F, dark = 0xFFB4FF2E)
@@ -251,6 +251,7 @@ object ForgeTokens {
         val restBright = ForgeColor(light = 0xFF8987E8, dark = 0xFF9492F0)
         val restColor = ForgeColor(light = 0xFF5856D6, dark = 0xFF5E5CE6)
         val restDeep = ForgeColor(light = 0xFF403DB0, dark = 0xFF4644B8)
+        val restInk = ForgeColor(light = 0xFF3F3398, dark = 0xFFC2B5FB)
         val restGlow = ForgeColor(light = 0xFF5856D6, dark = 0xFF5E5CE6)
         val scenicCenter = ForgeColor(light = 0xFFFBF6EA, dark = 0xFF1C2128)
         val scenicEdge = ForgeColor(light = 0xFFEDE6D6, dark = 0xFF121518)

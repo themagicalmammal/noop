@@ -470,7 +470,7 @@ internal fun ForgeFoodPage(onBack: () -> Unit, onOpenBody: () -> Unit = {}, asTa
             if (asTab) {
                 // The Nutrition tab's root (owner, 2026-11-21) wears the tabs' header, the shown day beside the title and
                 // the coach, search and profile at its end; adding and the food data stay one row below.
-                val openSettings = LocalForgeOpenSettings.current ?: LocalForgeOpenMore.current
+                val openSettings = LocalForgeOpenSettings.current
                 TabHeader(stringResource(R.string.food_title), onProfile = { openSettings?.invoke() },
                           onSearch = rememberOpenSearch(), coach = CoachPage("nutrition", day.toString()), subtitle = dayTitle(day),
                           viewModel = viewModel)

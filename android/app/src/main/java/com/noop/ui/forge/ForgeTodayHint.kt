@@ -302,14 +302,14 @@ internal fun TodayHintCard(viewModel: AppViewModel, day: String, onCharge: () ->
             IconButton(onClick = {
                 dismissedRaw = TodayHints.dismissing(top.id, day, dismissedRaw)
                 NoopPrefs.of(context).edit().putString(TodayHints.DISMISSED_KEY, dismissedRaw).apply()
-            }, modifier = Modifier.padding(top = 0.dp).size(36.dp)) {
+            }, modifier = Modifier.padding(top = 0.dp).size(44.dp)) {
                 Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.forge_hint_dismiss), tint = colors.textTertiary,
                      modifier = Modifier.size(16.dp))
             }
         }
         if (hints.size > 1) {
             if (open) hints.drop(1).forEach { h ->
-                Box(Modifier.padding(start = 52.dp, top = ForgeMetrics.space2).fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+                ForgeDivider(startPadding = 52.dp, topSpacing = ForgeMetrics.space2)
                 Row(Modifier.fillMaxWidth().clickable(role = Role.Button) { act(h) }.padding(top = ForgeMetrics.space2),
                     verticalAlignment = Alignment.CenterVertically) {
                     HintMark(h.source)

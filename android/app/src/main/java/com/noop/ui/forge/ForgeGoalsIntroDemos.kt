@@ -42,6 +42,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.noop.R
 import kotlinx.coroutines.delay
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
@@ -109,7 +112,13 @@ private fun ChainDemo() {
 @Composable
 private fun BarDemo() {
     var demo by remember { mutableIntStateOf(0) }
-    LaunchedEffect(Unit) { while (true) { delay(2_200); demo = (demo + 1) % 3 } }
+    // Lifecycle-gated: a hidden demo shouldn't be cycling while its tab is away.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) { delay(2_200); demo = (demo + 1) % 3 }
+        }
+    }
     // (bar, pace mark, state) for the three steps, as the Apple `trackDemo`.
     val steps = listOf(Triple(0.2f, 0.45f, "close"), Triple(0.55f, 0.45f, STATE_ON_TRACK), Triple(1f, 0.8f, "achieved"))
     val (bar, pace, state) = steps[demo]

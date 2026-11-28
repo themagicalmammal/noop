@@ -36,7 +36,6 @@ import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.TrackChanges
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -61,6 +60,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.ui.platform.LocalContext
 import com.noop.R
@@ -95,7 +95,7 @@ internal fun TodayHeaderButtons(onProfile: () -> Unit, onQuickActions: () -> Uni
         // The coach after the strap, as iOS's header orders them.
         coach?.invoke()
         Box {
-            Box(Modifier.size(HEADER_BUTTON).background(colors.heroFill, CircleShape).border(1.dp, colors.heroBorder, CircleShape)
+            Box(Modifier.size(HEADER_BUTTON).background(colors.heroFill, CircleShape)
                     .clickable(role = Role.Button) { if (menu != null) menuOpen = true else onQuickActions() }
                     .semantics { contentDescription = quickLabel },
                 contentAlignment = Alignment.Center) {
@@ -141,7 +141,7 @@ internal fun TodayHeaderBattery(viewModel: AppViewModel, onBattery: () -> Unit) 
         charging -> stringResource(R.string.forge_qa_charging)
         else -> stringResource(R.string.forge_qa_connected)
     }
-    Box(Modifier.size(HEADER_BUTTON).background(colors.heroFill, CircleShape).border(1.dp, colors.heroBorder, CircleShape)
+    Box(Modifier.size(HEADER_BUTTON).background(colors.heroFill, CircleShape)
             .clickable(role = Role.Button, onClick = onBattery)
             .semantics { contentDescription = label },
         contentAlignment = Alignment.Center) {
@@ -149,30 +149,22 @@ internal fun TodayHeaderBattery(viewModel: AppViewModel, onBattery: () -> Unit) 
             val tint = batteryTone(pct).color
             // The arc from the top, clockwise, and never a hairline: a strap at 1 % must still draw
             // something, or the ring reads as "no reading" (iOS's `max(0.015, pct / 100)`).
-            Canvas(Modifier.fillMaxSize().padding(3.dp)) {
-                val stroke = 3.dp.toPx()
+            Canvas(Modifier.fillMaxSize().padding(1.dp)) {
+                val stroke = 4.dp.toPx()
                 drawArc(color = tint, startAngle = -90f, sweepAngle = maxOf(5.4f, (pct / 100 * 360).toFloat()),
                         useCenter = false, topLeft = androidx.compose.ui.geometry.Offset(stroke / 2, stroke / 2),
                         size = androidx.compose.ui.geometry.Size(size.width - stroke, size.height - stroke),
                         style = Stroke(width = stroke, cap = StrokeCap.Round))
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (charging) Icon(Icons.Rounded.Bolt, contentDescription = null, tint = tint, modifier = Modifier.size(10.dp))
-                // The number alone, without the per-cent sign: at this size the sign costs a third of the
-                // room and says nothing the ring has not already said.
-                Text(pct.roundToInt().toString(), style = Forge.type.captionNumber.copy(fontWeight = FontWeight.SemiBold),
-                     color = tint, maxLines = 1)
-            }
+            Text("${pct.roundToInt()}", fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = androidx.compose.ui.graphics.Color.White)
         } else {
-            Icon(if (charging) Icons.Rounded.Bolt else if (row == StrapRow.Disconnected) Icons.Rounded.Battery0Bar else Icons.Rounded.MoreHoriz,
-                 contentDescription = null, modifier = Modifier.size(16.dp),
-                 tint = if (charging) ForgeTokens.Color.systemGreen.resolve() else colors.textSecondary)
+            Text("--", fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = colors.textSecondary)
         }
     }
 }
 
 /** `NoopMetrics.compactControlSize`. */
-private val HEADER_BUTTON = 36.dp
+private val HEADER_BUTTON = 28.dp
 
 /**
  * The quick-action sheet after the iOS `QuickActionSheet`: the strap's charge and link on top, then the quick
@@ -221,7 +213,7 @@ internal fun ForgeQuickActionSheet(viewModel: AppViewModel, onDismiss: () -> Uni
                 ActionRow(stringResource(R.string.forge_qa_guardian), Icons.Rounded.Shield, ForgeTokens.Color.systemCyan.resolve(),
                           stringResource(R.string.forge_qa_guardian_sub)) { onPick(QuickAction.LiveSession) }
             }
-            HorizontalDivider(color = colors.divider, modifier = Modifier.padding(vertical = ForgeMetrics.space3))
+            ForgeDivider(topSpacing = ForgeMetrics.space3, bottomSpacing = ForgeMetrics.space3)
             ActionRow(stringResource(R.string.forge_qa_customize_home), Icons.Rounded.Tune, colors.textSecondary) {
                 onPick(QuickAction.CustomizeToday)
             }

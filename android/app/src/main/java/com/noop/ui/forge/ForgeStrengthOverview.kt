@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BarChart
@@ -22,6 +21,9 @@ import androidx.compose.material.icons.rounded.EventAvailable
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Accessibility
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -90,7 +92,11 @@ private fun ForgeStrengthOverview(snapshot: CoreTraining.Snapshot?, onClose: () 
                                   onOpenPlan: () -> Unit, onOpenMuscles: () -> Unit, onOpenDetails: () -> Unit) {
     val colors = Forge.colors
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_so_strength), onClose)
+        PageTitle(stringResource(R.string.forge_so_strength), onClose, trailing = {
+            CoachPicture(mainIcon = Icons.Rounded.FitnessCenter, accentAIcon = Icons.Rounded.LocalFireDepartment,
+                         accentBIcon = Icons.Rounded.Star, tint = ForgeTokens.StrandPalette.trainingData.resolve(), size = 72,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         val s = snapshot ?: return@SettingsColumn
         NextUp(s, onStart, onOpenPlan)
         Volume(s.weeklyTonnes, s.fourWeekChange)
@@ -108,13 +114,13 @@ private fun ForgeStrengthOverview(snapshot: CoreTraining.Snapshot?, onClose: () 
         SectionHeader(stringResource(R.string.forge_so_plan_library))
         ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
             HubRow(Icons.Rounded.CalendarMonth, colors.effort, stringResource(R.string.forge_so_routines),
-                   stringResource(R.string.forge_so_routine_count, s.routines.size), onOpenPlan)
+                   stringResource(R.string.forge_so_routine_count, s.routines.size), onClick = onOpenPlan)
             HubDivider()
             HubRow(Icons.Rounded.Accessibility, colors.effort, stringResource(R.string.forge_so_muscles),
-                   stringResource(R.string.forge_so_muscles_detail), onOpenMuscles)
+                   stringResource(R.string.forge_so_muscles_detail), onClick = onOpenMuscles)
             HubDivider()
             HubRow(Icons.Rounded.BarChart, colors.effort, stringResource(R.string.forge_so_all_details),
-                   stringResource(R.string.forge_so_all_details_detail), onOpenDetails)
+                   stringResource(R.string.forge_so_all_details_detail), onClick = onOpenDetails)
         }
     }
 }
@@ -139,7 +145,7 @@ private fun NextUp(s: CoreTraining.Snapshot, onStart: (String) -> Unit, onOpenPl
     if (next == null) {
         ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
             HubRow(Icons.Rounded.EventAvailable, colors.effort, stringResource(R.string.forge_so_plan_day),
-                   stringResource(R.string.forge_so_plan_day_detail), onOpenPlan)
+                   stringResource(R.string.forge_so_plan_day_detail), onClick = onOpenPlan)
         }
         return
     }
@@ -151,7 +157,7 @@ private fun NextUp(s: CoreTraining.Snapshot, onStart: (String) -> Unit, onOpenPl
         else -> day.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
     }
     val startLabel = stringResource(R.string.forge_so_start_routine, routine.title)
-    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
+    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.cardRadius) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.forge_so_next_up), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
                  color = colors.text, modifier = Modifier.weight(1f))
@@ -161,7 +167,7 @@ private fun NextUp(s: CoreTraining.Snapshot, onStart: (String) -> Unit, onOpenPl
         Text(pluralStringResource(R.plurals.forge_nx_exercises, routine.exerciseCount, routine.exerciseCount),
              style = Forge.type.caption, color = colors.textSecondary)
         Spacer(Modifier.height(10.dp))
-        Row(Modifier.fillMaxWidth().heightIn(min = 50.dp).background(colors.effort, CircleShape)
+        Row(Modifier.fillMaxWidth().heightIn(min = 50.dp).background(colors.effort, RoundedCornerShape(25.dp))
                 .clickable(role = Role.Button) { onStart(routine.id) }.semantics { contentDescription = startLabel },
             horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Rounded.PlayArrow, contentDescription = null, tint = colors.onDark, modifier = Modifier.size(20.dp))
@@ -178,7 +184,7 @@ private fun Volume(tonnes: List<Double>, change: Int?) {
     val colors = Forge.colors
     val top = maxOf(tonnes.maxOrNull() ?: 1.0, 0.1)
     val spoken = stringResource(R.string.forge_so_volume_spoken)
-    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius) {
+    ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.cardRadius) {
         Row(verticalAlignment = Alignment.Bottom) {
             Text(stringResource(R.string.forge_so_volume), style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold),
                  color = colors.text, modifier = Modifier.weight(1f))

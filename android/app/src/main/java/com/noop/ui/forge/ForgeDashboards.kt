@@ -39,7 +39,6 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.WarningAmber
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +46,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.noop.core.CoreBody
@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.sp
 import com.noop.R
 import com.noop.analytics.Baselines
 import com.noop.analytics.VitalBands
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import com.noop.ui.AppViewModel
 import com.noop.ui.DashboardCard
@@ -257,7 +258,7 @@ internal class DashboardDay(
 /** The header both dashboards share: the spaced wordmark, quick actions and Settings, and the day under it. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun DashboardHeader(date: LocalDate, isToday: Boolean, battery: String?, unread: Int, onBattery: () -> Unit,
+internal fun DashboardHeader(date: LocalDate, isToday: Boolean, batteryPct: Double?, unread: Int, onBattery: () -> Unit,
                              onQuickActions: () -> Unit, onUpdates: () -> Unit, onCoach: (() -> Unit)?, onArrange: () -> Unit,
                              onPickDay: () -> Unit = {}) {
     val colors = Forge.colors
@@ -269,13 +270,8 @@ internal fun DashboardHeader(date: LocalDate, isToday: Boolean, battery: String?
                  modifier = Modifier.combinedClickable(onClick = {}, onLongClick = onArrange))
             Spacer(Modifier.weight(1f))
             // The strap's battery, "+" for the quick actions, the updates bell and (while the coach is on) the coach.
-            if (battery != null) {
-                Row(Modifier.height(36.dp).background(colors.inset, CircleShape).clickable(onClick = onBattery)
-                        .padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(16.dp))
-                    Text(battery, style = Forge.type.footnote, color = colors.text)
-                }
+            if (batteryPct != null) {
+                BatteryPill(batteryPct, onClick = onBattery)
                 Spacer(Modifier.width(ForgeMetrics.space2))
             }
             HeaderIcon(Icons.Rounded.Add, stringResource(R.string.forge_db_quick_actions), onQuickActions)
@@ -364,12 +360,17 @@ private fun ScoreRing(score: Double?, color: Color, stroke: androidx.compose.ui.
 /** "Your trends": the shown day's three values beside a 14-day line each (iOS `trendsCard`). */
 @Composable
 internal fun DashboardTrendsCard(date: LocalDate, isToday: Boolean, effortFormat: (Double) -> String, onOpen: () -> Unit) {
+    val context = LocalContext.current
     val colors = Forge.colors
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
     val from = date.minusDays(13)
     val series by produceState<Map<CoreRead.Metric, List<CoreRead.Point>>>(emptyMap(), date) {
         value = withContext(Dispatchers.IO) {
+            CoreRead.open(context)
             listOf(CoreRead.Metric.Charge, CoreRead.Metric.Effort, CoreRead.Metric.Rest)
-                .associateWith { CoreRead.series(it, from.toString(), date.toString()) }
+                .associateWith { CoreCache.series(it, from.toString(), date.toString(), trackedRev.value) }
         }
     }
     fun last(m: CoreRead.Metric) = series[m]?.lastOrNull { it.day == date.toString() }?.value
@@ -505,9 +506,7 @@ internal fun DashboardActivity(viewModel: AppViewModel, onViewAll: () -> Unit) {
             Text(stringResource(R.string.forge_db_no_workouts), style = Forge.type.subhead, color = Forge.sceneInk.secondary)
         } else ForgeCard(Modifier.fillMaxWidth().clickable(onClick = onViewAll)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(Modifier.size(40.dp).background(Forge.colors.charge.copy(alpha = 0.12f), CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.DirectionsRun, null, tint = Forge.colors.charge, modifier = Modifier.size(18.dp))
-                }
+                GradientCircleIcon(Icons.Rounded.DirectionsRun, Forge.colors.charge, 32.dp)
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(latest.sport, style = Forge.type.subhead.copy(fontWeight = FontWeight.SemiBold), color = Forge.colors.text)
                     val minutes = ((latest.endTs - latest.startTs) / 60).toInt()
@@ -571,7 +570,7 @@ internal fun DashboardGlanceCard(day: CoreRead.Day?, effortFormat: (Double) -> S
                             stringResource(if ((rest ?: 0.0) >= 70) R.string.forge_db_regen_ok else R.string.forge_db_regen_catching))
                     } ?: stringResource(R.string.forge_db_no_sleep)) { onOpen(CoreRead.Metric.Rest) }
             }
-            HorizontalDivider(color = colors.divider)
+            ForgeDivider()
             val tone = when { critical -> ForgeTokens.StrandPalette.statusCritical.resolve(); warning -> ForgeTokens.StrandPalette.statusWarning.resolve()
                               else -> ForgeTokens.StrandPalette.statusPositive.resolve() }
             Row(Modifier.fillMaxWidth().clickable(onClick = onHealth), verticalAlignment = Alignment.CenterVertically,
@@ -588,7 +587,7 @@ internal fun DashboardGlanceCard(day: CoreRead.Day?, effortFormat: (Double) -> S
 
 @Composable
 private fun VerticalHairline() =
-    Box(Modifier.width(1.dp).fillMaxHeight().padding(top = 22.dp, bottom = 4.dp).background(Forge.colors.divider))
+    Box(Modifier.width(1.dp).fillMaxHeight().padding(top = 22.dp, bottom = 4.dp).background(Forge.colors.divider.copy(alpha = 0.6f)))
 
 @Composable
 private fun androidx.compose.foundation.layout.RowScope.GlanceRing(
@@ -661,9 +660,7 @@ private fun androidx.compose.foundation.layout.RowScope.MiniCard(icon: ImageVect
     ForgeCard(Modifier.weight(1f).fillMaxHeight().clickable(onClick = onClick), radius = ForgeMetrics.groupedRadius) {
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                Box(Modifier.size(20.dp).background(tint.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(icon, null, tint = tint, modifier = Modifier.size(10.dp))
-                }
+                GradientCircleIcon(icon, tint, 16.dp)
                 Text(title, style = Forge.type.footnote, color = Forge.colors.textSecondary, maxLines = 1)
             }
             content()
@@ -681,12 +678,10 @@ internal fun DashboardHealthList(cards: List<DashboardCard>, d: DashboardDay, hi
         ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
             Column {
                 cards.forEachIndexed { i, card ->
-                    if (i > 0) HorizontalDivider(color = colors.divider, modifier = Modifier.padding(start = 40.dp))
+                    if (i > 0) ForgeDivider(startPadding = 40.dp)
                     Row(Modifier.fillMaxWidth().clickable { onOpen(card) }.padding(horizontal = 10.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Box(Modifier.size(22.dp).background(cardTint(card).copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
-                            Icon(card.icon, null, tint = cardTint(card), modifier = Modifier.size(10.dp))
-                        }
+                        GradientCircleIcon(card.icon, cardTint(card), 18.dp)
                         Text(stringResource(card.titleRes), style = Forge.type.footnote, color = colors.text, modifier = Modifier.weight(1f))
                         Text(cardValue(card, d), style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = colors.text)
                         if (card.unit.isNotEmpty()) Text(card.unit, style = Forge.type.footnote, color = colors.textTertiary)
@@ -697,7 +692,7 @@ internal fun DashboardHealthList(cards: List<DashboardCard>, d: DashboardDay, hi
                         Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = colors.textTertiary, modifier = Modifier.size(12.dp))
                     }
                 }
-                HorizontalDivider(color = colors.divider)
+                ForgeDivider()
                 Row(Modifier.fillMaxWidth().clickable(onClick = onAll).padding(vertical = 10.dp), horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.forge_db_show_all), style = Forge.type.footnote.copy(fontWeight = FontWeight.SemiBold), color = colors.accent)
@@ -751,9 +746,10 @@ internal fun ForgeStyledDashboard(
             DashboardDay(day, isToday, date, weight, kcal, banked("fitness_age"), banked("vo2max_est"), banked("vitality"))
         }
     }
-    val history by produceState(emptyList<CoreRead.Day>(), date) {
+    val historyRev by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val history by produceState(emptyList<CoreRead.Day>(), date, historyRev) {
         value = withContext(Dispatchers.IO) {
-            (1..14).mapNotNull { CoreRead.day(date.minusDays(it.toLong()).toString()) }
+            (1..14).mapNotNull { CoreCache.day(date.minusDays(it.toLong()).toString(), historyRev) }
         }
     }
     val stepGoal = remember(revision) { CorePrefs.read(context).optInt(CorePrefs.STEP_GOAL, 0) }
@@ -837,9 +833,7 @@ internal fun ForgeArrangeHint(dashboard: String) {
         Column(Modifier.fillMaxWidth().padding(horizontal = ForgeMetrics.screenPadding).padding(bottom = ForgeMetrics.space6),
                verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space3)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Box(Modifier.size(36.dp).background(colors.accent.copy(alpha = 0.16f), CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Rounded.TouchApp, null, tint = colors.accent, modifier = Modifier.size(16.dp))
-                }
+                GradientCircleIcon(Icons.Rounded.TouchApp, colors.accent, 28.dp)
                 Text(stringResource(R.string.forge_db_hint_title), style = Forge.type.title2, color = colors.text)
             }
             Text(stringResource(R.string.forge_db_hint_body), style = Forge.type.subhead, color = colors.textSecondary)
@@ -848,79 +842,6 @@ internal fun ForgeArrangeHint(dashboard: String) {
                 Text(stringResource(R.string.forge_db_hint_ok))
             }
         }
-    }
-}
-
-/**
- * The Classic Today (iOS `TodayView`), as ryanbr's list of cards read: its own header, the arranged sections and
- * the cards, drawn in the Forge colours ([com.noop.ui.HostedPalette]) and routed to Forge's pages.
- */
-@Composable
-internal fun ForgeClassicToday(padding: androidx.compose.foundation.layout.PaddingValues, viewModel: AppViewModel) {
-    val more = rememberMoreNavigator()
-    val selectTab = LocalForgeTabSelect.current
-    var settingsOpen by remember { mutableStateOf(false) }
-    var quickActions by remember { mutableStateOf(false) }
-    var startWorkout by remember { mutableStateOf(false) }
-    var liveWorkout by remember { mutableStateOf(false) }
-    var liveSession by remember { mutableStateOf(false) }
-    if (quickActions) {
-        ForgeQuickActionSheet(viewModel, onDismiss = { quickActions = false }) { action ->
-            quickActions = false
-            when (action) {
-                QuickAction.Battery -> selectTab(ForgeTab.More)
-                QuickAction.Live -> more.push(MoreRoute.Dest(MoreDest.Live))
-                QuickAction.Workout -> startWorkout = true
-                QuickAction.Journal -> more.push(MoreRoute.Dest(MoreDest.Journal))
-                QuickAction.Breathe -> more.push(MoreRoute.Dest(MoreDest.Breathe))
-                QuickAction.Goals -> more.push(MoreRoute.Dest(MoreDest.Goals))
-                QuickAction.Food -> { FoodArrival.requestAdd(); more.push(MoreRoute.Dest(MoreDest.Food)) }
-                QuickAction.LiveSession -> liveSession = true
-                QuickAction.CustomizeToday -> more.push(MoreRoute.Dest(MoreDest.Settings))
-            }
-        }
-    }
-    if (liveSession) ForgeLiveSessionCover(viewModel, onClose = { liveSession = false })
-    MoreOverlay(more, viewModel, onOpenSettings = { settingsOpen = true })
-    if (settingsOpen) {
-        ForgeOverlayPage(onDismiss = { settingsOpen = false }) { ForgeSettings(viewModel, onClose = { settingsOpen = false }) }
-    }
-    if (startWorkout) {
-        com.noop.ui.StartWorkoutSheet(vm = viewModel, onDismiss = {
-            startWorkout = false
-            if (viewModel.activeWorkout.value != null) liveWorkout = true
-        })
-    }
-    if (liveWorkout) {
-        androidx.compose.ui.window.Dialog(onDismissRequest = { liveWorkout = false },
-            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)) {
-            com.noop.ui.LiveWorkoutScreen(vm = viewModel, onClose = { liveWorkout = false })
-        }
-    }
-    // The classic list was drawn for a dark canvas (white header, near-black hero), so it gets Forge's dark theme.
-    ForgeTheme(dark = true) {
-    val forgeColors = Forge.colors
-    val tokens = remember(forgeColors) { hostedTokens(forgeColors) }
-    Box(Modifier.fillMaxSize().background(forgeColors.canvas).padding(padding)) {
-        com.noop.ui.HostedPalette(tokens, forgeColors.dark) {
-            com.noop.ui.TodayScreen(
-                viewModel = viewModel,
-                onQuickActions = { quickActions = true },
-                onOpenSettings = { settingsOpen = true },
-                onOpenHydration = { more.push(MoreRoute.Dest(MoreDest.Hydration)) },
-                onOpenStress = { more.push(MoreRoute.Dest(MoreDest.Stress)) },
-                onOpenHealth = { more.push(MoreRoute.Dest(MoreDest.Health)) },
-                onOpenMetric = { more.push(MoreRoute.Dest(MoreDest.Health)) },
-                onOpenSleep = { selectTab(ForgeTab.Sleep) },
-                onOpenCoupled = { more.push(MoreRoute.Dest(MoreDest.Health)) },
-                onOpenCoach = { more.push(MoreRoute.Dest(MoreDest.Coach)) },
-                onOpenActiveWorkout = { liveWorkout = true },
-                onOpenDevices = { selectTab(ForgeTab.More) },
-                onOpenJournal = { more.push(MoreRoute.Dest(MoreDest.Journal)) },
-                onOpenTrainingLoad = { more.push(MoreRoute.Dest(MoreDest.TrainingLoad)) },
-            )
-        }
-    }
     }
 }
 
@@ -951,3 +872,35 @@ internal fun ForgeDayPicker(selected: LocalDate, onPick: (LocalDate) -> Unit, on
         },
     ) { androidx.compose.material3.DatePicker(state = state) }
 }
+
+/** The strap's battery ring, as iOS's `ForgeLargeHeader`; it opens what Today's ring opens. */
+@Composable
+internal fun BatteryPill(pct: Double, onClick: () -> Unit) {
+    val colors = Forge.colors
+    val progress = (pct.coerceIn(0.0, 100.0)) / 100.0
+    Box(Modifier.size(32.dp).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        Canvas(Modifier.size(32.dp)) {
+            val sw = 2.5f
+            val r = size.width / 2f - sw / 2f
+            val center = Offset(size.width / 2f, size.height / 2f)
+            // Track ring
+            drawCircle(color = colors.inset.copy(alpha = 0.25f), radius = r, center = center)
+            // Progress ring: draw a filled arc at the ring radius
+            val startAngle = -90f
+            val sweepAngle = (progress * 360f).toFloat()
+            val arcTopLeft = Offset(sw / 2f, sw / 2f)
+            val arcSize = androidx.compose.ui.geometry.Size(size.width - sw, size.height - sw)
+            drawArc(color = colors.accent, startAngle = startAngle, sweepAngle = sweepAngle,
+                    useCenter = false, topLeft = arcTopLeft, size = arcSize)
+        }
+        Icon(Icons.Rounded.BatteryFull, null, tint = colors.text, modifier = Modifier.size(12.dp))
+    }
+}
+
+/** The classic Today page, kept for the "classic" dashboard style until it is retired. */
+@Composable
+internal fun ForgeClassicToday(padding: androidx.compose.foundation.layout.PaddingValues, viewModel: AppViewModel) {
+    val width = remember { ForgeWidth.Compact }
+    ForgePullToRefresh(viewModel) { ForgeTodayScreen(padding, width, viewModel) }
+}
+

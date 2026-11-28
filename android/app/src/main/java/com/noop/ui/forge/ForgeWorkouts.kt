@@ -22,6 +22,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.automirrored.rounded.DirectionsRun
+import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -96,7 +99,11 @@ internal fun ForgeWorkoutsPage(viewModel: AppViewModel, onBack: () -> Unit) {
     var detail by remember { mutableStateOf<WorkoutRow?>(null) }
     BackHandler(onBack = onBack)
     SettingsColumn {
-        PageTitle(stringResource(R.string.forge_wk_title), onBack)
+        PageTitle(stringResource(R.string.forge_wk_title), onBack, trailing = {
+            CoachPicture(mainIcon = Icons.AutoMirrored.Rounded.DirectionsRun, accentAIcon = Icons.Rounded.LocalFireDepartment,
+                         accentBIcon = Icons.Rounded.Star, tint = Forge.colors.effort, size = 72,
+                         modifier = Modifier.padding(end = ForgeMetrics.space2))
+        })
         Row(horizontalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
             ActionChip(Icons.Rounded.Add, stringResource(R.string.forge_wk_add), prominent = true) { editing = null to false }
             ActionChip(Icons.Rounded.FilterList, stringResource(R.string.forge_wk_manage), prominent = false, onClick = onManage)
@@ -113,7 +120,7 @@ internal fun ForgeWorkoutsPage(viewModel: AppViewModel, onBack: () -> Unit) {
                  modifier = Modifier.padding(start = ForgeMetrics.space1, top = ForgeMetrics.space1))
             ForgeCard(Modifier.fillMaxWidth(), contentPadding = 0.dp) {
                 week.forEachIndexed { i, row ->
-                    if (i > 0) Box(Modifier.padding(start = 64.dp).fillMaxWidth().height(ForgeMetrics.hairline).background(colors.divider))
+                    if (i > 0) ForgeDivider(startPadding = 64.dp)
                     SessionRow(viewModel, row, onOpen = { detail = row }, onEdit = { r, copy -> editing = r to copy })
                 }
             }
@@ -236,9 +243,7 @@ private fun SessionRow(viewModel: AppViewModel, row: WorkoutRow, onOpen: () -> U
                 .padding(start = 14.dp, end = 4.dp, top = 12.dp, bottom = 12.dp).semantics(mergeDescendants = true) {},
             verticalAlignment = Alignment.CenterVertically) {
             val tint = forgeSportTint(row.sport)
-            Box(Modifier.size(38.dp).background(tint.copy(alpha = 0.15f), CircleShape), contentAlignment = Alignment.Center) {
-                Icon(com.noop.ui.sportIcon(row.sport), contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
-            }
+            GradientCircleIcon(com.noop.ui.sportIcon(row.sport), tint, 30.dp)
             Spacer(Modifier.width(ForgeMetrics.space3))
             Column(Modifier.weight(1f)) {
                 Text(WorkoutEditing.displaySport(row.sport), style = Forge.type.body.copy(fontWeight = FontWeight.SemiBold),

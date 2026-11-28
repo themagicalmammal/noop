@@ -57,6 +57,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -92,6 +93,7 @@ import androidx.compose.ui.unit.dp
 import com.noop.R
 import com.noop.core.CoreDietPlan
 import com.noop.core.CoreEnergyPlan
+import com.noop.core.CoreCache
 import com.noop.core.CoreRead
 import com.noop.core.CoreStress
 import com.noop.core.CoreTile
@@ -480,10 +482,12 @@ internal fun ForgeTodayWidgetArea(model: TodayModel?, viewModel: AppViewModel, w
     val date = model?.date ?: com.noop.ui.logicalDayNow()
     // The latest night as the Sleep tab shows it, read only while a sleep tile is placed (iOS `withLatestNight`).
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val widgetRev = remember { androidx.compose.runtime.mutableStateOf(coreRevision) }
+    androidx.compose.runtime.SideEffect { widgetRev.value = coreRevision }
     // The sleep tile's 30 nights, as iOS draws its trend.
-    val sleepTrend by produceState(emptyList<Double>(), date, widgets.any { it.key == TodayWidget.SLEEP_KEY }, coreRevision) {
+    val sleepTrend by produceState(emptyList<Double>(), date, widgets.any { it.key == TodayWidget.SLEEP_KEY }) {
         value = if (widgets.none { it.key == TodayWidget.SLEEP_KEY }) emptyList() else withContext(Dispatchers.IO) {
-            CoreRead.series(CoreRead.Metric.SleepMinutes, date.minusDays(29).toString(), date.toString()).map { it.value / 60 }
+            CoreCache.series(CoreRead.Metric.SleepMinutes, date.minusDays(29).toString(), date.toString(), widgetRev.value).map { it.value / 60 }
         }
     }
     // The measures whose two-column form says a fact about the wearer's own recent past rather than the
@@ -497,23 +501,24 @@ internal fun ForgeTodayWidgetArea(model: TodayModel?, viewModel: AppViewModel, w
         .filter { KeyMetric.fromRaw(it) != null || it in TodayWidgets.catalogMeasures || it == TodayWidget.SLEEP_KEY }
         .distinct().sorted()
     val skinTempPreferred = remember { com.noop.ui.UnitPrefs.skinTempPreferred(context) }
-    val factSeries by produceState(emptyMap<String, CoreTile.History>(), date, factPlaced, coreRevision) {
+    val factSeries by produceState(emptyMap<String, CoreTile.History>(), date, factPlaced) {
         value = if (factPlaced.isEmpty()) emptyMap() else withContext(Dispatchers.IO) {
+            // One door, one route per measure, decided in the core (`StoreReader.tileHistory`). Asking
+            // for every measure under the strap's source was how the weight tile came to read nothing
+            // at all while the iPhone's said "Weighed today · ±0,0 kg this week", and how steps were
+            // read here by a different layering than the steps page uses. Each call is cached by
+            // revision, so a tab switch or recomposition does not re-run the JNI work.
             factPlaced.associateWith { raw ->
-                // One door, one route per measure, decided in the core (`StoreReader.tileHistory`). Asking
-                // for every measure under the strap's source was how the weight tile came to read nothing
-                // at all while the iPhone's said "Weighed today · ±0,0 kg this week", and how steps were
-                // read here by a different layering than the steps page uses.
                 runCatching {
-                    CoreTile.history(KeyMetric.fromRaw(raw)?.catalogKey() ?: raw, skinTempPreferred.raw)
+                    CoreCache.tileHistory(KeyMetric.fromRaw(raw)?.catalogKey() ?: raw, skinTempPreferred.raw, widgetRev.value)
                 }.getOrDefault(CoreTile.History.none)
             }
         }
     }
-    val sleepMinutes by produceState<Double?>(null, date, widgets.any { it.key == TodayWidget.SLEEP_KEY }, coreRevision) {
+    val sleepMinutes by produceState<Double?>(null, date, widgets.any { it.key == TodayWidget.SLEEP_KEY }) {
         value = if (widgets.none { it.key == TodayWidget.SLEEP_KEY }) null else withContext(Dispatchers.IO) {
             val end = date.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
-            CoreRead.nights(end - 3 * 86_400, end).maxByOrNull { it.endTs }?.minutes
+            CoreCache.nights(end - 3 * 86_400, end, widgetRev.value).maxByOrNull { it.endTs }?.minutes
                 ?.let { m -> (m["light"] ?: 0.0) + (m["deep"] ?: 0.0) + (m["rem"] ?: 0.0) }?.takeIf { it > 0 }
         }
     }
@@ -771,26 +776,6 @@ private fun skinLead(history: CoreTile.History?): KeyTile? {
 }
 
 /**
- * The skin-temperature window on ONE scale, the one the tile leads with.
- *
- * The caption and the chart under a figure have to be about that figure: with the stored column alone the
- * row-wide card said "33.8 °C" over "usually +0.1 · range -0.4 to +0.5", which is two scales in one card
- * (seen in the side-by-side on 2026-11-19). The wearer's choice decides which is tried first, and the
- * other is the fallback, so a window that measured only one still draws (`SkinTempDisplay.leadReading`).
- */
-private suspend fun skinTempSeries(viewModel: AppViewModel, from: String, to: String,
-                                   prefer: com.noop.analytics.SkinTempDisplay.Kind): List<Pair<String, Double>> {
-    val abs = CoreRead.series(CoreRead.Metric.SkinTempAbs, from, to).map { it.day to it.value }
-    val dev = runCatching {
-        viewModel.repo.resolvedSeries("skin_temp", "my-whoop", from, to, strapDeviceId = viewModel.activeStrapId)
-            .points.map { it.day to it.value }
-    }.getOrDefault(emptyList())
-    val first = if (prefer == com.noop.analytics.SkinTempDisplay.Kind.ABSOLUTE) abs else dev
-    return first.ifEmpty { if (prefer == com.noop.analytics.SkinTempDisplay.Kind.ABSOLUTE) dev else abs }
-        .sortedBy { it.first }
-}
-
-/**
  * A measure's tile, drawn as iOS's `ForgeMeasureWidget`: the figure from the same reading as Key Metrics, the change
  * against the wearer's usual and its colour from the shared core, the last 30 values as the trend. Sleep reads the
  * latest night as the Sleep tab does.
@@ -896,6 +881,9 @@ private fun CatalogMeasureTile(key: String, history: CoreTile.History, today: St
     // The measure's own fact first, as every other tile has it; the range line stays as the fallback. Until
     // 2026-11-19 these four were the only tiles whose two-column form could say nothing about the week.
     val context = LocalContext.current
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
     // The wearer's years live in the profile prefs, not the app's ("noop_profile", the file Settings
     // writes). Reading them from the wrong file answered zero, so the age line never appeared at all.
     val calendarAge = remember {
@@ -908,13 +896,13 @@ private fun CatalogMeasureTile(key: String, history: CoreTile.History, today: St
     val calm by androidx.compose.runtime.produceState<Double?>(null, key, detailed) {
         // `this.value`, not `value`: the tile's own figure is called that too, and the outer one wins.
         this.value = if (key != "stress" || !detailed) null else withContext(Dispatchers.IO) {
-            runCatching { CoreStress.day(NoopPrefs.stressPersonalBaseline(context))?.calmShare }.getOrNull()
+            runCatching { CoreCache.stressDay(NoopPrefs.stressPersonalBaseline(context), trackedRev.value)?.calmShare }.getOrNull()
         }
     }
     val factsLine = if (!detailed) null
                     else if (key == "stress") calm?.let { stringResource(R.string.forge_tile_calm_share, (it * 100).roundToInt()) }
                     else rememberFactsLine(key, history, today, unit, calendarAge)
-    ForgeTodayTile(measureIcon(key), tint, measureLabel(key), value, if (key == "stress") "" else unit,
+    ForgeTodayTile(todayWidgetIcon(key), tint, measureLabel(key), value, if (key == "stress") "" else unit,
                    if (detailed) (factsLine ?: change?.summary?.let { summaryLine(it, unit) }) else null, noData, dense, modifier,
                    // The word carries no direction, so a change chip beside it would be two readings of one
                    // thing in two languages.
@@ -966,7 +954,7 @@ private fun WideMeasureCard(key: String?, keyTiles: KeyTiles, history: CoreTile.
     val caption = if (isDayTotal(key)) facts?.weekAverageText?.let {
         stringResource(R.string.forge_tile_a_day, if (unit.isEmpty() || unit.startsWith("/")) it else "$it $unit")
     } else change?.summary?.let { summaryLine(it, unit) }
-    ForgeTodayTile(measureIcon(key.orEmpty()), tint, measureLabel(key.orEmpty()),
+    ForgeTodayTile(todayWidgetIcon(key.orEmpty()), tint, measureLabel(key.orEmpty()),
                    value, unit, caption, noData, dense = false,
                    modifier = modifier, delta = change?.text, deltaTone = change?.tone,
                    // The row-wide form draws the dated chart below instead of the tile's own sparkline:
@@ -1173,9 +1161,11 @@ private fun WideMeasureChart(days: List<String>, values: List<Double>, tint: Col
 private fun StressDayWideCard() {
     val context = LocalContext.current
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val stressRev = remember { androidx.compose.runtime.mutableStateOf(coreRevision) }
+    androidx.compose.runtime.SideEffect { stressRev.value = coreRevision }
     val personal = remember { NoopPrefs.stressPersonalBaseline(context) }
-    val day by produceState<com.noop.core.CoreStress.Day?>(null, coreRevision, personal) {
-        value = withContext(Dispatchers.IO) { com.noop.core.CoreStress.day(personal) }
+    val day by produceState<com.noop.core.CoreStress.Day?>(null, personal) {
+        value = withContext(Dispatchers.IO) { CoreCache.stressDay(personal, stressRev.value) }
     }
     ForgeCard(Modifier.fillMaxWidth()) {
         Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space2)) {
@@ -1240,7 +1230,7 @@ private fun measureTint(key: String): Color = when (CoreTile.tints[key]) {
     else -> Forge.colors.rest
 }
 
-private fun measureIcon(key: String): ImageVector = when (key) {
+private fun todayWidgetIcon(key: String): ImageVector = when (key) {
     "vo2max_est" -> Icons.Rounded.Air
     "stress" -> Icons.Rounded.Bolt
     "fitness_age" -> Icons.Rounded.Favorite
@@ -1436,7 +1426,7 @@ private fun WidgetGallery(cycleOn: Boolean, onAdd: (TodayWidget) -> Unit, onClos
                 ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
                     keys.forEachIndexed { i, key ->
                         if (i > 0) HubDivider()
-                        GalleryRow(measureIcon(key), measureLabel(key),
+                        GalleryRow(todayWidgetIcon(key), measureLabel(key),
                                    if (key in TodayWidget.WHOLE_ROW_MEASURES) wideSub else measureSub) {
                             onAdd(TodayWidget(kind = TodayWidget.Kind.Measure, key = key))
                         }
@@ -1523,11 +1513,13 @@ private fun LiveHeartTile(viewModel: AppViewModel, showsCurve: Boolean, dense: B
         samples.add(bpm.toDouble()); if (samples.size > 90) samples.removeAt(0)
     }
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-    val banked by produceState(emptyList<Double>(), showsCurve, coreRevision) {
+    val liveRev = remember { androidx.compose.runtime.mutableStateOf(coreRevision) }
+    androidx.compose.runtime.SideEffect { liveRev.value = coreRevision }
+    val banked by produceState(emptyList<Double>(), showsCurve) {
         value = if (!showsCurve) emptyList() else withContext(Dispatchers.IO) {
             CoreRead.open(context)
             val from = java.time.LocalDate.now().atStartOfDay(java.time.ZoneId.systemDefault()).toEpochSecond()
-            CoreRead.heartRate(from, System.currentTimeMillis() / 1000).map { it.bpm }
+            CoreCache.heartRate(from, System.currentTimeMillis() / 1000, liveRev.value).map { it.bpm }
         }
     }
     val curve = if (!showsCurve) null else (if (samples.size >= 2) samples.toList() else banked).takeIf { it.size >= 2 }
@@ -1543,7 +1535,9 @@ private fun WaterTile(viewModel: AppViewModel, dense: Boolean, modifier: Modifie
     val context = LocalContext.current
     val today by viewModel.today.collectAsState()
     val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
-    val read by produceState<Pair<Double, List<Double>>?>(null, coreRevision) {
+    val waterRev = remember { androidx.compose.runtime.mutableStateOf(coreRevision) }
+    androidx.compose.runtime.SideEffect { waterRev.value = coreRevision }
+    val read by produceState<Pair<Double, List<Double>>?>(null) {
         value = withContext(Dispatchers.IO) {
             runCatching { com.noop.analytics.HydrationStore.total(viewModel.repo) to
                 com.noop.analytics.HydrationStore.history(viewModel.repo, days = 7).map { it.second } }.getOrNull()
@@ -1562,9 +1556,12 @@ private fun WaterTile(viewModel: AppViewModel, dense: Boolean, modifier: Modifie
 @Composable
 private fun AgeLessTile(dense: Boolean, modifier: Modifier, onOpen: () -> Unit, detailed: Boolean = false) {
     val context = LocalContext.current
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val ageRev = remember { androidx.compose.runtime.mutableStateOf(coreRevision) }
+    androidx.compose.runtime.SideEffect { ageRev.value = coreRevision }
     val week by produceState<com.noop.core.CoreAgeLess.Week?>(null) {
         value = withContext(Dispatchers.IO) {
-            CoreRead.open(context); runCatching { com.noop.core.CoreAgeLess.snapshot(context)?.weeks?.lastOrNull() }.getOrNull()
+            CoreCache.ageLess(context, ageRev.value)?.weeks?.lastOrNull()
         }
     }
     val years = { v: Double -> String.format(java.util.Locale.getDefault(), "%.1f", v) }
@@ -1589,7 +1586,7 @@ private fun AgeLessWideCard(onOpen: () -> Unit) {
     val revision by com.noop.core.CoreShadow.dataRevision.collectAsState()
     val week by produceState<com.noop.core.CoreAgeLess.Week?>(null, revision) {
         value = withContext(Dispatchers.IO) {
-            CoreRead.open(context); runCatching { com.noop.core.CoreAgeLess.snapshot(context)?.weeks?.lastOrNull() }.getOrNull()
+            CoreCache.ageLess(context, revision)?.weeks?.lastOrNull()
         }
     }
     ForgeAgeLessSummary(week, onOpen)
@@ -1599,9 +1596,12 @@ private fun AgeLessWideCard(onOpen: () -> Unit) {
 @Composable
 private fun CoachNoteCard() {
     val colors = Forge.colors
+    val coreRevision by com.noop.core.CoreShadow.dataRevision.collectAsState()
+    val trackedRev = remember { mutableStateOf(coreRevision) }
+    SideEffect { trackedRev.value = coreRevision }
     val note by produceState<String?>(null) {
         value = withContext(Dispatchers.IO) {
-            runCatching { com.noop.core.CoreCoach.notes().maxByOrNull { it.date }?.headline?.replace("**", "")?.trim() }
+            runCatching { CoreCache.coachNotes(trackedRev.value).maxByOrNull { it.date }?.headline?.replace("**", "")?.trim() }
                 .getOrNull()?.takeIf { it.isNotEmpty() }
         }
     }

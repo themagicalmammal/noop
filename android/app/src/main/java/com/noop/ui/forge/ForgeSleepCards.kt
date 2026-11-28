@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -64,9 +63,9 @@ internal fun StagesVsTypicalCard(deep: Double, rem: Double, light: Double, days:
         }
         ForgeCard(Modifier.fillMaxWidth()) {
             StageRow(stringResource(R.string.forge_stage_deep), deep, typicalStageMin(days) { it.deepMin }, total, colors.sleepDeep)
-            HorizontalDivider(color = colors.divider.copy(alpha = 0.4f), modifier = Modifier.padding(vertical = ForgeMetrics.space3))
+            ForgeDivider(topSpacing = ForgeMetrics.space3, bottomSpacing = ForgeMetrics.space3)
             StageRow(stringResource(R.string.forge_stage_rem), rem, typicalStageMin(days) { it.remMin }, total, colors.sleepRem)
-            HorizontalDivider(color = colors.divider.copy(alpha = 0.4f), modifier = Modifier.padding(vertical = ForgeMetrics.space3))
+            ForgeDivider(topSpacing = ForgeMetrics.space3, bottomSpacing = ForgeMetrics.space3)
             StageRow(stringResource(R.string.forge_stage_light), light, typicalStageMin(days) { it.lightMin }, total, colors.sleepLight)
         }
     }
@@ -193,12 +192,8 @@ internal fun ForgeSleepMarkCard(viewModel: com.noop.ui.AppViewModel) {
     }
     Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.gap)) {
         Column {
-            // The new design titles the card alone, as iOS's Sleep tab; the shipped design keeps its "Tap to log" line.
-            if (!ForgeDesign.preview) {
-                Text(stringResource(R.string.forge_sl_tap_to_log).uppercase(), style = Forge.type.overline, color = colors.textSecondary)
-            }
             Text(stringResource(R.string.l10n_sleep_screen_sleep_marks_8e9b86f0), style = Forge.type.title2, color = colors.text,
-                 modifier = if (ForgeDesign.preview) Modifier.padding(horizontal = ForgeMetrics.space1) else Modifier)
+                 modifier = Modifier.padding(horizontal = ForgeMetrics.space1))
         }
         ForgeCard(Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.l10n_sleep_screen_tap_when_you_re_heading_to_1f401690), style = Forge.type.footnote,

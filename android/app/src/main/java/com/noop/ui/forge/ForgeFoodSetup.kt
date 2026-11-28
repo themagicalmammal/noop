@@ -32,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -100,7 +102,7 @@ private fun SetupHeader(image: Int, title: String, body: String) {
     Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space3)) {
         Image(painterResource(image), null, contentScale = ContentScale.Crop,
               modifier = Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(ForgeMetrics.cardRadius)))
-        Text(title, style = Forge.type.title2, color = Forge.colors.text)
+        Text(title, style = Forge.type.headerTitle.copy(fontSize = 24.sp, fontWeight = FontWeight.SemiBold), color = Forge.colors.text)
         Text(body, style = Forge.type.body, color = Forge.colors.textSecondary)
     }
 }
@@ -124,7 +126,7 @@ internal fun FoodTodayCard(onOpen: () -> Unit, onAdd: () -> Unit) {
     }
     val totals = summary?.totals.orEmpty()
     val logged = summary?.meals?.isNotEmpty() == true
-    ForgeCard(Modifier.fillMaxWidth()) {
+    ForgeCard(Modifier.fillMaxWidth(), contentPadding = 14.dp) {
         Column(verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space3)) {
             Row(Modifier.fillMaxWidth().clickable(onClick = onOpen), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -138,9 +140,9 @@ internal fun FoodTodayCard(onOpen: () -> Unit, onAdd: () -> Unit) {
                                                     gramsText(totals["carbs_g"] ?: 0.0), gramsText(totals["fat_g"] ?: 0.0))
                          else stringResource(R.string.food_card_empty_detail), style = Forge.type.caption, color = colors.textSecondary)
                 }
-                Spacer(Modifier.width(ForgeMetrics.space3))
+                Spacer(Modifier.width(ForgeMetrics.space2))
                 Image(painterResource(R.drawable.food_hero), null, contentScale = ContentScale.Crop, alignment = Alignment.CenterEnd,
-                      modifier = Modifier.size(76.dp).clip(RoundedCornerShape(12.dp)))
+                      modifier = Modifier.size(76.dp).clip(RoundedCornerShape(ForgeMetrics.groupedRadius)))
             }
             Row(Modifier.fillMaxWidth().heightIn(min = 40.dp).clip(RoundedCornerShape(50))
                     .background(colors.inset).clickable(onClick = onAdd).padding(vertical = ForgeMetrics.space2),
