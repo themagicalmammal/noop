@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.pluralStringResource
@@ -492,7 +493,7 @@ fun CompareScreen(vm: AppViewModel) {
             SectionHeader(stringResource(R.string.forge_cmp_metrics), overline = stringResource(R.string.forge_cmp_overline))
             NoopCard {
                 Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = CompareRange.entries.toList(),
                         selection = range,
                         label = { it.label },

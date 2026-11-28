@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.pluralStringResource
@@ -2157,13 +2158,12 @@ fun VitalDetailScreen(vm: AppViewModel, key: String, onAskCoach: ((title: String
                         }
                     }
                 }
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     // The new design offers four windows, as iOS's `ExploreRange.displayCases`.
                     items = if (forgeDesign) FORGE_VITAL_RANGES else VitalDetailRange.entries,
                     selection = effectiveRange,
                     label = { if (isStepsDetail) context.resources.getStringArray(R.array.steps_ranges)[it.ordinal] else it.label },
                     onSelect = { range = it },
-                    adaptsToAvailableWidth = true,
                     enabled = { it in unlockedRanges },
                 )
                 if (unlockedRanges.size < VitalDetailRange.entries.size) {

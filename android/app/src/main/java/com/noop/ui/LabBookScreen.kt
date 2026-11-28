@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.pluralStringResource
@@ -431,7 +432,7 @@ private fun MarkerDetailSheet(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             SignalPicker(selected = signal) { signal = it }
                             Spacer(Modifier.weight(1f))
-                            SegmentedPillControl(
+                            ForgeSegmentedValues(
                                 items = LabWindow.entries.toList(),
                                 selection = window,
                                 label = { it.label },

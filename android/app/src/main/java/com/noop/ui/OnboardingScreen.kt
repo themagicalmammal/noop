@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.stringResource
@@ -556,7 +557,7 @@ private fun ConnectStep(viewModel: AppViewModel) {
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             Text(uiString(R.string.l10n_onboarding_screen_strap_02b88eeb), style = NoopType.footnote, color = Palette.textSecondary)
-                            SegmentedPillControl(
+                            ForgeSegmentedValues(
                                 items = WhoopModel.entries.toList(),
                                 selection = selectedModel,
                                 label = { it.displayName },
@@ -709,7 +710,7 @@ private fun ProfileStep() {
                 ThinDivider()
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Overline(uiString(R.string.onboarding_sex), color = Palette.textTertiary)
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = ONBOARDING_SEX_OPTIONS,
                         selection = ONBOARDING_SEX_OPTIONS.firstOrNull { it.tag == profile.sex }
                             ?: ONBOARDING_SEX_OPTIONS[0],
@@ -723,7 +724,7 @@ private fun ProfileStep() {
                 // conventions such as Canadian pounds with kilometres.
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Overline(uiString(R.string.units_body_measurements), color = Palette.textTertiary)
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = listOf(UnitSystem.METRIC, UnitSystem.IMPERIAL),
                         selection = unitSystem,
                         label = { if (it == UnitSystem.METRIC) uiString(R.string.onboarding_metric) else uiString(R.string.onboarding_imperial) },
@@ -737,7 +738,7 @@ private fun ProfileStep() {
                 ThinDivider()
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Overline(uiString(R.string.units_exercise_distance_pace), color = Palette.textTertiary)
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = listOf(UnitSystem.METRIC, UnitSystem.IMPERIAL),
                         selection = distanceUnitSystem,
                         label = {
@@ -1047,7 +1048,7 @@ private fun AppearanceStep() {
             NoopCard(padding = 18.dp) {
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     ProfileFieldRow(label = uiString(R.string.l10n_onboarding_screen_theme_a797e309)) {
-                        SegmentedPillControl(
+                        ForgeSegmentedValues(
                             items = listOf(AppearanceMode.SYSTEM, AppearanceMode.LIGHT, AppearanceMode.DARK),
                             selection = mode,
                             label = { appearance ->

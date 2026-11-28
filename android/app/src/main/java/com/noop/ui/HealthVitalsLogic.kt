@@ -283,6 +283,17 @@ internal fun vitalsFor(
     // history already gathered for banding, including the displayed day's value. Presentation-only.
     fun trail(current: Double?, window: Int = 14, selector: (DailyMetric) -> Double?): List<Double> =
         (history.mapNotNull(selector) + listOfNotNull(current)).takeLast(window)
+    // iOS switches the spo2 sparkline to the candidate points when the value came from the
+    // candidate map, so the trail shows the candidate trend rather than a blank line.
+    fun spo2CandidateTrail(window: Int = 14): List<Double> {
+        val upTo = d?.day ?: ""
+        return spo2CandidateByDay
+            .filter { (day, _) -> day <= upTo }
+            .entries
+            .sortedBy { it.key }
+            .map { it.value }
+            .takeLast(window)
+    }
 
     // Skin temp is bimodal: CSV imports store ABSOLUTE °C, the on-device pipeline a ±°C
     // DEVIATION — partition the history to the displayed value's kind and pick the matching
@@ -384,7 +395,8 @@ internal fun vitalsFor(
             // of personal baseline (no "spo2" MetricCfg exists).
             banding = VitalBands.band(d?.spo2Pct ?: d?.day?.let { spo2CandidateByDay[it] }, emptyList(), 95.0..100.0, null),
             metricColor = Palette.metricCyan,
-            sparkline = trail(d?.spo2Pct) { it.spo2Pct },
+            sparkline = if (d?.spo2Pct == null && d?.day?.let { spo2CandidateByDay[it] } != null) spo2CandidateTrail()
+                else trail(d?.spo2Pct) { it.spo2Pct },
             // #103: mark as estimate when the value came from the candidate, not a calibrated spo2Pct.
             isEstimate = d?.spo2Pct == null && d?.day?.let { spo2CandidateByDay[it] } != null,
         ),

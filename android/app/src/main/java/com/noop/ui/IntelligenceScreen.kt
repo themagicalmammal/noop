@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.stringResource
@@ -128,7 +129,7 @@ fun IntelligenceScreen(vm: AppViewModel) {
                         Overline("Recent")
                         Text(uiString(R.string.l10n_intelligence_screen_by_day_2e5d14ca), style = NoopType.title2, color = Palette.textPrimary)
                     }
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = IntelRange.entries.toList(),
                         selection = range,
                         label = { it.label },

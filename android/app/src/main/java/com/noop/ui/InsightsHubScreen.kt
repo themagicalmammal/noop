@@ -61,6 +61,12 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Lightbulb
+import androidx.compose.material.icons.rounded.Star
+import com.noop.ui.forge.ForgeSegmentedValues
+import com.noop.ui.forge.GradientCircleIcon
+
 
 // MARK: - Insights Hub (v5)
 //
@@ -99,7 +105,13 @@ fun InsightsHubScreen(vm: AppViewModel) {
     // PERF (#707): lazy scaffold — each section (and its standalone Spacer, a real child of the eager
     // `spacedBy(20.dp)` Column) becomes one `item { }`, so the LazyColumn's matching `spacedBy(20.dp)`
     // reproduces identical spacing and only on-screen sections compose + are semantics-walked.
-    LazyScreenScaffold(title = uiString(R.string.l10n_insights_hub_screen_insights_b4510362), subtitle = "Patterns in your own data: association, not cause.") {
+    LazyScreenScaffold(
+        title = uiString(R.string.l10n_insights_hub_screen_insights_b4510362),
+        subtitle = "Patterns in your own data: association, not cause.",
+        trailing = {
+            GradientCircleIcon(Icons.Rounded.Lightbulb, Color(0xFFFFCC00), 32.dp)
+        }
+    ) {
         if (!state.loaded) {
             item {
             NoopCard {
@@ -150,7 +162,7 @@ private fun MoversSection(
             stringResource(R.string.forge_ih_what_moves, outcome.outcomeName.lowercase(Locale.US)),
             overline = stringResource(R.string.forge_ih_ranked),
         )
-        SegmentedPillControl(
+        ForgeSegmentedValues(
             items = InsightsOutcome.entries.toList(),
             selection = outcome,
             label = { it.label },
@@ -354,7 +366,7 @@ private fun DamageForecast(
         // Overline then the dose stepper on its own row — the choices (0…max+) overflow a ~360dp
         // phone if they share a row with the overline (matches the macOS fix).
         Overline(card.forecastOverline, modifier = Modifier.fillMaxWidth())
-        SegmentedPillControl(
+        ForgeSegmentedValues(
             items = card.doseChoices,
             selection = previewDose,
             label = { card.doseChoiceLabel(it) },
@@ -550,7 +562,6 @@ internal class InsightsHubViewModel {
 
     companion object {
         const val DOSE_SOURCE = "noop-journal-dose"
-        private val OUTCOME_KEYS = listOf("recovery", "hrv", "sleep_performance", "rhr")
 
         fun doseKey(behavior: DosedBehavior): String = "dose_${behavior.raw}"
 

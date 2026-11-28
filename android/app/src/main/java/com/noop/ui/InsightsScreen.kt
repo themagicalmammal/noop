@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.stringResource
@@ -747,7 +748,7 @@ private fun BehaviourSection(
                                               outcome.outcomeName.lowercase(Locale.US)),
                 )
             }
-            SegmentedPillControl(
+            ForgeSegmentedValues(
                 items = Outcome.entries.toList(),
                 selection = outcome,
                 label = { it.label },
@@ -1010,7 +1011,7 @@ private fun ExperimentSetupCard(
                 )
             }
             ExperimentField("Outcome") {
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = Outcome.entries.toList(),
                     selection = outcome,
                     label = { it.label },
@@ -1018,7 +1019,7 @@ private fun ExperimentSetupCard(
                 )
             }
             ExperimentField("Window") {
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = ExperimentLength.entries.toList(),
                     selection = length,
                     label = { it.label },

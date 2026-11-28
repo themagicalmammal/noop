@@ -24,18 +24,35 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.noop.core.CoreCoach
+import com.noop.ui.forge.Forge
+import com.noop.ui.forge.ForgeMetrics
+import com.noop.ui.forge.ForgeCard
+import com.noop.ui.forge.ForgeSceneBackdrop
+import com.noop.ui.forge.ForgeBackdrop
+import com.noop.ui.forge.SettingsColumn
+import com.noop.ui.forge.PageTitle
+import com.noop.R
+import androidx.compose.ui.res.stringResource
 
 /** "How Coach works" (`CoachInfoView`): what runs here, what is sent, the provider, the model and the limits. */
 @Composable
-fun CoachInfoPage(vm: CoachViewModel) {
+fun CoachInfoPage(vm: CoachViewModel, onBack: (() -> Unit)? = null) {
     val info by vm.info.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { vm.loadInfo() }
     val i = info ?: return
-    Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-        i.sections.forEach { (title, paras) ->
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(title, style = NoopType.headline, color = Palette.textPrimary)
-                paras.forEach { Text(it, style = NoopType.subhead, color = Palette.textSecondary) }
+    SettingsColumn {
+        PageTitle(i.infoTitle, onBack ?: { })
+        Column(
+            Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(ForgeMetrics.space4)
+        ) {
+            i.sections.forEach { (title, paras) ->
+                ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 14.dp) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(title, style = Forge.type.headline.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold), color = Forge.sceneInk.text)
+                        paras.forEach { Text(it, style = Forge.type.body, color = Forge.sceneInk.secondary) }
+                    }
+                }
             }
         }
     }

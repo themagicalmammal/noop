@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.stringResource
@@ -222,7 +223,7 @@ fun MarkerEditorScreen(
                             EditorField("Value") {
                                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                     if (unitOptions.size > 1) {
-                                        SegmentedPillControl(
+                                        ForgeSegmentedValues(
                                             items = unitOptions.indices.toList(),
                                             selection = unitChoice,
                                             label = { unitOptions[it] },

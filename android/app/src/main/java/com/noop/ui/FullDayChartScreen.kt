@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
@@ -689,7 +690,7 @@ internal fun TimelineTimeAxisLabels(
 @Composable
 private fun TimelineMetricPills(metric: TimelineMetric, onSelect: (TimelineMetric) -> Unit) {
     Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
-        SegmentedPillControl(
+        ForgeSegmentedValues(
             items = TimelineMetric.entries.toList(),
             selection = metric,
             label = { it.title },
@@ -706,7 +707,7 @@ private fun TimelineSourceRow(sourceName: String?, ownedOnly: Boolean, onOwnedOn
         Spacer(Modifier.weight(1f))
         val ownedLabel = stringResource(R.string.timeline_owned)
         val allLabel = stringResource(R.string.timeline_all)
-        SegmentedPillControl(
+        ForgeSegmentedValues(
             items = listOf(true, false),
             selection = ownedOnly,
             label = { if (it) ownedLabel else allLabel },

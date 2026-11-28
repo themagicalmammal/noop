@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.pluralStringResource
@@ -48,6 +49,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import com.noop.core.SwiftCore
 import com.noop.core.CoreStress
@@ -1487,7 +1490,7 @@ private fun StressTrendSection(model: StressModel, modifier: Modifier = Modifier
             // The one segmented control — full width, right-aligned.
             Row(modifier = Modifier.fillMaxWidth()) {
                 Spacer(Modifier.weight(1f))
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = StressRange.entries,
                     selection = range,
                     label = { it.label },

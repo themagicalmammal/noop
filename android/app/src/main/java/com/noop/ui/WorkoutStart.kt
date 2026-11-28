@@ -24,7 +24,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -132,7 +134,7 @@ fun StartWorkoutSheet(vm: AppViewModel, onDismiss: () -> Unit) {
                 ) {
                     Text(uiString(R.string.l10n_workout_start_track_gps_route_133861c5), style = NoopType.body, color = Palette.textPrimary)
                     Spacer(Modifier.weight(1f))
-                    Switch(checked = gpsOn, onCheckedChange = { gpsOn = it })
+                    ToggleCheckbox(checked = gpsOn, onCheckedChange = { gpsOn = it })
                 }
                 // The target zone, as iOS's zone picker on the start screen; remembered for the next workout.
                 var target by remember { mutableStateOf(WorkoutVoicePrefs.targetZone(context)) }
@@ -233,8 +235,12 @@ fun WorkoutStartSection(vm: AppViewModel, onAdd: () -> Unit) {
     val w = activeWorkout
     if (w != null) {
         var nowMs by remember { mutableStateOf(w.startMs) }
-        LaunchedEffect(w.startMs) {
-            while (true) { nowMs = System.currentTimeMillis(); delay(1000) }
+        // Lifecycle-gated: a hidden screen shouldn't be ticking the clock while its tab is away.
+        val lifecycleOwner = LocalLifecycleOwner.current
+        LaunchedEffect(lifecycleOwner, w.startMs) {
+            lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) { nowMs = System.currentTimeMillis(); delay(1000) }
+            }
         }
         val elapsedS = ActiveWorkoutClock.activeElapsedSeconds(
             startMs = w.startMs, pausedAtMs = w.pausedAtMs,

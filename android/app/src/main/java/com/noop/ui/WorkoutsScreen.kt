@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import com.noop.data.HrBucket
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -87,7 +89,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.runtime.Composable
@@ -475,7 +476,7 @@ private fun RangeBar(
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         // Add moved up beside Start in WorkoutStartSection (glanceable action row), so the range pill
         // now owns this row alone — no more Add-vs-5-segment-pill width fight (#234/#339).
-        SegmentedPillControl(
+        ForgeSegmentedValues(
             items = WorkoutRange.entries,
             selection = range,
             label = { it.label },
@@ -1568,7 +1569,7 @@ internal fun WorkoutDetailSheet(vm: AppViewModel, row: WorkoutRow, onDismiss: ()
                     Overline("Heart rate", modifier = Modifier.weight(1f))
                     Text(uiString(R.string.l10n_workouts_screen_hr_zones_293d7175), style = NoopType.footnote, color = Palette.textSecondary)
                     Spacer(Modifier.width(Metrics.space8))
-                    Switch(checked = zoneColorsEnabled, onCheckedChange = { zoneColorsEnabled = it })
+                    ToggleCheckbox(checked = zoneColorsEnabled, onCheckedChange = { zoneColorsEnabled = it })
                 }
                 val lo = hrValues.minOrNull()?.roundToInt() ?: 0
                 val hi = hrValues.maxOrNull()?.roundToInt() ?: 0
@@ -2427,13 +2428,21 @@ private fun workoutFieldColors() = OutlinedTextFieldDefaults.colors(
 // MARK: - Dividers
 
 @Composable
-private fun CardDivider() {
-    Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Palette.hairline))
+private fun CardDivider(startPadding: Dp = 16.dp, endPadding: Dp = 0.dp) {
+    Row(Modifier.fillMaxWidth().height(1.dp)) {
+        Spacer(Modifier.width(startPadding))
+        Box(Modifier.weight(1f).fillMaxHeight().background(Palette.hairline))
+        Spacer(Modifier.width(endPadding))
+    }
 }
 
 @Composable
-private fun FullDivider(alpha: Float = 1f) {
-    Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(Palette.hairline.copy(alpha = alpha)))
+private fun FullDivider(alpha: Float = 1f, startPadding: Dp = 64.dp, endPadding: Dp = 0.dp) {
+    Row(Modifier.fillMaxWidth().height(1.dp)) {
+        Spacer(Modifier.width(startPadding))
+        Box(Modifier.weight(1f).fillMaxHeight().background(Palette.hairline.copy(alpha = alpha)))
+        Spacer(Modifier.width(endPadding))
+    }
 }
 
 // MARK: - Range model

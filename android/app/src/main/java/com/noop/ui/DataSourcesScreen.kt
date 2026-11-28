@@ -1,6 +1,7 @@
 package com.noop.ui
 
 import com.noop.R
+import com.noop.ui.forge.ForgeSegmented
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.ui.res.stringResource
 import android.content.Context
@@ -770,12 +771,11 @@ fun DataSourcesScreen(vm: AppViewModel) {
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Text(uiString(R.string.l10n_data_sources_screen_every_3560d90b), style = NoopType.footnote, color = Palette.textSecondary)
-                        SegmentedPillControl(
-                            items = listOf(6, 12, 24),
-                            selection = hcSyncHours,
-                            label = { "${it}h" },
-                            onSelect = { vm.setHcSyncHours(it) },
-                        )
+                        ForgeSegmented(
+                            listOf("6h", "12h", "24h"),
+                            listOf(6, 12, 24).indexOf(hcSyncHours).coerceAtLeast(0),
+                            Modifier.fillMaxWidth(),
+                        ) { i -> vm.setHcSyncHours(listOf(6, 12, 24)[i]) }
                     }
                     Text(
                         uiString(

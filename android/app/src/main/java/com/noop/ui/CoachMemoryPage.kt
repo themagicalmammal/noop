@@ -31,6 +31,10 @@ import com.noop.core.CoreCoach
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.noop.ui.forge.SettingsColumn
+import com.noop.ui.forge.PageTitle
+import com.noop.ui.forge.ForgeMetrics
+import com.noop.ui.forge.Forge
 
 /**
  * The coach's memory, as the iOS Memory page (`CoachSettingsView.memorySubpage`): every fact with its category and
@@ -38,7 +42,7 @@ import kotlinx.coroutines.withContext
  * everything asks first. The facts live in the shared coach (`CoachMemory`).
  */
 @Composable
-fun CoachMemoryPage() {
+fun CoachMemoryPage(onBack: (() -> Unit)? = null) {
     val scope = rememberCoroutineScope()
     var memory by remember { mutableStateOf<CoreCoach.Memory?>(null) }
     fun run(op: String? = null, id: String? = null, text: String? = null, category: String? = null) {
@@ -52,7 +56,8 @@ fun CoachMemoryPage() {
     var confirmForget by remember { mutableStateOf(false) }
     val m = memory
 
-    ScreenScaffold(title = stringResource(R.string.coach_memory)) {
+    SettingsColumn {
+        PageTitle(stringResource(R.string.coach_memory), onBack ?: { })
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             NoopCard(padding = 14.dp, tint = Palette.chargeColor) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

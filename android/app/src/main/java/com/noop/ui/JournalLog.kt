@@ -136,22 +136,14 @@ private fun loadJournalList(context: Context, key: String): List<String> =
         .getString(key, "") ?: "")
         .split('\n').map { it.trim() }.filter { it.isNotEmpty() }
 
-private fun saveJournalList(context: Context, key: String, questions: List<String>) {
-    context.getSharedPreferences(JOURNAL_PREFS, Context.MODE_PRIVATE)
-        .edit().putString(key, questions.joinToString("\n")).apply()
-}
 
 internal fun loadCustomJournalQuestions(context: Context): List<String> =
     loadJournalList(context, JOURNAL_CUSTOM_KEY)
 
-internal fun saveCustomJournalQuestions(context: Context, questions: List<String>) =
-    saveJournalList(context, JOURNAL_CUSTOM_KEY, questions)
 
 internal fun loadHiddenJournalQuestions(context: Context): List<String> =
     loadJournalList(context, JOURNAL_HIDDEN_KEY)
 
-internal fun saveHiddenJournalQuestions(context: Context, questions: List<String>) =
-    saveJournalList(context, JOURNAL_HIDDEN_KEY, questions)
 
 // MARK: - The logging card (hosted at the top of Insights)
 

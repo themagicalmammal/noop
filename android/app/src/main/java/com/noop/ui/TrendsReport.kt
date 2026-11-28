@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import android.content.Context
@@ -710,7 +711,7 @@ fun TrendsReportExportSection(vm: AppViewModel, modifier: Modifier = Modifier) {
             )
 
             Overline("Range", color = Palette.textTertiary)
-            SegmentedPillControl(
+            ForgeSegmentedValues(
                 items = ReportRange.entries.toList(),
                 selection = range,
                 label = { it.label },

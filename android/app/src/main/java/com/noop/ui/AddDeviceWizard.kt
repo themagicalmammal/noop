@@ -41,7 +41,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.material3.Switch
 import com.noop.ble.SourceCoordinator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -1731,7 +1730,7 @@ private fun ConfirmStep(
                         color = Palette.textSecondary,
                     )
                 }
-                Switch(checked = on, onCheckedChange = onReplaces)
+                ToggleCheckbox(checked = on, onCheckedChange = onReplaces)
             }
         }
 

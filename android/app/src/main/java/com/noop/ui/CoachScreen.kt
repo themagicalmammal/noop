@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.stringResource
@@ -80,6 +81,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -109,7 +113,8 @@ fun CoachScreen(vm: CoachViewModel = viewModel(), onOpenSettings: () -> Unit = {
                 trailing: (@Composable () -> Unit)? = null, onOpenPlan: (() -> Unit)? = null,
                 onOpenHistory: (() -> Unit)? = null, onOpenBreathe: (() -> Unit)? = null,
                 onOpenLive: (() -> Unit)? = null, onOpenGoals: (() -> Unit)? = null,
-                onGoalOnboarding: (() -> Unit)? = null, onReviewDraft: ((String, String?) -> Unit)? = null) {
+                onGoalOnboarding: (() -> Unit)? = null, onReviewDraft: ((String, String?) -> Unit)? = null,
+                isActive: Boolean = true) {
     val context = LocalContext.current
     val keyVersion by vm.keyVersion.collectAsStateWithLifecycle()
     val provider by vm.provider.collectAsStateWithLifecycle()
@@ -121,7 +126,10 @@ fun CoachScreen(vm: CoachViewModel = viewModel(), onOpenSettings: () -> Unit = {
     // handoff degrades to showing setup rather than a failed request. Swift twin: CoachView's task.
     // Opening the chat shows what the coach sent on its own (`markCoachMessagesSeen`).
     LaunchedEffect(Unit) { vm.markSeen() }
-    LaunchedEffect(configured) {
+    // Re-run when the Coach tab becomes active so a prompt handed over from another tab is sent.
+    // The tabs stay composed, so without this key the handler would only run once at first composition.
+    LaunchedEffect(configured, isActive) {
+        if (!isActive) return@LaunchedEffect
         val handed = CoachHandoff.consume()
         if (handed != null && configured) vm.send(context, handed)
         val card = CoachHandoff.consumeCard()
@@ -135,6 +143,8 @@ fun CoachScreen(vm: CoachViewModel = viewModel(), onOpenSettings: () -> Unit = {
     ScreenScaffold(
         // The connected chat opens on its own header row, as on iOS; the setup keeps the page title.
         title = if (configured) null else uiString(R.string.l10n_coach_screen_coach_b32c9ad3),
+        // The chat supplies its own compact header row; zero the scaffold's top inset so it sits flush.
+        topPadding = if (configured) 0.dp else 28.dp,
         trailing = trailing,
         // LIQUID SKY BACKDROP (the pilot pattern — LiquidScreenSky.kt): the liquid sky sits behind the
         // header and the cards float over the flat canvas below. Reuses the shared LiquidScreenSky() slot
@@ -193,7 +203,7 @@ private fun CoachSetup(vm: CoachViewModel) {
             // Provider choice.
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Overline("Provider")
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = AiProvider.entries,
                     selection = provider,
                     label = { it.displayName },
@@ -222,7 +232,7 @@ private fun CoachSetup(vm: CoachViewModel) {
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Overline(uiString(R.string.l10n_coach_screen_key_header_3f2a9b10))
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = CustomAiAuthHeader.entries,
                         selection = customAuthHeader,
                         label = { it.displayName },
@@ -677,7 +687,7 @@ private fun CoachHeaderRow(
             .clip(RoundedCornerShape(28.dp))
             .background(Palette.surfaceBase.copy(alpha = 0.32f))
             .border(1.dp, Palette.textPrimary.copy(alpha = 0.18f), RoundedCornerShape(28.dp))
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -1043,7 +1053,13 @@ private fun ChatCard(card: ChatMsg.Card) {
 @Composable
 private fun RetryButton(waitSeconds: Int?, enabled: Boolean, onRetry: () -> Unit) {
     var left by remember(waitSeconds) { mutableStateOf(waitSeconds ?: 0) }
-    LaunchedEffect(waitSeconds) { while (left > 0) { kotlinx.coroutines.delay(1000); left -= 1 } }
+    // Lifecycle-gated: a hidden screen shouldn't be counting down while its tab is away.
+    val retryLifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(retryLifecycleOwner, waitSeconds) {
+        retryLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (left > 0) { kotlinx.coroutines.delay(1000); left -= 1 }
+        }
+    }
     val ready = left <= 0
     Row(
         Modifier.clip(RoundedCornerShape(50)).clickable(enabled = enabled && ready, onClick = onRetry).padding(vertical = 4.dp)
