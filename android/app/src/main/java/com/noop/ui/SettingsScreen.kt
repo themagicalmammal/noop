@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -81,8 +82,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -665,7 +664,7 @@ fun SettingsScreen(
                 }
                 SettingsRowDivider()
                 SettingsFormRow(label = uiString(R.string.l10n_settings_screen_sex_e301dd60)) {
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = SEX_OPTIONS,
                         selection = SEX_OPTIONS.firstOrNull { it.tag == profile.sex } ?: SEX_OPTIONS[0],
                         label = { it.label },
@@ -841,16 +840,9 @@ fun SettingsScreen(
                 // Custom HR zones (#531, @kavemang): five personalized inclusive BPM lower bounds that
                 // replace the conventional %HRmax bands. Off -> the effective set stays conventional.
                 SettingsFormRow(label = uiString(R.string.l10n_settings_screen_custom_hr_zones_84736ca5)) {
-                    Switch(
+                    ToggleCheckbox(
                         checked = profile.hasCustomHrZones,
                         onCheckedChange = { mutate { profile.setCustomHrZonesEnabled(it) } },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
                 if (profile.hasCustomHrZones) {
@@ -951,7 +943,7 @@ fun SettingsScreen(
         ) {
             Column {
                 SettingsFormRow(label = uiString(R.string.settings_day_cycle_starts)) {
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = listOf(DayCycleMode.SLEEP_ONSET, DayCycleMode.MIDNIGHT),
                         selection = dayCycleMode,
                         label = {
@@ -985,7 +977,7 @@ fun SettingsScreen(
         ) {
             Column {
                 SettingsFormRow(label = uiString(R.string.units_body_measurements)) {
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = listOf(UnitSystem.METRIC, UnitSystem.IMPERIAL),
                         selection = unitSystem,
                         label = { if (it == UnitSystem.METRIC) "Metric" else "Imperial" },
@@ -997,7 +989,7 @@ fun SettingsScreen(
                 }
                 SettingsRowDivider()
                 SettingsFormRow(label = uiString(R.string.units_exercise_distance_pace)) {
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = listOf(UnitSystem.METRIC, UnitSystem.IMPERIAL),
                         selection = distanceUnitSystem,
                         label = {
@@ -1013,7 +1005,7 @@ fun SettingsScreen(
                 SettingsRowDivider()
                 SettingsFormRow(label = uiString(R.string.l10n_settings_screen_temperature_0a9062a9)) {
                     // Three-way: the default follows body measurements; °C / °F pin it explicitly.
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = listOf("", TemperatureUnit.CELSIUS.raw, TemperatureUnit.FAHRENHEIT.raw),
                         selection = temperatureRaw,
                         label = {
@@ -1034,7 +1026,7 @@ fun SettingsScreen(
                     // #1846: lead with a temperature ("33.5 °C") or with the move from your own baseline
                     // ("-0.1 Δ°C"). Only a PREFERENCE — a night that measured just one of the two still
                     // shows that one, so the choice can never blank a card.
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = listOf(
                             com.noop.analytics.SkinTempDisplay.Kind.ABSOLUTE,
                             com.noop.analytics.SkinTempDisplay.Kind.DEVIATION,
@@ -1057,7 +1049,7 @@ fun SettingsScreen(
                 // Effort scale (#268) — NOOP's native 0–100 Effort or WHOOP's 0–21 Day Strain axis.
                 // Display-only; the stored value never changes, so a flip just re-labels every read-out.
                 SettingsFormRow(label = uiString(R.string.l10n_settings_screen_effort_scale_81afa9ef)) {
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = listOf(EffortScale.HUNDRED, EffortScale.WHOOP),
                         selection = effortScale,
                         label = { if (it == EffortScale.HUNDRED) "0-100" else "0-21" },
@@ -1090,19 +1082,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = banisterEffort,
                         onCheckedChange = {
                             banisterEffort = it
                             vm.setBanisterEffort(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
                 Text(
@@ -1148,7 +1133,7 @@ fun SettingsScreen(
             // like Language it offers "System default" - which here means the device's own 12/24h switch,
             // not the region default that was silently deciding this for everyone. Twin of the Apple row.
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_clock_04f6b3ea)) {
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = listOf(
                         ClockFormatPreference.SYSTEM,
                         ClockFormatPreference.TWELVE_HOUR,
@@ -1176,7 +1161,7 @@ fun SettingsScreen(
             // a preference rather than a defect and Bold stays the default. Only the WEIGHT is offered:
             // the size is pinned to the iOS ratio and is not a per-platform knob. Twin of the Apple row.
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_gauge_numbers_db0d45e3)) {
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = listOf(GaugeNumeralStyle.BOLD, GaugeNumeralStyle.SOFT),
                     selection = gaugeNumerals,
                     label = {
@@ -1217,7 +1202,7 @@ fun SettingsScreen(
             }
             SettingsRowDivider()
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_theme_a797e309)) {
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = listOf(AppearanceMode.SYSTEM, AppearanceMode.LIGHT, AppearanceMode.DARK),
                     selection = themeMode,
                     label = {
@@ -1238,7 +1223,7 @@ fun SettingsScreen(
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_chart_colours_525f4a37)) {
                 // Titanium = brand gold/amber/blue ramps; Classic = throwback red→green readiness scale
                 // (cool→hot zones, green→red stress). Re-colours every gauge/chart, in both schemes.
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = listOf(ChartStyle.TITANIUM, ChartStyle.CLASSIC),
                     selection = chartStyle,
                     label = {
@@ -1255,7 +1240,7 @@ fun SettingsScreen(
             // Chrome accent colour — links/buttons/selection tint only. The recovery/strain/sleep DATA
             // colours follow "Chart colours", never this. Custom reveals RGB sliders.
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_accent)) {
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = listOf(AccentColor.MINT, AccentColor.WHOOP_BLUE, AccentColor.CUSTOM),
                     selection = accentColor,
                     label = { it.label },
@@ -1279,7 +1264,7 @@ fun SettingsScreen(
             // Trend chart style (line vs bar). Display-only: flips the Trends tab's charts between the
             // gradient line and value-ramp bars. The plotted data is identical either way.
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_trend_charts_19085c81)) {
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = listOf(TrendChartStyle.LINE, TrendChartStyle.BAR),
                     selection = trendChartStyle,
                     label = {
@@ -1306,7 +1291,7 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Text(uiString(R.string.cx_sleep_chart), style = NoopType.body, color = Palette.textPrimary)
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = listOf(SleepChartStyle.CLASSIC, SleepChartStyle.FILLED,
                                    SleepChartStyle.GARMIN_FILLED, SleepChartStyle.RIBBON),
                     selection = sleepChartStyle,
@@ -1326,9 +1311,15 @@ fun SettingsScreen(
                     },
                     // Three segments share the row width equally so the labels can't widen the card past
                     // the screen (the component's own guidance for longer option sets).
-                    adaptsToAvailableWidth = true,
                 )
             }
+            // Motion section header
+            Text(
+                uiString(R.string.settings_section_motion),
+                style = NoopType.subhead.copy(fontWeight = FontWeight.SemiBold),
+                color = Palette.textPrimary,
+                modifier = Modifier.padding(top = 4.dp, bottom = 2.dp),
+            )
             // In-app "Reduce motion in NOOP" (#941) — parity with the Apple quiet-motion toggle. Poses every
             // looping surface still via the third rememberPoseStill() signal. (SettingsRowDivider, not the
             // file-private RowDivider used elsewhere, which isn't visible here.)
@@ -1357,6 +1348,13 @@ fun SettingsScreen(
                 },
             )
 
+            // Background section header
+            Text(
+                uiString(R.string.settings_section_background),
+                style = NoopType.subhead.copy(fontWeight = FontWeight.SemiBold),
+                color = Palette.textPrimary,
+                modifier = Modifier.padding(top = 4.dp, bottom = 2.dp),
+            )
             // Day-cycle background (#698): the time-of-day scene behind Today. On by default. Off swaps it
             // for a plain dark canvas for people who find the moving scene distracting. Takes effect next
             // time Today is opened (the pref is read once on entry, like the other Today-screen toggles).
@@ -1377,19 +1375,12 @@ fun SettingsScreen(
                         color = Palette.textTertiary,
                     )
                 }
-                Switch(
+                ToggleCheckbox(
                     checked = showDayCycleBackground,
                     onCheckedChange = {
                         showDayCycleBackground = it
                         NoopPrefs.setShowDayCycleBackground(context, it)
                     },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Palette.surfaceBase,
-                        checkedTrackColor = Palette.accent,
-                        uncheckedThumbColor = Palette.textSecondary,
-                        uncheckedTrackColor = Palette.surfaceInset,
-                        uncheckedBorderColor = Palette.hairline,
-                    ),
                 )
             }
 
@@ -1413,20 +1404,13 @@ fun SettingsScreen(
                         color = Palette.textTertiary,
                     )
                 }
-                Switch(
+                ToggleCheckbox(
                     enabled = showDayCycleBackground,
                     checked = skyBehindCards && showDayCycleBackground,
                     onCheckedChange = {
                         skyBehindCards = it
                         NoopPrefs.setSkyBehindCards(context, it)
                     },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Palette.surfaceBase,
-                        checkedTrackColor = Palette.accent,
-                        uncheckedThumbColor = Palette.textSecondary,
-                        uncheckedTrackColor = Palette.surfaceInset,
-                        uncheckedBorderColor = Palette.hairline,
-                    ),
                 )
             }
 
@@ -1448,51 +1432,33 @@ fun SettingsScreen(
                         color = Palette.textTertiary,
                     )
                 }
-                Switch(
+                ToggleCheckbox(
                     checked = cardOpacity < 1f,
                     onCheckedChange = { on ->
                         cardOpacity = if (on) { if (cardOpacity >= 1f) 0.7f else cardOpacity } else 1f
                         CardAppearance.opacity = cardOpacity
                         NoopPrefs.setCardOpacityPercent(context, (cardOpacity * 100).toInt())
                     },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Palette.surfaceBase,
-                        checkedTrackColor = Palette.accent,
-                        uncheckedThumbColor = Palette.textSecondary,
-                        uncheckedTrackColor = Palette.surfaceInset,
-                        uncheckedBorderColor = Palette.hairline,
-                    ),
                 )
             }
 
             // Card transparency: scale every frosted card's glass toward the background. Live-preview (the
             // cards on THIS screen update as you drag) via CardAppearance; saved on release. Default solid.
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Text(
-                        uiString(R.string.l10n_settings_screen_card_transparency_c5c7b4f3),
-                        style = NoopType.subhead,
-                        color = Palette.textPrimary,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Text(
-                        uiString(R.string.l10n_settings_screen_1f_cardopacity_100_toint_51f10397, ((1f - cardOpacity) * 100).toInt()),
-                        style = NoopType.number(15f),
-                        color = Palette.accent,
-                    )
-                }
+            Text("DEBUG: Slider section reached", style = NoopType.title2, color = androidx.compose.ui.graphics.Color.Red)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
                 Text(
-                    uiString(R.string.l10n_settings_screen_how_see_through_the_cards_heart_436105b9),
-                    style = NoopType.footnote,
-                    color = Palette.textTertiary,
+                    uiString(R.string.l10n_settings_screen_card_transparency_c5c7b4f3),
+                    style = NoopType.subhead,
+                    color = Palette.textPrimary,
                 )
                 Slider(
                     // The slider shows TRANSPARENCY (0 = solid, 1 = fully clear); we store the OPACITY.
                     value = 1f - cardOpacity,
+                    modifier = Modifier.weight(1f),
                     onValueChange = { t ->
                         cardOpacity = 1f - t
                         CardAppearance.opacity = cardOpacity   // live preview on every card on-screen
@@ -1506,6 +1472,11 @@ fun SettingsScreen(
                         activeTrackColor = Palette.accent,
                         inactiveTrackColor = Palette.surfaceInset,
                     ),
+                )
+                Text(
+                    uiString(R.string.l10n_settings_screen_1f_cardopacity_100_toint_51f10397, ((1f - cardOpacity) * 100).toInt()),
+                    style = NoopType.number(15f),
+                    color = Palette.accent,
                 )
             }
         }
@@ -1525,7 +1496,7 @@ fun SettingsScreen(
             // a provider from the background and posting notifications, with no UI attached to reveal that
             // it is still running). The saved provider key is kept, so this is a flip and not a re-setup.
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_ai_coach_130c3eab)) {
-                Switch(
+                ToggleCheckbox(
                     checked = BottomBarStyleStore.coachEnabled,
                     onCheckedChange = { BottomBarStyleStore.setCoachEnabled(context, it) },
                 )
@@ -1535,7 +1506,7 @@ fun SettingsScreen(
             // overlay lets a screen's own backdrop show through the bar's glass, which is what it was
             // built for, but it is app-shell layout no test can judge, so it ships switchable.
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_bottom_bar_overlay_f257c96f)) {
-                Switch(
+                ToggleCheckbox(
                     checked = BottomBarStyleStore.overlay,
                     onCheckedChange = { BottomBarStyleStore.set(context, it) },
                 )
@@ -1550,7 +1521,7 @@ fun SettingsScreen(
             // reason it does without the overlay.
             val autoHideAvailable = BottomBarStyleStore.overlay && !rememberReduceMotion()
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_hide_bar_when_scrolling_b077d9f3)) {
-                Switch(
+                ToggleCheckbox(
                     checked = BottomBarStyleStore.autoHide,
                     enabled = autoHideAvailable,
                     onCheckedChange = { BottomBarStyleStore.setAutoHide(context, it) },
@@ -1696,7 +1667,7 @@ fun SettingsScreen(
                 // empty gap. A stacked label sidesteps that entirely.
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(uiString(R.string.cx_scaling), style = NoopType.footnote, color = Palette.textSecondary)
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = BackgroundFillMode.entries,
                         selection = BackgroundImageStore.fillMode,
                         label = { mode ->
@@ -1709,8 +1680,7 @@ fun SettingsScreen(
                         },
                         onSelect = { BackgroundImageStore.setFillMode(context, it) },
                         // Four segments share the row width equally so the labels can't widen the card.
-                        adaptsToAvailableWidth = true,
-                    )
+                        )
                 }
                 NoopButton(
                     text = uiString(R.string.cx_remove_image),
@@ -1733,7 +1703,7 @@ fun SettingsScreen(
             blurb = "Choose how NOOP looks on your home screen. The launcher may take a moment to refresh the icon after you change it.",
         ) {
             SettingsFormRow(label = uiString(R.string.l10n_settings_screen_icon_716f63b9)) {
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = listOf(false, true),
                     selection = appIconNavy,
                     label = { if (it) "Blue Titanium" else "Titanium" },
@@ -1928,19 +1898,12 @@ fun SettingsScreen(
                             color = Palette.textTertiary,
                         )
                     }
-                    Switch(
+                    ToggleCheckbox(
                         checked = backgroundConnection,
                         onCheckedChange = {
                             backgroundConnection = it
                             vm.setBackgroundConnection(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
 
@@ -1965,19 +1928,12 @@ fun SettingsScreen(
                             color = Palette.textTertiary,
                         )
                     }
-                    Switch(
+                    ToggleCheckbox(
                         checked = fastHistorySync,
                         onCheckedChange = {
                             fastHistorySync = it
                             vm.setFastHistorySync(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
 
@@ -2004,19 +1960,12 @@ fun SettingsScreen(
                             color = Palette.textTertiary,
                         )
                     }
-                    Switch(
+                    ToggleCheckbox(
                         checked = fastLinkPhy,
                         onCheckedChange = {
                             fastLinkPhy = it
                             vm.setFastLinkPhy(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
 
@@ -2162,19 +2111,12 @@ fun SettingsScreen(
                             color = Palette.textTertiary,
                         )
                     }
-                    Switch(
+                    ToggleCheckbox(
                         checked = continuousHrv,
                         onCheckedChange = {
                             continuousHrv = it
                             vm.setContinuousHrv(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
 
@@ -2199,19 +2141,12 @@ fun SettingsScreen(
                                 color = Palette.textTertiary,
                             )
                         }
-                        Switch(
+                        ToggleCheckbox(
                             checked = continuousHrvOvernight,
                             onCheckedChange = {
                                 continuousHrvOvernight = it
                                 vm.setContinuousHrvOvernight(it)
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Palette.surfaceBase,
-                                checkedTrackColor = Palette.accent,
-                                uncheckedThumbColor = Palette.textSecondary,
-                                uncheckedTrackColor = Palette.surfaceInset,
-                                uncheckedBorderColor = Palette.hairline,
-                            ),
                         )
                     }
                 }
@@ -2221,7 +2156,7 @@ fun SettingsScreen(
                 // and more comparable to WHOOP/Polar). Unlike the Effort scale this CHANGES the number, so a
                 // switch forces a re-score + re-baseline.
                 SettingsFormRow(label = uiString(R.string.l10n_settings_screen_hrv_window_e74320b8)) {
-                    SegmentedPillControl(
+                    ForgeSegmentedValues(
                         items = listOf(HrvWindow.WHOLE_NIGHT, HrvWindow.DEEP_SLEEP),
                         selection = hrvWindow,
                         // #153: "Night" (not "Whole night") so the two-segment pill reads the same as the iOS
@@ -2370,19 +2305,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = puffinExperiments,
                         onCheckedChange = {
                             puffinExperiments = it
                             puffinExperiment.isEnabled = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_try_whoop_5_mg_protocol_probes_1d584653)
                         },
@@ -2406,20 +2334,13 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = broadcastHr,
                         onCheckedChange = {
                             broadcastHr = it
                             puffinExperiment.broadcastHr = it
                             vm.ble.setBroadcastHr(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_broadcast_heart_rate_d1af1c79)
                         },
@@ -2443,19 +2364,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = explicitBond,
                         onCheckedChange = {
                             explicitBond = it
                             puffinExperiment.explicitBond = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_ask_android_to_pair_323fccbe)
                         },
@@ -2477,19 +2391,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = unbondedOffload,
                         onCheckedChange = {
                             unbondedOffload = it
                             puffinExperiment.unbondedOffload = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription =
                                 uiString(R.string.l10n_settings_screen_try_history_sync_without_pairing_33ae8594)
@@ -2512,19 +2419,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = helloDespiteRefusal,
                         onCheckedChange = {
                             helloDespiteRefusal = it
                             puffinExperiment.helloDespiteBondRefusal = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_send_hello_despite_bond_refusal_65c9d9fd)
                         },
@@ -2548,19 +2448,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = ecgRawData,
                         onCheckedChange = {
                             ecgRawData = it
                             puffinExperiment.ecgRawData = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription =
                                 uiString(R.string.l10n_settings_screen_ecg_raw_data_gate_whoop_mg_only)
@@ -2617,7 +2510,7 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = deepData,
                         onCheckedChange = {
                             deepData = it
@@ -2628,13 +2521,6 @@ fun SettingsScreen(
                             // nothing until the button is tapped.
                             if (!it) confirmingDeepDataDisable = true
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_unlock_whoop_5_mg_deep_data_70036ca8)
                         },
@@ -2780,19 +2666,12 @@ fun SettingsScreen(
                             color = Palette.textPrimary,
                             modifier = Modifier.weight(1f),
                         )
-                        Switch(
+                        ToggleCheckbox(
                             checked = sleepStagerMethod != "v1",
                             onCheckedChange = {
                                 sleepStagerMethod = if (it) "v2" else "v1"
                                 vm.setSleepStagerMethod(sleepStagerMethod)
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Palette.surfaceBase,
-                                checkedTrackColor = Palette.accent,
-                                uncheckedThumbColor = Palette.textSecondary,
-                                uncheckedTrackColor = Palette.surfaceInset,
-                                uncheckedBorderColor = Palette.hairline,
-                            ),
                             modifier = Modifier.semantics {
                                 contentDescription = uiString(R.string.l10n_settings_screen_sleep_staging_v2_3a007e4a)
                             },
@@ -2817,19 +2696,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = motionAwareWake,
                         onCheckedChange = {
                             motionAwareWake = it
                             puffinExperiment.motionAwareWake = it
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                         modifier = Modifier.semantics {
                             contentDescription = uiString(R.string.l10n_settings_screen_motion_aware_wake_refinement_67a91e47)
                         },
@@ -2864,19 +2736,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = spo2CandidateDisplay,
                         onCheckedChange = {
                             spo2CandidateDisplay = it
                             vm.setSpo2CandidateDisplay(it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
                 Text(
@@ -2910,19 +2775,12 @@ fun SettingsScreen(
                         color = Palette.textPrimary,
                         modifier = Modifier.weight(1f),
                     )
-                    Switch(
+                    ToggleCheckbox(
                         checked = stressPersonalBaseline,
                         onCheckedChange = {
                             stressPersonalBaseline = it
                             NoopPrefs.setStressPersonalBaseline(context, it)
                         },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Palette.surfaceBase,
-                            checkedTrackColor = Palette.accent,
-                            uncheckedThumbColor = Palette.textSecondary,
-                            uncheckedTrackColor = Palette.surfaceInset,
-                            uncheckedBorderColor = Palette.hairline,
-                        ),
                     )
                 }
 
@@ -3582,19 +3440,12 @@ fun SettingsScreen(
                                 color = Palette.textTertiary,
                             )
                         }
-                        Switch(
+                        ToggleCheckbox(
                             checked = autoCheck,
                             onCheckedChange = {
                                 autoCheck = it
                                 com.noop.update.UpdateWatch.setEnabled(context, it)
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Palette.surfaceBase,
-                                checkedTrackColor = Palette.accent,
-                                uncheckedThumbColor = Palette.textSecondary,
-                                uncheckedTrackColor = Palette.surfaceInset,
-                                uncheckedBorderColor = Palette.hairline,
-                            ),
                         )
                     }
 

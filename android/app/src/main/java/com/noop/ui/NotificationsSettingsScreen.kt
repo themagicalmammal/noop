@@ -40,8 +40,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
@@ -118,7 +116,7 @@ internal data class NotifApp(
  * Unlike macOS we cannot enumerate which are actually installed (restricted package
  * visibility), so we present the full set as configurable examples.
  */
-private val notifCatalog: List<NotifApp> = listOf(
+internal val notifCatalog: List<NotifApp> = listOf(
     NotifApp("com.google.android.gm", "Gmail", NotifCategory.Email, Icons.Filled.Email),
     NotifApp("com.microsoft.office.outlook", "Outlook", NotifCategory.Email, Icons.Filled.Email),
     NotifApp("com.whatsapp", "WhatsApp", NotifCategory.Messaging, Icons.AutoMirrored.Filled.Chat),
@@ -133,10 +131,10 @@ private val notifCatalog: List<NotifApp> = listOf(
     NotifApp("com.google.android.calendar", "Calendar", NotifCategory.Calendar, Icons.Filled.CalendarMonth),
 )
 
-private fun appsIn(category: NotifCategory): List<NotifApp> =
+internal fun appsIn(category: NotifCategory): List<NotifApp> =
     notifCatalog.filter { it.category == category }
 
-private val activeCategories: List<NotifCategory> =
+internal val activeCategories: List<NotifCategory> =
     NotifCategory.entries.filter { appsIn(it).isNotEmpty() }
 
 // MARK: - SharedPreferences store (mirrors the UserDefaults-backed Swift store)
@@ -1033,17 +1031,10 @@ private fun NoopSwitch(
     enabled: Boolean = true,
     label: String,
 ) {
-    Switch(
+    ToggleCheckbox(
         checked = checked,
         onCheckedChange = onChange,
         enabled = enabled,
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = Palette.surfaceBase,
-            checkedTrackColor = Palette.accent,
-            uncheckedThumbColor = Palette.textSecondary,
-            uncheckedTrackColor = Palette.surfaceInset,
-            uncheckedBorderColor = Palette.hairline,
-        ),
         modifier = Modifier.semantics { contentDescription = label },
     )
 }
