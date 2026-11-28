@@ -71,8 +71,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
@@ -195,122 +193,6 @@ import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-/**
- * The compact Live Sessions entry under the hero ("Start session · BETA"). Three honest states off the
- * process-wide [LiveSessionRunner.active]: no session → start affordance; session running → the way back
- * into the dismissed session dialog (with a live elapsed clock); session ended but its summary not yet
- * Done-dismissed → "See the summary". The runner's 1 Hz snapshot is collected INSIDE this card only, so
- * the per-second tick recomposes this card, never the Today body (the WorkoutInProgressCard idiom).
- * The whole card is one tap target; [onOpen] begins/re-presents the session dialog.
- */
-@Composable
-internal fun LiveSessionEntryCard(onOpen: () -> Unit) {
-    val active by LiveSessionRunner.active.collectAsStateWithLifecycle()
-    val runner = active
-    var running = false
-    var summaryWaiting = false
-    var elapsed = ""
-    if (runner != null) {
-        val snap by runner.snapshot.collectAsStateWithLifecycle()
-        running = !snap.ended
-        summaryWaiting = snap.ended
-        elapsed = elapsedClock(snap.elapsedSec.toLong())
-    }
-    val teal = Palette.metricCyan
-    val title = when {
-        running -> uiString(R.string.today_live_session_running)
-        summaryWaiting -> uiString(R.string.today_live_session_ended)
-        else -> uiString(R.string.today_live_session_start)
-    }
-    val detail = when {
-        running -> uiString(R.string.today_live_session_guarding)
-        summaryWaiting -> uiString(R.string.today_live_session_summary)
-        else -> uiString(R.string.today_live_session_explanation)
-    }
-
-    // liquidPress on the whole tappable card (same interactionSource on clickable + press), matching the
-    // workout-in-progress card above. Merged semantics so TalkBack reads one Button, not four stops.
-    val interaction = remember { MutableInteractionSource() }
-    NoopCard(
-        tint = teal,
-        modifier = Modifier
-            .liquidPress(interaction)
-            .clickable(interactionSource = interaction, indication = null, onClick = onOpen)
-            .semantics(mergeDescendants = true) {
-                contentDescription = uiString(R.string.l10n_today_screen_title_beta_detail_6b39ae21, title, detail)
-            },
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Metrics.space12),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Icon(
-                Icons.Filled.TrackChanges,
-                contentDescription = null,
-                tint = teal,
-                modifier = Modifier.size(20.dp),
-            )
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Metrics.space8),
-                ) {
-                    Text(title, style = NoopType.headline, color = Palette.textPrimary)
-                    StatePill(uiString(R.string.today_beta), tone = StrandTone.Accent, showsDot = false)
-                }
-                Text(detail, style = NoopType.footnote, color = Palette.textTertiary)
-            }
-            if (running) {
-                Text(elapsed, style = NoopType.number(15f), color = Palette.textPrimary)
-            }
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                tint = Palette.textTertiary,
-                modifier = Modifier.size(Metrics.iconSmall),
-            )
-        }
-    }
-}
-
-@Composable
-internal fun TodayWorkoutsSection(workouts: List<WorkoutRow>, onSelect: (WorkoutRow) -> Unit) {
-    // Single column, newest first: the 2x2 grid truncated durations on narrow phones and read as
-    // unrelated stat tiles rather than a chronological feed. Full-width tiles have room for the
-    // kcal chip, so the #332 compactDelta workaround is no longer needed here.
-    val feed = lastWorkoutsFeed(workouts)
-    if (feed.isEmpty()) return
-
-    // "Latest Workouts", not "Last": "Last" read as "final". Mirrored on iOS (TodayView). Lives in
-    // strings.xml (values + values-de) so the header is localizable like the nav labels.
-    SectionHeader(stringResource(R.string.today_latest_workouts), overline = uiString(R.string.today_workouts_activity), trailing = uiString(R.string.today_workouts_14_days))
-    // #1694: the feed was read-only, so the only way to a session's detail was More > Workouts. The
-    // tap opens the SAME read-only WorkoutDetailSheet the Workouts list uses — nothing there can edit
-    // or delete, so a tap from Today carries no risk that list does not already carry.
-    Column(verticalArrangement = Arrangement.spacedBy(Metrics.gap)) {
-        feed.forEach { workout ->
-            val interaction = remember(workout.startTs, workout.source) { MutableInteractionSource() }
-            StatTile(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .liquidPress(interaction)
-                    .clickable(
-                        interactionSource = interaction,
-                        indication = null,
-                        onClickLabel = uiString(R.string.today_action_show_workout),
-                        onClick = { onSelect(workout) },
-                    ),
-                label = WorkoutEditing.displaySport(workout.sport),
-                value = localizedMetricValue(workoutDuration(workout)),
-                caption = workoutCaption(workout),
-                accent = workout.strain?.let { Palette.effortTint(it / StrainScorer.maxStrain) } ?: Palette.textPrimary,
-                delta = workout.energyKcal?.let { "${it.roundToInt()} kcal" },
-                deltaColor = Palette.metricAmber,
-            )
-        }
-    }
-}
 
 /** The three hero vitals as README metric rows, HRV (teal) · Resting HR (rose) · Respiratory (blue).
  *  Reads PER-FIELD today-first with a recovery-INDEPENDENT vitals carry ([vitalsDay]) as the fallback
@@ -1239,27 +1121,6 @@ private fun sleepSourceSubtitle(card: DashboardCard, day: DailyMetric?): String?
     return uiString(R.string.today_sleep_source_last_night, source)
 }
 
-/** "d MMM · HH:mm–HH:mm" (#157); start-only when the end isn't after the start (zero/unknown span). */
-private fun workoutCaption(row: WorkoutRow): String {
-    val date = workoutDateFmt.format(Instant.ofEpochSecond(row.startTs))
-    val start = workoutTimeFmt.format(Instant.ofEpochSecond(row.startTs))
-    return if (row.endTs > row.startTs) {
-        "$date · $start - ${workoutTimeFmt.format(Instant.ofEpochSecond(row.endTs))}"
-    } else {
-        "$date · $start"
-    }
-}
-
-private fun workoutDuration(row: WorkoutRow): String {
-    val seconds = row.durationS ?: (row.endTs - row.startTs).coerceAtLeast(0L).toDouble()
-    if (seconds <= 0.0) return NO_DATA
-    val totalMinutes = (seconds / 60.0).roundToInt()
-    return if (totalMinutes >= 60) {
-        "${totalMinutes / 60}h ${totalMinutes % 60}m"
-    } else {
-        "${totalMinutes}m"
-    }
-}
 
 // The Vitality ring purple (#9b7bff) — no exact Palette token in this theme, so a fixed brand literal
 // matching the iOS liquid Today's `liquidPurple` (Color(.sRGB, red:0x9b, green:0x7b, blue:0xff)). Used by
@@ -1293,14 +1154,6 @@ internal fun resolveSkinTempReading(
         ?.let { com.noop.analytics.SkinTempDisplay.leadReading(it.skinTempC, it.skinTempDevC, prefer) }
 
 
-private val workoutDateFmt: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("d MMM", Locale.getDefault()).withZone(ZoneId.systemDefault())
-
-private val workoutTimeFmt: DateTimeFormatter =
-    // Respect the device's 12-/24-hour locale (#337): "7:10 AM" where 12-hour is preferred, "19:10"
-    // where 24-hour is, instead of forcing 24-hour on everyone.
-    DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-        .withLocale(Locale.getDefault()).withZone(ZoneId.systemDefault())
 
 private const val NO_DATA = "noop:no-data"
 private const val STRESS_CALIBRATING = "noop:calibrating"

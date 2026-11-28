@@ -54,6 +54,12 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Star
+import com.noop.ui.forge.ForgeSegmentedValues
+import com.noop.ui.forge.GradientCircleIcon
+
 
 // MARK: - Explore (Metric Explorer)
 //
@@ -401,7 +407,13 @@ fun TrendsExploreScreen(vm: AppViewModel) {
     // are accessibility-walked on scroll. Each top-level child is one `item { }` in the same order; the
     // conditional empty-state note uses `if (cond) { item {} }` so it adds no row when hidden. No standalone
     // Spacers here , the LazyColumn's `spacedBy(20.dp)` reproduces the eager column's row spacing exactly.
-    LazyScreenScaffold(title = stringResource(R.string.nav_explore), subtitle = stringResource(R.string.explore_subtitle)) {
+    LazyScreenScaffold(
+        title = stringResource(R.string.nav_explore),
+        subtitle = stringResource(R.string.explore_subtitle),
+        trailing = {
+            GradientCircleIcon(Icons.Rounded.GridView, Color(0xFF007AFF), 32.dp)
+        }
+    ) {
 
         // The headline tap-through (#575): a full-day, full-resolution, zoomable timeline. Sits above the
         // per-metric catalog because it's a different kind of view , every second of one day, not one
@@ -446,7 +458,7 @@ fun TrendsExploreScreen(vm: AppViewModel) {
                     )
                 }
             }
-            SegmentedPillControl(
+            ForgeSegmentedValues(
                 items = ExploreRange.entries.toList(),
                 selection = range,
                 label = { it.label },

@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.stringResource
@@ -48,6 +49,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -69,7 +73,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import com.noop.analytics.HrZones
 import com.noop.analytics.SpotHrvReading
 import com.noop.analytics.Sport
@@ -394,8 +397,12 @@ fun LiveScreen(viewModel: AppViewModel, onManageDevices: () -> Unit = {}) {
         if (w != null) {
             var confirmingEnd by remember(w.startMs) { mutableStateOf(false) }
             var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
-            LaunchedEffect(w.startMs) {
-                while (true) { nowMs = System.currentTimeMillis(); delay(1000) }
+            // Lifecycle-gated: a hidden screen shouldn't be ticking the clock while its tab is away.
+            val lifecycleOwner = LocalLifecycleOwner.current
+            LaunchedEffect(lifecycleOwner, w.startMs) {
+                lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    while (true) { nowMs = System.currentTimeMillis(); delay(1000) }
+                }
             }
             val elapsedS = ActiveWorkoutClock.activeElapsedSeconds(
                 startMs = w.startMs, pausedAtMs = w.pausedAtMs,
@@ -558,7 +565,7 @@ fun LiveScreen(viewModel: AppViewModel, onManageDevices: () -> Unit = {}) {
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(uiString(R.string.l10n_live_screen_strap_02b88eeb), style = NoopType.footnote, color = Palette.textSecondary)
-                SegmentedPillControl(
+                ForgeSegmentedValues(
                     items = WhoopModel.entries.toList(),
                     selection = selectedModel,
                     label = { it.displayName },

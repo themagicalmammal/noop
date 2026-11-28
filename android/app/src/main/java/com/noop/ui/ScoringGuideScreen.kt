@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -144,6 +145,7 @@ object ScoringGuidePrefs {
 fun ScoringGuideScreen(
     onClose: () -> Unit,
     initialSection: ScoreSection? = null,
+    embedded: Boolean = false,
 ) {
     val scroll = rememberScrollState()
     // Section → its Y offset within the scroll column, captured as each card lays out, so the
@@ -198,9 +200,32 @@ fun ScoringGuideScreen(
         ConfidenceCard()
         FooterNote()
     }
+
+    // Embedded mode: the Forge HowScores page embeds this directly under its own tabs (as iOS does).
+    // No beige canvas of its own, no "Got it" footer — the host draws nothing behind it.
+    if (embedded) {
+        Column(Modifier.fillMaxWidth()) {
+            Header(onClose = onClose)
+            Hairline()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onGloballyPositioned {
+                        if (viewportTop == null) viewportTop = it.positionInRoot().y.toInt()
+                    }
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(Metrics.sectionGap),
+            ) {
+                body()
+            }
+            Spacer(Modifier.height(24.dp))
+        }
+        return
+    }
+
     HostedSheet(scroll, body) {
-        Surface(modifier = Modifier.fillMaxSize(), color = Palette.surfaceBase) {
-            Column(modifier = Modifier.fillMaxSize()) {
+        Surface(modifier = Modifier.fillMaxWidth(), color = Palette.surfaceBase) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 // Design Reset: a FLAT opaque WHOOP-grey title surface — no scenic hero, no bloom, no
                 // domain tint. The header reads as a clean raised card edge, matching the Today look.
                 Box(modifier = Modifier.background(Palette.surfaceRaised)) {
@@ -210,12 +235,10 @@ fun ScoringGuideScreen(
 
                 Column(
                     modifier = Modifier
-                        .weight(1f)
                         .fillMaxWidth()
                         .onGloballyPositioned {
                             if (viewportTop == null) viewportTop = it.positionInRoot().y.toInt()
                         }
-                        .verticalScroll(scroll)
                         .padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(Metrics.sectionGap),
                 ) {

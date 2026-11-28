@@ -1,4 +1,5 @@
 package com.noop.ui
+import com.noop.ui.forge.ForgeSegmentedValues
 
 import com.noop.R
 import androidx.compose.ui.res.stringResource
@@ -212,7 +213,7 @@ private fun RangeControl(data: AppleData, range: AppleRange, onSelect: (AppleRan
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            SegmentedPillControl(
+            ForgeSegmentedValues(
                 items = AppleRange.entries.toList(),
                 selection = range,
                 label = { it.label },

@@ -1,4 +1,6 @@
 package com.noop.ui
+import com.noop.ui.forge.Forge
+import com.noop.ui.forge.PageTitle
 
 import com.noop.R
 import androidx.compose.ui.res.stringResource
@@ -128,6 +130,7 @@ fun DevicesScreen(
     onUseFileImport: () -> Unit = {},
     /** Fork (DX23876): when set, "Add device" opens this (the Forge pairing) instead of the classic wizard. */
     onAddDevice: (() -> Unit)? = null,
+    onBack: (() -> Unit)? = null,
 ) {
     val scope = rememberCoroutineScope()
     val live by viewModel.live.collectAsStateWithLifecycle()
@@ -216,9 +219,13 @@ fun DevicesScreen(
     // child of the eager `spacedBy(20.dp)` column, so the LazyColumn's matching spacing is identical) and
     // the static button/footer are single items. Only on-screen cards compose + are accessibility-walked.
     // Conditional rows use `if (cond) { item/items }` so a hidden section adds no row.
+    PageTitle(
+        uiString(R.string.l10n_devices_screen_devices_df485c87),
+        onBack ?: {},
+    )
     LazyScreenScaffold(
-        title = uiString(R.string.l10n_devices_screen_devices_df485c87),
-        subtitle = "Pair and manage the bands NOOP reads from.",
+        title = null,
+        subtitle = null,
         // LIQUID SKY BACKDROP (the pilot pattern — LiquidScreenSky.kt): the time-of-day liquid sky settles
         // into the flat canvas behind the top of the screen so the frosted device cards float over it. The
         // static sky (LiquidSkyStatic inside the helper) carries no per-frame cost on this scrolling list.

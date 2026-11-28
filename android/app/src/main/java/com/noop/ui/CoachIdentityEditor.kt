@@ -61,6 +61,9 @@ import com.noop.R
 import com.noop.core.CoreCoach
 import java.io.File
 import java.util.UUID
+import com.noop.ui.forge.SettingsColumn
+import com.noop.ui.forge.PageTitle
+import com.noop.ui.forge.ForgeMetrics
 
 /** The identity the coach screens draw their avatar from; null until the shared coach has answered. */
 internal val LocalCoachIdentity = compositionLocalOf<CoreCoach.Identity?> { null }
@@ -120,7 +123,7 @@ internal fun CoachIdentityAvatar(identity: CoreCoach.Identity?, size: Dp) {
  */
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
-fun CoachIdentityEditor(vm: CoachViewModel) {
+fun CoachIdentityEditor(vm: CoachViewModel, onBack: (() -> Unit)? = null) {
     val context = LocalContext.current
     val identity by vm.identity.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { vm.loadCoachName() }
@@ -144,7 +147,8 @@ fun CoachIdentityEditor(vm: CoachViewModel) {
         current?.takeIf { it.avatarKind == "photo" }?.let { photoFile(context, it.avatarValue).delete() }
     }
 
-    ScreenScaffold(title = stringResource(R.string.coach_identity)) {
+    SettingsColumn {
+        PageTitle(stringResource(R.string.coach_identity), onBack ?: { })
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             NoopCard(padding = 14.dp, tint = Palette.chargeColor) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

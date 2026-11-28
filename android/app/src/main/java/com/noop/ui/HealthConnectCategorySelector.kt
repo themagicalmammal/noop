@@ -6,14 +6,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -44,6 +43,7 @@ internal fun HealthConnectCategorySelector(
     onSelectionChange: (Set<ImportType>) -> Unit,
     routesAwaitingConsent: Int = 0,
     onOpenHealthConnect: (() -> Unit)? = null,
+    includeOpenSettingsButton: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(emptySet<ImportCategory>()) }
 
@@ -55,7 +55,9 @@ internal fun HealthConnectCategorySelector(
             uiString(R.string.health_connect_categories_title),
             style = NoopType.subhead,
             color = Palette.textPrimary,
+            modifier = Modifier.padding(top = 8.dp),
         )
+
         Text(
             uiString(R.string.health_connect_categories_detail),
             style = NoopType.footnote,
@@ -106,7 +108,7 @@ internal fun HealthConnectCategorySelector(
             if (several && open) {
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(start = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
                     category.types.forEach { type ->
                         Row(
@@ -118,9 +120,9 @@ internal fun HealthConnectCategorySelector(
                                 uiString(type.titleRes()),
                                 style = NoopType.footnote,
                                 color = Palette.textSecondary,
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier.weight(1f).height(32.dp),
                             )
-                            SelectorSwitch(checked = type in selected) { on ->
+                            SelectorSwitch(checked = type in selected, size = 28.dp) { on ->
                                 onSelectionChange(if (on) selected + type else selected - type)
                             }
                         }
@@ -148,7 +150,7 @@ internal fun HealthConnectCategorySelector(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        if (onOpenHealthConnect != null) {
+        if (includeOpenSettingsButton && onOpenHealthConnect != null) {
             TextButton(onClick = onOpenHealthConnect) {
                 Text(uiString(R.string.health_connect_open_settings), style = NoopType.subhead, color = Palette.accent)
             }
@@ -157,17 +159,11 @@ internal fun HealthConnectCategorySelector(
 }
 
 @Composable
-private fun SelectorSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Switch(
+private fun SelectorSwitch(checked: Boolean, size: androidx.compose.ui.unit.Dp = 48.dp, onCheckedChange: (Boolean) -> Unit) {
+    ToggleCheckbox(
         checked = checked,
         onCheckedChange = onCheckedChange,
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = Palette.surfaceBase,
-            checkedTrackColor = Palette.accent,
-            uncheckedThumbColor = Palette.textSecondary,
-            uncheckedTrackColor = Palette.surfaceInset,
-            uncheckedBorderColor = Palette.hairline,
-        ),
+        size = size,
     )
 }
 

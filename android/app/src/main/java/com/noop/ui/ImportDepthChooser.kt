@@ -1,13 +1,5 @@
 package com.noop.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,10 +7,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.noop.R
 import com.noop.ingest.ImportDepth
+import androidx.compose.ui.res.stringResource
 import com.noop.ui.forge.Forge
+import com.noop.ui.forge.Segmented
 
 /**
  * How far back the next import reads, chosen where the import is started.
@@ -31,7 +24,6 @@ import com.noop.ui.forge.Forge
  * as the manual one — otherwise a wearer who picked a month would still have a decade read behind his
  * back every twelve hours.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ImportDepthChooser(modifier: Modifier = Modifier, enabled: Boolean = true) {
     val context = LocalContext.current
@@ -39,28 +31,15 @@ internal fun ImportDepthChooser(modifier: Modifier = Modifier, enabled: Boolean 
     var depth by remember { mutableStateOf(ImportDepth.ofMonths(NoopPrefs.importMonths(context))) }
     val steps = ImportDepth.entries
 
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(uiString(R.string.import_depth_label), style = Forge.type.subhead, color = colors.textSecondary)
-        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-            steps.forEachIndexed { i, step ->
-                SegmentedButton(
-                    selected = step == depth,
-                    enabled = enabled,
-                    onClick = {
-                        depth = step
-                        NoopPrefs.setImportMonths(context, step.months)
-                    },
-                    shape = SegmentedButtonDefaults.itemShape(i, steps.size),
-                    colors = SegmentedButtonDefaults.colors(
-                        activeContainerColor = colors.accent.copy(alpha = 0.18f),
-                        activeContentColor = colors.text,
-                        inactiveContentColor = colors.textSecondary,
-                    ),
-                    icon = {},
-                ) { Text(uiString(importDepthLabel(step)), style = Forge.type.subhead) }
-            }
-        }
-    }
+    Segmented(
+        options = steps.toList(),
+        selected = depth,
+        label = { stringResource(importDepthLabel(it)) },
+        onSelect = { step ->
+            depth = step
+            NoopPrefs.setImportMonths(context, step.months)
+        },
+    )
 }
 
 /** The label of one step. Separate so a test can assert every step has one. */

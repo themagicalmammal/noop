@@ -516,26 +516,6 @@ internal fun TrendPlaceholder() {
     }
 }
 
-@Composable
-private fun TrendLegend(items: List<Pair<String, Color>>) {
-    Row(horizontalArrangement = Arrangement.spacedBy(Metrics.space14)) {
-        items.forEach { (label, color) ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(Metrics.space6),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(Metrics.legendLineWidth)
-                        .height(Metrics.legendLineHeight)
-                        .clip(RoundedCornerShape(Metrics.cornerPill))
-                        .background(color),
-                )
-                Text(label, style = NoopType.footnote, color = Palette.textTertiary)
-            }
-        }
-    }
-}
 
 // internal (not private) so the Today hosted-cards duration card (#today-hosted-cards) can reuse it.
 @Composable
@@ -681,17 +661,6 @@ private fun SparkTile(
             }
         }
     }
-}
-
-// MARK: - Empty state
-
-@Composable
-internal fun SleepEmptyState() {
-    DataPendingNote(
-        title = uiString(R.string.l10n_sleep_screen_no_nights_here_yet_607248f5),
-        body = "No nights here yet. Import your WHOOP export in Data Sources to see " +
-            "every night, your sleep stages and trends straight away.",
-    )
 }
 
 // MARK: - Model + derivation (faithful to SleepView.swift)

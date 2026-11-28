@@ -105,86 +105,7 @@ internal fun ThreeDaySelectorBar(
  * direct jump to any past date. Mirrors the SleepScreen night navigator, replacing the
  * fixed three-day strip with unbounded back-navigation while keeping the same tokens.
  */
-@Composable
-internal fun DayNavBar(
-    selectedOffset: Int,
-    onSelect: (Int) -> Unit,
-) {
-    val context = LocalContext.current
-    val base = LocalDate.now()
-    val selectedDay = base.minusDays(selectedOffset.toLong())
-    var showPicker by remember { mutableStateOf(false) }
 
-    if (showPicker) {
-        DisposableEffect(selectedDay) {
-            val cal = Calendar.getInstance().apply {
-                set(selectedDay.year, selectedDay.monthValue - 1, selectedDay.dayOfMonth)
-            }
-            val dialog = DatePickerDialog(
-                context,
-                { _, year, month, day ->
-                    val picked = LocalDate.of(year, month + 1, day)
-                    val offset = ChronoUnit.DAYS.between(picked, base).toInt().coerceAtLeast(0)
-                    onSelect(offset)
-                    showPicker = false
-                },
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH),
-            ).apply {
-                datePicker.maxDate = System.currentTimeMillis()
-                setOnDismissListener { showPicker = false }
-            }
-            dialog.show()
-            onDispose { runCatching { dialog.dismiss() } }
-        }
-    }
-
-    val canGoNewer = selectedOffset > 0
-    val label = when (selectedOffset) {
-        0 -> "Today"
-        1 -> "Yesterday"
-        else -> selectedDay.format(DateTimeFormatter.ofPattern("EEE d MMM", Locale.US))
-    }
-    val date = selectedDay.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale.US))
-    val blockShape = RoundedCornerShape(Metrics.cornerSm)
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Metrics.selectorSpacing),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(onClick = { onSelect(selectedOffset + 1) }) {
-            Icon(Icons.Filled.ChevronLeft, contentDescription = uiString(R.string.l10n_strand_components_previous_day_e2b6b0a1), tint = Palette.accent)
-        }
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .clip(blockShape)
-                // Clean, material surface — no gold wash behind the date (that read as a murky
-                // dark-yellow block); the gold pop lives only on the date text itself.
-                .background(Palette.surfaceInset)
-                .border(Metrics.divider, Palette.hairline, blockShape)
-                .clickable(onClickLabel = "Pick a date") { showPicker = true }
-                .padding(vertical = Metrics.selectorPadding, horizontal = Metrics.selectorPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(label, style = NoopType.caption, color = Palette.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(
-                date,
-                style = NoopType.captionNumber,
-                // The single gold pop on the chip — the date itself, on a clean material surface.
-                color = Palette.accentHover,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = Metrics.space2),
-            )
-        }
-        IconButton(onClick = { if (canGoNewer) onSelect(selectedOffset - 1) }, enabled = canGoNewer) {
-            Icon(Icons.Filled.ChevronRight, contentDescription = uiString(R.string.l10n_strand_components_next_day_38f859dd), tint = if (canGoNewer) Palette.accent else Palette.textTertiary)
-        }
-    }
-}
 
 @Composable
 internal fun InsetChartPlaceholder(
@@ -203,18 +124,4 @@ internal fun InsetChartPlaceholder(
     }
 }
 
-@Composable
-internal fun SparkTailBox(
-    modifier: Modifier = Modifier,
-    wide: Boolean = false,
-    content: @Composable () -> Unit,
-) {
-    Box(
-        modifier = modifier
-            .padding(start = Metrics.space8, bottom = Metrics.space2)
-            .width(if (wide) Metrics.sparkWidthWide else Metrics.sparkWidth)
-            .height(Metrics.sparkHeight),
-    ) {
-        content()
-    }
-}
+

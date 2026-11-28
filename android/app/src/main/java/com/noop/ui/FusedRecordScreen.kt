@@ -1,6 +1,11 @@
 package com.noop.ui
 
 import com.noop.R
+import com.noop.ui.forge.Forge
+import com.noop.ui.forge.ForgeCard
+import com.noop.ui.forge.PageTitle
+import com.noop.ui.forge.SettingsColumn
+import com.noop.ui.forge.ForgeMetrics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -111,7 +116,9 @@ fun FusedRecordScreen(
         "$dayLabel · your record, on $deviceNoun."
     }
 
-    ScreenScaffold(title = uiString(R.string.l10n_fused_record_screen_your_data_fused_a740fd4a), subtitle = subtitle, modifier = modifier) {
+    SettingsColumn {
+        PageTitle(uiString(R.string.l10n_fused_record_screen_your_data_fused_a740fd4a), { })
+        Text(subtitle, style = Forge.type.subhead, color = Forge.colors.textSecondary)
         if (isMultiSource) DayBadgeRow(record.dayOwner)
 
         if (record.rows.isEmpty()) {
@@ -120,7 +127,7 @@ fun FusedRecordScreen(
                 body = "Import a WHOOP export, Health Connect or a second band and your best-sourced record builds here, on this device.",
             )
         } else {
-            NoopCard(padding = 0.dp) {
+            ForgeCard(Modifier.fillMaxWidth(), radius = ForgeMetrics.groupedRadius, contentPadding = 0.dp) {
                 Column {
                     record.rows.forEachIndexed { index, row ->
                         FusedMetricRow(
@@ -130,7 +137,7 @@ fun FusedRecordScreen(
                         )
                         if (index < record.rows.lastIndex) {
                             HorizontalDivider(
-                                color = Palette.hairline,
+                                color = Forge.colors.divider,
                                 modifier = Modifier.padding(start = Metrics.cardPadding),
                             )
                         }

@@ -14,24 +14,6 @@ import org.json.JSONObject
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-/**
- * Resolve what the hero shows: the day-metric model when it resolved for the selected
- * night; else the session's own persisted segments (the day row can miss while the
- * segments exist); else null → the honest fallback. Never another night's data. (#160)
- */
-internal fun heroDisplay(model: SleepModel?, night: HeroNight?): HeroDisplay? {
-    if (model != null) {
-        return HeroDisplay(model.stages, model.realSegments, model.hypnogramSegments, model.efficiencyText)
-    }
-    val segments = night?.realSegments ?: return null
-    val stages = stagesFromSegments(segments) ?: return null
-    val eff = night.session.efficiency
-        ?.let { e -> "${(if (e <= 1.0) e * 100.0 else e).roundToInt()}%" } ?: "—"
-    // Timestamped segments for the FILLED chart on the fallback path too: the group's full-night segments
-    // when the night is fragmented, else this session's persisted array.
-    val tsSegments = night.groupSegments ?: parsePersistedSegments(night.session.stagesJSON)
-    return HeroDisplay(stages, segments, tsSegments, eff)
-}
 
 /** Sum (stage, minutes) weights into per-stage totals; null when nothing is > 0. */
 internal fun stagesFromSegments(segments: List<Pair<String, Float>>): Stages? {
@@ -445,21 +427,3 @@ private fun mean(vals: List<Double>): Double? = if (vals.isEmpty()) null else va
 
 // MARK: - Stage segment reconstruction (durations only — same architecture as macOS)
 
-/**
- * Lay the stage minutes end-to-end as proportional hypnogram segments: light → deep →
- * light → rem → light → awake (deep early, REM later, awake last). Weights are minutes;
- * the Hypnogram normalizes them to width.
- */
-internal fun stageSegments(s: Stages): List<Pair<String, Float>> {
-    val out = ArrayList<Pair<String, Float>>()
-    fun add(name: String, minutes: Double) {
-        if (minutes > 0.0) out.add(name to minutes.toFloat())
-    }
-    add("light", s.light * 0.4)
-    add("deep", s.deep)
-    add("light", s.light * 0.3)
-    add("rem", s.rem)
-    add("light", s.light * 0.3)
-    add("awake", s.awake)
-    return out
-}

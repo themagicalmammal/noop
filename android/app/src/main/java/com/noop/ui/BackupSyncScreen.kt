@@ -27,8 +27,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,6 +45,10 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.noop.ui.forge.SettingsColumn
+import com.noop.ui.forge.PageTitle
+import com.noop.ui.forge.ForgeMetrics
+import com.noop.ui.forge.Forge
 
 /**
  * Backup & Sync (Phase 1 - folder). Apple mirror of `BackupSyncView`: pick a folder, turn on the
@@ -63,7 +65,7 @@ import kotlinx.coroutines.withContext
  *     the live [DataBackup.importFrom] now also rejects a foreign-but-valid SQLite (Mac/GRDB or other-app DB).
  */
 @Composable
-fun BackupSyncScreen() {
+fun BackupSyncScreen(onBack: (() -> Unit)? = null) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -161,12 +163,11 @@ fun BackupSyncScreen() {
         pendingRestore = "the selected file" to uri
     }
 
-    LazyScreenScaffold(
-        title = uiString(R.string.l10n_backup_sync_screen_backup_sync_81758ffa),
-        subtitle = "Save a full backup to a folder you choose - point it at Google Drive / Dropbox for off-device sync.",
-    ) {
+    SettingsColumn {
+        PageTitle(uiString(R.string.l10n_backup_sync_screen_backup_sync_81758ffa), onBack ?: { })
+        Text("Save a full backup to a folder you choose - point it at Google Drive / Dropbox for off-device sync.",
+             style = Forge.type.subhead, color = Forge.colors.textSecondary)
         // 1 · Destination folder
-        item {
             NoopCard(padding = 20.dp) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(uiString(R.string.l10n_backup_sync_screen_backup_folder_2a33df93), style = NoopType.headline, color = Palette.textPrimary)
@@ -202,11 +203,9 @@ fun BackupSyncScreen() {
                         onClick = { pickFolder.launch(null) },
                     )
                 }
-            }
         }
 
         // 2 · Auto-backup + back up now
-        item {
             NoopCard(padding = 20.dp, tint = if (auto && treeUri != null) Palette.accent else null) {
                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -221,7 +220,7 @@ fun BackupSyncScreen() {
                             )
                         }
                         Spacer(Modifier.width(16.dp))
-                        Switch(
+                        ToggleCheckbox(
                             checked = auto,
                             enabled = treeUri != null && !busy,
                             onCheckedChange = {
@@ -229,13 +228,6 @@ fun BackupSyncScreen() {
                                 BackupSyncPrefs.setAutoEnabled(context, it)
                                 runCatching { BackupSync.reschedule(context) }
                             },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = Palette.surfaceBase,
-                                checkedTrackColor = Palette.accent,
-                                uncheckedThumbColor = Palette.textSecondary,
-                                uncheckedTrackColor = Palette.surfaceInset,
-                                uncheckedBorderColor = Palette.hairline,
-                            ),
                         )
                     }
                     // Retention: how many dated snapshots to keep. Wired to the existing setKeepCount; the
@@ -367,11 +359,9 @@ fun BackupSyncScreen() {
                         },
                     )
                 }
-            }
         }
 
         // 3 · Restore (must-fix #1: from the chosen folder, newest-first)
-        item {
             NoopCard(padding = 20.dp) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(uiString(R.string.l10n_backup_sync_screen_restore_3cbe6d6b), style = NoopType.headline, color = Palette.textPrimary)
@@ -407,7 +397,6 @@ fun BackupSyncScreen() {
                         },
                     )
                 }
-            }
         }
     }
 
