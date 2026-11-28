@@ -83,11 +83,12 @@ class StressGlanceWidget : GlanceAppWidget() {
 
 // Local widget colours, mirroring the siblings rather than reading Palette: Glance composes outside the
 // app theme, so every widget in this package carries its own copy on purpose.
-private fun stressSurfaceColor(dark: Boolean) = if (dark) Color(0xFF0A1322) else Color(0xFFF4F1EA)
+private fun stressSurface(ctx: Context, dark: Boolean) = ForgeWidgetColors.surface(ctx, dark)
+private fun stressSurfaceColor(ctx: Context, dark: Boolean) = ForgeWidgetColors.surfaceColor(ctx, dark)
 
-private fun stressSurface(dark: Boolean) = ColorProvider(stressSurfaceColor(dark))
-private fun stressTextPrimary(dark: Boolean) = ColorProvider(if (dark) Color(0xFFF4F6F8) else Color(0xFF1A2230))
-private fun stressTextSecondary(dark: Boolean) = ColorProvider(if (dark) Color(0xFF8A94A4) else Color(0xFF7C8696))
+
+private fun stressTextPrimary(dark: Boolean) = ForgeWidgetColors.textPrimary(dark)
+private fun stressTextSecondary(dark: Boolean) = ForgeWidgetColors.textSecondary(dark)
 
 /**
  * The screen's three-stop ramp, as raw colours the renderer can paint with.
@@ -120,13 +121,14 @@ private fun stressChartWidthDp(widthDp: Float): Float =
 
 @Composable
 private fun StressWidgetContent(snap: WidgetSnapshot, dark: Boolean) {
+    val context = LocalContext.current
     val size = LocalSize.current
     val stats = StressTrace.stats(snap.stressSeries)
 
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(stressSurface(dark))
+            .background(stressSurface(context, dark))
             .cornerRadius(16.dp)
             .padding(14.dp)
             .clickable(actionStartActivity<MainActivity>()),
@@ -267,15 +269,15 @@ private fun StressTraceImage(
             calmColor = stressCalm(dark).toArgb(),
             steadyColor = stressSteady(dark).toArgb(),
             tenseColor = stressTense(dark).toArgb(),
-            backgroundColor = stressSurfaceColor(dark).toArgb(),
+            backgroundColor = stressSurfaceColor(context, dark).toArgb(),
             // Composited for the same reason the marks are: the bitmap has no alpha channel, so the
             // translucency has to be resolved against the card before it is handed over.
             fillTopColor = stressSteady(dark).copy(alpha = 0.35f)
-                .compositeOver(stressSurfaceColor(dark)).toArgb(),
+                .compositeOver(stressSurfaceColor(context, dark)).toArgb(),
             // Composited against the card rather than passed as a translucent colour: the bitmap is
             // RGB_565 and has no alpha to fade into, so an alpha here would have drawn solid.
             markColor = stressTextSecondary(dark).getColor(context)
-                .copy(alpha = 0.5f).compositeOver(stressSurfaceColor(dark)).toArgb(),
+                .copy(alpha = 0.5f).compositeOver(stressSurfaceColor(context, dark)).toArgb(),
             strokePx = 2f * density,
         )
     }.getOrNull()

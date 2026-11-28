@@ -46,7 +46,7 @@ class NoopCompactGlanceWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val snap = runCatching { WidgetSnapshotStore.load(context) }.getOrDefault(WidgetSnapshot())
         val dark = WidgetTheme.isDark(context)
-        provideContent { CompactWidgetContent(snap, dark) }
+        provideContent { CompactWidgetContent(context, snap, dark) }
     }
 
     override fun onCompositionError(
@@ -81,7 +81,7 @@ private fun compactEffortColor(dark: Boolean): ColorProvider =
     ColorProvider(if (dark) Color(0xFF4FB6A8) else Color(0xFF2E7D74))
 
 @Composable
-private fun CompactWidgetContent(snap: WidgetSnapshot, dark: Boolean) {
+private fun CompactWidgetContent(ctx: Context, snap: WidgetSnapshot, dark: Boolean) {
     val surface = compactWidgetSurface(dark)
     val textPrimary = compactWidgetTextPrimary(dark)
     val textSecondary = compactWidgetTextSecondary(dark)

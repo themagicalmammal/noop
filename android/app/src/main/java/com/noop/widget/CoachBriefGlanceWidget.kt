@@ -54,10 +54,10 @@ class CoachBriefGlanceWidget : GlanceAppWidget() {
 @Composable
 private fun CoachBriefWidgetContent(briefText: String?, briefDateMs: Long, dark: Boolean) {
     val context = LocalContext.current
-    val surface = ColorProvider(if (dark) Color(0xFF0A1322) else Color(0xFFF4F1EA))
-    val textPrimary = ColorProvider(if (dark) Color(0xFFF4F6F8) else Color(0xFF1A2230))
-    val textSecondary = ColorProvider(if (dark) Color(0xFF8A94A4) else Color(0xFF7C8696))
-    val accent = ColorProvider(if (dark) Color(0xFFE8B84B) else Color(0xFFB07D17))
+    val surface = ForgeWidgetColors.surface(context, dark)
+    val textPrimary = ForgeWidgetColors.textPrimary(dark)
+    val textSecondary = ForgeWidgetColors.textSecondary(dark)
+    val accent = ForgeWidgetColors.accent(context, dark)
 
     Column(
         modifier = GlanceModifier

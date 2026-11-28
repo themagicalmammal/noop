@@ -56,7 +56,7 @@ class NoopGlanceWidget : GlanceAppWidget() {
         // separate process so it can't see the in-app snapshot state). System resolves off the device's
         // night-mode config. Any failure degrades to dark (the historical default).
         val dark = WidgetTheme.isDark(context)
-        provideContent { WidgetContent(snap, dark) }
+        provideContent { WidgetContent(context, snap, dark) }
     }
 
     /** Defence-in-depth, NOT a crash fix: Glance 1.1.0's default already contains composition errors
@@ -76,30 +76,17 @@ class NoopGlanceWidget : GlanceAppWidget() {
     }
 }
 
-// Per-scheme widget colours (mirror the app palette; deepened gold/amber/orange on light for contrast
-// on the warm-paper card). The widget is a separate surface, so these are local — not Palette reads.
-private fun widgetSurface(dark: Boolean) = ColorProvider(if (dark) Color(0xFF0A1322) else Color(0xFFF4F1EA))
-private fun widgetTextPrimary(dark: Boolean) = ColorProvider(if (dark) Color(0xFFF4F6F8) else Color(0xFF1A2230))
-private fun widgetTextSecondary(dark: Boolean) = ColorProvider(if (dark) Color(0xFF8A94A4) else Color(0xFF7C8696))
-
-/** Recovery-band colour, the app-wide 67 / 34 cuts (RecoveryScorer.band); deepened on light. Charge and
- *  Rest both read on the recovery band in the app, so they share this. */
-private fun bandColor(recovery: Int, dark: Boolean): ColorProvider = ColorProvider(
-    when {
-        recovery >= 67 -> if (dark) Color(0xFFE8B84B) else Color(0xFFB07D17)
-        recovery >= 34 -> if (dark) Color(0xFFD98A3D) else Color(0xFFC2792E)
-        else -> if (dark) Color(0xFFE0662F) else Color(0xFFC84E1E)
-    },
-)
-
-/** Effort tint — the app's strain colour (Palette.strain066), a distinct teal so Effort doesn't read as
- *  another recovery band. Deepened on light for contrast on the warm-paper card. (#516) */
-private fun effortColor(dark: Boolean): ColorProvider =
-    ColorProvider(if (dark) Color(0xFF4FB6A8) else Color(0xFF2E7D74))
+// Per-scheme widget colours, resolved from the Forge colour profile so the widget wears the
+// same skin as the app — Colourful, Stone, Slate or Sage — rather than the old Titanium & Gold.
+private fun widgetSurface(ctx: Context, dark: Boolean) = ForgeWidgetColors.surface(ctx, dark)
+private fun widgetTextPrimary(dark: Boolean) = ForgeWidgetColors.textPrimary(dark)
+private fun widgetTextSecondary(dark: Boolean) = ForgeWidgetColors.textSecondary(dark)
+private fun bandColor(recovery: Int, dark: Boolean): ColorProvider = ForgeWidgetColors.band(recovery, dark)
+private fun effortColor(dark: Boolean): ColorProvider = ForgeWidgetColors.effort(dark)
 
 @Composable
-private fun WidgetContent(snap: WidgetSnapshot, dark: Boolean) {
-    val surface = widgetSurface(dark)
+private fun WidgetContent(ctx: Context, snap: WidgetSnapshot, dark: Boolean) {
+    val surface = widgetSurface(ctx, dark)
     val textPrimary = widgetTextPrimary(dark)
     val textSecondary = widgetTextSecondary(dark)
     Column(

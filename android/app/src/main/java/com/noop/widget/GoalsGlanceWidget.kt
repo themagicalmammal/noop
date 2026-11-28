@@ -97,11 +97,11 @@ class GoalsWidgetReceiver : GlanceAppWidgetReceiver() {
 @Composable
 private fun GoalsWidgetContent(goals: List<GoalsGlanceWidget.Goal>, summary: String, dark: Boolean) {
     val context = LocalContext.current
-    val surface = ColorProvider(if (dark) Color(0xFF0A1322) else Color(0xFFF4F1EA))
-    val textPrimary = ColorProvider(if (dark) Color(0xFFF4F6F8) else Color(0xFF1A2230))
-    val textSecondary = ColorProvider(if (dark) Color(0xFF8A94A4) else Color(0xFF7C8696))
-    val accent = if (dark) Color(0xFF4F9BFF) else Color(0xFF0A6CFF)
-    val track = if (dark) Color(0xFF243044) else Color(0xFFE2E6EC)
+    val surface = ForgeWidgetColors.surface(context, dark)
+    val textPrimary = ForgeWidgetColors.textPrimary(dark)
+    val textSecondary = ForgeWidgetColors.textSecondary(dark)
+    val accent = ForgeWidgetColors.accent(context, dark).getColor(context)
+    val track = ForgeWidgetColors.textSecondary(dark).getColor(context).copy(alpha = 0.3f)
     Column(
         modifier = GlanceModifier.fillMaxSize().background(surface).cornerRadius(16.dp)
             .clickable(actionStartActivity<MainActivity>()).padding(horizontal = 14.dp, vertical = 12.dp),
