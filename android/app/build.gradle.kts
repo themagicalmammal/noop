@@ -72,6 +72,12 @@ android {
         // Read through `BuildIdentity`, never directly: the strap log and the UI footer have to name the
         // same build, and two readouts of one fact that can be composed separately are how they stop doing so.
         buildConfigField("String", "BUILD_STAMP", "\"$forkBuildStamp\"")
+        ndk {
+            // The Swift core (libNoopCore.so) is arm64-v8a only (swift-core/build-swift-core.sh builds
+            // aarch64 exclusively); shipping other ABIs only pads the APK with Tesseract libs for
+            // architectures the core can't run on.
+            abiFilters += "arm64-v8a"
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -318,7 +324,6 @@ dependencies {
 
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
 
